@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard · Ridge Run</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-tint: #f8fafc;
+    --bg-blue: #eff6ff;
+    --bg-blue-soft: #f0f7ff;
+    --border: #e2e8f0;
+    --border-blue: #bfdbfe;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-dim: #94a3b8;
+    --accent: #2563eb;
+    --accent-dark: #1e40af;
+    --accent-bg: #dbeafe;
+    --success: #059669;
+    --success-bg: #d1fae5;
+    --warning: #d97706;
+    --warning-bg: #fed7aa;
+    --danger: #dc2626;
+    --danger-bg: #fee2e2;
+    --serif: 'Source Serif 4', Georgia, serif;
+    --sans: 'Inter', -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh; background: var(--bg-tint);
+    font-family: var(--sans); color: var(--text); font-size: 14px;
+    line-height: 1.5;
+  }
+  .hidden { display: none !important; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 0 24px; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    font-family: var(--serif); font-size: 22px; font-weight: 600;
+    color: var(--accent); letter-spacing: -0.02em;
+  }
+  .brand-name {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-muted);
+  }
+  .topbar-nav { display: flex; align-items: center; gap: 4px; }
+  .nav-link {
+    padding: 8px 12px; border-radius: 4px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .nav-link:hover { background: var(--bg-tint); color: var(--text); text-decoration: none; }
+  .nav-link.active { background: var(--bg-blue); color: var(--accent-dark); }
+  .topbar-user { display: flex; align-items: center; gap: 12px; }
+  .user-email {
+    font-family: var(--mono); font-size: 11px; color: var(--text-muted);
+  }
+  .signout-btn {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-dim);
+    background: transparent; border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 4px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .signout-btn:hover { border-color: var(--text-dim); color: var(--text-muted); }
+
+  /* ===== Layout ===== */
+  .page {
+    max-width: 1280px; margin: 0 auto;
+    padding: 32px 24px;
+  }
+  .page-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .page-title {
+    font-family: var(--serif); font-size: 32px; font-weight: 500;
+    letter-spacing: -0.02em; color: var(--text); margin: 0;
+  }
+  .page-meta {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+    color: var(--text-dim); text-transform: uppercase;
+  }
+
+  /* ===== Cards ===== */
+  .card {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 20px;
+  }
+  .card-blue {
+    background: var(--bg-blue-soft); border-color: var(--border-blue);
+  }
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-muted); margin: 0;
+  }
+  .card-action {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .card-action:hover { color: var(--accent-dark); }
+
+  /* ===== Grid layouts ===== */
+  .grid-status {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 20px;
+    margin-bottom: 20px;
+  }
+  .grid-main {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 20px;
+  }
+  @media (max-width: 880px) {
+    .grid-status, .grid-main { grid-template-columns: 1fr; }
+  }
+
+  /* ===== Status / Hero card ===== */
+  .hero {
+    padding: 28px 32px;
+  }
+  .hero-eyebrow {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
+  }
+  .hero-title {
+    font-family: var(--serif); font-size: 26px; font-weight: 500;
+    letter-spacing: -0.015em; margin: 0 0 8px;
+  }
+  .hero-body {
+    color: var(--text-muted); font-size: 14px; line-height: 1.6;
+    margin: 0 0 18px; max-width: 640px;
+  }
+  .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* ===== Buttons ===== */
+  .btn {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 10px 16px; border-radius: 4px;
+    cursor: pointer; transition: all 0.15s; border: 1px solid transparent;
+    font-weight: 500;
+  }
+  .btn-primary {
+    background: var(--accent); color: white;
+  }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-ghost {
+    background: var(--bg); color: var(--text-muted); border-color: var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--text-dim); color: var(--text); }
+
+  /* ===== Status indicator ===== */
+  .status-row {
+    display: flex; align-items: center; gap: 14px; padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .status-row:last-child { border-bottom: none; }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .status-dot.green { background: var(--success); box-shadow: 0 0 0 4px var(--success-bg); }
+  .status-dot.amber { background: var(--warning); box-shadow: 0 0 0 4px var(--warning-bg); }
+  .status-dot.red { background: var(--danger); box-shadow: 0 0 0 4px var(--danger-bg); }
+  .status-dot.gray { background: var(--text-dim); box-shadow: 0 0 0 4px var(--bg-tint); }
+  .status-text {
+    flex: 1; font-size: 13px;
+  }
+  .status-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-dim); display: block;
+    margin-bottom: 2px;
+  }
+  .status-value { color: var(--text); font-weight: 500; }
+
+  /* ===== DNA preview card ===== */
+  .dna-preview {
+    padding: 0;
+  }
+  .dna-section {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .dna-section:last-child { border-bottom: none; }
+  .dna-section-title {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-muted); margin: 0 0 10px;
+  }
+  .tag {
+    display: inline-block; padding: 4px 10px; margin: 2px 4px 2px 0;
+    background: var(--bg-blue); color: var(--accent-dark);
+    font-size: 12px; border-radius: 3px;
+    border: 1px solid var(--border-blue);
+  }
+  .tag-warning { background: var(--warning-bg); color: #92400e; border-color: #fed7aa; }
+  .tag-danger { background: var(--danger-bg); color: #991b1b; border-color: #fecaca; }
+
+  /* ===== Limits table ===== */
+  .limit-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .limit-row:last-child { border-bottom: none; }
+  .limit-label { color: var(--text-muted); }
+  .limit-value {
+    font-family: var(--mono); font-weight: 500; color: var(--text);
+  }
+
+  /* ===== Empty states ===== */
+  .empty {
+    text-align: center; padding: 32px 20px;
+    color: var(--text-muted); font-size: 13px;
+  }
+  .empty-mark {
+    font-family: var(--serif); font-size: 32px; color: var(--text-dim);
+    margin-bottom: 8px; opacity: 0.5;
+  }
+
+  /* ===== Auth gate ===== */
+  .gate {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: var(--bg-tint);
+  }
+  .gate-content { text-align: center; max-width: 360px; }
+  .gate p { color: var(--text-muted); margin: 0 0 20px; }
+
+  /* ===== Loading ===== */
+  .loading {
+    text-align: center; padding: 60px 20px;
+    color: var(--text-muted); font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Auth gate (shown when not signed in) ===== -->
+<div id="gate" class="gate hidden">
+  <div class="gate-content">
+    <div class="brand-mark" style="font-size: 32px; margin-bottom: 12px;">RR</div>
+    <p>You must be signed in to view the dashboard.</p>
+    <a href="/" class="btn btn-primary">Go to sign in</a>
+  </div>
+</div>
+
+<!-- ===== Loading ===== -->
+<div id="loading" class="loading">Loading dashboard…</div>
+
+<!-- ===== Main app ===== -->
+<div id="app" class="hidden">
+  <nav class="topbar">
+    <div class="topbar-brand">
+      <span class="brand-mark">RR</span>
+      <span class="brand-name">Ridge Run</span>
+    </div>
+    <div class="topbar-nav">
+      <a href="/dashboard.html" class="nav-link active">Dashboard</a>
+      <a href="/dna.html" class="nav-link">Investor DNA</a>
+      <a href="/watchlist.html" class="nav-link">Watchlist</a>
+    </div>
+    <div class="topbar-user">
+      <span class="user-email" id="user-email"></span>
+      <button class="signout-btn" id="signout-btn">Sign out</button>
+    </div>
+  </nav>
+
+  <main class="page">
+    <header class="page-header">
+      <h1 class="page-title">Command Center</h1>
+      <div class="page-meta" id="page-meta"></div>
+    </header>
+
+    <!-- Status row -->
+    <section class="grid-status">
+      <!-- Hero / next action -->
+      <div id="hero-card" class="card card-blue hero">
+        <!-- Filled by JS based on user state -->
+      </div>
+      <!-- System status -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">System Status</h3>
+        </div>
+        <div id="status-rows">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Main row -->
+    <section class="grid-main">
+      <!-- Investor DNA summary -->
+      <div class="card dna-preview">
+        <div class="card-header" style="padding: 18px 20px 0;">
+          <h3 class="card-title">Investor DNA</h3>
+          <a href="/dna.html" class="card-action">View full →</a>
+        </div>
+        <div id="dna-content">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+      <!-- Active guardrails snapshot -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Active Guardrails</h3>
+          <a href="/dna.html#guardrails" class="card-action">Edit →</a>
+        </div>
+        <div id="guardrails-content">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const SUPABASE_URL = 'https://nrbffnsheenmewijeapb.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_WjDoqgd4_eDE1lpfZHkT0g_cyArLkvI';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const $ = id => document.getElementById(id);
+const show = (id, on = true) => $(id).classList.toggle('hidden', !on);
+
+// ============================================================
+// BOOTSTRAP
+// ============================================================
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) {
+    show('loading', false);
+    show('gate', true);
+    return;
+  }
+  await loadDashboard(session.user);
+})();
+
+$('signout-btn').addEventListener('click', async () => {
+  await supabase.auth.signOut();
+  window.location.href = '/';
+});
+
+// ============================================================
+// LOAD DASHBOARD DATA
+// ============================================================
+async function loadDashboard(user) {
+  $('user-email').textContent = user.email;
+
+  // Update meta
+  const now = new Date();
+  $('page-meta').textContent = now.toLocaleDateString('en-US', {
+    weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+  }) + ' · ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+
+  // Fetch user profile, onboarding status, DNA, guardrails in parallel
+  const [profileRes, dnaRes, guardrailsRes, sessionRes] = await Promise.all([
+    supabase.from('users').select('*').eq('id', user.id).maybeSingle(),
+    supabase.from('investor_dna').select('*').eq('user_id', user.id).eq('is_active', true).order('version', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('guardrail_policies').select('*').eq('user_id', user.id).eq('is_active', true).order('version', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('onboarding_sessions').select('*').eq('user_id', user.id).order('started_at', { ascending: false }).limit(1).maybeSingle()
+  ]);
+
+  const profile = profileRes.data;
+  const dna = dnaRes.data;
+  const guardrails = guardrailsRes.data;
+  const onboardingSession = sessionRes.data;
+
+  renderHero(profile, dna, onboardingSession);
+  renderStatus(profile, dna, guardrails, onboardingSession);
+  renderDNA(dna);
+  renderGuardrails(guardrails);
+
+  show('loading', false);
+  show('app', true);
+}
+
+// ============================================================
+// HERO CARD — context-dependent next action
+// ============================================================
+function renderHero(profile, dna, session) {
+  const card = $('hero-card');
+  const status = profile?.onboarding_status || 'not_started';
+
+  if (status === 'not_started' || (status === 'in_progress' && !session)) {
+    card.innerHTML = `
+      <div class="hero-eyebrow">Get Started</div>
+      <h2 class="hero-title">Build your investor DNA profile</h2>
+      <p class="hero-body">The system needs your answers to 36 questions before any guardrail or recommendation can be calibrated. About 10 minutes.</p>
+      <div class="hero-actions">
+        <a href="/" class="btn btn-primary">Begin onboarding</a>
+      </div>
+    `;
+  } else if (status === 'in_progress') {
+    card.innerHTML = `
+      <div class="hero-eyebrow">In Progress</div>
+      <h2 class="hero-title">Continue your onboarding</h2>
+      <p class="hero-body">Your investor DNA can't be generated until all required questions are answered. Pick up where you left off.</p>
+      <div class="hero-actions">
+        <a href="/" class="btn btn-primary">Resume onboarding</a>
+      </div>
+    `;
+  } else if (status === 'completed' && !dna) {
+    card.innerHTML = `
+      <div class="hero-eyebrow">Processing</div>
+      <h2 class="hero-title">Generating your investor DNA</h2>
+      <p class="hero-body">Onboarding is complete. The AI is synthesizing your responses into a structured profile and draft guardrail policy. This typically takes under a minute.</p>
+      <div class="hero-actions">
+        <button class="btn btn-ghost" onclick="window.location.reload()">Refresh</button>
+      </div>
+    `;
+  } else {
+    // Fully onboarded with DNA
+    card.innerHTML = `
+      <div class="hero-eyebrow">Today</div>
+      <h2 class="hero-title">No required actions</h2>
+      <p class="hero-body">${dna.profile?.profile_summary || 'Your investor DNA profile is active and guardrails are enforced. The morning briefing workflow is not yet built — that comes in batch 2.'}</p>
+      <div class="hero-actions">
+        <a href="/dna.html" class="btn btn-primary">Review DNA profile</a>
+        <a href="/watchlist.html" class="btn btn-ghost">Manage watchlist</a>
+      </div>
+    `;
+  }
+}
+
+// ============================================================
+// SYSTEM STATUS
+// ============================================================
+function renderStatus(profile, dna, guardrails, session) {
+  const rows = [];
+
+  // Onboarding
+  if (profile?.onboarding_status === 'completed') {
+    rows.push({ dot: 'green', label: 'Onboarding', value: 'Complete' });
+  } else if (profile?.onboarding_status === 'in_progress') {
+    rows.push({ dot: 'amber', label: 'Onboarding', value: 'In progress' });
+  } else {
+    rows.push({ dot: 'gray', label: 'Onboarding', value: 'Not started' });
+  }
+
+  // DNA
+  if (dna) {
+    const age = Math.floor((Date.now() - new Date(dna.created_at)) / 86400000);
+    rows.push({ dot: 'green', label: 'Investor DNA', value: `Active (v${dna.version}, ${age === 0 ? 'today' : age + 'd ago'})` });
+  } else {
+    rows.push({ dot: 'gray', label: 'Investor DNA', value: 'Not generated' });
+  }
+
+  // Guardrails
+  if (guardrails) {
+    rows.push({ dot: 'green', label: 'Guardrails', value: `v${guardrails.version} active` });
+  } else {
+    rows.push({ dot: 'gray', label: 'Guardrails', value: 'Not set' });
+  }
+
+  // Portfolio (not yet built)
+  rows.push({ dot: 'gray', label: 'Portfolio', value: 'Not connected (Phase 3)' });
+
+  // Risk monitor (not yet built)
+  rows.push({ dot: 'gray', label: 'Risk monitor', value: 'Not running (Phase 3)' });
+
+  $('status-rows').innerHTML = rows.map(r => `
+    <div class="status-row">
+      <span class="status-dot ${r.dot}"></span>
+      <div class="status-text">
+        <span class="status-label">${r.label}</span>
+        <span class="status-value">${r.value}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// DNA SUMMARY
+// ============================================================
+function renderDNA(dna) {
+  if (!dna) {
+    $('dna-content').innerHTML = `
+      <div class="empty">
+        <div class="empty-mark">—</div>
+        Complete onboarding to generate your investor DNA profile.
+      </div>
+    `;
+    return;
+  }
+  const p = dna.profile || {};
+  const strengths = dna.strengths || [];
+  const weaknesses = dna.weaknesses || [];
+  const warnings = dna.behavioral_warnings || [];
+
+  $('dna-content').innerHTML = `
+    <div class="dna-section">
+      <h4 class="dna-section-title">Summary</h4>
+      <p style="margin: 0; color: var(--text); line-height: 1.6;">${p.profile_summary || 'No summary available.'}</p>
+    </div>
+    ${strengths.length ? `
+      <div class="dna-section">
+        <h4 class="dna-section-title">Strengths</h4>
+        <div>${strengths.map(s => `<span class="tag">${escapeHtml(s)}</span>`).join('')}</div>
+      </div>
+    ` : ''}
+    ${weaknesses.length ? `
+      <div class="dna-section">
+        <h4 class="dna-section-title">Weaknesses</h4>
+        <div>${weaknesses.map(w => `<span class="tag tag-warning">${escapeHtml(w)}</span>`).join('')}</div>
+      </div>
+    ` : ''}
+    ${warnings.length ? `
+      <div class="dna-section">
+        <h4 class="dna-section-title">Behavioral Warnings</h4>
+        <div>${warnings.map(w => `<span class="tag tag-danger">${escapeHtml(w)}</span>`).join('')}</div>
+      </div>
+    ` : ''}
+  `;
+}
+
+// ============================================================
+// GUARDRAILS SUMMARY
+// ============================================================
+function renderGuardrails(guardrails) {
+  if (!guardrails) {
+    $('guardrails-content').innerHTML = `
+      <div class="empty">
+        <div class="empty-mark">—</div>
+        Guardrails are set after investor DNA generation.
+      </div>
+    `;
+    return;
+  }
+  const h = guardrails.hard_limits || {};
+  const limits = [
+    { label: 'Max single name', value: h.max_single_name_pct, suffix: '%' },
+    { label: 'Max gross exposure', value: h.max_gross_exposure_pct, suffix: '%' },
+    { label: 'Max options at risk', value: h.max_options_premium_pct, suffix: '%' },
+    { label: 'Drawdown alert', value: h.max_drawdown_alert_pct, suffix: '%' },
+    { label: 'Forced de-risk', value: h.forced_de_risk_drawdown_pct, suffix: '%' },
+    { label: 'Naked puts', value: h.naked_puts_permitted === true ? 'Permitted' : 'Blocked' },
+    { label: 'Margin', value: h.margin_permitted === true ? 'Permitted' : 'Blocked' }
+  ].filter(l => l.value !== undefined && l.value !== null);
+
+  $('guardrails-content').innerHTML = limits.map(l => `
+    <div class="limit-row">
+      <span class="limit-label">${l.label}</span>
+      <span class="limit-value">${l.suffix === '%' ? l.value + '%' : l.value}</span>
+    </div>
+  `).join('') || '<div class="empty">No active limits.</div>';
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+</script>
+</body>
+</html>
