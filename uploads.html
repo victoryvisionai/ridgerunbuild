@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Watchlist · Ridge Run</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-tint: #f8fafc;
+    --bg-blue: #eff6ff;
+    --bg-blue-soft: #f0f7ff;
+    --border: #e2e8f0;
+    --border-blue: #bfdbfe;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-dim: #94a3b8;
+    --accent: #2563eb;
+    --accent-dark: #1e40af;
+    --accent-bg: #dbeafe;
+    --success: #059669;
+    --success-bg: #d1fae5;
+    --warning: #d97706;
+    --warning-bg: #fed7aa;
+    --danger: #dc2626;
+    --danger-bg: #fee2e2;
+    --serif: 'Source Serif 4', Georgia, serif;
+    --sans: 'Inter', -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh; background: var(--bg-tint);
+    font-family: var(--sans); color: var(--text); font-size: 14px;
+    line-height: 1.5;
+  }
+  .hidden { display: none !important; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  /* Topbar styles live in nav.js (shared) */
+
+  /* ===== Page ===== */
+  .page { max-width: 1280px; margin: 0 auto; padding: 32px 24px; }
+  .page-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .page-title {
+    font-family: var(--serif); font-size: 32px; font-weight: 500;
+    letter-spacing: -0.02em; color: var(--text); margin: 0;
+  }
+  .page-subtitle {
+    color: var(--text-muted); margin: 6px 0 0; font-size: 14px;
+  }
+
+  /* ===== Tabs ===== */
+  .tabs {
+    display: flex; gap: 0; border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .tab {
+    padding: 12px 16px; cursor: pointer;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-muted);
+    background: transparent; border: none; border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent-dark); border-bottom-color: var(--accent); }
+  .tab-count {
+    font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+    margin-left: 6px;
+  }
+
+  /* ===== Add bar ===== */
+  .add-bar {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 16px; margin-bottom: 20px;
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .add-bar .input-group { display: flex; gap: 8px; flex: 1; min-width: 240px; }
+  .input {
+    flex: 1; min-width: 0;
+    background: var(--bg); border: 1px solid var(--border);
+    padding: 9px 12px; font-size: 13px; font-family: var(--sans);
+    border-radius: 4px; color: var(--text);
+  }
+  .input:focus { outline: none; border-color: var(--accent); }
+  .select {
+    background: var(--bg); border: 1px solid var(--border);
+    padding: 9px 12px; font-size: 13px; font-family: var(--sans);
+    border-radius: 4px; color: var(--text);
+  }
+  .btn {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 9px 14px; border-radius: 4px;
+    cursor: pointer; transition: all 0.15s; border: 1px solid transparent;
+    font-weight: 500;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-ghost {
+    background: var(--bg); color: var(--text-muted); border-color: var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--text-dim); color: var(--text); }
+  .btn-danger {
+    background: transparent; color: var(--danger); border-color: transparent;
+    padding: 4px 8px; font-size: 10px;
+  }
+  .btn-danger:hover { background: var(--danger-bg); }
+
+  /* ===== List ===== */
+  .list {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; overflow: hidden;
+  }
+  .list-item {
+    padding: 14px 18px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 16px;
+  }
+  .list-item:last-child { border-bottom: none; }
+  .list-item:hover { background: var(--bg-tint); }
+  .list-item-main { flex: 1; min-width: 0; }
+  .list-item-title { font-weight: 500; color: var(--text); margin: 0 0 2px; }
+  .list-item-sub {
+    font-family: var(--mono); font-size: 11px; color: var(--text-muted);
+    margin: 0;
+  }
+  .list-item-meta {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .pill {
+    display: inline-block; padding: 3px 8px; border-radius: 3px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pill-blue { background: var(--bg-blue); color: var(--accent-dark); }
+  .pill-green { background: var(--success-bg); color: #065f46; }
+  .pill-amber { background: var(--warning-bg); color: #92400e; }
+  .pill-gray { background: var(--bg-tint); color: var(--text-muted); }
+
+  /* ===== Empty ===== */
+  .empty {
+    background: var(--bg); border: 1px dashed var(--border);
+    border-radius: 6px; padding: 40px 20px; text-align: center;
+    color: var(--text-muted); font-size: 13px;
+  }
+  .empty-mark {
+    font-family: var(--serif); font-size: 40px; color: var(--text-dim);
+    margin-bottom: 8px; opacity: 0.5;
+  }
+
+  /* ===== Info banner ===== */
+  .banner {
+    background: var(--bg-blue-soft); border: 1px solid var(--border-blue);
+    border-radius: 6px; padding: 14px 18px; margin-bottom: 20px;
+    font-size: 13px; color: var(--accent-dark);
+  }
+  .banner b { color: var(--accent-dark); }
+
+  /* ===== Gate / loading ===== */
+  .gate {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  }
+  .gate-content { text-align: center; max-width: 360px; }
+  .gate p { color: var(--text-muted); margin: 0 0 20px; }
+  .loading {
+    text-align: center; padding: 60px 20px;
+    color: var(--text-muted); font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+  }
+  .msg {
+    margin-bottom: 16px; padding: 10px 14px; font-size: 13px;
+    border-radius: 4px;
+  }
+  .msg-error { background: var(--danger-bg); color: #991b1b; border: 1px solid #fecaca; }
+  .msg-success { background: var(--success-bg); color: #065f46; border: 1px solid #a7f3d0; }
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate hidden">
+  <div class="gate-content">
+    <div class="brand-mark" style="font-size: 32px; margin-bottom: 12px;">RR</div>
+    <p>You must be signed in.</p>
+    <a href="/" class="btn btn-primary">Sign in</a>
+  </div>
+</div>
+
+<div id="loading" class="loading">Loading watchlists…</div>
+
+<div id="app" class="hidden">
+  <div id="rr-nav-container"></div>
+
+  <main class="page">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">Watchlist</h1>
+        <p class="page-subtitle">Investors and tickers monitored for SEC filings, 13F changes, and price moves.</p>
+      </div>
+    </header>
+
+    <div class="banner" id="import-banner" style="display:none;">
+      <b>Tip:</b> Your onboarding answers (Q32 & Q33) listed investors to monitor.
+      <a href="#" id="import-link" style="text-decoration: underline;">Import them now →</a>
+    </div>
+
+    <div id="msg-area"></div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="investors">
+        Investors <span class="tab-count" id="investor-count"></span>
+      </button>
+      <button class="tab" data-tab="tickers">
+        Tickers <span class="tab-count" id="ticker-count"></span>
+      </button>
+    </div>
+
+    <!-- Investors tab -->
+    <div id="tab-investors">
+      <div class="add-bar">
+        <div class="input-group">
+          <input class="input" id="inv-name" placeholder="Investor name (e.g. Stanley Druckenmiller)" />
+          <input class="input" id="inv-fund" placeholder="Fund name (e.g. Duquesne)" style="max-width: 220px;" />
+        </div>
+        <select class="select" id="inv-frequency">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="quarterly">Quarterly</option>
+        </select>
+        <select class="select" id="inv-treatment">
+          <option value="research_lead">Research lead</option>
+          <option value="confirmation">Confirmation</option>
+          <option value="clone_selective">Clone selective</option>
+          <option value="clone_broad">Clone broad</option>
+          <option value="fade">Fade</option>
+        </select>
+        <button class="btn btn-primary" id="inv-add">Add</button>
+      </div>
+
+      <div id="investors-list"></div>
+    </div>
+
+    <!-- Tickers tab -->
+    <div id="tab-tickers" class="hidden">
+      <div class="add-bar">
+        <div class="input-group">
+          <input class="input" id="tic-ticker" placeholder="Ticker (e.g. PYPL)" style="max-width: 140px;" />
+          <input class="input" id="tic-company" placeholder="Company name (optional)" />
+        </div>
+        <select class="select" id="tic-reason">
+          <option value="researching">Researching</option>
+          <option value="owned">Owned</option>
+          <option value="thesis_in_progress">Thesis in progress</option>
+          <option value="post_mortem">Post-mortem</option>
+        </select>
+        <button class="btn btn-primary" id="tic-add">Add</button>
+      </div>
+
+      <div id="tickers-list"></div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/nav.js"></script>
+<script>
+const SUPABASE_URL = 'https://nrbffnsheenmewijeapb.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_WjDoqgd4_eDE1lpfZHkT0g_cyArLkvI';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const $ = id => document.getElementById(id);
+const show = (id, on = true) => $(id).classList.toggle('hidden', !on);
+const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let currentUser = null;
+
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) {
+    show('loading', false); show('gate', true);
+    return;
+  }
+  currentUser = session.user;
+  RidgeRunNav.mount({ active: 'watchlist', supabase });
+  await loadAll();
+  show('loading', false);
+  show('app', true);
+
+  // Check for unprocessed onboarding investors
+  await checkOnboardingImport();
+})();
+
+// nav.js handles signout
+// Tab switching
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    show('tab-investors', t.dataset.tab === 'investors');
+    show('tab-tickers', t.dataset.tab === 'tickers');
+  });
+});
+
+// ===== LOAD =====
+async function loadAll() {
+  await Promise.all([loadInvestors(), loadTickers()]);
+}
+
+async function loadInvestors() {
+  const { data, error } = await supabase
+    .from('investor_watchlist')
+    .select('*')
+    .eq('is_active', true)
+    .order('investor_name', { ascending: true });
+
+  if (error) return showMsg('Failed to load investors: ' + error.message, 'error');
+
+  $('investor-count').textContent = `(${data?.length || 0})`;
+
+  if (!data || data.length === 0) {
+    $('investors-list').innerHTML = `
+      <div class="empty">
+        <div class="empty-mark">—</div>
+        No investors on your watchlist yet. Add one above.
+      </div>
+    `;
+    return;
+  }
+
+  $('investors-list').innerHTML = '<div class="list">' + data.map(inv => `
+    <div class="list-item">
+      <div class="list-item-main">
+        <p class="list-item-title">${escapeHtml(inv.investor_name)}</p>
+        <p class="list-item-sub">${inv.fund_name ? escapeHtml(inv.fund_name) : 'No fund'} ${inv.cik ? '· CIK ' + inv.cik : '· CIK pending'}</p>
+      </div>
+      <div class="list-item-meta">
+        <span class="pill ${freqClass(inv.monitor_frequency)}">${inv.monitor_frequency}</span>
+        <span class="pill pill-gray">${inv.signal_treatment.replace(/_/g, ' ')}</span>
+        <button class="btn btn-danger" data-id="${inv.id}" data-kind="investor">Remove</button>
+      </div>
+    </div>
+  `).join('') + '</div>';
+
+  // Wire remove buttons
+  $('investors-list').querySelectorAll('.btn-danger').forEach(b => {
+    b.addEventListener('click', () => removeItem(b.dataset.id, 'investor'));
+  });
+}
+
+async function loadTickers() {
+  const { data, error } = await supabase
+    .from('ticker_watchlist')
+    .select('*')
+    .eq('is_active', true)
+    .order('ticker', { ascending: true });
+
+  if (error) return showMsg('Failed to load tickers: ' + error.message, 'error');
+
+  $('ticker-count').textContent = `(${data?.length || 0})`;
+
+  if (!data || data.length === 0) {
+    $('tickers-list').innerHTML = `
+      <div class="empty">
+        <div class="empty-mark">—</div>
+        No tickers on your watchlist yet. Add one above.
+      </div>
+    `;
+    return;
+  }
+
+  $('tickers-list').innerHTML = '<div class="list">' + data.map(t => `
+    <div class="list-item">
+      <div class="list-item-main">
+        <p class="list-item-title">${escapeHtml(t.ticker)} ${t.company_name ? `<span style="font-weight: 400; color: var(--text-muted);">· ${escapeHtml(t.company_name)}</span>` : ''}</p>
+        <p class="list-item-sub">${t.cik ? 'CIK ' + t.cik : 'CIK pending'} · Added ${new Date(t.added_at).toLocaleDateString()}</p>
+      </div>
+      <div class="list-item-meta">
+        <span class="pill ${reasonClass(t.reason)}">${(t.reason || 'unknown').replace(/_/g, ' ')}</span>
+        <button class="btn btn-danger" data-id="${t.id}" data-kind="ticker">Remove</button>
+      </div>
+    </div>
+  `).join('') + '</div>';
+
+  $('tickers-list').querySelectorAll('.btn-danger').forEach(b => {
+    b.addEventListener('click', () => removeItem(b.dataset.id, 'ticker'));
+  });
+}
+
+function freqClass(f) {
+  return f === 'daily' ? 'pill-blue' : f === 'weekly' ? 'pill-green' : 'pill-amber';
+}
+function reasonClass(r) {
+  return r === 'owned' ? 'pill-green' : r === 'thesis_in_progress' ? 'pill-blue' : 'pill-gray';
+}
+
+// ===== ADD =====
+$('inv-add').addEventListener('click', async () => {
+  const name = $('inv-name').value.trim();
+  const fund = $('inv-fund').value.trim();
+  if (!name) return showMsg('Investor name is required.', 'error');
+
+  const { error } = await supabase.from('investor_watchlist').insert({
+    user_id: currentUser.id,
+    investor_name: name,
+    fund_name: fund || null,
+    monitor_frequency: $('inv-frequency').value,
+    signal_treatment: $('inv-treatment').value
+  });
+
+  if (error) return showMsg('Failed to add: ' + error.message, 'error');
+
+  $('inv-name').value = ''; $('inv-fund').value = '';
+  showMsg('Added.', 'success');
+  await loadInvestors();
+});
+
+$('tic-add').addEventListener('click', async () => {
+  const ticker = $('tic-ticker').value.trim().toUpperCase();
+  const company = $('tic-company').value.trim();
+  if (!ticker) return showMsg('Ticker is required.', 'error');
+
+  const { error } = await supabase.from('ticker_watchlist').insert({
+    user_id: currentUser.id,
+    ticker,
+    company_name: company || null,
+    reason: $('tic-reason').value
+  });
+
+  if (error) {
+    if (error.code === '23505') return showMsg('That ticker is already on your watchlist.', 'error');
+    return showMsg('Failed to add: ' + error.message, 'error');
+  }
+
+  $('tic-ticker').value = ''; $('tic-company').value = '';
+  showMsg('Added.', 'success');
+  await loadTickers();
+});
+
+// ===== REMOVE =====
+async function removeItem(id, kind) {
+  const table = kind === 'investor' ? 'investor_watchlist' : 'ticker_watchlist';
+  if (!confirm('Remove this item from the watchlist?')) return;
+  const { error } = await supabase.from(table).update({ is_active: false }).eq('id', id);
+  if (error) return showMsg('Failed to remove: ' + error.message, 'error');
+  showMsg('Removed.', 'success');
+  if (kind === 'investor') await loadInvestors();
+  else await loadTickers();
+}
+
+// ===== IMPORT FROM ONBOARDING =====
+async function checkOnboardingImport() {
+  // Get onboarding answers for Q32 (daily investors) and Q33 (quarterly)
+  const { data: responses } = await supabase
+    .from('onboarding_responses')
+    .select('question_id, answer')
+    .in('question_id', ['q32_daily_investors', 'q33_quarterly_investors'])
+    .eq('user_id', currentUser.id);
+
+  if (!responses || responses.length === 0) return;
+
+  // Get current watchlist to check what's already imported
+  const { data: existing } = await supabase
+    .from('investor_watchlist')
+    .select('investor_name')
+    .eq('user_id', currentUser.id);
+  const existingNames = new Set((existing || []).map(e => e.investor_name.toLowerCase()));
+
+  // Build pending import list
+  const pending = [];
+  for (const r of responses) {
+    const list = r.answer?.value;
+    if (!Array.isArray(list)) continue;
+    const freq = r.question_id === 'q32_daily_investors' ? 'daily' : 'quarterly';
+    for (const entry of list) {
+      // Entry might be "Stanley Druckenmiller / Duquesne" — split if so
+      const [name, fund] = entry.split('/').map(s => s.trim());
+      if (!name || existingNames.has(name.toLowerCase())) continue;
+      pending.push({ name, fund: fund || null, freq });
+    }
+  }
+
+  if (pending.length === 0) return;
+
+  $('import-banner').style.display = 'block';
+  $('import-banner').innerHTML = `
+    <b>Tip:</b> Your onboarding listed <b>${pending.length}</b> investor${pending.length === 1 ? '' : 's'} to monitor.
+    <a href="#" id="import-link" style="text-decoration: underline;">Import them now →</a>
+  `;
+  $('import-link').addEventListener('click', async (e) => {
+    e.preventDefault();
+    await doImport(pending);
+  });
+}
+
+async function doImport(pending) {
+  const rows = pending.map(p => ({
+    user_id: currentUser.id,
+    investor_name: p.name,
+    fund_name: p.fund,
+    monitor_frequency: p.freq,
+    signal_treatment: 'research_lead'  // safe default; user can change later
+  }));
+  const { error } = await supabase.from('investor_watchlist').insert(rows);
+  if (error) return showMsg('Import failed: ' + error.message, 'error');
+  showMsg(`Imported ${rows.length} investors.`, 'success');
+  $('import-banner').style.display = 'none';
+  await loadInvestors();
+}
+
+// ===== UI HELPERS =====
+function showMsg(text, kind) {
+  $('msg-area').innerHTML = `<div class="msg msg-${kind}">${escapeHtml(text)}</div>`;
+  setTimeout(() => { $('msg-area').innerHTML = ''; }, 4000);
+}
+</script>
+</body>
+</html>
