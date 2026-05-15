@@ -1,372 +1,1025 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RidgeRun Construction - Seattle's Premier ROI-Focused Renovation Specialist</title>
-  <meta name="description" content="Seattle's premier renovation specialist for property owners and investors. Data-driven renovations that maximize rental income and minimize vacancy. Part of MainGate Management.">
-  <meta property="og:title" content="RidgeRun Construction - ROI-Focused Renovations for Seattle Investors" />
-  <meta property="og:description" content="Transform renovations from cost centers to profit drivers. Market intelligence from 1,400+ units informs every project. Strategic improvements that maximize returns." />
-<!--  <meta property="og:image" content="https://res.cloudinary.com/dv94te4zt/image/upload/v1754423104/tzje2wked3yr7rvqjru5.jpg" /> -->
-  <meta property="og:url" content="https://www.ridgerunconstruction.com" />
-  <meta name="theme-color" content="#1e3a5f" />
-  <link rel="icon" href="https://fav.farm/🏗️" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --primary: #1e3a5f;
-      --accent: #d97706;
-      --light: #f5f5f5;
-      --dark: #111;
-    }
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: var(--light);
-      color: var(--primary);
-      line-height: 1.6;
-      font-size: 16px;
-      overflow-x: hidden;
-    }
-    img {
-      max-width: 100%;
-      height: auto;
-    }
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-    header, nav, main, footer, section {
-      width: 100%;
-    }
-    .global-header {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 2;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(30, 58, 95, 0.6);
-    }
-    .global-header img.logo {
-      width: 180px;
-    }
-    .hero {
-      position: relative;
-      height: 100vh;
-      overflow: hidden;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-    .hero video {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: -1;
-    }
-    .hero-overlay {
-      position: relative;
-      background: rgba(30, 58, 95, 0.6);
-      padding: 4rem 2rem;
-      max-width: 900px;
-      z-index: 1;
-      margin: 0 1rem;
-    }
-    .hero-overlay h1 {
-      font-size: 3.5rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-    }
-    .hero-overlay p {
-      font-size: 1.25rem;
-      font-weight: 400;
-      margin-bottom: 2rem;
-      color: #f5f5f5;
-    }
-    .cta-button {
-      background-color: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 0.75rem 2rem;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      display: inline-block;
-    }
-    .cta-button:hover {
-      background-color: #b45309;
-    }
-    .section {
-      padding: 4rem 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .section h2 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      color: var(--primary);
-    }
-    .section p {
-      font-size: 1.125rem;
-      color: #333;
-      margin-bottom: 1.5rem;
-    }
-    .section ul {
-      list-style: disc inside;
-      color: #333;
-      margin-top: 1rem;
-      margin-bottom: 2rem;
-    }
-    .section strong {
-      color: var(--accent);
-    }
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-    }
-    .feature-box {
-      background: #fff;
-      border: 1px solid #ddd;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(30, 58, 95, 0.08);
-      transition: transform 0.3s ease;
-    }
-    .feature-box:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 12px rgba(30, 58, 95, 0.1);
-    }
-    .feature-box h3 {
-      color: var(--accent);
-      margin-bottom: 1rem;
-      font-size: 1.25rem;
-    }
-    .testimonials {
-      background: var(--primary);
-      color: #fff;
-      padding: 4rem 2rem;
-    }
-    .testimonial {
-      max-width: 900px;
-      margin: 0 auto;
-      font-style: italic;
-      font-weight: 400;
-    }
-    .testimonial cite {
-      display: block;
-      margin-top: 1rem;
-      font-style: normal;
-      font-weight: 700;
-      color: var(--accent);
-    }
-    .cta {
-      background: var(--accent);
-      color: #fff;
-      text-align: center;
-      padding: 4rem 2rem;
-    }
-    .cta h2 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-    .cta p {
-      font-size: 1.125rem;
-    }
-    .cta form {
-      max-width: 600px;
-      margin: 2rem auto 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .cta input,
-    .cta textarea {
-      padding: 0.75rem 1rem;
-      border: none;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-    .cta button {
-      padding: 0.75rem 1.5rem;
-      background-color: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    .cta button:hover {
-      background-color: #152844;
-    }
-    footer {
-      padding: 2rem;
-      background: var(--dark);
-      color: #aaa;
-      text-align: center;
-      font-size: 0.875rem;
-    }
-    @media (max-width: 768px) {
-      .hero-overlay h1 {
-        font-size: 2.25rem;
-      }
-      .global-header {
-        padding: 0.5rem 1rem;
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .cta form {
-        padding: 0 1rem;
-      }
-      .section h2 {
-        font-size: 2rem;
-      }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ridge Run — Investor DNA Onboarding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --bg: #0a0a0b;
+    --bg-elevated: #131316;
+    --bg-surface: #1a1a1f;
+    --border: #26262d;
+    --border-strong: #3a3a45;
+    --text: #e8e8ed;
+    --text-muted: #8b8b96;
+    --text-dim: #5a5a66;
+    --accent: #c9a961;
+    --accent-dim: #8a7340;
+    --success: #5fb96e;
+    --danger: #d96363;
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'Inter Tight', -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at top, rgba(201, 169, 97, 0.04), transparent 60%),
+      radial-gradient(ellipse at bottom, rgba(95, 185, 110, 0.02), transparent 50%);
+    font-family: var(--sans);
+    color: var(--text);
+    display: flex; align-items: center; justify-content: center;
+    padding: 32px 16px;
+  }
+  .hidden { display: none !important; }
+
+  /* ===== Auth screen ===== */
+  .auth-card {
+    width: 100%; max-width: 420px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 40px 32px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .auth-brand { text-align: center; margin-bottom: 32px; }
+  .auth-mark {
+    font-family: var(--serif); font-size: 38px; font-weight: 500;
+    color: var(--accent); letter-spacing: -0.02em; display: block;
+  }
+  .auth-name {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--text-muted); margin-top: 6px;
+  }
+  .auth-title {
+    font-family: var(--serif); font-size: 22px; font-weight: 400;
+    letter-spacing: -0.015em; margin: 0 0 6px; text-align: center;
+  }
+  .auth-subtitle {
+    font-size: 13px; color: var(--text-muted); text-align: center;
+    margin: 0 0 28px; line-height: 1.5;
+  }
+  .field { margin-bottom: 14px; }
+  .label {
+    display: block; font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 6px;
+  }
+  .input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); padding: 12px 14px; font-family: var(--sans);
+    font-size: 14px; border-radius: 2px; transition: border-color 0.15s, background 0.15s;
+  }
+  .input:focus { outline: none; border-color: var(--accent-dim); background: var(--bg-surface); }
+  .btn {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 12px 18px; border-radius: 2px;
+    cursor: pointer; transition: all 0.15s; border: 1px solid transparent;
+  }
+  .btn-primary {
+    background: var(--accent); color: var(--bg); font-weight: 500;
+    width: 100%; margin-top: 8px;
+  }
+  .btn-primary:hover { background: #d4b46d; box-shadow: 0 0 16px rgba(201,169,97,0.3); }
+  .btn-primary:disabled { opacity: 0.5; cursor: wait; }
+  .btn-ghost {
+    background: transparent; color: var(--text-muted); border-color: var(--border);
+  }
+  .btn-ghost:hover:not(:disabled) { color: var(--text); border-color: var(--border-strong); }
+  .btn-ghost:disabled { opacity: 0.3; cursor: not-allowed; }
+  .auth-toggle {
+    text-align: center; margin-top: 18px; font-size: 13px;
+    color: var(--text-muted); cursor: pointer;
+  }
+  .auth-toggle:hover { color: var(--text); }
+  .auth-toggle b { color: var(--accent); font-weight: 500; }
+  .msg {
+    margin-top: 14px; padding: 10px 14px; font-size: 13px;
+    border-radius: 2px; line-height: 1.5;
+  }
+  .msg-error { background: rgba(217,99,99,0.08); border: 1px solid rgba(217,99,99,0.3); color: var(--danger); }
+  .msg-success { background: rgba(95,185,110,0.08); border: 1px solid rgba(95,185,110,0.3); color: var(--success); }
+  .msg-info { background: rgba(201,169,97,0.06); border: 1px solid rgba(201,169,97,0.2); color: var(--accent); }
+
+  /* ===== Questionnaire modal ===== */
+  .modal {
+    width: 100%; max-width: 720px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.02), 0 30px 80px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.3);
+    overflow: hidden;
+  }
+  .header {
+    padding: 20px 32px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    font-family: var(--serif); font-size: 22px; font-weight: 500;
+    color: var(--accent); letter-spacing: -0.02em;
+  }
+  .brand-name {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-muted);
+  }
+  .progress-meta { display: flex; align-items: center; gap: 16px; font-family: var(--mono); font-size: 11px; }
+  .question-count { color: var(--text); letter-spacing: 0.1em; }
+  .divider { color: var(--text-dim); margin: 0 2px; }
+  .section-pill {
+    color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;
+    padding: 4px 10px; background: var(--bg-surface); border: 1px solid var(--border);
+    border-radius: 2px;
+  }
+  .signout {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--text-dim); cursor: pointer;
+    background: transparent; border: none; padding: 0;
+  }
+  .signout:hover { color: var(--text-muted); }
+  .progress-bar { height: 2px; background: var(--bg-surface); position: relative; overflow: hidden; }
+  .progress-fill {
+    position: absolute; top: 0; left: 0; bottom: 0;
+    background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+    transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 0 8px rgba(201,169,97,0.4);
+  }
+  .section-intro { padding: 28px 32px 0; }
+  .section-eyebrow {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: var(--serif); font-size: 28px; font-weight: 400;
+    letter-spacing: -0.02em; margin: 0 0 6px; color: var(--text);
+  }
+  .section-subtitle {
+    font-size: 13px; color: var(--text-muted); margin: 0; line-height: 1.5;
+  }
+  .body { padding: 28px 32px 24px; }
+  .question-number {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+    color: var(--text-dim); margin-bottom: 10px;
+  }
+  .question-label {
+    display: block; font-family: var(--serif); font-size: 22px;
+    font-weight: 400; line-height: 1.35; letter-spacing: -0.015em;
+    color: var(--text); margin-bottom: 8px;
+  }
+  .question-help {
+    font-size: 13px; color: var(--text-muted); line-height: 1.55;
+    margin: 0 0 20px;
+  }
+  .input-area { margin-top: 20px; }
+  .textarea {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); padding: 12px 14px;
+    font-family: var(--mono); font-size: 13px; line-height: 1.6;
+    border-radius: 2px; resize: vertical;
+  }
+  .textarea:focus { outline: none; border-color: var(--accent-dim); background: var(--bg-surface); }
+  .number-wrap {
+    display: flex; align-items: center; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 2px;
+  }
+  .number-wrap:focus-within { border-color: var(--accent-dim); background: var(--bg-surface); }
+  .prefix {
+    padding: 0 14px; font-family: var(--mono); color: var(--text-muted);
+    font-size: 14px; border-right: 1px solid var(--border);
+  }
+  .input-number {
+    border: none; background: transparent; font-family: var(--mono);
+    width: 100%; padding: 12px 14px; color: var(--text); font-size: 15px;
+  }
+  .input-number:focus { outline: none; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 2px; color: var(--text); font-family: var(--sans);
+    font-size: 14px; cursor: pointer; text-align: left; transition: all 0.15s;
+    width: 100%;
+  }
+  .option:hover { border-color: var(--border-strong); background: var(--bg-surface); }
+  .option.selected { border-color: var(--accent-dim); background: rgba(201,169,97,0.06); }
+  .option.selected .option-mark { color: var(--accent); }
+  .option-mark {
+    font-family: var(--mono); color: var(--text-dim); font-size: 14px; width: 16px;
+  }
+  .option-label { flex: 1; line-height: 1.4; }
+  .file-upload {
+    padding: 24px; background: var(--bg);
+    border: 1px dashed var(--border-strong); border-radius: 2px;
+    text-align: center;
+  }
+  .file-help { font-size: 13px; color: var(--text-muted); margin: 0 0 12px; }
+  .footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 32px; border-top: 1px solid var(--border); background: var(--bg-surface);
+  }
+  .save-state {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-dim);
+  }
+  .save-state.saving { color: var(--accent); }
+
+  /* ===== Complete state ===== */
+  .complete { text-align: center; max-width: 480px; }
+  .complete-mark { font-family: var(--serif); font-size: 64px; color: var(--accent); margin-bottom: 16px; }
+  .complete h1 {
+    font-family: var(--serif); font-size: 32px; font-weight: 400;
+    letter-spacing: -0.02em; margin: 0 0 12px;
+  }
+  .complete p { color: var(--text-muted); font-size: 15px; line-height: 1.6; margin: 0 0 28px; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 640px) {
+    body { padding: 0; }
+    .modal, .auth-card { border-radius: 0; min-height: 100vh; max-width: 100%; }
+    .header { padding: 16px 20px 12px; flex-direction: column; gap: 12px; align-items: flex-start; }
+    .section-intro, .body, .footer { padding-left: 20px; padding-right: 20px; }
+    .question-label { font-size: 19px; }
+    .section-title { font-size: 24px; }
+  }
+</style>
 </head>
 <body>
-<!--
-  <header class="global-header">
-    <img src="https://res.cloudinary.com/dv94te4zt/image/upload/v1754423104/tzje2wked3yr7rvqjru5.jpg" alt="RidgeRun Construction Logo" class="logo" />
-  </header>
 
-  <section class="hero" role="banner">
-    <video autoplay muted loop playsinline poster="https://res.cloudinary.com/dv94te4zt/image/upload/v1754423104/tzje2wked3yr7rvqjru5.jpg">
-      <source src="https://res.cloudinary.com/dv94te4zt/video/upload/v1754424267/viral_campaign_final_df49a41f3642c2e5.mp4" type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
-    <div class="hero-overlay">
-      <h1>Results-Driven Renovations for Seattle Investors</h1>
-      <p>Transform properties into profit centers with data-driven renovation strategies backed by real market intelligence from 1,400+ units under management.</p>
-      <a href="#consultation-form" class="cta-button">Request a Free Project Assessment</a>
+<!-- ========== AUTH SCREEN ========== -->
+<div id="auth-screen" class="auth-card">
+  <div class="auth-brand">
+    <span class="auth-mark">RR</span>
+    <div class="auth-name">Ridge Run Portal</div>
+  </div>
+  <h1 class="auth-title" id="auth-title">Sign in</h1>
+  <p class="auth-subtitle" id="auth-subtitle">Welcome back. Continue your onboarding.</p>
+
+  <div class="field">
+    <label class="label" for="auth-email">Email</label>
+    <input class="input" type="email" id="auth-email" autocomplete="email" />
+  </div>
+  <div class="field">
+    <label class="label" for="auth-password">Password</label>
+    <input class="input" type="password" id="auth-password" autocomplete="current-password" />
+  </div>
+
+  <button class="btn btn-primary" id="auth-submit">Continue</button>
+  <div class="auth-toggle" id="auth-toggle">
+    Need an account? <b>Create one</b>
+  </div>
+  <div id="auth-msg"></div>
+</div>
+
+<!-- ========== QUESTIONNAIRE MODAL ========== -->
+<div id="modal" class="modal hidden">
+  <header class="header">
+    <div class="brand">
+      <span class="brand-mark">RR</span>
+      <span class="brand-name">Ridge Run</span>
     </div>
-  </section> -->
+    <div class="progress-meta">
+      <span class="question-count" id="q-count">01 <span class="divider">/</span> 36</span>
+      <span class="section-pill" id="section-pill">01 · Personal Capital</span>
+      <button class="signout" id="signout-btn" title="Sign out">↪</button>
+    </div>
+  </header>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width: 0%"></div></div>
 
-  <main>
-    <section class="section">
-      <h2>The Construction Arm of Seattle's Largest Independent Manager</h2>
-      <p><strong>RidgeRun Construction is the renovation division of MainGate Management</strong>, which actively manages 1,400+ rental units across 46 properties. This gives us unmatched market intelligence that turns renovations from expenses into strategic investments.</p>
-      <ul>
-        <li><strong>18% Average Rental Income Increase</strong> after strategic value-add renovations</li>
-        <li><strong>42% Faster Lease-Up Times</strong> with market-informed finishes and layouts</li>
-        <li><strong>Zero Cost Overruns</strong> through transparent budgeting and experienced project management</li>
-      </ul>
-      <p>We know what Seattle renters want because we manage their expectations daily—and we build accordingly.</p>
-    </section>
+  <div class="section-intro hidden" id="section-intro">
+    <div class="section-eyebrow" id="section-eyebrow">Section 1</div>
+    <h2 class="section-title" id="section-title">Personal Capital & Risk</h2>
+    <p class="section-subtitle" id="section-subtitle"></p>
+  </div>
 
-    <section class="section" aria-label="Investor Benefits">
-      <h2>Data-Driven Renovations, Not Just Pretty Pictures</h2>
-      <p>Traditional contractors focus on aesthetics. We focus on ROI. Our renovation strategies are informed by real-time market data from thousands of tenant interactions, lease negotiations, and competitive market analysis across Seattle neighborhoods.</p>
-      <ul>
-        <li><strong>Market Intelligence</strong> from actively managing 1,400+ units in your target markets</li>
-        <li><strong>Proven ROI Metrics</strong> showing exactly which improvements drive rental premiums</li>
-        <li><strong>Speed-to-Market Focus</strong> minimizing vacancy periods during renovations</li>
-      </ul>
-    </section>
-
-    <section class="section" aria-label="Core Services">
-      <h2>Strategic Renovation Services for Property Investors</h2>
-      <div class="features">
-        <div class="feature-box">
-          <h3>Rapid Unit Turnovers</h3>
-          <p>Fast, cost-effective turnover renovations that get units rent-ready in days, not weeks—minimizing vacancy loss while maximizing appeal to qualified tenants.</p>
-        </div>
-        <div class="feature-box">
-          <h3>Value-Add Renovations</h3>
-          <p>Strategic improvements proven to command rental premiums in Seattle's market. Every upgrade decision is backed by actual performance data from comparable units.</p>
-        </div>
-        <div class="feature-box">
-          <h3>Deferred Maintenance Solutions</h3>
-          <p>Comprehensive property rehabilitation that addresses accumulated maintenance issues while upgrading to current market standards—protecting asset value and tenant satisfaction.</p>
-        </div>
-        <div class="feature-box">
-          <h3>ROI-Focused Planning</h3>
-          <p>Transparent budgeting and scope development with projected rental income increases, payback periods, and market positioning analysis before work begins.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="testimonials" aria-label="Client Testimonials">
-      <h2 style="text-align:center; margin-bottom:2rem;">What Our Clients Say</h2>
-      <blockquote class="testimonial">
-        "RidgeRun increased our rental income by $425/month per unit after renovations—exactly what their market analysis predicted. Their insight into what Seattle renters actually want, not just contractor trends, made the difference between profit and wasted capital."
-        <cite>– Marcus Chen, Multifamily Investor, Capitol Hill Portfolio</cite>
-      </blockquote>
-    </section>
-
-    <section class="cta" id="consultation-form" aria-label="Consultation Form">
-      <h2>Start Maximizing Your Property's Revenue Potential</h2>
-      <p>Schedule a free project assessment to discover how strategic renovations can increase rental income, reduce vacancy, and accelerate returns on your Seattle investment property.</p>
-      <form>
-        <input type="text" name="name" placeholder="Your Full Name" required />
-        <input type="email" name="email" placeholder="Email Address" required />
-        <input type="tel" name="phone" placeholder="Phone Number" />
-        <textarea name="message" rows="4" placeholder="Tell us about your property and renovation goals"></textarea>
-        <button type="submit">Request Project Assessment</button>
-      </form>
-    </section>
+  <main class="body">
+    <div class="question-number" id="q-number">Q1</div>
+    <label class="question-label" id="q-label"></label>
+    <p class="question-help hidden" id="q-help"></p>
+    <div class="input-area" id="input-area"></div>
+    <div id="inline-msg"></div>
   </main>
 
-  <!-- SMS Opt-in Compliance Footer -->
-  <div style="max-width: 600px; margin: 2rem auto; padding: 2rem; background: #f8fafc; border-radius: 8px; font-size: 0.85rem; color: #475569; line-height: 1.6;">
-    <h4 style="color: #1e3a5f; margin-bottom: 1rem; font-size: 1rem;">Stay Connected via Text</h4>
-    <section id="mobile-optin"> 
-      <form id="smsForm" action="https://victoryvision.app.n8n.cloud/webhook/sms/optin" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
-        <div style="display: flex; gap: 0.5rem; align-items: center;">
-          <input type="tel" name="phone" placeholder="+1 987-654-3210" required 
-                 style="flex: 1; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem;">
-          <button type="submit" 
-                  style="background: #d97706; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap;">
-            Text Me
-          </button>
-        </div>
-        
-        <label style="display: flex; gap: 0.5rem; align-items: flex-start; cursor: pointer;">
-          <input type="checkbox" name="sms_consent" style="margin-top: 0.25rem;">
-          <span>By checking this box, you agree to receive SMS marketing messages from RidgeRun Construction. Message frequency may vary. Standard message and data rates may apply. Reply STOP to opt out. Reply HELP for help. We will not share mobile information with third parties for promotional or marketing purposes.</span>
-        </label>
-        
-        <input type="hidden" name="use_case" value="MARKETING">
-      </form>
-      
-      <p style="margin-top: 1rem; font-size: 0.8rem; color: #64748b;">
-        By signing up via text, you agree to receive recurring marketing messages from RidgeRun Construction at the phone number provided. Consent is not a condition of purchase. Message frequency varies. Msg & data rates may apply. 
-        View our <a href="/privacy.html" style="color: #1e3a5f; text-decoration: underline;">Privacy Policy</a> and <a href="/terms.html" style="color: #1e3a5f; text-decoration: underline;">Terms of Service</a>.
-      </p>
-    </section>
-  </div>
-  
-  <script>
-    document.getElementById('smsForm').onsubmit = function(e) {
-      e.preventDefault();
-      fetch(this.action, {method: 'POST', body: new FormData(this)});
-      alert('Thanks! Check your phone.');
-      this.reset();
-    };
-  </script>
-
-  <!-- Footer -->
-  <footer role="contentinfo">
-    <p>&copy; 2024 RidgeRun Construction. A Division of MainGate Management. Built on market intelligence, delivered with precision. All Rights Reserved.</p>
+  <footer class="footer">
+    <button class="btn btn-ghost" id="back-btn">← Back</button>
+    <div class="save-state" id="save-state">Ready</div>
+    <button class="btn btn-primary" id="next-btn" style="width: auto;">Next →</button>
   </footer>
+</div>
 
-  <img src="https://victoryvision.app.n8n.cloud/webhook/pixel/track?page_id=ridgerun_construction_main" width="1" height="1" style="display:none;" alt="Tracking Pixel"/>
+<!-- ========== COMPLETE SCREEN ========== -->
+<div id="complete-screen" class="complete hidden">
+  <div class="complete-mark">✓</div>
+  <h1>Onboarding complete</h1>
+  <p>Your investor DNA profile is being generated. You'll receive a notification when it's ready.</p>
+  <button class="btn btn-primary" style="max-width: 280px;" onclick="window.location.reload()">Done</button>
+</div>
 
+<!-- ========== Supabase JS Client (CDN) ========== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- ========== App ========== -->
+<script>
+// ============================================================
+// CONFIG — replace these two values with your Supabase project's
+// ============================================================
+const SUPABASE_URL = 'https://nrbffnsheenmewijeapb.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_WjDoqgd4_eDE1lpfZHkT0g_cyArLkvI';
+
+// Webhook URL fired when onboarding completes (set later when n8n is ready)
+const N8N_DNA_WEBHOOK_URL = '';
+
+// ============================================================
+// QUESTIONNAIRE — all 36 questions (same as JSON schema)
+// ============================================================
+const QUESTIONNAIRE = {
+  version: 'v1',
+  sections: [
+    {
+      id: 'personal_capital', order: 1,
+      title: 'Personal Capital & Risk',
+      subtitle: 'The foundation. Without these, no downstream rule can be calibrated.',
+      questions: [
+        { id: 'q1_starting_capital', order: 1, type: 'number', label: 'What is the starting capital base?', help: 'Total dollar amount under management at the start. Used as the denominator for all position-sizing limits.', prefix: '$', required: true },
+        { id: 'q2_account_types', order: 2, type: 'multi_select', label: 'Which account types will this manage?', help: 'Affects tax logic and which strategies are permitted (e.g. no margin in IRAs).', required: true,
+          options: [
+            { value: 'taxable_individual', label: 'Taxable individual brokerage' },
+            { value: 'taxable_joint', label: 'Taxable joint brokerage' },
+            { value: 'traditional_ira', label: 'Traditional IRA' },
+            { value: 'roth_ira', label: 'Roth IRA' },
+            { value: 'sep_ira', label: 'SEP IRA' },
+            { value: 'solo_401k', label: 'Solo 401(k)' },
+            { value: 'trust', label: 'Trust account' },
+            { value: 'llc', label: 'LLC / entity account' }
+          ]},
+        { id: 'q3_max_drawdown_tolerance', order: 3, type: 'single_select', label: 'What is the maximum drawdown you can tolerate before you would emotionally or financially need to stop?', help: 'Be honest. This sets the forced-de-risk threshold.', required: true,
+          options: [
+            { value: '5', label: '5% — capital preservation focused' },
+            { value: '10', label: '10%' }, { value: '15', label: '15%' },
+            { value: '20', label: '20%' }, { value: '25', label: '25%' },
+            { value: '35', label: '35% — high tolerance' },
+            { value: '50', label: '50% — extreme tolerance' }
+          ]},
+        { id: 'q4_25pct_drawdown_acceptable', order: 4, type: 'single_select', label: 'Would a 25% drawdown be acceptable if the expected long-term return is high?', required: true,
+          options: [
+            { value: 'yes', label: 'Yes' },
+            { value: 'no', label: 'No' },
+            { value: 'depends', label: 'Depends on context' }
+          ]},
+        { id: 'q5_50pct_drawdown_ever', order: 5, type: 'single_select', label: 'Would a 50% drawdown ever be acceptable again?', help: 'This is the question that sets the hard ceiling on permitted leverage and concentration.', required: true,
+          options: [
+            { value: 'never', label: 'Never — system must prevent this absolutely' },
+            { value: 'only_unleveraged', label: 'Only in an unleveraged market crash, never from internal causes' },
+            { value: 'yes_with_thesis', label: 'Yes, with a strong thesis' },
+            { value: 'yes', label: 'Yes — high risk tolerance' }
+          ]},
+        { id: 'q6_current_income_need', order: 6, type: 'single_select', label: 'Do you need current income from the portfolio?', required: true,
+          options: [
+            { value: 'none', label: 'No — pure compounding' },
+            { value: 'minimal', label: 'Minimal — under 2% annual draw' },
+            { value: 'moderate', label: 'Moderate — 2-5% annual draw' },
+            { value: 'significant', label: 'Significant — over 5% annual draw' }
+          ]},
+        { id: 'q7_outside_income', order: 7, type: 'single_select', label: 'Do you have outside income or liquidity that can support aggressive compounding?', help: 'If yes, the system can permit higher volatility tolerance.', required: true,
+          options: [
+            { value: 'yes_substantial', label: 'Yes — substantial outside income/assets' },
+            { value: 'yes_moderate', label: 'Yes — moderate outside income/assets' },
+            { value: 'limited', label: 'Limited' },
+            { value: 'no', label: 'No — this portfolio is the primary asset' }
+          ]}
+      ]
+    },
+    {
+      id: 'portfolio_style', order: 2,
+      title: 'Portfolio Style',
+      subtitle: 'Concentration, sizing, and instrument permissions.',
+      questions: [
+        { id: 'q8_core_position_count', order: 8, type: 'single_select', label: 'How many core positions do you want?', required: true,
+          options: [
+            { value: '3_5', label: '3–5 (very concentrated)' },
+            { value: '6_10', label: '6–10 (concentrated)' },
+            { value: '11_20', label: '11–20 (moderately diversified)' },
+            { value: '21_40', label: '21–40 (diversified)' },
+            { value: '40_plus', label: '40+ (broad)' }
+          ]},
+        { id: 'q9_max_single_name', order: 9, type: 'single_select', label: 'What is the largest single-name exposure you want the system to allow?', help: 'Hard cap. The system will block trades that would breach this.', required: true,
+          options: [
+            { value: '5', label: '5%' }, { value: '10', label: '10%' },
+            { value: '15', label: '15%' }, { value: '20', label: '20%' },
+            { value: '25', label: '25%' }, { value: '30', label: '30%+' }
+          ]},
+        { id: 'q10_allow_20pct_plus', order: 10, type: 'single_select', label: 'Should the system ever allow more than 20% in one idea?', required: true,
+          options: [
+            { value: 'never', label: 'Never' },
+            { value: 'with_approval', label: 'Only with explicit re-approval each time' },
+            { value: 'yes', label: 'Yes — high-conviction concentration is part of the strategy' }
+          ]},
+        { id: 'q11_max_options_premium', order: 11, type: 'single_select', label: 'How much of the portfolio can be in options premium at risk?', help: 'Options premium at risk = max possible loss across the entire options book.', required: true,
+          options: [
+            { value: '0', label: '0% — no options' },
+            { value: '2', label: 'Up to 2%' }, { value: '5', label: 'Up to 5%' },
+            { value: '10', label: 'Up to 10%' }, { value: '15', label: 'Up to 15%' },
+            { value: '20_plus', label: '20%+' }
+          ]},
+        { id: 'q12_naked_puts_allowed', order: 12, type: 'single_select', label: 'Should the system be allowed to sell naked puts?', required: true,
+          options: [
+            { value: 'never', label: 'Never' },
+            { value: 'cash_secured_only', label: 'Cash-secured puts only' },
+            { value: 'yes_with_limits', label: 'Yes, within position-size limits' },
+            { value: 'yes', label: 'Yes' }
+          ]},
+        { id: 'q13_margin_allowed', order: 13, type: 'single_select', label: 'Should the system be allowed to use margin?', required: true,
+          options: [
+            { value: 'never', label: 'Never — cash only' },
+            { value: 'emergency_only', label: 'Only briefly for settlement timing' },
+            { value: 'moderate', label: 'Yes, up to 1.25x gross exposure' },
+            { value: 'higher', label: 'Yes, up to 1.5x or more' }
+          ]},
+        { id: 'q14_leverage_override', order: 14, type: 'single_select', label: 'Should leverage be capped mechanically, or can you override it?', required: true,
+          options: [
+            { value: 'mechanical_hard', label: 'Mechanical hard cap — no override possible' },
+            { value: 'override_with_friction', label: 'Override possible but requires multi-step confirmation' },
+            { value: 'soft', label: 'Soft cap — alerts but does not block' }
+          ]}
+      ]
+    },
+    {
+      id: 'trading_execution', order: 3,
+      title: 'Trading & Execution',
+      subtitle: 'How and when the AI talks to you, and what it is ever allowed to do on its own.',
+      questions: [
+        { id: 'q15_daily_instructions', order: 15, type: 'single_select', label: 'Do you want daily trade instructions or only when action is needed?', required: true,
+          options: [
+            { value: 'daily', label: 'Daily — always send a morning briefing' },
+            { value: 'action_only', label: 'Only when action is needed' },
+            { value: 'daily_brief_action_urgent', label: 'Daily brief + urgent intraday only' }
+          ]},
+        { id: 'q16_premarket_sms', order: 16, type: 'single_select', label: 'Should the AI send SMS alerts during pre-market hours?', help: 'This addresses the Pacific-time monitoring gap.', required: true,
+          options: [
+            { value: 'yes_all', label: 'Yes — pre-market scan SMS by 5:30 a.m. ET' },
+            { value: 'yes_urgent_only', label: 'Yes, but urgent items only' },
+            { value: 'portal_only', label: 'No — portal notifications only' }
+          ]},
+        { id: 'q17_autonomous_trade_types', order: 17, type: 'multi_select', label: 'What kind of trade can AI eventually execute without approval?', help: 'Select all that should ever be permitted, even in Phase 5. Actual autonomy is gated by 6-12 months of paper-trading audit.', required: true,
+          options: [
+            { value: 'none', label: 'None — every trade requires approval forever' },
+            { value: 'reduce_position', label: 'Reduce an existing position' },
+            { value: 'roll_covered_calls', label: 'Roll covered calls' },
+            { value: 'sell_csp', label: 'Sell cash-secured puts within strict limits' },
+            { value: 'protective_stops', label: 'Place protective stops or collars' },
+            { value: 'buy_hedges', label: 'Buy index/portfolio hedges' },
+            { value: 'rebalance_etfs', label: 'Rebalance ETF allocations' },
+            { value: 'tax_loss_harvest', label: 'Execute tax-loss harvesting' },
+            { value: 'de_risk_breach', label: 'De-risk if margin/drawdown thresholds breached' }
+          ]},
+        { id: 'q18_options_always_require_approval', order: 18, type: 'single_select', label: 'Should all options trades require human approval forever?', required: true,
+          options: [
+            { value: 'yes_forever', label: 'Yes — forever, no exceptions' },
+            { value: 'yes_for_now', label: 'Yes for now, revisit after 12 months of audit' },
+            { value: 'no_within_limits', label: 'No — pre-approved structures can execute within limits' }
+          ]},
+        { id: 'q19_emergency_permission', order: 19, type: 'single_select', label: 'Should the system have an emergency "sell / hedge / reduce" permission?', help: 'Triggered only by hard rule breaches.', required: true,
+          options: [
+            { value: 'yes_full', label: 'Yes — can sell, hedge, or reduce without approval in emergencies' },
+            { value: 'yes_hedge_only', label: 'Yes, but hedge-only (no outright selling)' },
+            { value: 'alert_only', label: 'No — alert me and wait' }
+          ]},
+        { id: 'q20_do_not_trade_list', order: 20, type: 'text_list', label: 'What securities should be permanently on a do-not-trade list?', help: 'Tickers or company names. Add one per line.', placeholder: 'AAPL\nSPCE\nBerkshire Hathaway', required: false }
+      ]
+    },
+    {
+      id: 'tax', order: 4,
+      title: 'Tax',
+      subtitle: 'After-tax compounding requires explicit tax preferences, not assumptions.',
+      questions: [
+        { id: 'q21_tax_bracket', order: 21, type: 'single_select', label: 'What is your approximate federal tax bracket?', required: true,
+          options: [
+            { value: '10_12', label: '10–12%' }, { value: '22_24', label: '22–24%' },
+            { value: '32', label: '32%' }, { value: '35', label: '35%' },
+            { value: '37', label: '37% (top marginal)' }
+          ]},
+        { id: 'q21b_state', order: 22, type: 'text', label: 'What state do you reside in for tax purposes?', placeholder: 'California', required: true },
+        { id: 'q22_short_term_concern', order: 23, type: 'single_select', label: 'Are short-term gains a major concern?', required: true,
+          options: [
+            { value: 'very', label: 'Very — avoid short-term gains aggressively' },
+            { value: 'moderate', label: 'Moderate — prefer LT but acceptable when thesis demands' },
+            { value: 'low', label: 'Low — tax-deferred or low-bracket account' }
+          ]},
+        { id: 'q23_after_tax_priority', order: 24, type: 'single_select', label: 'Do you want the system to prioritize after-tax returns over pre-tax returns?', required: true,
+          options: [
+            { value: 'always', label: 'Always' },
+            { value: 'mostly', label: 'Mostly — except for very high-conviction trades' },
+            { value: 'balanced', label: 'Balanced — evaluate case by case' },
+            { value: 'pre_tax', label: 'Pre-tax — gross return is what matters' }
+          ]},
+        { id: 'q24_auto_harvest', order: 25, type: 'single_select', label: 'Should the system harvest losses automatically?', required: true,
+          options: [
+            { value: 'yes_within_limits', label: 'Yes — automatically harvest within wash-sale rules' },
+            { value: 'suggest', label: 'Suggest but require approval' },
+            { value: 'no', label: 'No' }
+          ]},
+        { id: 'q25_restricted_securities', order: 26, type: 'text_list', label: 'Are there any restricted securities due to board roles or compliance obligations?', help: 'One per line. These will be blocked from all trade recommendations.', placeholder: 'List company names or tickers', required: false }
+      ]
+    },
+    {
+      id: 'research_edge', order: 5,
+      title: 'Research Edge & Trade History',
+      subtitle: 'This is what makes the system personalized rather than generic.',
+      questions: [
+        { id: 'q26_trade_history_upload', order: 27, type: 'file_upload', label: 'Upload your trade history', help: 'IBKR Flex Query exports, broker CSVs, realized gains/losses. We will collect these via a dedicated uploader in Phase 2.', required: false },
+        { id: 'q27_old_memos_upload', order: 28, type: 'file_upload', label: 'Upload old investment memos if available', help: 'Any prior research, theses, or memos. Phase 2 uploader.', required: false },
+        { id: 'q28_best_investments', order: 29, type: 'long_text', label: 'What were your 10 best investments?', help: 'Ticker, approximate date, approximate return, and what drove the win. One per line is fine.', placeholder: '1. AAPL 2010-2015, ~5x, recognized iPhone monetization early\n2. ...', required: false },
+        { id: 'q29_worst_investments', order: 30, type: 'long_text', label: 'What were your 10 worst investments?', help: 'Same format. Be brutal — this is where the personalized guardrails come from.', placeholder: '1. XYZ 2020, -90%, too much leverage going into COVID\n2. ...', required: false },
+        { id: 'q30_winners_exit_timing', order: 31, type: 'single_select', label: 'For your big winners, did you typically sell too early, too late, or roughly right?', required: true,
+          options: [
+            { value: 'too_early', label: 'Too early — left a lot on the table' },
+            { value: 'roughly_right', label: 'Roughly right' },
+            { value: 'too_late', label: 'Too late — gave back significant gains' },
+            { value: 'mixed', label: 'Mixed — varies a lot' }
+          ]},
+        { id: 'q31_losers_mistake_type', order: 32, type: 'multi_select', label: 'For your big losers, what was the most common mistake type?', help: 'Select all that apply.', required: true,
+          options: [
+            { value: 'thesis', label: 'Thesis — was simply wrong about the business' },
+            { value: 'sizing', label: 'Sizing — position was too large' },
+            { value: 'leverage', label: 'Leverage — borrowing amplified the loss' },
+            { value: 'timing', label: 'Timing — right idea, wrong moment' },
+            { value: 'liquidity', label: 'Liquidity — could not exit when needed' },
+            { value: 'options_structure', label: 'Options structure — time decay or gap risk' }
+          ]}
+      ]
+    },
+    {
+      id: 'investor_monitoring', order: 6,
+      title: 'Top Investor Monitoring',
+      subtitle: 'Whose moves should the system watch, and how should it treat them?',
+      questions: [
+        { id: 'q32_daily_investors', order: 33, type: 'text_list', label: 'Which investors should be monitored daily?', help: 'One per line. Examples: Druckenmiller, Klarman, Loeb, Buffett.', placeholder: 'Stanley Druckenmiller / Duquesne\nSeth Klarman / Baupost\nDan Loeb / Third Point', required: false },
+        { id: 'q33_quarterly_investors', order: 34, type: 'text_list', label: 'Which investors should only be monitored quarterly?', placeholder: 'One per line', required: false },
+        { id: 'q34_signal_use', order: 35, type: 'single_select', label: 'Do you want to clone ideas, use them as confirmation, or use them only as research leads?', required: true,
+          options: [
+            { value: 'research_leads_only', label: 'Research leads only — never copy' },
+            { value: 'confirmation', label: 'Use as confirmation of independent ideas' },
+            { value: 'clone_selectively', label: 'Clone selectively when investor edge matches' },
+            { value: 'clone_broadly', label: 'Clone broadly with sizing adjustment' }
+          ]},
+        { id: 'q35_distrust_list', order: 36, type: 'long_text', label: 'Are there investors you specifically distrust or want the AI to fade?', help: 'Name and reason. The system will treat their accumulation as a potential negative signal.', placeholder: 'e.g. Investor X — track record is mostly luck, persistent bag-holder', required: false }
+      ]
+    }
+  ]
+};
+
+// Flatten all questions
+const ALL_QUESTIONS = QUESTIONNAIRE.sections.flatMap(s =>
+  s.questions.map(q => ({ ...q, sectionId: s.id, section: s }))
+);
+
+// ============================================================
+// State
+// ============================================================
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+let currentUser = null;
+let currentSession = null;
+let currentIndex = 0;
+let answers = {};
+let saveTimer = null;
+
+// DOM helpers
+const $ = id => document.getElementById(id);
+const show = (id, on = true) => $(id).classList.toggle('hidden', !on);
+
+// ============================================================
+// AUTH
+// ============================================================
+let authMode = 'signin'; // or 'signup'
+
+function setAuthMode(mode) {
+  authMode = mode;
+  if (mode === 'signin') {
+    $('auth-title').textContent = 'Sign in';
+    $('auth-subtitle').textContent = 'Welcome back. Continue your onboarding.';
+    $('auth-toggle').innerHTML = 'Need an account? <b>Create one</b>';
+    $('auth-password').autocomplete = 'current-password';
+  } else {
+    $('auth-title').textContent = 'Create account';
+    $('auth-subtitle').textContent = 'Start your investor DNA onboarding.';
+    $('auth-toggle').innerHTML = 'Already have an account? <b>Sign in</b>';
+    $('auth-password').autocomplete = 'new-password';
+  }
+  $('auth-msg').innerHTML = '';
+}
+
+$('auth-toggle').addEventListener('click', () => {
+  setAuthMode(authMode === 'signin' ? 'signup' : 'signin');
+});
+
+$('auth-submit').addEventListener('click', handleAuth);
+$('auth-email').addEventListener('keydown', e => { if (e.key === 'Enter') $('auth-password').focus(); });
+$('auth-password').addEventListener('keydown', e => { if (e.key === 'Enter') handleAuth(); });
+
+async function handleAuth() {
+  const email = $('auth-email').value.trim();
+  const password = $('auth-password').value;
+  if (!email || !password) {
+    return showAuthMsg('Email and password are required.', 'error');
+  }
+  if (password.length < 8 && authMode === 'signup') {
+    return showAuthMsg('Password must be at least 8 characters.', 'error');
+  }
+  $('auth-submit').disabled = true;
+  $('auth-submit').textContent = 'Working...';
+
+  try {
+    const fn = authMode === 'signup'
+      ? supabase.auth.signUp({ email, password })
+      : supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await fn;
+
+    if (error) {
+      showAuthMsg(error.message, 'error');
+      $('auth-submit').disabled = false;
+      $('auth-submit').textContent = 'Continue';
+      return;
+    }
+    if (authMode === 'signup' && !data.session) {
+      // Email confirmation required
+      showAuthMsg('Check your email to confirm your account, then sign in.', 'success');
+      $('auth-submit').disabled = false;
+      $('auth-submit').textContent = 'Continue';
+      setAuthMode('signin');
+      return;
+    }
+    // Signed in
+    await initializeUser(data.user);
+  } catch (err) {
+    showAuthMsg('Unexpected error: ' + err.message, 'error');
+    $('auth-submit').disabled = false;
+    $('auth-submit').textContent = 'Continue';
+  }
+}
+
+function showAuthMsg(text, kind) {
+  $('auth-msg').innerHTML = `<div class="msg msg-${kind}">${text}</div>`;
+}
+
+$('signout-btn').addEventListener('click', async () => {
+  await supabase.auth.signOut();
+  window.location.reload();
+});
+
+// ============================================================
+// SESSION INIT
+// ============================================================
+async function initializeUser(user) {
+  currentUser = user;
+
+  // Find or create onboarding session
+  const { data: existing } = await supabase
+    .from('onboarding_sessions')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('status', 'in_progress')
+    .order('started_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existing) {
+    currentSession = existing;
+    // Load saved answers
+    const { data: responses } = await supabase
+      .from('onboarding_responses')
+      .select('question_id, answer')
+      .eq('session_id', existing.id);
+
+    if (responses) {
+      responses.forEach(r => { answers[r.question_id] = r.answer?.value; });
+    }
+    // Resume at first unanswered question
+    const firstUnanswered = ALL_QUESTIONS.findIndex(q => !(q.id in answers));
+    currentIndex = firstUnanswered === -1 ? ALL_QUESTIONS.length - 1 : firstUnanswered;
+  } else {
+    const { data: created, error } = await supabase
+      .from('onboarding_sessions')
+      .insert({ user_id: user.id })
+      .select()
+      .single();
+    if (error) {
+      showAuthMsg('Could not start session: ' + error.message + '. Did you run the SQL migration?', 'error');
+      return;
+    }
+    currentSession = created;
+    await supabase
+      .from('users')
+      .update({ onboarding_status: 'in_progress' })
+      .eq('id', user.id);
+  }
+
+  show('auth-screen', false);
+  show('modal', true);
+  renderQuestion();
+}
+
+// ============================================================
+// RENDER QUESTION
+// ============================================================
+function renderQuestion() {
+  const q = ALL_QUESTIONS[currentIndex];
+  if (!q) return;
+
+  // Progress
+  const total = ALL_QUESTIONS.length;
+  const pct = ((currentIndex + 1) / total) * 100;
+  $('progress-fill').style.width = pct + '%';
+  $('q-count').innerHTML = `${String(currentIndex + 1).padStart(2, '0')} <span class="divider">/</span> ${total}`;
+  $('section-pill').textContent = `${String(q.section.order).padStart(2, '0')} · ${q.section.title}`;
+
+  // Section intro on first q of section
+  const isFirstOfSection = q.section.questions[0].id === q.id;
+  if (isFirstOfSection) {
+    show('section-intro', true);
+    $('section-eyebrow').textContent = `Section ${q.section.order}`;
+    $('section-title').textContent = q.section.title;
+    $('section-subtitle').textContent = q.section.subtitle;
+  } else {
+    show('section-intro', false);
+  }
+
+  // Question
+  $('q-number').textContent = 'Q' + q.order;
+  $('q-label').textContent = q.label;
+  if (q.help) {
+    show('q-help', true);
+    $('q-help').textContent = q.help;
+  } else {
+    show('q-help', false);
+  }
+  $('inline-msg').innerHTML = '';
+
+  // Render input
+  renderInput(q);
+
+  // Back button state
+  $('back-btn').disabled = currentIndex === 0;
+  $('next-btn').textContent = currentIndex === total - 1 ? 'Finish' : 'Next →';
+}
+
+function renderInput(q) {
+  const area = $('input-area');
+  area.innerHTML = '';
+  const value = answers[q.id];
+
+  switch (q.type) {
+    case 'number': {
+      const wrap = document.createElement('div');
+      wrap.className = 'number-wrap';
+      if (q.prefix) {
+        const p = document.createElement('span');
+        p.className = 'prefix';
+        p.textContent = q.prefix;
+        wrap.appendChild(p);
+      }
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.className = 'input-number';
+      input.value = value ?? '';
+      input.placeholder = q.placeholder || '';
+      input.addEventListener('input', () => {
+        answers[q.id] = input.value === '' ? null : Number(input.value);
+        scheduleSave(q);
+      });
+      wrap.appendChild(input);
+      area.appendChild(wrap);
+      input.focus();
+      break;
+    }
+    case 'text': {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'input';
+      input.value = value ?? '';
+      input.placeholder = q.placeholder || '';
+      input.addEventListener('input', () => {
+        answers[q.id] = input.value;
+        scheduleSave(q);
+      });
+      area.appendChild(input);
+      input.focus();
+      break;
+    }
+    case 'long_text': {
+      const ta = document.createElement('textarea');
+      ta.className = 'textarea';
+      ta.rows = 8;
+      ta.value = value ?? '';
+      ta.placeholder = q.placeholder || '';
+      ta.addEventListener('input', () => {
+        answers[q.id] = ta.value;
+        scheduleSave(q);
+      });
+      area.appendChild(ta);
+      break;
+    }
+    case 'text_list': {
+      const ta = document.createElement('textarea');
+      ta.className = 'textarea';
+      ta.rows = 6;
+      ta.value = Array.isArray(value) ? value.join('\n') : '';
+      ta.placeholder = q.placeholder || '';
+      ta.addEventListener('input', () => {
+        answers[q.id] = ta.value.split('\n').map(s => s.trim()).filter(Boolean);
+        scheduleSave(q);
+      });
+      area.appendChild(ta);
+      break;
+    }
+    case 'single_select': {
+      const wrap = document.createElement('div');
+      wrap.className = 'options';
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'option' + (value === opt.value ? ' selected' : '');
+        btn.innerHTML = `<span class="option-mark">${value === opt.value ? '●' : '○'}</span><span class="option-label">${opt.label}</span>`;
+        btn.addEventListener('click', () => {
+          answers[q.id] = opt.value;
+          renderInput(q);
+          scheduleSave(q);
+        });
+        wrap.appendChild(btn);
+      });
+      area.appendChild(wrap);
+      break;
+    }
+    case 'multi_select': {
+      const wrap = document.createElement('div');
+      wrap.className = 'options';
+      const selected = Array.isArray(value) ? value : [];
+      q.options.forEach(opt => {
+        const isSelected = selected.includes(opt.value);
+        const btn = document.createElement('button');
+        btn.className = 'option' + (isSelected ? ' selected' : '');
+        btn.innerHTML = `<span class="option-mark">${isSelected ? '▣' : '☐'}</span><span class="option-label">${opt.label}</span>`;
+        btn.addEventListener('click', () => {
+          const next = isSelected ? selected.filter(v => v !== opt.value) : [...selected, opt.value];
+          answers[q.id] = next;
+          renderInput(q);
+          scheduleSave(q);
+        });
+        wrap.appendChild(btn);
+      });
+      area.appendChild(wrap);
+      break;
+    }
+    case 'file_upload': {
+      const wrap = document.createElement('div');
+      wrap.className = 'file-upload';
+      wrap.innerHTML = `<p class="file-help">${q.help || 'File upload wiring is a Phase 2 task — for now, skip and we will collect these via a dedicated uploader.'}</p>`;
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-ghost';
+      btn.textContent = 'Skip for now';
+      btn.addEventListener('click', () => {
+        answers[q.id] = 'skipped_for_now';
+        scheduleSave(q);
+        goNext();
+      });
+      wrap.appendChild(btn);
+      area.appendChild(wrap);
+      break;
+    }
+  }
+}
+
+// ============================================================
+// SAVE
+// ============================================================
+function scheduleSave(q) {
+  $('save-state').textContent = 'Saving…';
+  $('save-state').classList.add('saving');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => saveAnswer(q), 600);
+}
+
+async function saveAnswer(q) {
+  if (!currentSession || !currentUser) return;
+  const value = answers[q.id];
+  try {
+    const { error } = await supabase
+      .from('onboarding_responses')
+      .upsert({
+        session_id: currentSession.id,
+        user_id: currentUser.id,
+        question_id: q.id,
+        section_id: q.sectionId,
+        answer: { value }
+      }, { onConflict: 'session_id,question_id' });
+    if (error) throw error;
+
+    await supabase
+      .from('onboarding_sessions')
+      .update({ current_question_id: q.id })
+      .eq('id', currentSession.id);
+
+    await supabase.from('audit_log').insert({
+      user_id: currentUser.id,
+      actor: 'user',
+      action_type: 'onboarding.answer',
+      payload: { question_id: q.id, answer: value }
+    });
+
+    $('save-state').textContent = 'Saved';
+    $('save-state').classList.remove('saving');
+  } catch (err) {
+    $('save-state').textContent = 'Save failed';
+    $('inline-msg').innerHTML = `<div class="msg msg-error">${err.message}</div>`;
+  }
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+$('next-btn').addEventListener('click', goNext);
+$('back-btn').addEventListener('click', goBack);
+
+async function goNext() {
+  const q = ALL_QUESTIONS[currentIndex];
+  const value = answers[q.id];
+  if (q.required && (value === undefined || value === null || value === '' ||
+      (Array.isArray(value) && value.length === 0))) {
+    $('inline-msg').innerHTML = '<div class="msg msg-error">This question is required.</div>';
+    return;
+  }
+  // Save before advancing
+  clearTimeout(saveTimer);
+  if (value !== undefined) await saveAnswer(q);
+
+  if (currentIndex < ALL_QUESTIONS.length - 1) {
+    currentIndex++;
+    renderQuestion();
+  } else {
+    await completeOnboarding();
+  }
+}
+
+function goBack() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    renderQuestion();
+  }
+}
+
+async function completeOnboarding() {
+  $('next-btn').disabled = true;
+  $('next-btn').textContent = 'Finishing...';
+
+  await supabase
+    .from('onboarding_sessions')
+    .update({ status: 'completed', completed_at: new Date().toISOString() })
+    .eq('id', currentSession.id);
+
+  await supabase
+    .from('users')
+    .update({
+      onboarding_status: 'completed',
+      onboarding_completed_at: new Date().toISOString()
+    })
+    .eq('id', currentUser.id);
+
+  await supabase.from('audit_log').insert({
+    user_id: currentUser.id,
+    actor: 'user',
+    action_type: 'onboarding.completed',
+    payload: { session_id: currentSession.id }
+  });
+
+  if (N8N_DNA_WEBHOOK_URL) {
+    try {
+      await fetch(N8N_DNA_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: currentUser.id, session_id: currentSession.id })
+      });
+    } catch (e) { console.error('Webhook failed (non-fatal):', e); }
+  }
+
+  show('modal', false);
+  show('complete-screen', true);
+}
+
+// ============================================================
+// BOOTSTRAP — check for existing session on load
+// ============================================================
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.user) {
+    await initializeUser(session.user);
+  }
+})();
+</script>
 </body>
 </html>
