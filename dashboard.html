@@ -43,42 +43,7 @@
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
 
-  /* ===== Top bar ===== */
-  .topbar {
-    background: var(--bg); border-bottom: 1px solid var(--border);
-    padding: 0 24px; height: 56px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .topbar-brand { display: flex; align-items: center; gap: 12px; }
-  .brand-mark {
-    font-family: var(--serif); font-size: 22px; font-weight: 600;
-    color: var(--accent); letter-spacing: -0.02em;
-  }
-  .brand-name {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
-    text-transform: uppercase; color: var(--text-muted);
-  }
-  .topbar-nav { display: flex; align-items: center; gap: 4px; }
-  .nav-link {
-    padding: 8px 12px; border-radius: 4px;
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--text-muted);
-    transition: all 0.15s;
-  }
-  .nav-link:hover { background: var(--bg-tint); color: var(--text); text-decoration: none; }
-  .nav-link.active { background: var(--bg-blue); color: var(--accent-dark); }
-  .topbar-user { display: flex; align-items: center; gap: 12px; }
-  .user-email {
-    font-family: var(--mono); font-size: 11px; color: var(--text-muted);
-  }
-  .signout-btn {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--text-dim);
-    background: transparent; border: 1px solid var(--border);
-    padding: 6px 12px; border-radius: 4px; cursor: pointer;
-    transition: all 0.15s;
-  }
-  .signout-btn:hover { border-color: var(--text-dim); color: var(--text-muted); }
+  /* Topbar styles live in nav.js (shared) */
 
   /* ===== Layout ===== */
   .page {
@@ -265,21 +230,7 @@
 
 <!-- ===== Main app ===== -->
 <div id="app" class="hidden">
-  <nav class="topbar">
-    <div class="topbar-brand">
-      <span class="brand-mark">RR</span>
-      <span class="brand-name">Ridge Run</span>
-    </div>
-    <div class="topbar-nav">
-      <a href="/dashboard.html" class="nav-link active">Dashboard</a>
-      <a href="/dna.html" class="nav-link">Investor DNA</a>
-      <a href="/watchlist.html" class="nav-link">Watchlist</a>
-    </div>
-    <div class="topbar-user">
-      <span class="user-email" id="user-email"></span>
-      <button class="signout-btn" id="signout-btn">Sign out</button>
-    </div>
-  </nav>
+  <div id="rr-nav-container"></div>
 
   <main class="page">
     <header class="page-header">
@@ -331,6 +282,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/nav.js"></script>
 <script>
 // ============================================================
 // CONFIG
@@ -352,20 +304,16 @@ const show = (id, on = true) => $(id).classList.toggle('hidden', !on);
     show('gate', true);
     return;
   }
+  RidgeRunNav.mount({ active: 'dashboard', supabase });
   await loadDashboard(session.user);
 })();
 
-$('signout-btn').addEventListener('click', async () => {
-  await supabase.auth.signOut();
-  window.location.href = '/';
-});
+// nav.js handles signout button + user-email element
 
 // ============================================================
 // LOAD DASHBOARD DATA
 // ============================================================
 async function loadDashboard(user) {
-  $('user-email').textContent = user.email;
-
   // Update meta
   const now = new Date();
   $('page-meta').textContent = now.toLocaleDateString('en-US', {
