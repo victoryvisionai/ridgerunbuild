@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Investor DNA · Ridge Run</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-tint: #f8fafc;
+    --bg-blue: #eff6ff;
+    --bg-blue-soft: #f0f7ff;
+    --border: #e2e8f0;
+    --border-blue: #bfdbfe;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-dim: #94a3b8;
+    --accent: #2563eb;
+    --accent-dark: #1e40af;
+    --accent-bg: #dbeafe;
+    --success: #059669;
+    --warning: #d97706;
+    --warning-bg: #fed7aa;
+    --danger: #dc2626;
+    --danger-bg: #fee2e2;
+    --serif: 'Source Serif 4', Georgia, serif;
+    --sans: 'Inter', -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh; background: var(--bg-tint);
+    font-family: var(--sans); color: var(--text); font-size: 14px;
+    line-height: 1.5;
+  }
+  .hidden { display: none !important; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ===== Top bar (shared with dashboard) ===== */
+  .topbar {
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 0 24px; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    font-family: var(--serif); font-size: 22px; font-weight: 600;
+    color: var(--accent); letter-spacing: -0.02em;
+  }
+  .brand-name {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-muted);
+  }
+  .topbar-nav { display: flex; align-items: center; gap: 4px; }
+  .nav-link {
+    padding: 8px 12px; border-radius: 4px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .nav-link:hover { background: var(--bg-tint); color: var(--text); text-decoration: none; }
+  .nav-link.active { background: var(--bg-blue); color: var(--accent-dark); }
+  .user-email { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
+  .signout-btn {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-dim);
+    background: transparent; border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 4px; cursor: pointer;
+  }
+  .signout-btn:hover { border-color: var(--text-dim); color: var(--text-muted); }
+
+  /* ===== Page layout ===== */
+  .page { max-width: 1280px; margin: 0 auto; padding: 32px 24px; }
+  .page-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 28px; flex-wrap: wrap; gap: 12px;
+  }
+  .page-title {
+    font-family: var(--serif); font-size: 32px; font-weight: 500;
+    letter-spacing: -0.02em; color: var(--text); margin: 0;
+  }
+  .page-subtitle {
+    color: var(--text-muted); margin: 6px 0 0; font-size: 14px;
+  }
+  .version-badge {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+    color: var(--accent-dark); background: var(--bg-blue);
+    padding: 6px 12px; border-radius: 3px; text-transform: uppercase;
+    border: 1px solid var(--border-blue);
+  }
+
+  /* ===== Tabs ===== */
+  .tabs {
+    display: flex; gap: 0; border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .tab {
+    padding: 12px 16px; cursor: pointer;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-muted);
+    background: transparent; border: none; border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent-dark); border-bottom-color: var(--accent); }
+
+  /* ===== Section ===== */
+  .section { margin-bottom: 32px; }
+  .section-header {
+    margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+  .section-title {
+    font-family: var(--serif); font-size: 20px; font-weight: 500;
+    letter-spacing: -0.01em; margin: 0;
+  }
+  .section-desc {
+    color: var(--text-muted); font-size: 13px; margin: 4px 0 0;
+  }
+
+  /* ===== Cards ===== */
+  .card {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 20px;
+  }
+  .card + .card { margin-top: 16px; }
+  .card-summary {
+    background: var(--bg-blue-soft); border-color: var(--border-blue);
+    padding: 24px;
+  }
+  .summary-text {
+    font-family: var(--serif); font-size: 18px; line-height: 1.55;
+    color: var(--text); margin: 0;
+  }
+
+  /* ===== Grid layouts ===== */
+  .grid-3 {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  }
+  @media (max-width: 880px) {
+    .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  /* ===== Trait card ===== */
+  .trait-card {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 18px;
+  }
+  .trait-card.strength { border-left: 3px solid var(--success); }
+  .trait-card.weakness { border-left: 3px solid var(--warning); }
+  .trait-card.warning { border-left: 3px solid var(--danger); }
+  .trait-card-title {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-muted); margin: 0 0 12px;
+  }
+  .trait-list {
+    margin: 0; padding: 0; list-style: none;
+  }
+  .trait-list li {
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+    font-size: 13px; line-height: 1.5; color: var(--text);
+  }
+  .trait-list li:last-child { border-bottom: none; }
+  .trait-list li:before {
+    content: "—"; color: var(--text-dim);
+    margin-right: 8px; font-family: var(--mono);
+  }
+
+  /* ===== Limits table ===== */
+  .limits-table {
+    width: 100%; border-collapse: collapse;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; overflow: hidden;
+  }
+  .limits-table th, .limits-table td {
+    padding: 12px 16px; text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .limits-table th {
+    background: var(--bg-tint);
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--text-muted); font-weight: 500;
+  }
+  .limits-table td:last-child {
+    font-family: var(--mono); font-weight: 500; color: var(--text);
+    text-align: right;
+  }
+  .limits-table tr:last-child td { border-bottom: none; }
+  .limits-table tr:hover td { background: var(--bg-tint); }
+
+  .limit-tag {
+    display: inline-block; padding: 3px 8px; border-radius: 3px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .limit-tag.hard { background: var(--danger-bg); color: #991b1b; }
+  .limit-tag.soft { background: var(--warning-bg); color: #92400e; }
+  .limit-tag.approval { background: var(--bg-blue); color: var(--accent-dark); }
+
+  /* ===== List items ===== */
+  .list-card {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 0; overflow: hidden;
+  }
+  .list-item {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+    font-size: 13px;
+  }
+  .list-item:last-child { border-bottom: none; }
+  .list-item-icon {
+    font-family: var(--mono); color: var(--text-dim); font-size: 11px;
+    min-width: 24px;
+  }
+  .list-item-text { flex: 1; color: var(--text); }
+  .list-empty {
+    padding: 20px; color: var(--text-dim); font-size: 13px;
+    text-align: center; font-style: italic;
+  }
+
+  /* ===== Auth gate / loading ===== */
+  .gate {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  }
+  .gate-content { text-align: center; max-width: 360px; }
+  .gate p { color: var(--text-muted); margin: 0 0 20px; }
+  .btn {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 10px 16px; border-radius: 4px;
+    cursor: pointer; border: 1px solid transparent; font-weight: 500;
+    background: var(--accent); color: white; text-decoration: none;
+    display: inline-block;
+  }
+  .btn:hover { background: var(--accent-dark); text-decoration: none; }
+  .loading {
+    text-align: center; padding: 60px 20px;
+    color: var(--text-muted); font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+  }
+
+  /* ===== Empty state for whole page ===== */
+  .page-empty {
+    text-align: center; padding: 80px 20px; max-width: 480px; margin: 0 auto;
+  }
+  .page-empty-mark {
+    font-family: var(--serif); font-size: 64px; color: var(--text-dim);
+    margin-bottom: 12px; opacity: 0.5;
+  }
+  .page-empty h2 {
+    font-family: var(--serif); font-size: 24px; font-weight: 500;
+    margin: 0 0 8px;
+  }
+  .page-empty p { color: var(--text-muted); margin: 0 0 20px; }
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate hidden">
+  <div class="gate-content">
+    <div class="brand-mark" style="font-size: 32px; margin-bottom: 12px;">RR</div>
+    <p>You must be signed in.</p>
+    <a href="/" class="btn">Sign in</a>
+  </div>
+</div>
+
+<div id="loading" class="loading">Loading investor DNA…</div>
+
+<div id="app" class="hidden">
+  <nav class="topbar">
+    <div class="topbar-brand">
+      <span class="brand-mark">RR</span>
+      <span class="brand-name">Ridge Run</span>
+    </div>
+    <div class="topbar-nav">
+      <a href="/dashboard.html" class="nav-link">Dashboard</a>
+      <a href="/dna.html" class="nav-link active">Investor DNA</a>
+      <a href="/watchlist.html" class="nav-link">Watchlist</a>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span class="user-email" id="user-email"></span>
+      <button class="signout-btn" id="signout-btn">Sign out</button>
+    </div>
+  </nav>
+
+  <main class="page">
+    <!-- Empty state shown when no DNA exists -->
+    <div id="empty-state" class="page-empty hidden">
+      <div class="page-empty-mark">—</div>
+      <h2>No investor DNA profile yet</h2>
+      <p id="empty-message">Complete onboarding to generate your investor DNA profile.</p>
+      <a href="/" class="btn">Go to onboarding</a>
+    </div>
+
+    <!-- DNA content -->
+    <div id="dna-app" class="hidden">
+      <header class="page-header">
+        <div>
+          <h1 class="page-title">Investor DNA</h1>
+          <p class="page-subtitle" id="page-subtitle"></p>
+        </div>
+        <div class="version-badge" id="version-badge"></div>
+      </header>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="profile">Profile</button>
+        <button class="tab" data-tab="guardrails">Guardrails</button>
+      </div>
+
+      <!-- Profile tab -->
+      <div id="tab-profile">
+        <section class="section">
+          <div class="card card-summary">
+            <p class="summary-text" id="summary-text"></p>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">Investor traits</h2>
+            <p class="section-desc">Synthesized from your onboarding answers. These shape every guardrail and recommendation downstream.</p>
+          </div>
+          <div class="grid-3">
+            <div class="trait-card strength">
+              <h3 class="trait-card-title">Strengths</h3>
+              <ul class="trait-list" id="strengths-list"></ul>
+            </div>
+            <div class="trait-card weakness">
+              <h3 class="trait-card-title">Weaknesses</h3>
+              <ul class="trait-list" id="weaknesses-list"></ul>
+            </div>
+            <div class="trait-card warning">
+              <h3 class="trait-card-title">Behavioral warnings</h3>
+              <ul class="trait-list" id="warnings-list"></ul>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Guardrails tab -->
+      <div id="tab-guardrails" class="hidden">
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">Hard limits</h2>
+            <p class="section-desc">Non-overrideable. The system blocks any action that would breach these.</p>
+          </div>
+          <table class="limits-table" id="hard-limits-table">
+            <thead>
+              <tr><th>Limit</th><th>Type</th><th style="text-align: right;">Value</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">Soft limits</h2>
+            <p class="section-desc">Overrideable with explicit approval. Breaches trigger alerts.</p>
+          </div>
+          <table class="limits-table" id="soft-limits-table">
+            <thead>
+              <tr><th>Limit</th><th>Type</th><th style="text-align: right;">Value</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">Approval rules</h2>
+            <p class="section-desc">What requires human approval before execution.</p>
+          </div>
+          <table class="limits-table" id="approval-rules-table">
+            <thead>
+              <tr><th>Rule</th><th>Type</th><th style="text-align: right;">Setting</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">Do-not-trade list</h2>
+            <p class="section-desc">Permanently blocked securities.</p>
+          </div>
+          <div class="list-card" id="dnt-list"></div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">Restricted list</h2>
+            <p class="section-desc">Securities restricted due to board roles or compliance obligations.</p>
+          </div>
+          <div class="list-card" id="restricted-list"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://nrbffnsheenmewijeapb.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_WjDoqgd4_eDE1lpfZHkT0g_cyArLkvI';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const $ = id => document.getElementById(id);
+const show = (id, on = true) => $(id).classList.toggle('hidden', !on);
+const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) {
+    show('loading', false); show('gate', true);
+    return;
+  }
+  $('user-email').textContent = session.user.email;
+  await loadDNA(session.user);
+})();
+
+$('signout-btn').addEventListener('click', async () => {
+  await supabase.auth.signOut();
+  window.location.href = '/';
+});
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    show('tab-profile', t.dataset.tab === 'profile');
+    show('tab-guardrails', t.dataset.tab === 'guardrails');
+  });
+});
+
+// Handle direct link to #guardrails
+if (window.location.hash === '#guardrails') {
+  setTimeout(() => document.querySelector('[data-tab="guardrails"]')?.click(), 100);
+}
+
+async function loadDNA(user) {
+  const [dnaRes, guardrailsRes, profileRes] = await Promise.all([
+    supabase.from('investor_dna').select('*').eq('user_id', user.id).eq('is_active', true).order('version', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('guardrail_policies').select('*').eq('user_id', user.id).eq('is_active', true).order('version', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('users').select('*').eq('id', user.id).maybeSingle()
+  ]);
+
+  const dna = dnaRes.data;
+  const guardrails = guardrailsRes.data;
+  const profile = profileRes.data;
+
+  show('loading', false);
+
+  if (!dna) {
+    show('empty-state', true);
+    show('app', true);
+    if (profile?.onboarding_status !== 'completed') {
+      $('empty-message').textContent = profile?.onboarding_status === 'in_progress'
+        ? 'Onboarding is in progress. Finish all questions to generate your DNA profile.'
+        : 'Complete onboarding to generate your investor DNA profile.';
+    } else {
+      $('empty-message').textContent = 'Onboarding is complete but DNA generation has not run yet. The n8n workflow may not be deployed. Try refreshing in a minute.';
+    }
+    return;
+  }
+
+  // Render DNA
+  show('dna-app', true);
+  show('app', true);
+
+  const p = dna.profile || {};
+  $('version-badge').textContent = `v${dna.version}`;
+  $('page-subtitle').textContent = `Generated ${new Date(dna.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+  $('summary-text').textContent = p.profile_summary || 'No summary available.';
+
+  renderTraits('strengths-list', dna.strengths || []);
+  renderTraits('weaknesses-list', dna.weaknesses || []);
+  renderTraits('warnings-list', dna.behavioral_warnings || []);
+
+  if (guardrails) {
+    renderLimits(guardrails);
+  }
+}
+
+function renderTraits(elId, items) {
+  const ul = $(elId);
+  if (!items.length) {
+    ul.innerHTML = '<li style="font-style: italic; color: var(--text-dim);">None identified.</li>';
+    return;
+  }
+  ul.innerHTML = items.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+}
+
+function renderLimits(g) {
+  const hard = g.hard_limits || {};
+  const soft = g.soft_limits || {};
+  const approval = g.approval_rules || {};
+
+  const hardRows = [
+    ['Max single name exposure', hard.max_single_name_pct, '%'],
+    ['Max gross exposure', hard.max_gross_exposure_pct, '%'],
+    ['Max options premium at risk', hard.max_options_premium_pct, '%'],
+    ['Drawdown alert threshold', hard.max_drawdown_alert_pct, '%'],
+    ['Forced de-risk threshold', hard.forced_de_risk_drawdown_pct, '%'],
+    ['Naked puts permitted', hard.naked_puts_permitted, 'bool'],
+    ['Margin permitted', hard.margin_permitted, 'bool']
+  ];
+  $('hard-limits-table').querySelector('tbody').innerHTML = hardRows.filter(r => r[1] !== undefined && r[1] !== null).map(r => `
+    <tr>
+      <td>${r[0]}</td>
+      <td><span class="limit-tag hard">Hard</span></td>
+      <td>${formatLimitValue(r[1], r[2])}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="3" style="text-align:center; color: var(--text-dim);">No hard limits set.</td></tr>';
+
+  const softRows = [
+    ['Target core position count', soft.target_core_position_count, 'range'],
+    ['Target options allocation', soft.target_options_pct, 'range_pct'],
+    ['Max daily loss alert', soft.max_daily_loss_alert_pct, '%'],
+    ['Max weekly loss alert', soft.max_weekly_loss_alert_pct, '%']
+  ];
+  $('soft-limits-table').querySelector('tbody').innerHTML = softRows.filter(r => r[1] !== undefined && r[1] !== null).map(r => `
+    <tr>
+      <td>${r[0]}</td>
+      <td><span class="limit-tag soft">Soft</span></td>
+      <td>${formatLimitValue(r[1], r[2])}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="3" style="text-align:center; color: var(--text-dim);">No soft limits set.</td></tr>';
+
+  const approvalRows = [
+    ['New positions require approval', approval.new_positions_require_approval, 'bool'],
+    ['Options always require approval', approval.options_require_approval_forever, 'bool'],
+    ['Emergency permissions', approval.emergency_permissions, 'array']
+  ];
+  $('approval-rules-table').querySelector('tbody').innerHTML = approvalRows.filter(r => r[1] !== undefined && r[1] !== null).map(r => `
+    <tr>
+      <td>${r[0]}</td>
+      <td><span class="limit-tag approval">Approval</span></td>
+      <td>${formatLimitValue(r[1], r[2])}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="3" style="text-align:center; color: var(--text-dim);">No approval rules set.</td></tr>';
+
+  $('dnt-list').innerHTML = (g.do_not_trade_list || []).length
+    ? g.do_not_trade_list.map((item, i) => `
+        <div class="list-item">
+          <span class="list-item-icon">${String(i + 1).padStart(2, '0')}</span>
+          <span class="list-item-text">${escapeHtml(item)}</span>
+        </div>
+      `).join('')
+    : '<div class="list-empty">No securities on do-not-trade list.</div>';
+
+  $('restricted-list').innerHTML = (g.restricted_list || []).length
+    ? g.restricted_list.map((item, i) => `
+        <div class="list-item">
+          <span class="list-item-icon">${String(i + 1).padStart(2, '0')}</span>
+          <span class="list-item-text">${escapeHtml(item)}</span>
+        </div>
+      `).join('')
+    : '<div class="list-empty">No restricted securities.</div>';
+}
+
+function formatLimitValue(val, type) {
+  if (val === undefined || val === null) return '—';
+  if (type === '%') return val + '%';
+  if (type === 'bool') return val
+    ? '<span style="color: var(--success);">Yes</span>'
+    : '<span style="color: var(--danger);">No</span>';
+  if (type === 'range' && Array.isArray(val)) return `${val[0]}–${val[1]}`;
+  if (type === 'range_pct' && Array.isArray(val)) return `${val[0]}–${val[1]}%`;
+  if (type === 'array' && Array.isArray(val)) return val.join(', ') || '—';
+  return String(val);
+}
+</script>
+</body>
+</html>
