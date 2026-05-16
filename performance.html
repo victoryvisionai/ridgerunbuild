@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Performance · Ridge Run</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --bg: #ffffff; --bg-tint: #f8fafc; --bg-blue: #eff6ff; --bg-blue-soft: #f0f7ff;
+    --border: #e2e8f0; --border-blue: #bfdbfe;
+    --text: #0f172a; --text-muted: #475569; --text-dim: #94a3b8;
+    --accent: #2563eb; --accent-dark: #1e40af; --accent-bg: #dbeafe;
+    --success: #059669; --success-bg: #d1fae5;
+    --warning: #d97706; --warning-bg: #fed7aa;
+    --danger: #dc2626; --danger-bg: #fee2e2;
+    --serif: 'Source Serif 4', Georgia, serif;
+    --sans: 'Inter', -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { min-height: 100vh; background: var(--bg-tint); font-family: var(--sans); color: var(--text); font-size: 14px; line-height: 1.5; }
+  .hidden { display: none !important; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Topbar styles live in nav.js (shared) */
+
+  .page { max-width: 1280px; margin: 0 auto; padding: 32px 24px; }
+  .page-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 28px; gap: 12px; flex-wrap: wrap; }
+  .page-title { font-family: var(--serif); font-size: 32px; font-weight: 500; letter-spacing: -0.02em; margin: 0; }
+  .page-subtitle { color: var(--text-muted); margin: 6px 0 0; font-size: 14px; }
+
+  /* Action bar */
+  .actions-bar { display: flex; gap: 10px; align-items: center; }
+  .btn { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; padding: 10px 16px; border-radius: 4px; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; font-weight: 500; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-primary:disabled { opacity: 0.5; cursor: wait; }
+  .btn-ghost { background: var(--bg); color: var(--text-muted); border-color: var(--border); }
+  .btn-ghost:hover:not(:disabled) { border-color: var(--text-dim); color: var(--text); }
+
+  /* Stats grid */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+  @media (max-width: 880px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+  .stat-card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 18px; }
+  .stat-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+  .stat-value { font-family: var(--serif); font-size: 28px; font-weight: 500; color: var(--text); letter-spacing: -0.02em; }
+  .stat-sub { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .stat-value.success { color: var(--success); }
+  .stat-value.warning { color: var(--warning); }
+  .stat-value.danger { color: var(--danger); }
+
+  /* Section */
+  .section { margin-bottom: 32px; }
+  .section-header { margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-end; }
+  .section-title { font-family: var(--serif); font-size: 20px; font-weight: 500; letter-spacing: -0.01em; margin: 0; }
+  .section-desc { color: var(--text-muted); font-size: 13px; margin: 4px 0 0; }
+
+  /* Trade table */
+  .trade-table { width: 100%; border-collapse: collapse; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; font-size: 13px; }
+  .trade-table th, .trade-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  .trade-table th { background: var(--bg-tint); font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); font-weight: 500; }
+  .trade-table td.num { font-family: var(--mono); text-align: right; }
+  .trade-table tr:last-child td { border-bottom: none; }
+  .trade-table tr.clickable { cursor: pointer; }
+  .trade-table tr.clickable:hover td { background: var(--bg-tint); }
+
+  /* Pills */
+  .pill { display: inline-block; padding: 3px 8px; border-radius: 3px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .pill-green { background: var(--success-bg); color: #065f46; }
+  .pill-amber { background: var(--warning-bg); color: #92400e; }
+  .pill-red { background: var(--danger-bg); color: #991b1b; }
+  .pill-gray { background: var(--bg-tint); color: var(--text-muted); }
+  .pill-blue { background: var(--bg-blue); color: var(--accent-dark); }
+
+  /* Empty state */
+  .empty { background: var(--bg); border: 1px dashed var(--border); border-radius: 6px; padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
+  .empty-mark { font-family: var(--serif); font-size: 40px; color: var(--text-dim); margin-bottom: 8px; opacity: 0.5; }
+  .empty h3 { font-family: var(--serif); font-size: 18px; font-weight: 500; margin: 0 0 8px; color: var(--text); }
+  .empty p { margin: 0 0 16px; }
+
+  /* Banner / messages */
+  .banner { background: var(--bg-blue-soft); border: 1px solid var(--border-blue); border-radius: 6px; padding: 14px 18px; margin-bottom: 20px; font-size: 13px; color: var(--accent-dark); }
+  .banner b { color: var(--accent-dark); }
+  .msg { margin-bottom: 16px; padding: 10px 14px; font-size: 13px; border-radius: 4px; }
+  .msg-error { background: var(--danger-bg); color: #991b1b; border: 1px solid #fecaca; }
+  .msg-success { background: var(--success-bg); color: #065f46; border: 1px solid #a7f3d0; }
+  .msg-info { background: var(--bg-blue); color: var(--accent-dark); border: 1px solid var(--border-blue); }
+
+  /* Detail drawer */
+  .drawer-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); z-index: 10; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 520px; max-width: 100vw; background: var(--bg); box-shadow: -10px 0 40px rgba(0,0,0,0.15); z-index: 11; overflow-y: auto; }
+  .drawer-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .drawer-title { font-family: var(--serif); font-size: 20px; font-weight: 500; margin: 0; }
+  .drawer-close { background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--text-dim); padding: 0 8px; }
+  .drawer-close:hover { color: var(--text); }
+  .drawer-body { padding: 20px 24px; }
+  .field-row { padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .field-row:last-child { border-bottom: none; }
+  .field-row-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .field-row-value { color: var(--text); line-height: 1.5; }
+  .analysis-block { background: var(--bg-blue-soft); border: 1px solid var(--border-blue); border-radius: 6px; padding: 16px; margin-top: 16px; }
+  .analysis-block h4 { font-family: var(--serif); font-size: 15px; font-weight: 500; margin: 0 0 10px; color: var(--accent-dark); }
+
+  /* Gate / loading */
+  .gate { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .gate-content { text-align: center; max-width: 360px; }
+  .gate p { color: var(--text-muted); margin: 0 0 20px; }
+  .loading { text-align: center; padding: 60px 20px; color: var(--text-muted); font-family: var(--mono); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; }
+
+  .brand-mark { font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--accent); letter-spacing: -0.02em; }
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate hidden">
+  <div class="gate-content">
+    <div class="brand-mark" style="font-size: 32px; margin-bottom: 12px;">RR</div>
+    <p>You must be signed in.</p>
+    <a href="/" class="btn btn-primary">Sign in</a>
+  </div>
+</div>
+
+<div id="loading" class="loading">Loading performance…</div>
+
+<div id="app" class="hidden">
+  <div id="rr-nav-container"></div>
+
+  <main class="page">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">Performance</h1>
+        <p class="page-subtitle">Behavioral analysis of your trade history. The patterns that calibrate every guardrail downstream.</p>
+      </div>
+      <div class="actions-bar">
+        <button class="btn btn-ghost" id="btn-backfill-prices">Backfill prices</button>
+        <button class="btn btn-primary" id="btn-analyze">Analyze trades</button>
+      </div>
+    </header>
+
+    <div id="msg-area"></div>
+
+    <!-- ===== STATS GRID ===== -->
+    <div class="stats-grid" id="stats-grid"></div>
+
+    <!-- ===== TRADES SECTION ===== -->
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">All trades</h2>
+          <p class="section-desc">Click a row to see the AI analysis for that trade.</p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <select class="btn btn-ghost" id="filter-analysis" style="font-size: 11px; padding: 8px 12px;">
+            <option value="all">All trades</option>
+            <option value="analyzed">Analyzed only</option>
+            <option value="pending">Pending analysis</option>
+          </select>
+        </div>
+      </div>
+      <div id="trades-table"></div>
+    </section>
+
+    <!-- ===== INSIGHTS ===== -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Common lessons</h2>
+        <p class="section-desc">Patterns extracted across analyzed trades.</p>
+      </div>
+      <div id="lessons-list"></div>
+    </section>
+  </main>
+</div>
+
+<!-- Detail drawer (hidden by default) -->
+<div id="drawer-root"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/nav.js"></script>
+<script>
+const SUPABASE_URL = 'https://nrbffnsheenmewijeapb.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_WjDoqgd4_eDE1lpfZHkT0g_cyArLkvI';
+const N8N_ANALYZE_WEBHOOK = '';
+const N8N_BACKFILL_WEBHOOK = '';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const $ = id => document.getElementById(id);
+const show = (id, on = true) => $(id).classList.toggle('hidden', !on);
+const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let currentUser = null;
+let allTrades = [];
+let filterMode = 'all';
+
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) { show('loading', false); show('gate', true); return; }
+  currentUser = session.user;
+
+  RidgeRunNav.mount({ active: 'performance', supabase });
+  await loadAll();
+  show('loading', false);
+  show('app', true);
+})();
+
+async function loadAll() {
+  await Promise.all([loadTrades(), loadStats()]);
+  renderLessons();
+}
+
+async function loadTrades() {
+  const { data, error } = await supabase
+    .from('historical_trades')
+    .select('*')
+    .eq('is_active', true)
+    .order('trade_date', { ascending: false });
+
+  if (error) return showMsg('Failed to load trades: ' + error.message, 'error');
+  allTrades = data || [];
+  renderTrades();
+}
+
+async function loadStats() {
+  const { data } = await supabase
+    .from('trade_performance_summary')
+    .select('*')
+    .maybeSingle();
+
+  const s = data || {
+    total_trades: 0, analyzed_trades: 0,
+    edge_correct_count: 0, edge_wrong_count: 0,
+    oversized_count: 0, leverage_hurt_count: 0, poor_exits_count: 0
+  };
+
+  const total = s.total_trades || 0;
+  const analyzed = s.analyzed_trades || 0;
+  const edgeRate = analyzed > 0 ? Math.round((s.edge_correct_count / analyzed) * 100) : null;
+
+  $('stats-grid').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">Total trades</div>
+      <div class="stat-value">${total}</div>
+      <div class="stat-sub">${analyzed} analyzed${total > 0 ? ' · ' + Math.round(analyzed / total * 100) + '%' : ''}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Edge correct rate</div>
+      <div class="stat-value ${edgeRate === null ? '' : edgeRate >= 60 ? 'success' : edgeRate >= 40 ? '' : 'warning'}">${edgeRate === null ? '—' : edgeRate + '%'}</div>
+      <div class="stat-sub">${s.edge_correct_count || 0} right · ${s.edge_wrong_count || 0} wrong</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Sizing issues</div>
+      <div class="stat-value ${(s.oversized_count || 0) > 0 ? 'warning' : ''}">${s.oversized_count || 0}</div>
+      <div class="stat-sub">Trades flagged as excessive sizing</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Exit problems</div>
+      <div class="stat-value ${(s.poor_exits_count || 0) > 0 ? 'warning' : ''}">${s.poor_exits_count || 0}</div>
+      <div class="stat-sub">Poor exit discipline</div>
+    </div>
+  `;
+}
+
+function renderTrades() {
+  let trades = allTrades;
+  if (filterMode === 'analyzed') trades = trades.filter(t => t.analysis !== null);
+  if (filterMode === 'pending') trades = trades.filter(t => t.analysis === null);
+
+  if (trades.length === 0) {
+    if (allTrades.length === 0) {
+      $('trades-table').innerHTML = `
+        <div class="empty">
+          <div class="empty-mark">—</div>
+          <h3>No trades yet</h3>
+          <p>Add trades on the <a href="/uploads.html">Uploads</a> page to begin analysis.</p>
+        </div>
+      `;
+    } else {
+      $('trades-table').innerHTML = `<div class="empty"><div class="empty-mark">—</div>No trades match this filter.</div>`;
+    }
+    return;
+  }
+
+  $('trades-table').innerHTML = `
+    <table class="trade-table">
+      <thead><tr>
+        <th>Date</th><th>Symbol</th><th>Side</th>
+        <th class="num">Qty</th><th class="num">Price</th>
+        <th>Edge</th><th>Sizing</th><th>Exit</th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody>
+        ${trades.map(t => {
+          const a = t.analysis;
+          return `
+            <tr class="clickable" data-id="${t.id}">
+              <td class="num">${t.trade_date}</td>
+              <td><b>${escapeHtml(t.symbol)}</b></td>
+              <td><span class="pill ${sideClass(t.side)}">${t.side}</span></td>
+              <td class="num">${fmtNum(t.quantity)}</td>
+              <td class="num">${t.price ? '$' + fmtNum(t.price) : '—'}</td>
+              <td>${a ? renderEdgePill(a.edge_correct) : '<span class="pill pill-gray">—</span>'}</td>
+              <td>${a ? renderSizingPill(a.sizing) : '<span class="pill pill-gray">—</span>'}</td>
+              <td>${a ? renderExitPill(a.exit_discipline) : '<span class="pill pill-gray">—</span>'}</td>
+              <td>${a ? '<span class="pill pill-blue">Analyzed</span>' : '<span class="pill pill-gray">Pending</span>'}</td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+
+  $('trades-table').querySelectorAll('tr.clickable').forEach(row => {
+    row.addEventListener('click', () => openDrawer(row.dataset.id));
+  });
+}
+
+function sideClass(s) {
+  if (s === 'buy' || s === 'cover') return 'pill-green';
+  if (s === 'sell' || s === 'short') return 'pill-red';
+  return 'pill-gray';
+}
+function renderEdgePill(v) {
+  if (v === true) return '<span class="pill pill-green">Right</span>';
+  if (v === false) return '<span class="pill pill-red">Wrong</span>';
+  return '<span class="pill pill-gray">Unknown</span>';
+}
+function renderSizingPill(v) {
+  if (v === 'appropriate') return '<span class="pill pill-green">OK</span>';
+  if (v === 'excessive') return '<span class="pill pill-red">Excessive</span>';
+  if (v === 'small') return '<span class="pill pill-amber">Small</span>';
+  return '<span class="pill pill-gray">Unknown</span>';
+}
+function renderExitPill(v) {
+  if (v === 'good') return '<span class="pill pill-green">Good</span>';
+  if (v === 'too_early') return '<span class="pill pill-amber">Too early</span>';
+  if (v === 'too_late') return '<span class="pill pill-amber">Too late</span>';
+  if (v === 'poor') return '<span class="pill pill-red">Poor</span>';
+  return '<span class="pill pill-gray">Unknown</span>';
+}
+function fmtNum(n) {
+  if (n === null || n === undefined) return '';
+  const num = Number(n);
+  if (Math.abs(num) >= 1000) return num.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  return num.toString();
+}
+
+function renderLessons() {
+  const analyzed = allTrades.filter(t => t.analysis && t.analysis.lesson);
+  if (analyzed.length === 0) {
+    $('lessons-list').innerHTML = `<div class="empty">No analyzed trades yet. Click "Analyze trades" once you have some entries.</div>`;
+    return;
+  }
+  $('lessons-list').innerHTML = `
+    <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+      ${analyzed.map(t => `
+        <div style="padding: 12px 18px; border-bottom: 1px solid var(--border); display: flex; gap: 14px; align-items: center;">
+          <div style="font-family: var(--mono); font-size: 11px; color: var(--text-dim); min-width: 100px;">${t.trade_date}</div>
+          <div style="font-family: var(--mono); font-weight: 500; min-width: 80px;">${escapeHtml(t.symbol)}</div>
+          <div style="flex: 1; color: var(--text); font-size: 13px; line-height: 1.5;">${escapeHtml(t.analysis.lesson)}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+$('filter-analysis').addEventListener('change', e => {
+  filterMode = e.target.value;
+  renderTrades();
+});
+
+// ===== ACTIONS =====
+$('btn-analyze').addEventListener('click', async () => {
+  if (!N8N_ANALYZE_WEBHOOK) {
+    return showMsg('N8N_ANALYZE_WEBHOOK not configured in performance.html. Set it after importing the workflow.', 'error');
+  }
+  $('btn-analyze').disabled = true;
+  $('btn-analyze').textContent = 'Analyzing…';
+  try {
+    const resp = await fetch(N8N_ANALYZE_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: currentUser.id, limit: 20 })
+    });
+    const result = await resp.json();
+    if (result.status === 'no_trades_to_analyze') {
+      showMsg('No trades pending analysis. All trades are already analyzed.', 'info');
+    } else {
+      showMsg(`Analyzed ${result.analyzed_count} trades${result.error_count ? ` (${result.error_count} errors)` : ''}.`, 'success');
+      await loadAll();
+    }
+  } catch (err) {
+    showMsg('Analysis failed: ' + err.message, 'error');
+  } finally {
+    $('btn-analyze').disabled = false;
+    $('btn-analyze').textContent = 'Analyze trades';
+  }
+});
+
+$('btn-backfill-prices').addEventListener('click', async () => {
+  if (!N8N_BACKFILL_WEBHOOK) {
+    return showMsg('N8N_BACKFILL_WEBHOOK not configured. Set it after importing the workflow.', 'error');
+  }
+  if (!confirm('Backfill historical prices? This can take several minutes depending on how many tickers you\\'ve traded (Polygon rate limit ~5 req/min on basic).')) return;
+  $('btn-backfill-prices').disabled = true;
+  $('btn-backfill-prices').textContent = 'Running…';
+  try {
+    const resp = await fetch(N8N_BACKFILL_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: currentUser.id })
+    });
+    const result = await resp.json();
+    if (result.status === 'no_symbols') {
+      showMsg('No symbols to backfill — add trades first.', 'info');
+    } else {
+      showMsg(`Backfilled ${result.symbols_processed || 0} symbols${result.error_count ? ` (${result.error_count} errors)` : ''}.`, 'success');
+    }
+  } catch (err) {
+    showMsg('Backfill failed: ' + err.message, 'error');
+  } finally {
+    $('btn-backfill-prices').disabled = false;
+    $('btn-backfill-prices').textContent = 'Backfill prices';
+  }
+});
+
+// ===== DRAWER =====
+function openDrawer(tradeId) {
+  const trade = allTrades.find(t => t.id === tradeId);
+  if (!trade) return;
+  const a = trade.analysis;
+
+  $('drawer-root').innerHTML = `
+    <div class="drawer-backdrop" id="drawer-backdrop"></div>
+    <div class="drawer">
+      <div class="drawer-header">
+        <h2 class="drawer-title">${escapeHtml(trade.symbol)} · ${trade.side} · ${trade.trade_date}</h2>
+        <button class="drawer-close" id="drawer-close">×</button>
+      </div>
+      <div class="drawer-body">
+        <div class="field-row">
+          <div class="field-row-label">Trade</div>
+          <div class="field-row-value">${trade.side} ${fmtNum(trade.quantity)} ${escapeHtml(trade.symbol)} @ ${trade.price ? '$' + fmtNum(trade.price) : 'no price'}</div>
+        </div>
+        ${trade.conviction_at_entry ? `<div class="field-row">
+          <div class="field-row-label">Conviction at entry</div>
+          <div class="field-row-value">${trade.conviction_at_entry} / 5</div>
+        </div>` : ''}
+        ${trade.thesis_notes ? `<div class="field-row">
+          <div class="field-row-label">Thesis at the time</div>
+          <div class="field-row-value">${escapeHtml(trade.thesis_notes)}</div>
+        </div>` : ''}
+        ${trade.outcome_notes ? `<div class="field-row">
+          <div class="field-row-label">Outcome notes</div>
+          <div class="field-row-value">${escapeHtml(trade.outcome_notes)}</div>
+        </div>` : ''}
+
+        ${a ? `
+          <div class="analysis-block">
+            <h4>AI analysis</h4>
+            <div class="field-row">
+              <div class="field-row-label">Edge</div>
+              <div class="field-row-value">${renderEdgePill(a.edge_correct)} ${escapeHtml(a.edge_reasoning || '')}</div>
+            </div>
+            <div class="field-row">
+              <div class="field-row-label">Sizing</div>
+              <div class="field-row-value">${renderSizingPill(a.sizing)} ${escapeHtml(a.sizing_reasoning || '')}</div>
+            </div>
+            <div class="field-row">
+              <div class="field-row-label">Exit discipline</div>
+              <div class="field-row-value">${renderExitPill(a.exit_discipline)} ${escapeHtml(a.exit_reasoning || '')}</div>
+            </div>
+            ${a.tags && a.tags.length ? `<div class="field-row">
+              <div class="field-row-label">Tags</div>
+              <div class="field-row-value">${a.tags.map(t => `<span class="pill pill-blue" style="margin-right: 4px;">${escapeHtml(t)}</span>`).join('')}</div>
+            </div>` : ''}
+            ${a.lesson ? `<div class="field-row">
+              <div class="field-row-label">Lesson</div>
+              <div class="field-row-value" style="font-family: var(--serif); font-style: italic;">${escapeHtml(a.lesson)}</div>
+            </div>` : ''}
+            ${a._market_context && !a._market_context.error ? `<div class="field-row">
+              <div class="field-row-label">Market context (90 days post-entry)</div>
+              <div class="field-row-value" style="font-family: var(--mono); font-size: 12px;">
+                Peak: +${a._market_context.peak_gain_pct}% · Trough: ${a._market_context.max_drawdown_after_entry_pct}% · Final: ${a._market_context.final_return_pct}%
+              </div>
+            </div>` : ''}
+          </div>
+        ` : `
+          <div class="empty" style="margin-top: 20px;">
+            <p>No analysis yet. Click "Analyze trades" to generate.</p>
+          </div>
+        `}
+      </div>
+    </div>
+  `;
+
+  $('drawer-close').addEventListener('click', closeDrawer);
+  $('drawer-backdrop').addEventListener('click', closeDrawer);
+}
+
+function closeDrawer() {
+  $('drawer-root').innerHTML = '';
+}
+
+function showMsg(text, kind) {
+  $('msg-area').innerHTML = `<div class="msg msg-${kind}">${escapeHtml(text)}</div>`;
+  setTimeout(() => { $('msg-area').innerHTML = ''; }, 5000);
+}
+</script>
+</body>
+</html>
