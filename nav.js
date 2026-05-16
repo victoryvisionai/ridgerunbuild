@@ -18,9 +18,9 @@
     { id: 'dashboard', label: 'Dashboard', href: '/dashboard.html' },
     { id: 'dna',       label: 'Investor DNA', href: '/dna.html' },
     { id: 'uploads',   label: 'Uploads', href: '/uploads.html' },
+    { id: 'performance', label: 'Performance', href: '/performance.html' },
     { id: 'watchlist', label: 'Watchlist', href: '/watchlist.html' }
-    // Future pages get added here. Example for batch 3:
-    // { id: 'performance', label: 'Performance', href: '/performance.html' },
+    // Future pages get added here.
   ];
 
   // ===== Style block injected once on first mount =====
