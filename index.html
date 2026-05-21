@@ -535,7 +535,7 @@ const ALL_QUESTIONS = QUESTIONNAIRE.sections.flatMap(s =>
   s.questions.map(q => ({ ...q, sectionId: s.id, section: s }))
 );
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 let currentUser = null, currentSession = null, currentIndex = 0, answers = {}, saveTimer = null;
 
 const $ = id => document.getElementById(id);
