@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ask AI · Ridge Run</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{--bg:#fff;--bg-tint:#f8fafc;--bg-blue:#eff6ff;--bg-blue-soft:#f0f7ff;--border:#e2e8f0;--border-blue:#bfdbfe;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;--accent:#2563eb;--accent-dark:#1e40af;--success:#059669;--success-bg:#d1fae5;--warning:#d97706;--warning-bg:#fed7aa;--danger:#dc2626;--danger-bg:#fee2e2;--serif:'Source Serif 4',Georgia,serif;--sans:'Inter',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace}
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{background:var(--bg-tint);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh}
+  .hidden{display:none!important}
+  .loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim)}
+  .shell{max-width:1400px;margin:0 auto;padding:0 24px 80px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:8px;flex-wrap:wrap;gap:12px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-mark{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--accent);letter-spacing:-0.02em}
+  .brand-name{font-family:var(--mono);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted)}
+  .nav-tabs{display:flex;gap:4px;flex-wrap:wrap}
+  .nav-tabs a{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;padding:6px 10px;border-radius:3px;border:1px solid transparent}
+  .nav-tabs a:hover{color:var(--text);background:var(--bg)} .nav-tabs a.active{color:var(--accent);background:var(--bg-blue);border-color:var(--border-blue)}
+  .user-meta{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:11px;color:var(--text-muted)}
+  .signout{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;background:transparent;border:1px solid var(--border);padding:6px 10px;border-radius:3px}
+  .signout:hover{border-color:var(--text-dim);color:var(--text-muted)}
+
+  .ai-layout{display:grid;grid-template-columns:380px 1fr;gap:18px;margin-top:18px;min-height:calc(100vh - 140px)}
+  .chat-col{display:flex;flex-direction:column;background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden;min-height:600px}
+  .chat-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .chat-header h2{font-family:var(--serif);font-size:18px;font-weight:500;margin:0}
+  .chat-header .new-btn{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;background:var(--bg);border:1px solid var(--border);padding:5px 9px;border-radius:3px;color:var(--text-muted);cursor:pointer}
+  .chat-header .new-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .messages{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px}
+  .msg{display:flex;flex-direction:column;gap:4px;max-width:100%}
+  .msg .who{font-family:var(--mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-dim)}
+  .msg.user .who{color:var(--accent)}
+  .msg .body{padding:10px 14px;border-radius:6px;font-size:13.5px;line-height:1.6;white-space:pre-wrap;word-wrap:break-word}
+  .msg.user .body{background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--text)}
+  .msg.assistant .body{background:var(--bg-tint);border:1px solid var(--border);color:var(--text)}
+  .msg.assistant .body code{background:#fff;padding:1px 4px;border-radius:2px;font-size:12px;font-family:var(--mono)}
+  .typing{display:flex;gap:4px;align-items:center;padding:10px 14px;color:var(--text-muted);font-size:12px;font-style:italic}
+  .typing .dot{width:6px;height:6px;border-radius:50%;background:var(--text-dim);animation:bounce 1.2s infinite}
+  .typing .dot:nth-child(2){animation-delay:0.15s} .typing .dot:nth-child(3){animation-delay:0.3s}
+  @keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:0.5}40%{transform:translateY(-4px);opacity:1}}
+
+  .input-row{padding:14px 18px;border-top:1px solid var(--border);display:flex;gap:10px;background:var(--bg-tint)}
+  .input-row textarea{flex:1;background:var(--bg);border:1px solid var(--border);padding:10px 14px;font-family:var(--sans);font-size:13.5px;color:var(--text);border-radius:4px;resize:none;min-height:40px;max-height:160px;line-height:1.4}
+  .input-row textarea:focus{outline:none;border-color:var(--accent)}
+  .input-row button{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:0 18px;border-radius:4px;cursor:pointer;border:none;background:var(--accent);color:#fff;font-weight:500}
+  .input-row button:disabled{opacity:.4;cursor:wait}
+  .suggestions{padding:0 18px 12px;display:flex;flex-wrap:wrap;gap:6px}
+  .suggestions button{font-family:var(--mono);font-size:10px;letter-spacing:0.05em;background:var(--bg);border:1px solid var(--border);color:var(--text-muted);padding:5px 9px;border-radius:3px;cursor:pointer}
+  .suggestions button:hover{border-color:var(--accent);color:var(--accent)}
+
+  .panes-col{display:flex;flex-direction:column;gap:14px}
+  .pane-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;align-content:start}
+  .pane{background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden;display:flex;flex-direction:column}
+  .pane-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg-tint)}
+  .pane-title{font-family:var(--serif);font-size:15px;font-weight:500;letter-spacing:-0.01em;color:var(--text)}
+  .pane-meta{font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-top:2px}
+  .pane-actions button{background:transparent;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;padding:0 6px;line-height:1}
+  .pane-actions button:hover{color:var(--danger)}
+  .pane-body{padding:16px;flex:1;overflow:auto}
+  .pane-empty{padding:60px 20px;text-align:center;color:var(--text-muted);font-size:13px;border:1px dashed var(--border);border-radius:6px;background:var(--bg)}
+  .pane-empty .big{font-family:var(--serif);font-size:20px;margin-bottom:6px;color:var(--text)}
+
+  /* pane components */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+  .kpi-tile{padding:12px;background:var(--bg-tint);border:1px solid var(--border);border-radius:4px}
+  .kpi-tile .kpi-label{font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+  .kpi-tile .kpi-value{font-family:var(--serif);font-size:20px;font-weight:500;letter-spacing:-0.01em;color:var(--text)}
+  .kpi-tile .kpi-sub{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:3px}
+  .kpi-tile.pos .kpi-value{color:var(--success)} .kpi-tile.neg .kpi-value{color:var(--danger)}
+  table.pane-table{width:100%;border-collapse:collapse;font-size:12px}
+  table.pane-table th{text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:6px 8px;border-bottom:1px solid var(--border)}
+  table.pane-table td{padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px}
+  table.pane-table td.num{text-align:right} table.pane-table td.pos{color:var(--success)} table.pane-table td.neg{color:var(--danger)}
+  table.pane-table tr:last-child td{border-bottom:none}
+  .md-body{font-family:var(--sans);font-size:13px;line-height:1.6;color:var(--text)}
+  .md-body strong{font-weight:600} .md-body em{font-style:italic} .md-body code{background:var(--bg-tint);padding:1px 4px;border-radius:2px;font-family:var(--mono);font-size:12px}
+  .md-body ul{margin:6px 0;padding-left:18px} .md-body li{margin:2px 0}
+  .md-body p{margin:6px 0}
+
+  .err-banner{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b;padding:10px 14px;border-radius:4px;margin:0 18px 14px;font-size:12px}
+
+  @media (max-width:980px){.ai-layout{grid-template-columns:1fr}.pane-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="loading-screen" class="loading">Loading…</div>
+
+<div id="app" class="shell hidden">
+  <div class="topbar">
+    <div class="brand"><span class="brand-mark">RR</span><span class="brand-name">Ridge Run</span></div>
+    <nav class="nav-tabs">
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/dna.html">Investor DNA</a>
+      <a href="/performance.html">Performance</a>
+      <a href="/watchlist.html">Watchlist</a>
+      <a href="/ai.html" class="active">Ask AI</a>
+    </nav>
+    <div class="user-meta">
+      <span id="user-email"></span>
+      <button class="signout" id="signout-btn">Sign out</button>
+    </div>
+  </div>
+
+  <div class="ai-layout">
+    <div class="chat-col">
+      <div class="chat-header">
+        <h2>Conversation</h2>
+        <button class="new-btn" id="new-chat-btn">+ New</button>
+      </div>
+      <div class="messages" id="messages">
+        <div class="msg assistant">
+          <div class="who">Ridge Run AI</div>
+          <div class="body">Hi. I can read your trade history, DNA, and watchlists. Ask me anything — I'll pull the data and show you charts on the right.
+
+Try: "Show my realized P/L by year" or "What were my biggest losers in 2021?"</div>
+        </div>
+      </div>
+      <div class="suggestions" id="suggestions">
+        <button data-q="Show me my realized P/L by year as a bar chart.">P/L by year</button>
+        <button data-q="What were my top 5 winning and losing symbols of all time?">Top winners & losers</button>
+        <button data-q="Show me my NAV over time.">NAV chart</button>
+        <button data-q="Compare my realized P/L by asset class — stocks vs options vs warrants.">Asset class breakdown</button>
+        <button data-q="What were my worst trades in 2021 and what asset class were they?">2021 worst trades</button>
+      </div>
+      <div class="input-row">
+        <textarea id="chat-input" placeholder="Ask anything about your portfolio…" rows="1"></textarea>
+        <button id="send-btn">Send</button>
+      </div>
+    </div>
+
+    <div class="panes-col">
+      <div id="panes-empty" class="pane-empty">
+        <div class="big">Panes appear here</div>
+        <p>When you ask a question, charts and tables will render in this area.<br>The AI controls which pane shows what.</p>
+      </div>
+      <div class="pane-grid hidden" id="pane-grid"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/config.js"></script>
+<script>
+(() => {
+const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, N8N_CHAT_URL } = window.RR_CONFIG;
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+let currentUser = null;
+let conversationId = null;
+let history = []; // [{role, content}]
+const panes = {}; // {slot: {slot,title,component,data}}
+
+const $ = id => document.getElementById(id);
+const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => (n==null||isNaN(n))?'—':Number(n).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+const fmtNum = n => (n==null||isNaN(n))?'—':Number(n).toLocaleString('en-US');
+
+(async () => {
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session?.user){ window.location.href='/index.html'; return; }
+  currentUser = session.user;
+  $('user-email').textContent = currentUser.email || '';
+  show('loading-screen',false); show('app',true);
+  await ensureConversation();
+})();
+
+$('signout-btn').addEventListener('click', async()=>{ await sb.auth.signOut(); window.location.href='/index.html'; });
+$('send-btn').addEventListener('click', send);
+$('new-chat-btn').addEventListener('click', newChat);
+$('chat-input').addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); }});
+$('chat-input').addEventListener('input', e=>{ e.target.style.height='auto'; e.target.style.height=Math.min(e.target.scrollHeight,160)+'px'; });
+document.querySelectorAll('#suggestions button').forEach(b=>b.addEventListener('click',()=>{ $('chat-input').value=b.dataset.q; send(); }));
+
+async function ensureConversation(){
+  const { data } = await sb.from('chat_conversations').select('id').eq('user_id',currentUser.id).order('updated_at',{ascending:false}).limit(1).maybeSingle();
+  if(data?.id){
+    conversationId = data.id;
+    const { data: msgs } = await sb.from('chat_messages').select('role, content, panes, created_at').eq('conversation_id',conversationId).order('created_at',{ascending:true});
+    if(msgs?.length){
+      $('messages').innerHTML='';
+      msgs.forEach(m=>{
+        addMessage(m.role, m.content||'');
+        if(m.role==='assistant' && Array.isArray(m.panes)) m.panes.forEach(p=>upsertPane(p));
+      });
+      renderPanes();
+    }
+    history = (msgs||[]).map(m=>({role:m.role, content:m.content||''}));
+  } else {
+    await newChat();
+  }
+}
+
+async function newChat(){
+  const { data } = await sb.from('chat_conversations').insert({ user_id:currentUser.id, title:'New conversation' }).select().single();
+  conversationId = data.id;
+  history = [];
+  $('messages').innerHTML = `<div class="msg assistant"><div class="who">Ridge Run AI</div><div class="body">New conversation started. What do you want to know?</div></div>`;
+  Object.keys(panes).forEach(k=>delete panes[k]);
+  renderPanes();
+}
+
+function addMessage(role, content){
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = `<div class="who">${role==='user'?'You':'Ridge Run AI'}</div><div class="body">${esc(content)}</div>`;
+  $('messages').appendChild(div);
+  $('messages').scrollTop = $('messages').scrollHeight;
+  return div;
+}
+function addTyping(){
+  const div = document.createElement('div');
+  div.className = 'msg assistant typing-msg';
+  div.innerHTML = `<div class="who">Ridge Run AI</div><div class="typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span style="margin-left:6px">thinking…</span></div>`;
+  $('messages').appendChild(div);
+  $('messages').scrollTop = $('messages').scrollHeight;
+  return div;
+}
+
+async function send(){
+  const text = $('chat-input').value.trim();
+  if(!text) return;
+  $('chat-input').value=''; $('chat-input').style.height='auto';
+  $('send-btn').disabled = true;
+
+  addMessage('user', text);
+  history.push({ role:'user', content:text });
+  await sb.from('chat_messages').insert({ conversation_id:conversationId, user_id:currentUser.id, role:'user', content:text });
+
+  const typing = addTyping();
+
+  if(!N8N_CHAT_URL){
+    typing.remove();
+    addMessage('assistant','⚠️ N8N_CHAT_URL is not set in /config.js. Paste your chat webhook URL there to enable the AI.');
+    $('send-btn').disabled=false;
+    return;
+  }
+
+  try{
+    const resp = await fetch(N8N_CHAT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ user_id: currentUser.id, message: text, history })
+    });
+    if(!resp.ok) throw new Error('Webhook returned '+resp.status);
+    const data = await resp.json();
+    typing.remove();
+
+    const assistantText = data.assistant_text || data.text || '(no response)';
+    const newPanes = Array.isArray(data.panes) ? data.panes : [];
+
+    addMessage('assistant', assistantText);
+    history.push({ role:'assistant', content: assistantText });
+
+    newPanes.forEach(p=>upsertPane(p));
+    renderPanes();
+
+    await sb.from('chat_messages').insert({ conversation_id:conversationId, user_id:currentUser.id, role:'assistant', content:assistantText, panes:newPanes });
+    await sb.from('chat_conversations').update({ updated_at:new Date().toISOString() }).eq('id',conversationId);
+  } catch(err){
+    typing.remove();
+    addMessage('assistant', '⚠️ Request failed: ' + err.message);
+  }
+  $('send-btn').disabled=false;
+}
+
+function upsertPane(p){
+  if(!p || p.slot==null) return;
+  panes[p.slot] = p;
+}
+
+function renderPanes(){
+  const slots = Object.keys(panes).sort((a,b)=>Number(a)-Number(b));
+  if(!slots.length){ show('panes-empty',true); show('pane-grid',false); return; }
+  show('panes-empty',false); show('pane-grid',true);
+  $('pane-grid').innerHTML = slots.map(s=>renderPane(panes[s])).join('');
+}
+
+function renderPane(p){
+  const body = renderPaneBody(p);
+  return `<div class="pane">
+    <div class="pane-header">
+      <div>
+        <div class="pane-title">${esc(p.title||'Pane '+p.slot)}</div>
+        <div class="pane-meta">slot ${esc(p.slot)} · ${esc(p.component||'unknown')}</div>
+      </div>
+      <div class="pane-actions"><button onclick="window._clearPane(${p.slot})" title="Remove">×</button></div>
+    </div>
+    <div class="pane-body">${body}</div>
+  </div>`;
+}
+
+window._clearPane = (slot) => { delete panes[slot]; renderPanes(); };
+
+function renderPaneBody(p){
+  const data = p.data || {};
+  try{
+    switch(p.component){
+      case 'kpi_grid':    return renderKpis(data);
+      case 'bar_chart':   return renderBars(data);
+      case 'line_chart':  return renderLine(data);
+      case 'pie_chart':   return renderPie(data);
+      case 'table_simple':return renderTable(data);
+      case 'markdown_text': return `<div class="md-body">${renderMarkdown(data.markdown||'')}</div>`;
+      default: return `<div class="pane-empty">Unknown component: ${esc(p.component)}</div>`;
+    }
+  } catch(e){
+    console.error('Pane render error:', e, p);
+    return `<div class="pane-empty">Render error: ${esc(e.message)}</div>`;
+  }
+}
+
+function looksLikeMoney(v){ return typeof v==='number' && Math.abs(v)>=100; }
+function smartFmt(v){
+  if(v==null) return '—';
+  if(typeof v==='number'){
+    if(looksLikeMoney(v)) return fmt(v);
+    if(Math.abs(v)<1 && v!==0) return v.toFixed(3);
+    return fmtNum(v);
+  }
+  return String(v);
+}
+
+function renderKpis(data){
+  const tiles = data.tiles || [];
+  if(!tiles.length) return '<div class="pane-empty">No KPIs.</div>';
+  return `<div class="kpi-grid">${tiles.map(t=>{
+    const v = t.value;
+    let cls = '';
+    if(typeof v==='number') cls = v>0?'pos':v<0?'neg':'';
+    return `<div class="kpi-tile ${cls}"><div class="kpi-label">${esc(t.label||'')}</div><div class="kpi-value">${esc(smartFmt(v))}</div>${t.sub?`<div class="kpi-sub">${esc(t.sub)}</div>`:''}</div>`;
+  }).join('')}</div>`;
+}
+
+// data shape: {labels:[str], series:[{name, values:[num]}]}  -- accept also {values:[num]} for single-series
+function renderBars(data){
+  const labels = data.labels || [];
+  let series = data.series;
+  if(!series && Array.isArray(data.values)) series = [{ name: data.name||'', values: data.values }];
+  if(!labels.length || !series?.length) return '<div class="pane-empty">No data.</div>';
+  const allVals = series.flatMap(s=>s.values||[]);
+  const maxV = Math.max(...allVals, 1);
+  const minV = Math.min(...allVals, 0);
+  const range = maxV - minV || 1;
+  const W=400, rowH=28, padL=110, padR=70, padT=10;
+  const H = padT + labels.length*rowH + 10;
+  const usableW = W - padL - padR;
+  const zeroX = padL + (-minV/range)*usableW;
+  const colors = ['#2563eb','#059669','#d97706','#7c3aed'];
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">`;
+  labels.forEach((lab,i)=>{
+    const y = padT + i*rowH;
+    svg += `<text x="${padL-6}" y="${y+rowH/2+4}" text-anchor="end" font-family="JetBrains Mono" font-size="11" fill="#475569">${esc(lab)}</text>`;
+    const seriesCount = series.length;
+    series.forEach((s,si)=>{
+      const v = Number(s.values?.[i] || 0);
+      const barX = v>=0 ? zeroX : padL + ((v-minV)/range)*usableW;
+      const barW = Math.abs((v/range)*usableW);
+      const barY = y + 4 + si*((rowH-8)/seriesCount);
+      const barH = (rowH-8)/seriesCount - 2;
+      const color = v<0 ? '#dc2626' : colors[si%colors.length];
+      svg += `<rect x="${barX}" y="${barY}" width="${barW}" height="${barH}" rx="2" fill="${color}"/>`;
+      if(si===0){
+        const labelX = v>=0 ? barX+barW+4 : barX-4;
+        const anchor = v>=0 ? 'start' : 'end';
+        svg += `<text x="${labelX}" y="${y+rowH/2+4}" text-anchor="${anchor}" font-family="JetBrains Mono" font-size="10" fill="#0f172a">${esc(smartFmt(v))}</text>`;
+      }
+    });
+  });
+  svg += `<line x1="${zeroX}" x2="${zeroX}" y1="${padT}" y2="${H-10}" stroke="#cbd5e1"/>`;
+  svg += `</svg>`;
+  if(series.length>1){
+    svg += `<div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap">${series.map((s,i)=>`<div style="display:flex;align-items:center;gap:6px;font-family:JetBrains Mono;font-size:10px;color:#475569"><span style="width:10px;height:10px;background:${colors[i%colors.length]};border-radius:2px"></span>${esc(s.name||'series '+i)}</div>`).join('')}</div>`;
+  }
+  return svg;
+}
+
+function renderLine(data){
+  const labels = data.labels || [];
+  let series = data.series;
+  if(!series && Array.isArray(data.values)) series = [{ name: data.name||'', values: data.values }];
+  if(labels.length<2 || !series?.length) return '<div class="pane-empty">Need 2+ points.</div>';
+  const W=420, H=240, P={t:20,r:14,b:36,l:50};
+  const iw = W-P.l-P.r, ih = H-P.t-P.b;
+  const allVals = series.flatMap(s=>s.values||[]);
+  const maxV = Math.max(...allVals), minV = Math.min(...allVals, 0);
+  const range = (maxV-minV)||1;
+  const xStep = iw / (labels.length-1);
+  const colors = ['#2563eb','#059669','#d97706','#7c3aed'];
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%">`;
+  // y gridlines
+  [0,0.5,1].forEach(t=>{
+    const v = minV + t*range;
+    const y = P.t + (1-t)*ih;
+    svg += `<line x1="${P.l}" x2="${W-P.r}" y1="${y}" y2="${y}" stroke="#e2e8f0" stroke-dasharray="2,3"/>`;
+    svg += `<text x="${P.l-6}" y="${y+3}" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="#94a3b8">${esc(smartFmt(v))}</text>`;
+  });
+  series.forEach((s,si)=>{
+    const color = colors[si%colors.length];
+    const pts = (s.values||[]).map((v,i)=>{
+      const x = P.l + i*xStep;
+      const y = P.t + (1-((v-minV)/range))*ih;
+      return [x.toFixed(1),y.toFixed(1)];
+    });
+    const path = pts.map((p,i)=>`${i===0?'M':'L'}${p[0]},${p[1]}`).join(' ');
+    svg += `<path d="${path}" fill="none" stroke="${color}" stroke-width="2"/>`;
+    pts.forEach(p=>{ svg += `<circle cx="${p[0]}" cy="${p[1]}" r="2.5" fill="${color}"/>`; });
+  });
+  // x labels: first, mid, last
+  [0, Math.floor(labels.length/2), labels.length-1].forEach(i=>{
+    const x = P.l + i*xStep;
+    svg += `<text x="${x}" y="${H-12}" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#64748b">${esc(labels[i])}</text>`;
+  });
+  svg += `</svg>`;
+  if(series.length>1){
+    svg += `<div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap">${series.map((s,i)=>`<div style="display:flex;align-items:center;gap:6px;font-family:JetBrains Mono;font-size:10px;color:#475569"><span style="width:10px;height:10px;background:${colors[i%colors.length]};border-radius:2px"></span>${esc(s.name||'series '+i)}</div>`).join('')}</div>`;
+  }
+  return svg;
+}
+
+function renderPie(data){
+  const slices = data.slices || (data.labels && data.values ? data.labels.map((l,i)=>({label:l,value:data.values[i]})) : []);
+  if(!slices.length) return '<div class="pane-empty">No data.</div>';
+  const total = slices.reduce((s,sl)=>s+(Number(sl.value)||0), 0);
+  if(total===0) return '<div class="pane-empty">All zero.</div>';
+  const colors = ['#2563eb','#059669','#d97706','#dc2626','#7c3aed','#0891b2','#be185d','#0f172a'];
+  const cx=100, cy=100, r=80;
+  let a0 = -Math.PI/2;
+  let svgPaths = '';
+  slices.forEach((sl,i)=>{
+    const a1 = a0 + (Number(sl.value)||0)/total * Math.PI*2;
+    const large = (a1-a0) > Math.PI ? 1 : 0;
+    const x0 = cx + r*Math.cos(a0), y0 = cy + r*Math.sin(a0);
+    const x1 = cx + r*Math.cos(a1), y1 = cy + r*Math.sin(a1);
+    svgPaths += `<path d="M${cx},${cy} L${x0.toFixed(2)},${y0.toFixed(2)} A${r},${r} 0 ${large} 1 ${x1.toFixed(2)},${y1.toFixed(2)} Z" fill="${colors[i%colors.length]}"/>`;
+    a0 = a1;
+  });
+  const legend = slices.map((sl,i)=>`<div style="display:flex;align-items:center;gap:6px;font-family:JetBrains Mono;font-size:10px;color:#475569;margin-bottom:3px"><span style="width:10px;height:10px;background:${colors[i%colors.length]};border-radius:2px;display:inline-block"></span><span style="flex:1">${esc(sl.label||'')}</span><span>${esc(smartFmt(sl.value))} (${((Number(sl.value)||0)/total*100).toFixed(1)}%)</span></div>`).join('');
+  return `<div style="display:grid;grid-template-columns:200px 1fr;gap:14px;align-items:center"><svg viewBox="0 0 200 200">${svgPaths}</svg><div>${legend}</div></div>`;
+}
+
+function renderTable(data){
+  const cols = data.columns || [];
+  const rows = data.rows || [];
+  if(!cols.length) return '<div class="pane-empty">No columns.</div>';
+  return `<table class="pane-table"><thead><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(v=>{
+    const isNum = typeof v==='number';
+    const cls = isNum ? (v>0?'num pos':v<0?'num neg':'num') : '';
+    return `<td class="${cls}">${esc(smartFmt(v))}</td>`;
+  }).join('')}</tr>`).join('')}</tbody></table>`;
+}
+
+function renderMarkdown(md){
+  // tiny markdown: paragraphs, **bold**, *italic*, `code`, - lists
+  let html = esc(md);
+  html = html.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  html = html.replace(/\*([^*]+)\*/g,'<em>$1</em>');
+  html = html.replace(/`([^`]+)`/g,'<code>$1</code>');
+  // simple lists
+  const lines = html.split('\n');
+  let out = '', inList = false;
+  for(const ln of lines){
+    if(/^\s*-\s+/.test(ln)){
+      if(!inList){ out+='<ul>'; inList=true; }
+      out += '<li>'+ln.replace(/^\s*-\s+/,'')+'</li>';
+    } else {
+      if(inList){ out+='</ul>'; inList=false; }
+      if(ln.trim()) out += '<p>'+ln+'</p>';
+    }
+  }
+  if(inList) out += '</ul>';
+  return out;
+}
+})();
+</script>
+</body>
+</html>
