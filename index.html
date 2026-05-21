@@ -322,6 +322,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+(() => {
 const SUPABASE_URL = 'https://nrbffnsheenmewijeapb.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_WjDoqgd4_eDE1lpfZHkT0g_cyArLkvI';
 const N8N_DNA_WEBHOOK_URL = '';
@@ -570,8 +571,8 @@ async function handleAuth() {
   $('auth-submit').textContent = 'Working...';
   try {
     const { data, error } = authMode === 'signup'
-      ? await supabase.auth.signUp({ email, password })
-      : await supabase.auth.signInWithPassword({ email, password });
+      ? await sb.auth.signUp({ email, password })
+      : await sb.auth.signInWithPassword({ email, password });
     if (error) { showAuthMsg(error.message, 'error'); $('auth-submit').disabled = false; $('auth-submit').textContent = 'Continue'; return; }
     if (authMode === 'signup' && !data.session) {
       showAuthMsg('Check your email to confirm your account, then sign in.', 'success');
@@ -586,27 +587,27 @@ async function handleAuth() {
 }
 function showAuthMsg(text, kind) { $('auth-msg').innerHTML = `<div class="msg msg-${kind}">${text}</div>`; }
 
-$('signout-btn').addEventListener('click', async () => { await supabase.auth.signOut(); window.location.reload(); });
+$('signout-btn').addEventListener('click', async () => { await sb.auth.signOut(); window.location.reload(); });
 
 async function initializeUser(user) {
   currentUser = user;
-  const { data: existing } = await supabase.from('onboarding_sessions').select('*')
+  const { data: existing } = await sb.from('onboarding_sessions').select('*')
     .eq('user_id', user.id).eq('status', 'in_progress')
     .order('started_at', { ascending: false }).limit(1).maybeSingle();
 
   if (existing) {
     currentSession = existing;
-    const { data: responses } = await supabase.from('onboarding_responses')
+    const { data: responses } = await sb.from('onboarding_responses')
       .select('question_id, answer').eq('session_id', existing.id);
     if (responses) responses.forEach(r => { answers[r.question_id] = r.answer?.value; });
     const firstUnanswered = ALL_QUESTIONS.findIndex(q => !(q.id in answers));
     currentIndex = firstUnanswered === -1 ? ALL_QUESTIONS.length - 1 : firstUnanswered;
   } else {
-    const { data: created, error } = await supabase.from('onboarding_sessions')
+    const { data: created, error } = await sb.from('onboarding_sessions')
       .insert({ user_id: user.id }).select().single();
     if (error) return showAuthMsg('Could not start session: ' + error.message, 'error');
     currentSession = created;
-    await supabase.from('users').update({ onboarding_status: 'in_progress' }).eq('id', user.id);
+    await sb.from('users').update({ onboarding_status: 'in_progress' }).eq('id', user.id);
   }
   show('auth-screen', false); show('modal', true);
   renderQuestion();
@@ -723,12 +724,12 @@ async function saveAnswer(q) {
   if (!currentSession || !currentUser) return;
   const value = answers[q.id];
   try {
-    await supabase.from('onboarding_responses').upsert({
+    await sb.from('onboarding_responses').upsert({
       session_id: currentSession.id, user_id: currentUser.id,
       question_id: q.id, section_id: q.sectionId, answer: { value }
     }, { onConflict: 'session_id,question_id' });
-    await supabase.from('onboarding_sessions').update({ current_question_id: q.id }).eq('id', currentSession.id);
-    await supabase.from('audit_log').insert({
+    await sb.from('onboarding_sessions').update({ current_question_id: q.id }).eq('id', currentSession.id);
+    await sb.from('audit_log').insert({
       user_id: currentUser.id, actor: 'user',
       action_type: 'onboarding.answer',
       payload: { question_id: q.id, answer: value }
@@ -761,13 +762,13 @@ function goBack() { if (currentIndex > 0) { currentIndex--; renderQuestion(); } 
 
 async function completeOnboarding() {
   $('next-btn').disabled = true; $('next-btn').textContent = 'Finishing...';
-  await supabase.from('onboarding_sessions')
+  await sb.from('onboarding_sessions')
     .update({ status: 'completed', completed_at: new Date().toISOString() })
     .eq('id', currentSession.id);
-  await supabase.from('users')
+  await sb.from('users')
     .update({ onboarding_status: 'completed', onboarding_completed_at: new Date().toISOString() })
     .eq('id', currentUser.id);
-  await supabase.from('audit_log').insert({
+  await sb.from('audit_log').insert({
     user_id: currentUser.id, actor: 'user',
     action_type: 'onboarding.completed',
     payload: { session_id: currentSession.id }
@@ -784,8 +785,9 @@ async function completeOnboarding() {
 }
 
 (async () => {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await sb.auth.getSession();
   if (session?.user) await initializeUser(session.user);
+})();
 })();
 </script>
 </body>
