@@ -571,7 +571,11 @@ async function handleAuth() {
   $('auth-submit').textContent = 'Working...';
   try {
     const { data, error } = authMode === 'signup'
-      ? await sb.auth.signUp({ email, password })
+      ? await sb.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: window.location.origin + window.location.pathname }
+        })
       : await sb.auth.signInWithPassword({ email, password });
     if (error) { showAuthMsg(error.message, 'error'); $('auth-submit').disabled = false; $('auth-submit').textContent = 'Continue'; return; }
     if (authMode === 'signup' && !data.session) {
