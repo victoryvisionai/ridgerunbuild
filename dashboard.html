@@ -3,135 +3,63 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Ridge Run — Dashboard</title>
+<title>Dashboard · Ridge Run</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
-  :root {
-    --bg: #ffffff; --bg-tint: #f8fafc; --bg-blue: #eff6ff; --bg-blue-soft: #f0f7ff;
-    --border: #e2e8f0; --border-blue: #bfdbfe;
-    --text: #0f172a; --text-muted: #475569; --text-dim: #94a3b8;
-    --accent: #2563eb; --accent-dark: #1e40af;
-    --success: #059669; --success-bg: #d1fae5;
-    --danger: #dc2626; --danger-bg: #fee2e2;
-    --serif: 'Source Serif 4', Georgia, serif;
-    --sans: 'Inter', -apple-system, sans-serif;
-    --mono: 'JetBrains Mono', monospace;
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
-  body {
-    background: var(--bg-tint); color: var(--text);
-    font-family: var(--sans); font-size: 14px; line-height: 1.5;
-    min-height: 100vh;
-  }
-  .hidden { display: none !important; }
-  .loading {
-    display: flex; align-items: center; justify-content: center;
-    min-height: 100vh; font-family: var(--mono); font-size: 11px;
-    letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim);
-  }
-
-  .shell { max-width: 1100px; margin: 0 auto; padding: 24px 24px 80px; }
-  .topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 28px;
-  }
-  .brand { display: flex; align-items: center; gap: 12px; }
-  .brand-mark { font-family: var(--serif); font-size: 26px; font-weight: 600; color: var(--accent); letter-spacing: -0.02em; }
-  .brand-name { font-family: var(--mono); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); }
-  .user-meta { display: flex; align-items: center; gap: 14px; font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
-  .signout {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--text-dim); cursor: pointer;
-    background: transparent; border: 1px solid var(--border); padding: 6px 10px; border-radius: 3px;
-  }
-  .signout:hover { border-color: var(--text-dim); color: var(--text-muted); }
-
-  h1.page-title { font-family: var(--serif); font-size: 28px; font-weight: 500; letter-spacing: -0.02em; margin: 0 0 6px; }
-  .page-sub { color: var(--text-muted); margin: 0 0 28px; }
-
-  .card {
-    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
-    padding: 24px; margin-bottom: 20px;
-  }
-  .card h2 {
-    font-family: var(--serif); font-size: 19px; font-weight: 500;
-    letter-spacing: -0.015em; margin: 0 0 4px;
-  }
-  .card .h2-sub { color: var(--text-muted); font-size: 13px; margin: 0 0 18px; }
-
-  /* Upload */
-  .dropzone {
-    border: 1px dashed var(--border); border-radius: 6px; padding: 32px 20px;
-    text-align: center; background: var(--bg-tint); transition: all 0.15s;
-    cursor: pointer;
-  }
-  .dropzone.drag { border-color: var(--accent); background: var(--bg-blue-soft); }
-  .dropzone p { margin: 0; color: var(--text-muted); }
-  .dropzone p.primary { color: var(--text); font-weight: 500; margin-bottom: 4px; }
-  .dropzone p.hint { font-size: 12px; font-family: var(--mono); letter-spacing: 0.05em; color: var(--text-dim); margin-top: 10px; }
-  .file-input { display: none; }
-  .btn {
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 10px 16px; border-radius: 4px; cursor: pointer; transition: all 0.15s;
-    border: 1px solid transparent; font-weight: 500;
-  }
-  .btn-primary { background: var(--accent); color: white; }
-  .btn-primary:hover { background: var(--accent-dark); }
-  .btn-primary:disabled { opacity: 0.5; cursor: wait; }
-  .btn-ghost { background: var(--bg); color: var(--text-muted); border-color: var(--border); }
-  .btn-ghost:hover { border-color: var(--text-dim); color: var(--text); }
-
-  .file-list { margin-top: 16px; }
-  .file-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 14px; background: var(--bg-tint);
-    border: 1px solid var(--border); border-radius: 4px; margin-bottom: 6px;
-    font-family: var(--mono); font-size: 12px;
-  }
-  .file-row .name { flex: 1; color: var(--text); }
-  .file-row .status { color: var(--text-dim); letter-spacing: 0.08em; text-transform: uppercase; font-size: 10px; }
-  .file-row.done .status { color: var(--success); }
-  .file-row.err  .status { color: var(--danger); }
-
-  /* Stats grid */
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
-  .stat {
-    background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 16px;
-  }
-  .stat .lbl {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
-    text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;
-  }
-  .stat .val { font-family: var(--serif); font-size: 22px; font-weight: 500; letter-spacing: -0.01em; }
-  .stat .val.pos { color: var(--success); }
-  .stat .val.neg { color: var(--danger); }
-  .stat .sub { font-family: var(--mono); font-size: 10px; color: var(--text-dim); margin-top: 4px; }
-
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { text-align: left; font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
-       text-transform: uppercase; color: var(--text-muted); padding: 8px 10px; border-bottom: 1px solid var(--border); }
-  td { padding: 9px 10px; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 12px; }
-  td.num { text-align: right; }
-  td.pos { color: var(--success); }
-  td.neg { color: var(--danger); }
-  tr:last-child td { border-bottom: none; }
-
-  .msg { padding: 10px 14px; font-size: 13px; border-radius: 4px; line-height: 1.5; margin: 10px 0; }
-  .msg-error { background: var(--danger-bg); border: 1px solid #fecaca; color: #991b1b; }
-  .msg-success { background: var(--success-bg); border: 1px solid #a7f3d0; color: #065f46; }
-  .msg-info { background: var(--bg-blue); border: 1px solid var(--border-blue); color: var(--accent-dark); }
-
-  .empty {
-    padding: 28px 20px; text-align: center; color: var(--text-muted); font-size: 13px;
-  }
-
-  @media (max-width: 720px) {
-    .stats { grid-template-columns: repeat(2, 1fr); }
-    .shell { padding: 16px; }
-  }
+  :root{--bg:#fff;--bg-tint:#f8fafc;--bg-blue:#eff6ff;--bg-blue-soft:#f0f7ff;--border:#e2e8f0;--border-blue:#bfdbfe;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;--accent:#2563eb;--accent-dark:#1e40af;--success:#059669;--success-bg:#d1fae5;--danger:#dc2626;--danger-bg:#fee2e2;--serif:'Source Serif 4',Georgia,serif;--sans:'Inter',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace}
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{background:var(--bg-tint);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh}
+  .hidden{display:none!important}
+  .loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim)}
+  .shell{max-width:1100px;margin:0 auto;padding:0 24px 80px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:8px;flex-wrap:wrap;gap:12px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-mark{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--accent);letter-spacing:-0.02em}
+  .brand-name{font-family:var(--mono);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted)}
+  .nav-tabs{display:flex;gap:4px;flex-wrap:wrap}
+  .nav-tabs a{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;padding:6px 10px;border-radius:3px;border:1px solid transparent}
+  .nav-tabs a:hover{color:var(--text);background:var(--bg)}
+  .nav-tabs a.active{color:var(--accent);background:var(--bg-blue);border-color:var(--border-blue)}
+  .user-meta{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:11px;color:var(--text-muted)}
+  .signout{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;background:transparent;border:1px solid var(--border);padding:6px 10px;border-radius:3px}
+  .signout:hover{border-color:var(--text-dim);color:var(--text-muted)}
+  h1.page-title{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-0.02em;margin:24px 0 6px}
+  .page-sub{color:var(--text-muted);margin:0 0 28px}
+  .card{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:24px;margin-bottom:20px}
+  .card h2{font-family:var(--serif);font-size:19px;font-weight:500;letter-spacing:-0.015em;margin:0 0 4px}
+  .card .h2-sub{color:var(--text-muted);font-size:13px;margin:0 0 18px}
+  .dropzone{border:1px dashed var(--border);border-radius:6px;padding:32px 20px;text-align:center;background:var(--bg-tint);transition:all .15s;cursor:pointer}
+  .dropzone.drag{border-color:var(--accent);background:var(--bg-blue-soft)}
+  .dropzone p{margin:0;color:var(--text-muted)}
+  .dropzone p.primary{color:var(--text);font-weight:500;margin-bottom:4px}
+  .dropzone p.hint{font-size:12px;font-family:var(--mono);letter-spacing:0.05em;color:var(--text-dim);margin-top:10px}
+  .file-input{display:none}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:10px 16px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500;transition:all .15s}
+  .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)} .btn-primary:disabled{opacity:.5;cursor:wait}
+  .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
+  .file-list{margin-top:16px}
+  .file-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-tint);border:1px solid var(--border);border-radius:4px;margin-bottom:6px;font-family:var(--mono);font-size:12px}
+  .file-row .name{flex:1;color:var(--text)} .file-row .status{color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;font-size:10px}
+  .file-row.done .status{color:var(--success)} .file-row.err .status{color:var(--danger)}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+  .stat{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:16px}
+  .stat .lbl{font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
+  .stat .val{font-family:var(--serif);font-size:22px;font-weight:500;letter-spacing:-0.01em}
+  .stat .val.pos{color:var(--success)} .stat .val.neg{color:var(--danger)}
+  .stat .sub{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:4px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:8px 10px;border-bottom:1px solid var(--border)}
+  td{padding:9px 10px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px}
+  td.num{text-align:right} td.pos{color:var(--success)} td.neg{color:var(--danger)}
+  tr:last-child td{border-bottom:none}
+  .msg{padding:10px 14px;font-size:13px;border-radius:4px;line-height:1.5;margin:10px 0}
+  .msg-error{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
+  .msg-success{background:var(--success-bg);border:1px solid #a7f3d0;color:#065f46}
+  .msg-info{background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--accent-dark)}
+  .empty{padding:28px 20px;text-align:center;color:var(--text-muted);font-size:13px}
+  @media (max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}.shell{padding:0 16px 80px}}
 </style>
 </head>
 <body>
@@ -140,10 +68,14 @@
 
 <div id="app" class="shell hidden">
   <div class="topbar">
-    <div class="brand">
-      <span class="brand-mark">RR</span>
-      <span class="brand-name">Ridge Run</span>
-    </div>
+    <div class="brand"><span class="brand-mark">RR</span><span class="brand-name">Ridge Run</span></div>
+    <nav class="nav-tabs">
+      <a href="/dashboard.html" class="active">Dashboard</a>
+      <a href="/dna.html">Investor DNA</a>
+      <a href="/performance.html">Performance</a>
+      <a href="/watchlist.html">Watchlist</a>
+      <a href="/ai.html">Ask AI</a>
+    </nav>
     <div class="user-meta">
       <span id="user-email"></span>
       <button class="signout" id="signout-btn">Sign out</button>
@@ -151,14 +83,14 @@
   </div>
 
   <h1 class="page-title">Dashboard</h1>
-  <p class="page-sub">Upload your Interactive Brokers activity statements as CSV. The system parses trades, P/L, and NAV, then stores them for analysis.</p>
+  <p class="page-sub">Upload Interactive Brokers activity statements as CSV. The system parses trades, P/L, and NAV.</p>
 
   <div class="card">
     <h2>Upload trade statements</h2>
-    <p class="h2-sub">CSV files from Interactive Brokers (Account Management → Reports → Activity → CSV). You can drop several at once.</p>
+    <p class="h2-sub">CSV files from IBKR (Account Management → Reports → Activity → CSV). Drop multiple at once.</p>
     <div class="dropzone" id="dropzone">
       <p class="primary">Drop CSV files here or click to choose</p>
-      <p>Multiple files supported. Each file is parsed in-browser; nothing is sent anywhere except your Supabase tables.</p>
+      <p>Parsed in-browser. Nothing leaves the browser except writes to your Supabase tables.</p>
       <p class="hint">CSV only — PDFs are rejected for accuracy reasons</p>
       <input type="file" id="file-input" class="file-input" accept=".csv,text/csv" multiple />
     </div>
@@ -168,357 +100,153 @@
 
   <div class="card">
     <h2>Summary</h2>
-    <p class="h2-sub">Across all statements you've uploaded.</p>
+    <p class="h2-sub">Across all statements uploaded.</p>
     <div class="stats">
       <div class="stat"><div class="lbl">Statements</div><div class="val" id="stat-statements">0</div><div class="sub" id="stat-statements-sub"></div></div>
       <div class="stat"><div class="lbl">Trades</div><div class="val" id="stat-trades">0</div><div class="sub" id="stat-trades-sub"></div></div>
-      <div class="stat"><div class="lbl">Realized P/L</div><div class="val" id="stat-pl">—</div><div class="sub">cumulative, across uploads</div></div>
-      <div class="stat"><div class="lbl">Unique symbols</div><div class="val" id="stat-symbols">0</div><div class="sub" id="stat-symbols-sub"></div></div>
+      <div class="stat"><div class="lbl">Realized P/L</div><div class="val" id="stat-pl">—</div><div class="sub">cumulative</div></div>
+      <div class="stat"><div class="lbl">Unique symbols</div><div class="val" id="stat-symbols">0</div></div>
     </div>
   </div>
 
   <div class="card">
     <h2>NAV by year</h2>
-    <p class="h2-sub">Ending net asset value for each uploaded statement.</p>
-    <div id="nav-table-wrap">
-      <div class="empty" id="nav-empty">No statements uploaded yet.</div>
-    </div>
+    <div id="nav-table-wrap"><div class="empty">No statements uploaded yet.</div></div>
   </div>
 
   <div class="card">
     <h2>Top symbols by realized P/L</h2>
-    <p class="h2-sub">Best and worst realized outcomes across all uploaded statements.</p>
-    <div id="pl-table-wrap">
-      <div class="empty" id="pl-empty">No statements uploaded yet.</div>
-    </div>
+    <div id="pl-table-wrap"><div class="empty">No statements uploaded yet.</div></div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="/config.js"></script>
 <script>
 (() => {
-const SUPABASE_URL = 'https://nrbffnsheenmewijeapb.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_WjDoqgd4_eDE1lpfZHkT0g_cyArLkvI';
-
+const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = window.RR_CONFIG;
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 let currentUser = null;
-
 const $ = id => document.getElementById(id);
-const show = (id, on = true) => $(id).classList.toggle('hidden', !on);
-const fmt = n => (n === null || n === undefined || isNaN(n)) ? '—'
-  : n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-const fmtInt = n => (n == null) ? '0' : n.toLocaleString('en-US');
+const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
+const fmt = n => (n==null||isNaN(n))?'—':n.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+const fmtInt = n => (n==null)?'0':n.toLocaleString('en-US');
 
-// ---------- Auth gate ----------
 (async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session?.user) {
-    window.location.href = '/index.html';
-    return;
-  }
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session?.user){ window.location.href='/index.html'; return; }
   currentUser = session.user;
   $('user-email').textContent = currentUser.email || '';
-  show('loading-screen', false);
-  show('app', true);
+  show('loading-screen',false); show('app',true);
   await refreshDashboard();
 })();
 
-$('signout-btn').addEventListener('click', async () => {
-  await sb.auth.signOut();
-  window.location.href = '/index.html';
-});
+$('signout-btn').addEventListener('click', async()=>{ await sb.auth.signOut(); window.location.href='/index.html'; });
 
-// ---------- Drag/drop + file input ----------
-const dz = $('dropzone');
-const fi = $('file-input');
-dz.addEventListener('click', () => fi.click());
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
-dz.addEventListener('drop', e => {
-  e.preventDefault(); dz.classList.remove('drag');
-  if (e.dataTransfer.files?.length) handleFiles(e.dataTransfer.files);
-});
-fi.addEventListener('change', e => { if (e.target.files?.length) handleFiles(e.target.files); });
+const dz=$('dropzone'), fi=$('file-input');
+dz.addEventListener('click',()=>fi.click());
+dz.addEventListener('dragover',e=>{e.preventDefault(); dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault(); dz.classList.remove('drag'); if(e.dataTransfer.files?.length) handleFiles(e.dataTransfer.files);});
+fi.addEventListener('change',e=>{ if(e.target.files?.length) handleFiles(e.target.files); });
 
-async function handleFiles(fileList) {
-  const files = Array.from(fileList);
-  $('upload-msg').innerHTML = '';
-  for (const f of files) {
-    const row = appendFileRow(f.name, 'parsing');
-    try {
-      if (!/\.csv$/i.test(f.name)) {
-        throw new Error('Not a CSV. Export the statement as CSV from IBKR Account Management.');
-      }
-      const text = await f.text();
-      const parsed = parseIbkrStatement(text);
-      if (!parsed.account_id && !parsed.trades.length && !parsed.nav.length) {
-        throw new Error('No recognizable IBKR sections found. Is this the Activity Statement CSV?');
-      }
-      setFileRow(row, 'uploading');
-      const statementId = await persistStatement(f, parsed);
-      setFileRow(row, 'done', `${parsed.trades.length} trades · ${parsed.period_start || '?'} → ${parsed.period_end || '?'}`);
-    } catch (err) {
-      console.error(err);
-      setFileRow(row, 'err', err.message);
-    }
+async function handleFiles(fileList){
+  const files=Array.from(fileList); $('upload-msg').innerHTML='';
+  for(const f of files){
+    const row=appendFileRow(f.name,'parsing');
+    try{
+      if(!/\.csv$/i.test(f.name)) throw new Error('Not a CSV. Export the IBKR statement as CSV.');
+      const text=await f.text();
+      const parsed=parseIbkrStatement(text);
+      if(!parsed.account_id && !parsed.trades.length && !parsed.nav.length) throw new Error('No IBKR sections found.');
+      setFileRow(row,'uploading');
+      await persistStatement(f,parsed);
+      setFileRow(row,'done',`${parsed.trades.length} trades · ${parsed.period_start||'?'} → ${parsed.period_end||'?'}`);
+    } catch(err){ console.error(err); setFileRow(row,'err',err.message); }
   }
   await refreshDashboard();
 }
+function appendFileRow(name,status){ const div=document.createElement('div'); div.className='file-row'; div.innerHTML='<span class="name"></span><span class="status"></span>'; div.querySelector('.name').textContent=name; div.querySelector('.status').textContent=status; $('file-list').appendChild(div); return div; }
+function setFileRow(row,status,detail){ row.classList.remove('done','err'); if(status==='done') row.classList.add('done'); if(status==='err') row.classList.add('err'); row.querySelector('.status').textContent=status+(detail?' · '+detail:''); }
 
-function appendFileRow(name, status) {
-  const div = document.createElement('div');
-  div.className = 'file-row';
-  div.innerHTML = `<span class="name"></span><span class="status"></span>`;
-  div.querySelector('.name').textContent = name;
-  div.querySelector('.status').textContent = status;
-  $('file-list').appendChild(div);
-  return div;
-}
-function setFileRow(row, status, detail) {
-  row.classList.remove('done', 'err');
-  if (status === 'done') row.classList.add('done');
-  if (status === 'err')  row.classList.add('err');
-  row.querySelector('.status').textContent = status + (detail ? ' · ' + detail : '');
-}
-
-// ---------- IBKR CSV parser ----------
-// IBKR Activity Statement CSV format: every row starts with a section name,
-// then 'Header' or 'Data', then columns. We pivot the Trades/NAV/PL sections
-// against their Header rows.
-function parseIbkrStatement(text) {
-  const rows = Papa.parse(text, { skipEmptyLines: true }).data;
-  const result = {
-    account_id: null, period_start: null, period_end: null,
-    trades: [], nav: [], realized_pl: []
-  };
-  // Stash headers we encounter so we can map subsequent Data rows.
-  const headers = {};
-  for (const r of rows) {
-    if (!r.length) continue;
-    const [section, kind, ...rest] = r;
-    if (kind === 'Header') {
-      headers[section] = rest;          // column names for this section
-      continue;
-    }
-    if (kind !== 'Data') continue;
-    const cols = headers[section] || [];
-    const obj = {};
-    cols.forEach((c, i) => obj[c] = rest[i]);
-
-    if (section === 'Statement') {
-      if (obj['Field Name'] === 'Period') {
-        // e.g. "January 1, 2019 - December 31, 2019"
-        const m = (obj['Field Value'] || '').match(/(\w+\s+\d+,\s+\d+)\s*-\s*(\w+\s+\d+,\s+\d+)/);
-        if (m) {
-          result.period_start = isoDate(m[1]);
-          result.period_end   = isoDate(m[2]);
-        }
-      }
-    } else if (section === 'Account Information') {
-      if (obj['Field Name'] === 'Account') result.account_id = obj['Field Value'];
-    } else if (section === 'Trades' && rest[0] === 'Order') {
-      // DataDiscriminator 'Order' marks an actual trade row (vs subtotal/total)
-      result.trades.push({
-        asset_class: obj['Asset Category'],
-        currency:    obj['Currency'],
-        symbol:      obj['Symbol'],
-        trade_dt:    parseIbkrDateTime(obj['Date/Time']),
-        quantity:    num(obj['Quantity']),
-        price:       num(obj['T. Price']),
-        close_price: num(obj['C. Price']),
-        proceeds:    num(obj['Proceeds']),
-        commission:  num(obj['Comm/Fee']),
-        basis:       num(obj['Basis']),
-        realized_pl: num(obj['Realized P/L']),
-        mtm_pl:      num(obj['MTM P/L']),
-        code:        obj['Code'] || null
-      });
-    } else if (section === 'Net Asset Value') {
-      if (obj['Asset Class']) {
-        result.nav.push({
-          asset_class:  obj['Asset Class'],
-          long_value:   num(obj['Current Long']),
-          short_value:  num(obj['Current Short']),
-          total_value:  num(obj['Current Total']),
-          change_value: num(obj['Change'])
-        });
-      }
-    } else if (section === 'Realized & Unrealized Performance Summary') {
-      if (obj['Symbol']) {
-        result.realized_pl.push({
-          asset_class: obj['Asset Category'],
-          symbol: obj['Symbol'],
-          st_profit: num(obj['Realized S/T Profit']),
-          st_loss:   num(obj['Realized S/T Loss']),
-          lt_profit: num(obj['Realized L/T Profit']),
-          lt_loss:   num(obj['Realized L/T Loss']),
-          realized_total:   num(obj['Realized Total']),
-          unrealized_total: num(obj['Unrealized Total']),
-          total: num(obj['Total'])
-        });
-      }
+function parseIbkrStatement(text){
+  const rows=Papa.parse(text,{skipEmptyLines:true}).data;
+  const result={account_id:null,period_start:null,period_end:null,trades:[],nav:[],realized_pl:[]};
+  const headers={};
+  for(const r of rows){
+    if(!r.length) continue;
+    const [section,kind,...rest]=r;
+    if(kind==='Header'){ headers[section]=rest; continue; }
+    if(kind!=='Data') continue;
+    const cols=headers[section]||[]; const obj={}; cols.forEach((c,i)=>obj[c]=rest[i]);
+    if(section==='Statement'){
+      if(obj['Field Name']==='Period'){ const m=(obj['Field Value']||'').match(/(\w+\s+\d+,\s+\d+)\s*-\s*(\w+\s+\d+,\s+\d+)/); if(m){result.period_start=isoDate(m[1]); result.period_end=isoDate(m[2]);} }
+    } else if(section==='Account Information'){
+      if(obj['Field Name']==='Account') result.account_id=obj['Field Value'];
+    } else if(section==='Trades' && rest[0]==='Order'){
+      result.trades.push({asset_class:obj['Asset Category'],currency:obj['Currency'],symbol:obj['Symbol'],trade_dt:parseDT(obj['Date/Time']),quantity:num(obj['Quantity']),price:num(obj['T. Price']),close_price:num(obj['C. Price']),proceeds:num(obj['Proceeds']),commission:num(obj['Comm/Fee']),basis:num(obj['Basis']),realized_pl:num(obj['Realized P/L']),mtm_pl:num(obj['MTM P/L']),code:obj['Code']||null});
+    } else if(section==='Net Asset Value'){
+      if(obj['Asset Class']) result.nav.push({asset_class:obj['Asset Class'],long_value:num(obj['Current Long']),short_value:num(obj['Current Short']),total_value:num(obj['Current Total']),change_value:num(obj['Change'])});
+    } else if(section==='Realized & Unrealized Performance Summary'){
+      if(obj['Symbol']) result.realized_pl.push({asset_class:obj['Asset Category'],symbol:obj['Symbol'],st_profit:num(obj['Realized S/T Profit']),st_loss:num(obj['Realized S/T Loss']),lt_profit:num(obj['Realized L/T Profit']),lt_loss:num(obj['Realized L/T Loss']),realized_total:num(obj['Realized Total']),unrealized_total:num(obj['Unrealized Total']),total:num(obj['Total'])});
     }
   }
   return result;
 }
+function num(v){ if(v==null||v==='') return null; const c=String(v).replace(/,/g,'').replace(/%$/,''); const n=Number(c); return isNaN(n)?null:n; }
+function parseDT(v){ if(!v) return null; const m=v.match(/(\d{4}-\d{2}-\d{2})(?:,\s*(\d{2}:\d{2}:\d{2}))?/); if(!m) return null; return m[2]?`${m[1]}T${m[2]}Z`:`${m[1]}T00:00:00Z`; }
+function isoDate(s){ const d=new Date(s); return isNaN(d)?null:d.toISOString().slice(0,10); }
 
-function num(v) {
-  if (v === undefined || v === null || v === '') return null;
-  const cleaned = String(v).replace(/,/g, '').replace(/%$/, '');
-  const n = Number(cleaned);
-  return isNaN(n) ? null : n;
-}
-function parseIbkrDateTime(v) {
-  if (!v) return null;
-  // IBKR uses "2019-07-09, 10:26:18"
-  const m = v.match(/(\d{4}-\d{2}-\d{2})(?:,\s*(\d{2}:\d{2}:\d{2}))?/);
-  if (!m) return null;
-  const iso = m[2] ? `${m[1]}T${m[2]}Z` : `${m[1]}T00:00:00Z`;
-  return iso;
-}
-function isoDate(humanDate) {
-  const d = new Date(humanDate);
-  return isNaN(d) ? null : d.toISOString().slice(0, 10);
-}
-
-// ---------- Persist to Supabase ----------
-async function persistStatement(file, parsed) {
-  const { data: stmt, error: stmtErr } = await sb.from('trade_statements').insert({
-    user_id: currentUser.id,
-    filename: file.name,
-    period_start: parsed.period_start,
-    period_end:   parsed.period_end,
-    account_id:   parsed.account_id,
-    row_count:    parsed.trades.length,
-    raw_size_bytes: file.size
-  }).select().single();
-  if (stmtErr) throw stmtErr;
-  const statementId = stmt.id;
-
-  // Insert trades in chunks (Supabase upper bound is ~1k rows per call comfortably)
-  const tradeRows = parsed.trades.map(t => ({ user_id: currentUser.id, statement_id: statementId, ...t }));
-  for (let i = 0; i < tradeRows.length; i += 500) {
-    const chunk = tradeRows.slice(i, i + 500);
-    const { error } = await sb.from('trades').insert(chunk);
-    if (error) throw error;
+async function persistStatement(file,parsed){
+  const { data: stmt, error } = await sb.from('trade_statements').insert({ user_id:currentUser.id, filename:file.name, period_start:parsed.period_start, period_end:parsed.period_end, account_id:parsed.account_id, row_count:parsed.trades.length, raw_size_bytes:file.size }).select().single();
+  if(error) throw error;
+  const sid = stmt.id;
+  const tradeRows = parsed.trades.map(t=>({user_id:currentUser.id, statement_id:sid, ...t}));
+  for(let i=0;i<tradeRows.length;i+=500){ const chunk=tradeRows.slice(i,i+500); const { error } = await sb.from('trades').insert(chunk); if(error) throw error; }
+  if(parsed.nav.length){
+    const navRows = parsed.nav.map(n=>({user_id:currentUser.id, statement_id:sid, as_of_date:parsed.period_end, ...n}));
+    const { error } = await sb.from('nav_snapshots').insert(navRows); if(error) throw error;
   }
-
-  // NAV: tag with period end as as_of_date
-  if (parsed.nav.length) {
-    const navRows = parsed.nav.map(n => ({
-      user_id: currentUser.id, statement_id: statementId,
-      as_of_date: parsed.period_end, ...n
-    }));
-    const { error } = await sb.from('nav_snapshots').insert(navRows);
-    if (error) throw error;
+  if(parsed.realized_pl.length){
+    const year = parsed.period_end?Number(parsed.period_end.slice(0,4)):null;
+    const plRows = parsed.realized_pl.map(p=>({user_id:currentUser.id, statement_id:sid, period_year:year, ...p}));
+    const { error } = await sb.from('realized_pl_summary').insert(plRows); if(error) throw error;
   }
-
-  // Realized P/L summary
-  if (parsed.realized_pl.length) {
-    const year = parsed.period_end ? Number(parsed.period_end.slice(0,4)) : null;
-    const plRows = parsed.realized_pl.map(p => ({
-      user_id: currentUser.id, statement_id: statementId, period_year: year, ...p
-    }));
-    const { error } = await sb.from('realized_pl_summary').insert(plRows);
-    if (error) throw error;
-  }
-
-  return statementId;
 }
 
-// ---------- Dashboard read side ----------
-async function refreshDashboard() {
-  // Statements + counts
-  const { data: stmts } = await sb.from('trade_statements')
-    .select('id, filename, period_start, period_end, row_count, uploaded_at')
-    .order('period_end', { ascending: true });
-
-  $('stat-statements').textContent = fmtInt(stmts?.length || 0);
-  if (stmts?.length) {
-    const years = [...new Set(stmts.map(s => s.period_end?.slice(0,4)).filter(Boolean))].sort();
-    $('stat-statements-sub').textContent = years.length ? `${years[0]} – ${years[years.length-1]}` : '';
-  }
-
-  const { count: tradeCount } = await sb.from('trades')
-    .select('*', { count: 'exact', head: true });
-  $('stat-trades').textContent = fmtInt(tradeCount || 0);
-
-  // Symbols + cumulative realized P/L from the summary table (one row per symbol per statement)
-  const { data: plRows } = await sb.from('realized_pl_summary')
-    .select('symbol, realized_total');
-  const symbolSet = new Set();
-  let totalRealized = 0;
-  (plRows || []).forEach(r => {
-    if (r.symbol) symbolSet.add(r.symbol);
-    if (typeof r.realized_total === 'number') totalRealized += r.realized_total;
-  });
-  $('stat-symbols').textContent = fmtInt(symbolSet.size);
-  const plEl = $('stat-pl');
-  plEl.textContent = fmt(totalRealized);
-  plEl.classList.toggle('pos', totalRealized > 0);
-  plEl.classList.toggle('neg', totalRealized < 0);
-
-  // NAV table
-  renderNavTable(stmts || []);
-
-  // Top P/L symbols (aggregate by symbol across all statements)
-  const agg = {};
-  (plRows || []).forEach(r => {
-    if (!r.symbol) return;
-    agg[r.symbol] = (agg[r.symbol] || 0) + (r.realized_total || 0);
-  });
-  const ranked = Object.entries(agg).sort((a, b) => b[1] - a[1]);
-  renderPlTable(ranked);
+async function refreshDashboard(){
+  const { data: stmts } = await sb.from('trade_statements').select('id, filename, period_start, period_end, row_count, uploaded_at').order('period_end',{ascending:true});
+  $('stat-statements').textContent = fmtInt(stmts?.length||0);
+  if(stmts?.length){ const years=[...new Set(stmts.map(s=>s.period_end?.slice(0,4)).filter(Boolean))].sort(); $('stat-statements-sub').textContent = years.length?`${years[0]} – ${years[years.length-1]}`:''; }
+  const { count: tradeCount } = await sb.from('trades').select('*',{count:'exact',head:true});
+  $('stat-trades').textContent = fmtInt(tradeCount||0);
+  const { data: plRows } = await sb.from('realized_pl_summary').select('symbol, realized_total');
+  const symbols=new Set(); let total=0;
+  (plRows||[]).forEach(r=>{ if(r.symbol) symbols.add(r.symbol); if(typeof r.realized_total==='number') total+=r.realized_total; });
+  $('stat-symbols').textContent = fmtInt(symbols.size);
+  const plEl=$('stat-pl'); plEl.textContent=fmt(total); plEl.classList.toggle('pos',total>0); plEl.classList.toggle('neg',total<0);
+  renderNav(stmts||[]); renderPl(plRows||[]);
 }
 
-async function renderNavTable(stmts) {
-  const wrap = $('nav-table-wrap');
-  if (!stmts.length) { wrap.innerHTML = '<div class="empty">No statements uploaded yet.</div>'; return; }
-  // Pull the 'Total' row per statement to get ending NAV
-  const { data: navs } = await sb.from('nav_snapshots')
-    .select('statement_id, as_of_date, asset_class, total_value, change_value')
-    .eq('asset_class', 'Total')
-    .order('as_of_date', { ascending: true });
-  if (!navs?.length) {
-    wrap.innerHTML = '<div class="empty">No NAV data parsed yet.</div>'; return;
-  }
-  const rows = navs.map(n => `
-    <tr>
-      <td>${n.as_of_date || ''}</td>
-      <td class="num">${fmt(n.total_value)}</td>
-      <td class="num ${n.change_value > 0 ? 'pos' : n.change_value < 0 ? 'neg' : ''}">${fmt(n.change_value)}</td>
-    </tr>`).join('');
-  wrap.innerHTML = `<table>
-    <thead><tr><th>As of</th><th style="text-align:right">Ending NAV</th><th style="text-align:right">Change</th></tr></thead>
-    <tbody>${rows}</tbody></table>`;
+async function renderNav(stmts){
+  const wrap=$('nav-table-wrap');
+  if(!stmts.length){ wrap.innerHTML='<div class="empty">No statements uploaded yet.</div>'; return; }
+  const { data: navs } = await sb.from('nav_snapshots').select('as_of_date, asset_class, total_value, change_value').eq('asset_class','Total').order('as_of_date',{ascending:true});
+  if(!navs?.length){ wrap.innerHTML='<div class="empty">No NAV data parsed yet.</div>'; return; }
+  const rows = navs.map(n=>`<tr><td>${n.as_of_date||''}</td><td class="num">${fmt(n.total_value)}</td><td class="num ${n.change_value>0?'pos':n.change_value<0?'neg':''}">${fmt(n.change_value)}</td></tr>`).join('');
+  wrap.innerHTML=`<table><thead><tr><th>As of</th><th style="text-align:right">Ending NAV</th><th style="text-align:right">Change</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-function renderPlTable(ranked) {
-  const wrap = $('pl-table-wrap');
-  if (!ranked.length) { wrap.innerHTML = '<div class="empty">No P/L data uploaded yet.</div>'; return; }
-  const top    = ranked.slice(0, 10);
-  const bottom = ranked.slice(-10).reverse();
-  const rowHtml = arr => arr.map(([sym, v]) => `
-    <tr>
-      <td>${sym}</td>
-      <td class="num ${v > 0 ? 'pos' : v < 0 ? 'neg' : ''}">${fmt(v)}</td>
-    </tr>`).join('');
-  wrap.innerHTML = `
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-      <div>
-        <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Top winners</div>
-        <table><thead><tr><th>Symbol</th><th style="text-align:right">Realized P/L</th></tr></thead>
-          <tbody>${rowHtml(top)}</tbody></table>
-      </div>
-      <div>
-        <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Worst losers</div>
-        <table><thead><tr><th>Symbol</th><th style="text-align:right">Realized P/L</th></tr></thead>
-          <tbody>${rowHtml(bottom)}</tbody></table>
-      </div>
-    </div>`;
+function renderPl(plRows){
+  const wrap=$('pl-table-wrap');
+  if(!plRows.length){ wrap.innerHTML='<div class="empty">No P/L data uploaded yet.</div>'; return; }
+  const agg={}; plRows.forEach(r=>{ if(!r.symbol) return; agg[r.symbol]=(agg[r.symbol]||0)+(r.realized_total||0); });
+  const ranked=Object.entries(agg).sort((a,b)=>b[1]-a[1]);
+  const top=ranked.slice(0,10), bottom=ranked.slice(-10).reverse();
+  const rowHtml=arr=>arr.map(([s,v])=>`<tr><td>${s}</td><td class="num ${v>0?'pos':v<0?'neg':''}">${fmt(v)}</td></tr>`).join('');
+  wrap.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><div><div style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px">Top winners</div><table><thead><tr><th>Symbol</th><th style="text-align:right">Realized P/L</th></tr></thead><tbody>${rowHtml(top)}</tbody></table></div><div><div style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px">Worst losers</div><table><thead><tr><th>Symbol</th><th style="text-align:right">Realized P/L</th></tr></thead><tbody>${rowHtml(bottom)}</tbody></table></div></div>`;
 }
-
 })();
 </script>
 </body>
