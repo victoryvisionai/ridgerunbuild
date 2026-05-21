@@ -3,18 +3,29 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Ridge Run — Dashboard</title>
+<title>Ridge Run — Investor DNA Onboarding</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
 <style>
   :root {
-    --bg: #ffffff; --bg-tint: #f8fafc; --bg-blue: #eff6ff; --bg-blue-soft: #f0f7ff;
-    --border: #e2e8f0; --border-blue: #bfdbfe;
-    --text: #0f172a; --text-muted: #475569; --text-dim: #94a3b8;
-    --accent: #2563eb; --accent-dark: #1e40af;
-    --success: #059669; --success-bg: #d1fae5;
-    --danger: #dc2626; --danger-bg: #fee2e2;
+    --bg: #ffffff;
+    --bg-tint: #f8fafc;
+    --bg-blue: #eff6ff;
+    --bg-blue-soft: #f0f7ff;
+    --border: #e2e8f0;
+    --border-blue: #bfdbfe;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-dim: #94a3b8;
+    --accent: #2563eb;
+    --accent-dark: #1e40af;
+    --accent-bg: #dbeafe;
+    --success: #059669;
+    --success-bg: #d1fae5;
+    --danger: #dc2626;
+    --danger-bg: #fee2e2;
     --serif: 'Source Serif 4', Georgia, serif;
     --sans: 'Inter', -apple-system, sans-serif;
     --mono: 'JetBrains Mono', monospace;
@@ -22,503 +33,765 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
-    background: var(--bg-tint); color: var(--text);
-    font-family: var(--sans); font-size: 14px; line-height: 1.5;
-    min-height: 100vh;
+    min-height: 100vh; background: var(--bg-tint);
+    font-family: var(--sans); color: var(--text); font-size: 14px;
+    line-height: 1.5;
+    display: flex; align-items: center; justify-content: center;
+    padding: 32px 16px;
   }
   .hidden { display: none !important; }
-  .loading {
-    display: flex; align-items: center; justify-content: center;
-    min-height: 100vh; font-family: var(--mono); font-size: 11px;
-    letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim);
-  }
 
-  .shell { max-width: 1100px; margin: 0 auto; padding: 24px 24px 80px; }
-  .topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 28px;
+  /* ===== Auth ===== */
+  .auth-card {
+    width: 100%; max-width: 420px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 40px 32px;
   }
-  .brand { display: flex; align-items: center; gap: 12px; }
-  .brand-mark { font-family: var(--serif); font-size: 26px; font-weight: 600; color: var(--accent); letter-spacing: -0.02em; }
-  .brand-name { font-family: var(--mono); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); }
-  .user-meta { display: flex; align-items: center; gap: 14px; font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
-  .signout {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--text-dim); cursor: pointer;
-    background: transparent; border: 1px solid var(--border); padding: 6px 10px; border-radius: 3px;
+  .auth-brand { text-align: center; margin-bottom: 32px; }
+  .auth-mark {
+    font-family: var(--serif); font-size: 40px; font-weight: 600;
+    color: var(--accent); letter-spacing: -0.02em; display: block;
   }
-  .signout:hover { border-color: var(--text-dim); color: var(--text-muted); }
-
-  h1.page-title { font-family: var(--serif); font-size: 28px; font-weight: 500; letter-spacing: -0.02em; margin: 0 0 6px; }
-  .page-sub { color: var(--text-muted); margin: 0 0 28px; }
-
-  .card {
-    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
-    padding: 24px; margin-bottom: 20px;
+  .auth-name {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--text-muted); margin-top: 6px;
   }
-  .card h2 {
-    font-family: var(--serif); font-size: 19px; font-weight: 500;
-    letter-spacing: -0.015em; margin: 0 0 4px;
+  .auth-title {
+    font-family: var(--serif); font-size: 24px; font-weight: 500;
+    letter-spacing: -0.015em; margin: 0 0 6px; text-align: center;
   }
-  .card .h2-sub { color: var(--text-muted); font-size: 13px; margin: 0 0 18px; }
-
-  /* Upload */
-  .dropzone {
-    border: 1px dashed var(--border); border-radius: 6px; padding: 32px 20px;
-    text-align: center; background: var(--bg-tint); transition: all 0.15s;
-    cursor: pointer;
+  .auth-subtitle {
+    font-size: 13px; color: var(--text-muted); text-align: center;
+    margin: 0 0 28px; line-height: 1.5;
   }
-  .dropzone.drag { border-color: var(--accent); background: var(--bg-blue-soft); }
-  .dropzone p { margin: 0; color: var(--text-muted); }
-  .dropzone p.primary { color: var(--text); font-weight: 500; margin-bottom: 4px; }
-  .dropzone p.hint { font-size: 12px; font-family: var(--mono); letter-spacing: 0.05em; color: var(--text-dim); margin-top: 10px; }
-  .file-input { display: none; }
+  .field { margin-bottom: 14px; }
+  .label {
+    display: block; font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 6px;
+  }
+  .input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); padding: 11px 13px; font-family: var(--sans);
+    font-size: 14px; border-radius: 4px;
+  }
+  .input:focus { outline: none; border-color: var(--accent); }
   .btn {
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 10px 16px; border-radius: 4px; cursor: pointer; transition: all 0.15s;
-    border: 1px solid transparent; font-weight: 500;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 12px 18px; border-radius: 4px;
+    cursor: pointer; transition: all 0.15s; border: 1px solid transparent;
+    font-weight: 500;
   }
-  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary {
+    background: var(--accent); color: white;
+    width: 100%; margin-top: 8px;
+  }
   .btn-primary:hover { background: var(--accent-dark); }
   .btn-primary:disabled { opacity: 0.5; cursor: wait; }
-  .btn-ghost { background: var(--bg); color: var(--text-muted); border-color: var(--border); }
-  .btn-ghost:hover { border-color: var(--text-dim); color: var(--text); }
-
-  .file-list { margin-top: 16px; }
-  .file-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 14px; background: var(--bg-tint);
-    border: 1px solid var(--border); border-radius: 4px; margin-bottom: 6px;
-    font-family: var(--mono); font-size: 12px;
+  .btn-ghost {
+    background: var(--bg); color: var(--text-muted); border-color: var(--border);
   }
-  .file-row .name { flex: 1; color: var(--text); }
-  .file-row .status { color: var(--text-dim); letter-spacing: 0.08em; text-transform: uppercase; font-size: 10px; }
-  .file-row.done .status { color: var(--success); }
-  .file-row.err  .status { color: var(--danger); }
-
-  /* Stats grid */
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
-  .stat {
-    background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 16px;
+  .btn-ghost:hover:not(:disabled) { border-color: var(--text-dim); color: var(--text); }
+  .btn-ghost:disabled { opacity: 0.3; cursor: not-allowed; }
+  .auth-toggle {
+    text-align: center; margin-top: 18px; font-size: 13px;
+    color: var(--text-muted); cursor: pointer;
   }
-  .stat .lbl {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
-    text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;
+  .auth-toggle:hover { color: var(--text); }
+  .auth-toggle b { color: var(--accent); font-weight: 500; }
+  .msg {
+    margin-top: 14px; padding: 10px 14px; font-size: 13px;
+    border-radius: 4px; line-height: 1.5;
   }
-  .stat .val { font-family: var(--serif); font-size: 22px; font-weight: 500; letter-spacing: -0.01em; }
-  .stat .val.pos { color: var(--success); }
-  .stat .val.neg { color: var(--danger); }
-  .stat .sub { font-family: var(--mono); font-size: 10px; color: var(--text-dim); margin-top: 4px; }
-
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { text-align: left; font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
-       text-transform: uppercase; color: var(--text-muted); padding: 8px 10px; border-bottom: 1px solid var(--border); }
-  td { padding: 9px 10px; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 12px; }
-  td.num { text-align: right; }
-  td.pos { color: var(--success); }
-  td.neg { color: var(--danger); }
-  tr:last-child td { border-bottom: none; }
-
-  .msg { padding: 10px 14px; font-size: 13px; border-radius: 4px; line-height: 1.5; margin: 10px 0; }
   .msg-error { background: var(--danger-bg); border: 1px solid #fecaca; color: #991b1b; }
   .msg-success { background: var(--success-bg); border: 1px solid #a7f3d0; color: #065f46; }
   .msg-info { background: var(--bg-blue); border: 1px solid var(--border-blue); color: var(--accent-dark); }
 
-  .empty {
-    padding: 28px 20px; text-align: center; color: var(--text-muted); font-size: 13px;
+  /* ===== Modal ===== */
+  .modal {
+    width: 100%; max-width: 720px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; overflow: hidden;
   }
+  .header {
+    padding: 20px 28px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border); background: var(--bg);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    font-family: var(--serif); font-size: 22px; font-weight: 600;
+    color: var(--accent); letter-spacing: -0.02em;
+  }
+  .brand-name {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-muted);
+  }
+  .progress-meta { display: flex; align-items: center; gap: 14px; font-family: var(--mono); font-size: 11px; }
+  .question-count { color: var(--text); letter-spacing: 0.1em; }
+  .divider { color: var(--text-dim); margin: 0 2px; }
+  .section-pill {
+    color: var(--accent-dark); text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 4px 10px; background: var(--bg-blue); border: 1px solid var(--border-blue);
+    border-radius: 3px;
+  }
+  .signout {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-dim); cursor: pointer;
+    background: transparent; border: 1px solid var(--border); padding: 5px 10px;
+    border-radius: 3px;
+  }
+  .signout:hover { border-color: var(--text-dim); color: var(--text-muted); }
+  .progress-bar { height: 3px; background: var(--bg-tint); position: relative; overflow: hidden; }
+  .progress-fill {
+    position: absolute; top: 0; left: 0; bottom: 0;
+    background: var(--accent);
+    transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .section-intro {
+    padding: 28px 28px 0; background: var(--bg-blue-soft);
+    border-bottom: 1px solid var(--border-blue);
+  }
+  .section-eyebrow {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: var(--serif); font-size: 26px; font-weight: 500;
+    letter-spacing: -0.02em; margin: 0 0 6px; color: var(--text);
+  }
+  .section-subtitle {
+    font-size: 13px; color: var(--text-muted); margin: 0 0 24px; line-height: 1.55;
+  }
+  .body { padding: 28px; }
+  .question-number {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+    color: var(--text-dim); margin-bottom: 10px;
+  }
+  .question-label {
+    display: block; font-family: var(--serif); font-size: 21px;
+    font-weight: 500; line-height: 1.35; letter-spacing: -0.015em;
+    color: var(--text); margin-bottom: 8px;
+  }
+  .question-help {
+    font-size: 13px; color: var(--text-muted); line-height: 1.55;
+    margin: 0 0 20px;
+  }
+  .input-area { margin-top: 20px; }
+  .textarea {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); padding: 12px 14px;
+    font-family: var(--mono); font-size: 13px; line-height: 1.6;
+    border-radius: 4px; resize: vertical;
+  }
+  .textarea:focus { outline: none; border-color: var(--accent); }
+  .number-wrap {
+    display: flex; align-items: center; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 4px;
+  }
+  .number-wrap:focus-within { border-color: var(--accent); }
+  .prefix {
+    padding: 0 14px; font-family: var(--mono); color: var(--text-muted);
+    font-size: 14px; border-right: 1px solid var(--border);
+  }
+  .input-number {
+    border: none; background: transparent; font-family: var(--mono);
+    width: 100%; padding: 12px 14px; color: var(--text); font-size: 15px;
+  }
+  .input-number:focus { outline: none; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    display: flex; align-items: center; gap: 14px; padding: 13px 16px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; color: var(--text); font-family: var(--sans);
+    font-size: 14px; cursor: pointer; text-align: left; transition: all 0.15s;
+    width: 100%;
+  }
+  .option:hover { border-color: var(--accent); background: var(--bg-blue-soft); }
+  .option.selected {
+    border-color: var(--accent); background: var(--bg-blue);
+    color: var(--accent-dark); font-weight: 500;
+  }
+  .option-mark {
+    font-family: var(--mono); color: var(--text-dim); font-size: 14px; width: 16px;
+  }
+  .option.selected .option-mark { color: var(--accent); }
+  .option-label { flex: 1; line-height: 1.4; }
+  .file-upload {
+    padding: 24px; background: var(--bg-tint);
+    border: 1px dashed var(--border); border-radius: 4px; text-align: center;
+  }
+  .file-help { font-size: 13px; color: var(--text-muted); margin: 0 0 12px; }
+  .footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 28px; border-top: 1px solid var(--border); background: var(--bg-tint);
+  }
+  .save-state {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-dim);
+  }
+  .save-state.saving { color: var(--accent); }
 
-  @media (max-width: 720px) {
-    .stats { grid-template-columns: repeat(2, 1fr); }
-    .shell { padding: 16px; }
+  /* Complete */
+  .complete { text-align: center; max-width: 480px; }
+  .complete-mark {
+    font-family: var(--serif); font-size: 56px; color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .complete h1 {
+    font-family: var(--serif); font-size: 28px; font-weight: 500;
+    letter-spacing: -0.02em; margin: 0 0 12px;
+  }
+  .complete p { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin: 0 0 24px; }
+
+  @media (max-width: 640px) {
+    body { padding: 0; }
+    .modal, .auth-card { border-radius: 0; min-height: 100vh; max-width: 100%; border: none; }
+    .header { padding: 14px 18px 12px; flex-direction: column; gap: 10px; align-items: flex-start; }
+    .section-intro, .body, .footer { padding-left: 18px; padding-right: 18px; }
+    .question-label { font-size: 19px; }
+    .section-title { font-size: 22px; }
   }
 </style>
 </head>
 <body>
 
-<div id="loading-screen" class="loading">Loading dashboard…</div>
+<div id="auth-screen" class="auth-card">
+  <div class="auth-brand">
+    <span class="auth-mark">RR</span>
+    <div class="auth-name">Ridge Run Portal</div>
+  </div>
+  <h1 class="auth-title" id="auth-title">Sign in</h1>
+  <p class="auth-subtitle" id="auth-subtitle">Welcome back. Continue your onboarding.</p>
 
-<div id="app" class="shell hidden">
-  <div class="topbar">
+  <div class="field">
+    <label class="label" for="auth-email">Email</label>
+    <input class="input" type="email" id="auth-email" autocomplete="email" />
+  </div>
+  <div class="field">
+    <label class="label" for="auth-password">Password</label>
+    <input class="input" type="password" id="auth-password" autocomplete="current-password" />
+  </div>
+
+  <button class="btn btn-primary" id="auth-submit">Continue</button>
+  <div class="auth-toggle" id="auth-toggle">Need an account? <b>Create one</b></div>
+  <div id="auth-msg"></div>
+</div>
+
+<div id="modal" class="modal hidden">
+  <header class="header">
     <div class="brand">
       <span class="brand-mark">RR</span>
       <span class="brand-name">Ridge Run</span>
     </div>
-    <div class="user-meta">
-      <span id="user-email"></span>
+    <div class="progress-meta">
+      <span class="question-count" id="q-count">01 <span class="divider">/</span> 36</span>
+      <span class="section-pill" id="section-pill">01 · Personal Capital</span>
       <button class="signout" id="signout-btn">Sign out</button>
     </div>
+  </header>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width: 0%"></div></div>
+
+  <div class="section-intro hidden" id="section-intro">
+    <div class="section-eyebrow" id="section-eyebrow">Section 1</div>
+    <h2 class="section-title" id="section-title"></h2>
+    <p class="section-subtitle" id="section-subtitle"></p>
   </div>
 
-  <h1 class="page-title">Dashboard</h1>
-  <p class="page-sub">Upload your Interactive Brokers activity statements as CSV. The system parses trades, P/L, and NAV, then stores them for analysis.</p>
+  <main class="body">
+    <div class="question-number" id="q-number">Q1</div>
+    <label class="question-label" id="q-label"></label>
+    <p class="question-help hidden" id="q-help"></p>
+    <div class="input-area" id="input-area"></div>
+    <div id="inline-msg"></div>
+  </main>
 
-  <div class="card">
-    <h2>Upload trade statements</h2>
-    <p class="h2-sub">CSV files from Interactive Brokers (Account Management → Reports → Activity → CSV). You can drop several at once.</p>
-    <div class="dropzone" id="dropzone">
-      <p class="primary">Drop CSV files here or click to choose</p>
-      <p>Multiple files supported. Each file is parsed in-browser; nothing is sent anywhere except your Supabase tables.</p>
-      <p class="hint">CSV only — PDFs are rejected for accuracy reasons</p>
-      <input type="file" id="file-input" class="file-input" accept=".csv,text/csv" multiple />
-    </div>
-    <div class="file-list" id="file-list"></div>
-    <div id="upload-msg"></div>
-  </div>
+  <footer class="footer">
+    <button class="btn btn-ghost" id="back-btn">← Back</button>
+    <div class="save-state" id="save-state">Ready</div>
+    <button class="btn btn-primary" id="next-btn" style="width: auto;">Next →</button>
+  </footer>
+</div>
 
-  <div class="card">
-    <h2>Summary</h2>
-    <p class="h2-sub">Across all statements you've uploaded.</p>
-    <div class="stats">
-      <div class="stat"><div class="lbl">Statements</div><div class="val" id="stat-statements">0</div><div class="sub" id="stat-statements-sub"></div></div>
-      <div class="stat"><div class="lbl">Trades</div><div class="val" id="stat-trades">0</div><div class="sub" id="stat-trades-sub"></div></div>
-      <div class="stat"><div class="lbl">Realized P/L</div><div class="val" id="stat-pl">—</div><div class="sub">cumulative, across uploads</div></div>
-      <div class="stat"><div class="lbl">Unique symbols</div><div class="val" id="stat-symbols">0</div><div class="sub" id="stat-symbols-sub"></div></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>NAV by year</h2>
-    <p class="h2-sub">Ending net asset value for each uploaded statement.</p>
-    <div id="nav-table-wrap">
-      <div class="empty" id="nav-empty">No statements uploaded yet.</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Top symbols by realized P/L</h2>
-    <p class="h2-sub">Best and worst realized outcomes across all uploaded statements.</p>
-    <div id="pl-table-wrap">
-      <div class="empty" id="pl-empty">No statements uploaded yet.</div>
-    </div>
-  </div>
+<div id="complete-screen" class="complete hidden">
+  <div class="complete-mark">✓</div>
+  <h1>Onboarding complete</h1>
+  <p>Your investor DNA profile is being generated. This typically takes under a minute.</p>
+  <a href="/dashboard.html" class="btn btn-primary" style="max-width: 280px; display: inline-block; text-decoration: none;">Go to dashboard</a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
 (() => {
 const SUPABASE_URL = 'https://nrbffnsheenmewijeapb.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_WjDoqgd4_eDE1lpfZHkT0g_cyArLkvI';
+const N8N_DNA_WEBHOOK_URL = '';
+
+// Questionnaire (identical to prior version - 36 questions across 6 sections)
+const QUESTIONNAIRE = {
+  sections: [
+    { id: 'personal_capital', order: 1, title: 'Personal Capital & Risk',
+      subtitle: 'The foundation. Without these, no downstream rule can be calibrated.',
+      questions: [
+        { id: 'q1_starting_capital', order: 1, type: 'number', label: 'What is the starting capital base?', help: 'Total dollar amount under management at the start. Used as the denominator for all position-sizing limits.', prefix: '$', required: true },
+        { id: 'q2_account_types', order: 2, type: 'multi_select', label: 'Which account types will this manage?', help: 'Affects tax logic and which strategies are permitted (e.g. no margin in IRAs).', required: true,
+          options: [
+            { value: 'taxable_individual', label: 'Taxable individual brokerage' },
+            { value: 'taxable_joint', label: 'Taxable joint brokerage' },
+            { value: 'traditional_ira', label: 'Traditional IRA' },
+            { value: 'roth_ira', label: 'Roth IRA' },
+            { value: 'sep_ira', label: 'SEP IRA' },
+            { value: 'solo_401k', label: 'Solo 401(k)' },
+            { value: 'trust', label: 'Trust account' },
+            { value: 'llc', label: 'LLC / entity account' }
+          ]},
+        { id: 'q3_max_drawdown_tolerance', order: 3, type: 'single_select', label: 'What is the maximum drawdown you can tolerate before you would emotionally or financially need to stop?', help: 'Be honest. This sets the forced-de-risk threshold.', required: true,
+          options: [
+            { value: '5', label: '5% — capital preservation focused' },
+            { value: '10', label: '10%' }, { value: '15', label: '15%' },
+            { value: '20', label: '20%' }, { value: '25', label: '25%' },
+            { value: '35', label: '35% — high tolerance' },
+            { value: '50', label: '50% — extreme tolerance' }
+          ]},
+        { id: 'q4_25pct_drawdown_acceptable', order: 4, type: 'single_select', label: 'Would a 25% drawdown be acceptable if the expected long-term return is high?', required: true,
+          options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'depends', label: 'Depends on context' }]},
+        { id: 'q5_50pct_drawdown_ever', order: 5, type: 'single_select', label: 'Would a 50% drawdown ever be acceptable again?', help: 'This is the question that sets the hard ceiling on permitted leverage and concentration.', required: true,
+          options: [
+            { value: 'never', label: 'Never — system must prevent this absolutely' },
+            { value: 'only_unleveraged', label: 'Only in an unleveraged market crash, never from internal causes' },
+            { value: 'yes_with_thesis', label: 'Yes, with a strong thesis' },
+            { value: 'yes', label: 'Yes — high risk tolerance' }
+          ]},
+        { id: 'q6_current_income_need', order: 6, type: 'single_select', label: 'Do you need current income from the portfolio?', required: true,
+          options: [
+            { value: 'none', label: 'No — pure compounding' },
+            { value: 'minimal', label: 'Minimal — under 2% annual draw' },
+            { value: 'moderate', label: 'Moderate — 2-5% annual draw' },
+            { value: 'significant', label: 'Significant — over 5% annual draw' }
+          ]},
+        { id: 'q7_outside_income', order: 7, type: 'single_select', label: 'Do you have outside income or liquidity that can support aggressive compounding?', help: 'If yes, the system can permit higher volatility tolerance.', required: true,
+          options: [
+            { value: 'yes_substantial', label: 'Yes — substantial outside income/assets' },
+            { value: 'yes_moderate', label: 'Yes — moderate outside income/assets' },
+            { value: 'limited', label: 'Limited' },
+            { value: 'no', label: 'No — this portfolio is the primary asset' }
+          ]}
+      ]},
+    { id: 'portfolio_style', order: 2, title: 'Portfolio Style', subtitle: 'Concentration, sizing, and instrument permissions.',
+      questions: [
+        { id: 'q8_core_position_count', order: 8, type: 'single_select', label: 'How many core positions do you want?', required: true,
+          options: [
+            { value: '3_5', label: '3–5 (very concentrated)' },
+            { value: '6_10', label: '6–10 (concentrated)' },
+            { value: '11_20', label: '11–20 (moderately diversified)' },
+            { value: '21_40', label: '21–40 (diversified)' },
+            { value: '40_plus', label: '40+ (broad)' }
+          ]},
+        { id: 'q9_max_single_name', order: 9, type: 'single_select', label: 'What is the largest single-name exposure you want the system to allow?', help: 'Hard cap. The system will block trades that would breach this.', required: true,
+          options: [{ value: '5', label: '5%' }, { value: '10', label: '10%' }, { value: '15', label: '15%' }, { value: '20', label: '20%' }, { value: '25', label: '25%' }, { value: '30', label: '30%+' }]},
+        { id: 'q10_allow_20pct_plus', order: 10, type: 'single_select', label: 'Should the system ever allow more than 20% in one idea?', required: true,
+          options: [
+            { value: 'never', label: 'Never' },
+            { value: 'with_approval', label: 'Only with explicit re-approval each time' },
+            { value: 'yes', label: 'Yes — high-conviction concentration is part of the strategy' }
+          ]},
+        { id: 'q11_max_options_premium', order: 11, type: 'single_select', label: 'How much of the portfolio can be in options premium at risk?', help: 'Options premium at risk = max possible loss across the entire options book.', required: true,
+          options: [
+            { value: '0', label: '0% — no options' },
+            { value: '2', label: 'Up to 2%' }, { value: '5', label: 'Up to 5%' },
+            { value: '10', label: 'Up to 10%' }, { value: '15', label: 'Up to 15%' },
+            { value: '20_plus', label: '20%+' }
+          ]},
+        { id: 'q12_naked_puts_allowed', order: 12, type: 'single_select', label: 'Should the system be allowed to sell naked puts?', required: true,
+          options: [
+            { value: 'never', label: 'Never' },
+            { value: 'cash_secured_only', label: 'Cash-secured puts only' },
+            { value: 'yes_with_limits', label: 'Yes, within position-size limits' },
+            { value: 'yes', label: 'Yes' }
+          ]},
+        { id: 'q13_margin_allowed', order: 13, type: 'single_select', label: 'Should the system be allowed to use margin?', required: true,
+          options: [
+            { value: 'never', label: 'Never — cash only' },
+            { value: 'emergency_only', label: 'Only briefly for settlement timing' },
+            { value: 'moderate', label: 'Yes, up to 1.25x gross exposure' },
+            { value: 'higher', label: 'Yes, up to 1.5x or more' }
+          ]},
+        { id: 'q14_leverage_override', order: 14, type: 'single_select', label: 'Should leverage be capped mechanically, or can you override it?', required: true,
+          options: [
+            { value: 'mechanical_hard', label: 'Mechanical hard cap — no override possible' },
+            { value: 'override_with_friction', label: 'Override possible but requires multi-step confirmation' },
+            { value: 'soft', label: 'Soft cap — alerts but does not block' }
+          ]}
+      ]},
+    { id: 'trading_execution', order: 3, title: 'Trading & Execution', subtitle: 'How and when the AI talks to you, and what it is ever allowed to do on its own.',
+      questions: [
+        { id: 'q15_daily_instructions', order: 15, type: 'single_select', label: 'Do you want daily trade instructions or only when action is needed?', required: true,
+          options: [
+            { value: 'daily', label: 'Daily — always send a morning briefing' },
+            { value: 'action_only', label: 'Only when action is needed' },
+            { value: 'daily_brief_action_urgent', label: 'Daily brief + urgent intraday only' }
+          ]},
+        { id: 'q16_premarket_sms', order: 16, type: 'single_select', label: 'Should the AI send SMS alerts during pre-market hours?', help: 'This addresses the Pacific-time monitoring gap.', required: true,
+          options: [
+            { value: 'yes_all', label: 'Yes — pre-market scan SMS by 5:30 a.m. ET' },
+            { value: 'yes_urgent_only', label: 'Yes, but urgent items only' },
+            { value: 'portal_only', label: 'No — portal notifications only' }
+          ]},
+        { id: 'q17_autonomous_trade_types', order: 17, type: 'multi_select', label: 'What kind of trade can AI eventually execute without approval?', help: 'Select all that should ever be permitted, even in Phase 5. Actual autonomy is gated by 6-12 months of paper-trading audit.', required: true,
+          options: [
+            { value: 'none', label: 'None — every trade requires approval forever' },
+            { value: 'reduce_position', label: 'Reduce an existing position' },
+            { value: 'roll_covered_calls', label: 'Roll covered calls' },
+            { value: 'sell_csp', label: 'Sell cash-secured puts within strict limits' },
+            { value: 'protective_stops', label: 'Place protective stops or collars' },
+            { value: 'buy_hedges', label: 'Buy index/portfolio hedges' },
+            { value: 'rebalance_etfs', label: 'Rebalance ETF allocations' },
+            { value: 'tax_loss_harvest', label: 'Execute tax-loss harvesting' },
+            { value: 'de_risk_breach', label: 'De-risk if margin/drawdown thresholds breached' }
+          ]},
+        { id: 'q18_options_always_require_approval', order: 18, type: 'single_select', label: 'Should all options trades require human approval forever?', required: true,
+          options: [
+            { value: 'yes_forever', label: 'Yes — forever, no exceptions' },
+            { value: 'yes_for_now', label: 'Yes for now, revisit after 12 months of audit' },
+            { value: 'no_within_limits', label: 'No — pre-approved structures can execute within limits' }
+          ]},
+        { id: 'q19_emergency_permission', order: 19, type: 'single_select', label: 'Should the system have an emergency "sell / hedge / reduce" permission?', help: 'Triggered only by hard rule breaches.', required: true,
+          options: [
+            { value: 'yes_full', label: 'Yes — can sell, hedge, or reduce without approval in emergencies' },
+            { value: 'yes_hedge_only', label: 'Yes, but hedge-only (no outright selling)' },
+            { value: 'alert_only', label: 'No — alert me and wait' }
+          ]},
+        { id: 'q20_do_not_trade_list', order: 20, type: 'text_list', label: 'What securities should be permanently on a do-not-trade list?', help: 'Tickers or company names. Add one per line.', placeholder: 'AAPL\nSPCE\nBerkshire Hathaway', required: false }
+      ]},
+    { id: 'tax', order: 4, title: 'Tax', subtitle: 'After-tax compounding requires explicit tax preferences, not assumptions.',
+      questions: [
+        { id: 'q21_tax_bracket', order: 21, type: 'single_select', label: 'What is your approximate federal tax bracket?', required: true,
+          options: [
+            { value: '10_12', label: '10–12%' }, { value: '22_24', label: '22–24%' },
+            { value: '32', label: '32%' }, { value: '35', label: '35%' },
+            { value: '37', label: '37% (top marginal)' }
+          ]},
+        { id: 'q21b_state', order: 22, type: 'text', label: 'What state do you reside in for tax purposes?', placeholder: 'California', required: true },
+        { id: 'q22_short_term_concern', order: 23, type: 'single_select', label: 'Are short-term gains a major concern?', required: true,
+          options: [
+            { value: 'very', label: 'Very — avoid short-term gains aggressively' },
+            { value: 'moderate', label: 'Moderate — prefer LT but acceptable when thesis demands' },
+            { value: 'low', label: 'Low — tax-deferred or low-bracket account' }
+          ]},
+        { id: 'q23_after_tax_priority', order: 24, type: 'single_select', label: 'Do you want the system to prioritize after-tax returns over pre-tax returns?', required: true,
+          options: [
+            { value: 'always', label: 'Always' },
+            { value: 'mostly', label: 'Mostly — except for very high-conviction trades' },
+            { value: 'balanced', label: 'Balanced — evaluate case by case' },
+            { value: 'pre_tax', label: 'Pre-tax — gross return is what matters' }
+          ]},
+        { id: 'q24_auto_harvest', order: 25, type: 'single_select', label: 'Should the system harvest losses automatically?', required: true,
+          options: [
+            { value: 'yes_within_limits', label: 'Yes — automatically harvest within wash-sale rules' },
+            { value: 'suggest', label: 'Suggest but require approval' },
+            { value: 'no', label: 'No' }
+          ]},
+        { id: 'q25_restricted_securities', order: 26, type: 'text_list', label: 'Are there any restricted securities due to board roles or compliance obligations?', help: 'One per line. These will be blocked from all trade recommendations.', placeholder: 'List company names or tickers', required: false }
+      ]},
+    { id: 'research_edge', order: 5, title: 'Research Edge & Trade History', subtitle: 'This is what makes the system personalized rather than generic.',
+      questions: [
+        { id: 'q26_trade_history_upload', order: 27, type: 'file_upload', label: 'Upload your trade history', help: 'We collect these via a dedicated uploader in Phase 2.', required: false },
+        { id: 'q27_old_memos_upload', order: 28, type: 'file_upload', label: 'Upload old investment memos if available', help: 'Phase 2 uploader.', required: false },
+        { id: 'q28_best_investments', order: 29, type: 'long_text', label: 'What were your 10 best investments?', help: 'Ticker, approximate date, return, and what drove the win. One per line.', placeholder: '1. AAPL 2010-2015, ~5x, recognized iPhone monetization early\n2. ...', required: false },
+        { id: 'q29_worst_investments', order: 30, type: 'long_text', label: 'What were your 10 worst investments?', help: 'Be brutal — this is where personalized guardrails come from.', placeholder: '1. XYZ 2020, -90%, too much leverage going into COVID\n2. ...', required: false },
+        { id: 'q30_winners_exit_timing', order: 31, type: 'single_select', label: 'For your big winners, did you typically sell too early, too late, or roughly right?', required: true,
+          options: [
+            { value: 'too_early', label: 'Too early — left a lot on the table' },
+            { value: 'roughly_right', label: 'Roughly right' },
+            { value: 'too_late', label: 'Too late — gave back significant gains' },
+            { value: 'mixed', label: 'Mixed — varies a lot' }
+          ]},
+        { id: 'q31_losers_mistake_type', order: 32, type: 'multi_select', label: 'For your big losers, what was the most common mistake type?', help: 'Select all that apply.', required: true,
+          options: [
+            { value: 'thesis', label: 'Thesis — was simply wrong about the business' },
+            { value: 'sizing', label: 'Sizing — position was too large' },
+            { value: 'leverage', label: 'Leverage — borrowing amplified the loss' },
+            { value: 'timing', label: 'Timing — right idea, wrong moment' },
+            { value: 'liquidity', label: 'Liquidity — could not exit when needed' },
+            { value: 'options_structure', label: 'Options structure — time decay or gap risk' }
+          ]}
+      ]},
+    { id: 'investor_monitoring', order: 6, title: 'Top Investor Monitoring', subtitle: 'Whose moves should the system watch?',
+      questions: [
+        { id: 'q32_daily_investors', order: 33, type: 'text_list', label: 'Which investors should be monitored daily?', help: 'One per line. Examples: Druckenmiller, Klarman, Loeb, Buffett.', placeholder: 'Stanley Druckenmiller / Duquesne\nSeth Klarman / Baupost\nDan Loeb / Third Point', required: false },
+        { id: 'q33_quarterly_investors', order: 34, type: 'text_list', label: 'Which investors should only be monitored quarterly?', placeholder: 'One per line', required: false },
+        { id: 'q34_signal_use', order: 35, type: 'single_select', label: 'Do you want to clone ideas, use them as confirmation, or use them only as research leads?', required: true,
+          options: [
+            { value: 'research_leads_only', label: 'Research leads only — never copy' },
+            { value: 'confirmation', label: 'Use as confirmation of independent ideas' },
+            { value: 'clone_selectively', label: 'Clone selectively when investor edge matches' },
+            { value: 'clone_broadly', label: 'Clone broadly with sizing adjustment' }
+          ]},
+        { id: 'q35_distrust_list', order: 36, type: 'long_text', label: 'Are there investors you specifically distrust or want the AI to fade?', placeholder: 'e.g. Investor X — track record is mostly luck', required: false }
+      ]}
+  ]
+};
+
+const ALL_QUESTIONS = QUESTIONNAIRE.sections.flatMap(s =>
+  s.questions.map(q => ({ ...q, sectionId: s.id, section: s }))
+);
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-let currentUser = null;
+let currentUser = null, currentSession = null, currentIndex = 0, answers = {}, saveTimer = null;
 
 const $ = id => document.getElementById(id);
 const show = (id, on = true) => $(id).classList.toggle('hidden', !on);
-const fmt = n => (n === null || n === undefined || isNaN(n)) ? '—'
-  : n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-const fmtInt = n => (n == null) ? '0' : n.toLocaleString('en-US');
 
-// ---------- Auth gate ----------
-(async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session?.user) {
-    window.location.href = '/index.html';
+let authMode = 'signin';
+function setAuthMode(mode) {
+  authMode = mode;
+  if (mode === 'signin') {
+    $('auth-title').textContent = 'Sign in';
+    $('auth-subtitle').textContent = 'Welcome back. Continue your onboarding.';
+    $('auth-toggle').innerHTML = 'Need an account? <b>Create one</b>';
+  } else {
+    $('auth-title').textContent = 'Create account';
+    $('auth-subtitle').textContent = 'Start your investor DNA onboarding.';
+    $('auth-toggle').innerHTML = 'Already have an account? <b>Sign in</b>';
+  }
+  $('auth-msg').innerHTML = '';
+}
+
+$('auth-toggle').addEventListener('click', () => setAuthMode(authMode === 'signin' ? 'signup' : 'signin'));
+$('auth-submit').addEventListener('click', handleAuth);
+$('auth-email').addEventListener('keydown', e => { if (e.key === 'Enter') $('auth-password').focus(); });
+$('auth-password').addEventListener('keydown', e => { if (e.key === 'Enter') handleAuth(); });
+
+async function handleAuth() {
+  const email = $('auth-email').value.trim();
+  const password = $('auth-password').value;
+  if (!email || !password) return showAuthMsg('Email and password are required.', 'error');
+  if (password.length < 8 && authMode === 'signup') return showAuthMsg('Password must be at least 8 characters.', 'error');
+  $('auth-submit').disabled = true;
+  $('auth-submit').textContent = 'Working...';
+  try {
+    const { data, error } = authMode === 'signup'
+      ? await sb.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: window.location.origin + window.location.pathname }
+        })
+      : await sb.auth.signInWithPassword({ email, password });
+    if (error) { showAuthMsg(error.message, 'error'); $('auth-submit').disabled = false; $('auth-submit').textContent = 'Continue'; return; }
+    if (authMode === 'signup' && !data.session) {
+      showAuthMsg('Check your email to confirm your account, then sign in.', 'success');
+      $('auth-submit').disabled = false; $('auth-submit').textContent = 'Continue';
+      setAuthMode('signin'); return;
+    }
+    await initializeUser(data.user);
+  } catch (err) {
+    showAuthMsg('Error: ' + err.message, 'error');
+    $('auth-submit').disabled = false; $('auth-submit').textContent = 'Continue';
+  }
+}
+function showAuthMsg(text, kind) { $('auth-msg').innerHTML = `<div class="msg msg-${kind}">${text}</div>`; }
+
+$('signout-btn').addEventListener('click', async () => { await sb.auth.signOut(); window.location.reload(); });
+
+async function initializeUser(user) {
+  currentUser = user;
+  const { data: existing } = await sb.from('onboarding_sessions').select('*')
+    .eq('user_id', user.id).eq('status', 'in_progress')
+    .order('started_at', { ascending: false }).limit(1).maybeSingle();
+
+  if (existing) {
+    currentSession = existing;
+    const { data: responses } = await sb.from('onboarding_responses')
+      .select('question_id, answer').eq('session_id', existing.id);
+    if (responses) responses.forEach(r => { answers[r.question_id] = r.answer?.value; });
+    const firstUnanswered = ALL_QUESTIONS.findIndex(q => !(q.id in answers));
+    currentIndex = firstUnanswered === -1 ? ALL_QUESTIONS.length - 1 : firstUnanswered;
+  } else {
+    const { data: created, error } = await sb.from('onboarding_sessions')
+      .insert({ user_id: user.id }).select().single();
+    if (error) return showAuthMsg('Could not start session: ' + error.message, 'error');
+    currentSession = created;
+    await sb.from('users').update({ onboarding_status: 'in_progress' }).eq('id', user.id);
+  }
+  show('auth-screen', false); show('modal', true);
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = ALL_QUESTIONS[currentIndex];
+  if (!q) return;
+  const total = ALL_QUESTIONS.length;
+  const pct = ((currentIndex + 1) / total) * 100;
+  $('progress-fill').style.width = pct + '%';
+  $('q-count').innerHTML = `${String(currentIndex + 1).padStart(2, '0')} <span class="divider">/</span> ${total}`;
+  $('section-pill').textContent = `${String(q.section.order).padStart(2, '0')} · ${q.section.title}`;
+
+  const isFirstOfSection = q.section.questions[0].id === q.id;
+  if (isFirstOfSection) {
+    show('section-intro', true);
+    $('section-eyebrow').textContent = `Section ${q.section.order}`;
+    $('section-title').textContent = q.section.title;
+    $('section-subtitle').textContent = q.section.subtitle;
+  } else show('section-intro', false);
+
+  $('q-number').textContent = 'Q' + q.order;
+  $('q-label').textContent = q.label;
+  if (q.help) { show('q-help', true); $('q-help').textContent = q.help; } else show('q-help', false);
+  $('inline-msg').innerHTML = '';
+  renderInput(q);
+  $('back-btn').disabled = currentIndex === 0;
+  $('next-btn').textContent = currentIndex === total - 1 ? 'Finish' : 'Next →';
+}
+
+function renderInput(q) {
+  const area = $('input-area');
+  area.innerHTML = '';
+  const value = answers[q.id];
+  switch (q.type) {
+    case 'number': {
+      const wrap = document.createElement('div'); wrap.className = 'number-wrap';
+      if (q.prefix) { const p = document.createElement('span'); p.className = 'prefix'; p.textContent = q.prefix; wrap.appendChild(p); }
+      const input = document.createElement('input');
+      input.type = 'number'; input.className = 'input-number'; input.value = value ?? '';
+      input.addEventListener('input', () => { answers[q.id] = input.value === '' ? null : Number(input.value); scheduleSave(q); });
+      wrap.appendChild(input); area.appendChild(wrap); input.focus();
+      break;
+    }
+    case 'text': {
+      const input = document.createElement('input');
+      input.type = 'text'; input.className = 'input'; input.value = value ?? '';
+      input.placeholder = q.placeholder || '';
+      input.addEventListener('input', () => { answers[q.id] = input.value; scheduleSave(q); });
+      area.appendChild(input); input.focus(); break;
+    }
+    case 'long_text': {
+      const ta = document.createElement('textarea');
+      ta.className = 'textarea'; ta.rows = 8; ta.value = value ?? '';
+      ta.placeholder = q.placeholder || '';
+      ta.addEventListener('input', () => { answers[q.id] = ta.value; scheduleSave(q); });
+      area.appendChild(ta); break;
+    }
+    case 'text_list': {
+      const ta = document.createElement('textarea');
+      ta.className = 'textarea'; ta.rows = 6;
+      ta.value = Array.isArray(value) ? value.join('\n') : '';
+      ta.placeholder = q.placeholder || '';
+      ta.addEventListener('input', () => { answers[q.id] = ta.value.split('\n').map(s => s.trim()).filter(Boolean); scheduleSave(q); });
+      area.appendChild(ta); break;
+    }
+    case 'single_select': {
+      const wrap = document.createElement('div'); wrap.className = 'options';
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'option' + (value === opt.value ? ' selected' : '');
+        btn.innerHTML = `<span class="option-mark">${value === opt.value ? '●' : '○'}</span><span class="option-label">${opt.label}</span>`;
+        btn.addEventListener('click', () => { answers[q.id] = opt.value; renderInput(q); scheduleSave(q); });
+        wrap.appendChild(btn);
+      });
+      area.appendChild(wrap); break;
+    }
+    case 'multi_select': {
+      const wrap = document.createElement('div'); wrap.className = 'options';
+      const selected = Array.isArray(value) ? value : [];
+      q.options.forEach(opt => {
+        const isSel = selected.includes(opt.value);
+        const btn = document.createElement('button');
+        btn.className = 'option' + (isSel ? ' selected' : '');
+        btn.innerHTML = `<span class="option-mark">${isSel ? '▣' : '☐'}</span><span class="option-label">${opt.label}</span>`;
+        btn.addEventListener('click', () => {
+          const next = isSel ? selected.filter(v => v !== opt.value) : [...selected, opt.value];
+          answers[q.id] = next; renderInput(q); scheduleSave(q);
+        });
+        wrap.appendChild(btn);
+      });
+      area.appendChild(wrap); break;
+    }
+    case 'file_upload': {
+      const wrap = document.createElement('div'); wrap.className = 'file-upload';
+      wrap.innerHTML = `<p class="file-help">${q.help || 'File upload is a Phase 2 task.'}</p>`;
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-ghost'; btn.textContent = 'Skip for now';
+      btn.addEventListener('click', () => { answers[q.id] = 'skipped_for_now'; scheduleSave(q); goNext(); });
+      wrap.appendChild(btn); area.appendChild(wrap); break;
+    }
+  }
+}
+
+function scheduleSave(q) {
+  $('save-state').textContent = 'Saving…';
+  $('save-state').classList.add('saving');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => saveAnswer(q), 600);
+}
+
+async function saveAnswer(q) {
+  if (!currentSession || !currentUser) return;
+  const value = answers[q.id];
+  try {
+    await sb.from('onboarding_responses').upsert({
+      session_id: currentSession.id, user_id: currentUser.id,
+      question_id: q.id, section_id: q.sectionId, answer: { value }
+    }, { onConflict: 'session_id,question_id' });
+    await sb.from('onboarding_sessions').update({ current_question_id: q.id }).eq('id', currentSession.id);
+    await sb.from('audit_log').insert({
+      user_id: currentUser.id, actor: 'user',
+      action_type: 'onboarding.answer',
+      payload: { question_id: q.id, answer: value }
+    });
+    $('save-state').textContent = 'Saved';
+    $('save-state').classList.remove('saving');
+  } catch (err) {
+    $('save-state').textContent = 'Save failed';
+    $('inline-msg').innerHTML = `<div class="msg msg-error">${err.message}</div>`;
+  }
+}
+
+$('next-btn').addEventListener('click', goNext);
+$('back-btn').addEventListener('click', goBack);
+
+async function goNext() {
+  const q = ALL_QUESTIONS[currentIndex];
+  const value = answers[q.id];
+  if (q.required && (value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0))) {
+    $('inline-msg').innerHTML = '<div class="msg msg-error">This question is required.</div>';
     return;
   }
-  currentUser = session.user;
-  $('user-email').textContent = currentUser.email || '';
-  show('loading-screen', false);
-  show('app', true);
-  await refreshDashboard();
-})();
+  clearTimeout(saveTimer);
+  if (value !== undefined) await saveAnswer(q);
+  if (currentIndex < ALL_QUESTIONS.length - 1) { currentIndex++; renderQuestion(); }
+  else await completeOnboarding();
+}
 
-$('signout-btn').addEventListener('click', async () => {
-  await sb.auth.signOut();
-  window.location.href = '/index.html';
-});
+function goBack() { if (currentIndex > 0) { currentIndex--; renderQuestion(); } }
 
-// ---------- Drag/drop + file input ----------
-const dz = $('dropzone');
-const fi = $('file-input');
-dz.addEventListener('click', () => fi.click());
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
-dz.addEventListener('drop', e => {
-  e.preventDefault(); dz.classList.remove('drag');
-  if (e.dataTransfer.files?.length) handleFiles(e.dataTransfer.files);
-});
-fi.addEventListener('change', e => { if (e.target.files?.length) handleFiles(e.target.files); });
-
-async function handleFiles(fileList) {
-  const files = Array.from(fileList);
-  $('upload-msg').innerHTML = '';
-  for (const f of files) {
-    const row = appendFileRow(f.name, 'parsing');
+async function completeOnboarding() {
+  $('next-btn').disabled = true; $('next-btn').textContent = 'Finishing...';
+  await sb.from('onboarding_sessions')
+    .update({ status: 'completed', completed_at: new Date().toISOString() })
+    .eq('id', currentSession.id);
+  await sb.from('users')
+    .update({ onboarding_status: 'completed', onboarding_completed_at: new Date().toISOString() })
+    .eq('id', currentUser.id);
+  await sb.from('audit_log').insert({
+    user_id: currentUser.id, actor: 'user',
+    action_type: 'onboarding.completed',
+    payload: { session_id: currentSession.id }
+  });
+  if (N8N_DNA_WEBHOOK_URL) {
     try {
-      if (!/\.csv$/i.test(f.name)) {
-        throw new Error('Not a CSV. Export the statement as CSV from IBKR Account Management.');
-      }
-      const text = await f.text();
-      const parsed = parseIbkrStatement(text);
-      if (!parsed.account_id && !parsed.trades.length && !parsed.nav.length) {
-        throw new Error('No recognizable IBKR sections found. Is this the Activity Statement CSV?');
-      }
-      setFileRow(row, 'uploading');
-      const statementId = await persistStatement(f, parsed);
-      setFileRow(row, 'done', `${parsed.trades.length} trades · ${parsed.period_start || '?'} → ${parsed.period_end || '?'}`);
-    } catch (err) {
-      console.error(err);
-      setFileRow(row, 'err', err.message);
-    }
-  }
-  await refreshDashboard();
-}
-
-function appendFileRow(name, status) {
-  const div = document.createElement('div');
-  div.className = 'file-row';
-  div.innerHTML = `<span class="name"></span><span class="status"></span>`;
-  div.querySelector('.name').textContent = name;
-  div.querySelector('.status').textContent = status;
-  $('file-list').appendChild(div);
-  return div;
-}
-function setFileRow(row, status, detail) {
-  row.classList.remove('done', 'err');
-  if (status === 'done') row.classList.add('done');
-  if (status === 'err')  row.classList.add('err');
-  row.querySelector('.status').textContent = status + (detail ? ' · ' + detail : '');
-}
-
-// ---------- IBKR CSV parser ----------
-// IBKR Activity Statement CSV format: every row starts with a section name,
-// then 'Header' or 'Data', then columns. We pivot the Trades/NAV/PL sections
-// against their Header rows.
-function parseIbkrStatement(text) {
-  const rows = Papa.parse(text, { skipEmptyLines: true }).data;
-  const result = {
-    account_id: null, period_start: null, period_end: null,
-    trades: [], nav: [], realized_pl: []
-  };
-  // Stash headers we encounter so we can map subsequent Data rows.
-  const headers = {};
-  for (const r of rows) {
-    if (!r.length) continue;
-    const [section, kind, ...rest] = r;
-    if (kind === 'Header') {
-      headers[section] = rest;          // column names for this section
-      continue;
-    }
-    if (kind !== 'Data') continue;
-    const cols = headers[section] || [];
-    const obj = {};
-    cols.forEach((c, i) => obj[c] = rest[i]);
-
-    if (section === 'Statement') {
-      if (obj['Field Name'] === 'Period') {
-        // e.g. "January 1, 2019 - December 31, 2019"
-        const m = (obj['Field Value'] || '').match(/(\w+\s+\d+,\s+\d+)\s*-\s*(\w+\s+\d+,\s+\d+)/);
-        if (m) {
-          result.period_start = isoDate(m[1]);
-          result.period_end   = isoDate(m[2]);
-        }
-      }
-    } else if (section === 'Account Information') {
-      if (obj['Field Name'] === 'Account') result.account_id = obj['Field Value'];
-    } else if (section === 'Trades' && rest[0] === 'Order') {
-      // DataDiscriminator 'Order' marks an actual trade row (vs subtotal/total)
-      result.trades.push({
-        asset_class: obj['Asset Category'],
-        currency:    obj['Currency'],
-        symbol:      obj['Symbol'],
-        trade_dt:    parseIbkrDateTime(obj['Date/Time']),
-        quantity:    num(obj['Quantity']),
-        price:       num(obj['T. Price']),
-        close_price: num(obj['C. Price']),
-        proceeds:    num(obj['Proceeds']),
-        commission:  num(obj['Comm/Fee']),
-        basis:       num(obj['Basis']),
-        realized_pl: num(obj['Realized P/L']),
-        mtm_pl:      num(obj['MTM P/L']),
-        code:        obj['Code'] || null
+      await fetch(N8N_DNA_WEBHOOK_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: currentUser.id, session_id: currentSession.id })
       });
-    } else if (section === 'Net Asset Value') {
-      if (obj['Asset Class']) {
-        result.nav.push({
-          asset_class:  obj['Asset Class'],
-          long_value:   num(obj['Current Long']),
-          short_value:  num(obj['Current Short']),
-          total_value:  num(obj['Current Total']),
-          change_value: num(obj['Change'])
-        });
-      }
-    } else if (section === 'Realized & Unrealized Performance Summary') {
-      if (obj['Symbol']) {
-        result.realized_pl.push({
-          asset_class: obj['Asset Category'],
-          symbol: obj['Symbol'],
-          st_profit: num(obj['Realized S/T Profit']),
-          st_loss:   num(obj['Realized S/T Loss']),
-          lt_profit: num(obj['Realized L/T Profit']),
-          lt_loss:   num(obj['Realized L/T Loss']),
-          realized_total:   num(obj['Realized Total']),
-          unrealized_total: num(obj['Unrealized Total']),
-          total: num(obj['Total'])
-        });
-      }
-    }
+    } catch (e) { console.error(e); }
   }
-  return result;
+  show('modal', false); show('complete-screen', true);
 }
 
-function num(v) {
-  if (v === undefined || v === null || v === '') return null;
-  const cleaned = String(v).replace(/,/g, '').replace(/%$/, '');
-  const n = Number(cleaned);
-  return isNaN(n) ? null : n;
-}
-function parseIbkrDateTime(v) {
-  if (!v) return null;
-  // IBKR uses "2019-07-09, 10:26:18"
-  const m = v.match(/(\d{4}-\d{2}-\d{2})(?:,\s*(\d{2}:\d{2}:\d{2}))?/);
-  if (!m) return null;
-  const iso = m[2] ? `${m[1]}T${m[2]}Z` : `${m[1]}T00:00:00Z`;
-  return iso;
-}
-function isoDate(humanDate) {
-  const d = new Date(humanDate);
-  return isNaN(d) ? null : d.toISOString().slice(0, 10);
-}
-
-// ---------- Persist to Supabase ----------
-async function persistStatement(file, parsed) {
-  const { data: stmt, error: stmtErr } = await sb.from('trade_statements').insert({
-    user_id: currentUser.id,
-    filename: file.name,
-    period_start: parsed.period_start,
-    period_end:   parsed.period_end,
-    account_id:   parsed.account_id,
-    row_count:    parsed.trades.length,
-    raw_size_bytes: file.size
-  }).select().single();
-  if (stmtErr) throw stmtErr;
-  const statementId = stmt.id;
-
-  // Insert trades in chunks (Supabase upper bound is ~1k rows per call comfortably)
-  const tradeRows = parsed.trades.map(t => ({ user_id: currentUser.id, statement_id: statementId, ...t }));
-  for (let i = 0; i < tradeRows.length; i += 500) {
-    const chunk = tradeRows.slice(i, i + 500);
-    const { error } = await sb.from('trades').insert(chunk);
-    if (error) throw error;
-  }
-
-  // NAV: tag with period end as as_of_date
-  if (parsed.nav.length) {
-    const navRows = parsed.nav.map(n => ({
-      user_id: currentUser.id, statement_id: statementId,
-      as_of_date: parsed.period_end, ...n
-    }));
-    const { error } = await sb.from('nav_snapshots').insert(navRows);
-    if (error) throw error;
-  }
-
-  // Realized P/L summary
-  if (parsed.realized_pl.length) {
-    const year = parsed.period_end ? Number(parsed.period_end.slice(0,4)) : null;
-    const plRows = parsed.realized_pl.map(p => ({
-      user_id: currentUser.id, statement_id: statementId, period_year: year, ...p
-    }));
-    const { error } = await sb.from('realized_pl_summary').insert(plRows);
-    if (error) throw error;
-  }
-
-  return statementId;
-}
-
-// ---------- Dashboard read side ----------
-async function refreshDashboard() {
-  // Statements + counts
-  const { data: stmts } = await sb.from('trade_statements')
-    .select('id, filename, period_start, period_end, row_count, uploaded_at')
-    .order('period_end', { ascending: true });
-
-  $('stat-statements').textContent = fmtInt(stmts?.length || 0);
-  if (stmts?.length) {
-    const years = [...new Set(stmts.map(s => s.period_end?.slice(0,4)).filter(Boolean))].sort();
-    $('stat-statements-sub').textContent = years.length ? `${years[0]} – ${years[years.length-1]}` : '';
-  }
-
-  const { count: tradeCount } = await sb.from('trades')
-    .select('*', { count: 'exact', head: true });
-  $('stat-trades').textContent = fmtInt(tradeCount || 0);
-
-  // Symbols + cumulative realized P/L from the summary table (one row per symbol per statement)
-  const { data: plRows } = await sb.from('realized_pl_summary')
-    .select('symbol, realized_total');
-  const symbolSet = new Set();
-  let totalRealized = 0;
-  (plRows || []).forEach(r => {
-    if (r.symbol) symbolSet.add(r.symbol);
-    if (typeof r.realized_total === 'number') totalRealized += r.realized_total;
-  });
-  $('stat-symbols').textContent = fmtInt(symbolSet.size);
-  const plEl = $('stat-pl');
-  plEl.textContent = fmt(totalRealized);
-  plEl.classList.toggle('pos', totalRealized > 0);
-  plEl.classList.toggle('neg', totalRealized < 0);
-
-  // NAV table
-  renderNavTable(stmts || []);
-
-  // Top P/L symbols (aggregate by symbol across all statements)
-  const agg = {};
-  (plRows || []).forEach(r => {
-    if (!r.symbol) return;
-    agg[r.symbol] = (agg[r.symbol] || 0) + (r.realized_total || 0);
-  });
-  const ranked = Object.entries(agg).sort((a, b) => b[1] - a[1]);
-  renderPlTable(ranked);
-}
-
-async function renderNavTable(stmts) {
-  const wrap = $('nav-table-wrap');
-  if (!stmts.length) { wrap.innerHTML = '<div class="empty">No statements uploaded yet.</div>'; return; }
-  // Pull the 'Total' row per statement to get ending NAV
-  const { data: navs } = await sb.from('nav_snapshots')
-    .select('statement_id, as_of_date, asset_class, total_value, change_value')
-    .eq('asset_class', 'Total')
-    .order('as_of_date', { ascending: true });
-  if (!navs?.length) {
-    wrap.innerHTML = '<div class="empty">No NAV data parsed yet.</div>'; return;
-  }
-  const rows = navs.map(n => `
-    <tr>
-      <td>${n.as_of_date || ''}</td>
-      <td class="num">${fmt(n.total_value)}</td>
-      <td class="num ${n.change_value > 0 ? 'pos' : n.change_value < 0 ? 'neg' : ''}">${fmt(n.change_value)}</td>
-    </tr>`).join('');
-  wrap.innerHTML = `<table>
-    <thead><tr><th>As of</th><th style="text-align:right">Ending NAV</th><th style="text-align:right">Change</th></tr></thead>
-    <tbody>${rows}</tbody></table>`;
-}
-
-function renderPlTable(ranked) {
-  const wrap = $('pl-table-wrap');
-  if (!ranked.length) { wrap.innerHTML = '<div class="empty">No P/L data uploaded yet.</div>'; return; }
-  const top    = ranked.slice(0, 10);
-  const bottom = ranked.slice(-10).reverse();
-  const rowHtml = arr => arr.map(([sym, v]) => `
-    <tr>
-      <td>${sym}</td>
-      <td class="num ${v > 0 ? 'pos' : v < 0 ? 'neg' : ''}">${fmt(v)}</td>
-    </tr>`).join('');
-  wrap.innerHTML = `
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-      <div>
-        <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Top winners</div>
-        <table><thead><tr><th>Symbol</th><th style="text-align:right">Realized P/L</th></tr></thead>
-          <tbody>${rowHtml(top)}</tbody></table>
-      </div>
-      <div>
-        <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Worst losers</div>
-        <table><thead><tr><th>Symbol</th><th style="text-align:right">Realized P/L</th></tr></thead>
-          <tbody>${rowHtml(bottom)}</tbody></table>
-      </div>
-    </div>`;
-}
-
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) await initializeUser(session.user);
+})();
 })();
 </script>
 </body>
