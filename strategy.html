@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Strategy · Ridge Run</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{--bg:#fff;--bg-tint:#f8fafc;--bg-blue:#eff6ff;--bg-blue-soft:#f0f7ff;--border:#e2e8f0;--border-blue:#bfdbfe;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;--accent:#2563eb;--accent-dark:#1e40af;--success:#059669;--success-bg:#d1fae5;--warning:#d97706;--warning-bg:#fed7aa;--danger:#dc2626;--danger-bg:#fee2e2;--serif:'Source Serif 4',Georgia,serif;--sans:'Inter',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace}
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{background:var(--bg-tint);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh}
+  .hidden{display:none!important}
+  .loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim)}
+  .shell{max-width:1200px;margin:0 auto;padding:0 24px 80px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:8px;flex-wrap:wrap;gap:12px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-mark{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--accent);letter-spacing:-0.02em}
+  .brand-name{font-family:var(--mono);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted)}
+  .nav-tabs{display:flex;gap:4px;flex-wrap:wrap}
+  .nav-tabs a{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;padding:6px 10px;border-radius:3px;border:1px solid transparent}
+  .nav-tabs a:hover{color:var(--text);background:var(--bg)} .nav-tabs a.active{color:var(--accent);background:var(--bg-blue);border-color:var(--border-blue)}
+  .user-meta{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:11px;color:var(--text-muted)}
+  .signout{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;background:transparent;border:1px solid var(--border);padding:6px 10px;border-radius:3px}
+  .signout:hover{border-color:var(--text-dim);color:var(--text-muted)}
+  h1.page-title{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-0.02em;margin:24px 0 6px}
+  .page-sub{color:var(--text-muted);margin:0 0 28px}
+  .card{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:24px;margin-bottom:20px}
+  .card h2{font-family:var(--serif);font-size:19px;font-weight:500;letter-spacing:-0.015em;margin:0 0 4px}
+  .card .h2-sub{color:var(--text-muted);font-size:13px;margin:0 0 18px}
+  .card .h2-row{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:6px}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:10px 16px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500;transition:all .15s}
+  .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)} .btn-primary:disabled{opacity:.5;cursor:wait}
+  .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
+  .btn-icon{font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:4px 8px;border-radius:3px;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted)}
+  .btn-icon:hover{border-color:var(--danger);color:var(--danger)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:8px 10px;border-bottom:1px solid var(--border)}
+  td{padding:9px 10px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px}
+  td.num{text-align:right} td.pos{color:var(--success)} td.neg{color:var(--danger)}
+  tr:last-child td{border-bottom:none}
+  .iv-pill{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:2px 7px;border-radius:3px;font-weight:500}
+  .iv-pill.cheap{background:var(--success-bg);border:1px solid #a7f3d0;color:#065f46}
+  .iv-pill.normal{background:var(--bg-tint);border:1px solid var(--border);color:var(--text-muted)}
+  .iv-pill.rich{background:var(--warning-bg);border:1px solid #fcd34d;color:#92400e}
+  .iv-pill.extreme{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
+  .ideas-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .idea{padding:14px 16px;background:var(--bg-tint);border:1px solid var(--border);border-radius:4px}
+  .idea .head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px}
+  .idea .sym{font-family:var(--serif);font-size:18px;font-weight:600;color:var(--text)}
+  .idea .meta{font-family:var(--mono);font-size:10px;color:var(--text-dim);letter-spacing:0.05em}
+  .idea .thesis{font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:8px}
+  .idea .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .conviction-bar{display:inline-flex;gap:2px}
+  .conviction-bar span{width:8px;height:8px;border-radius:1px;background:var(--border)}
+  .conviction-bar span.on{background:var(--accent)}
+  .add-form{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:14px;background:var(--bg-tint);border:1px solid var(--border);border-radius:4px;margin-bottom:14px}
+  .field-mini label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+  .field-mini input,.field-mini select,.field-mini textarea{width:100%;background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-family:var(--mono);font-size:12px;color:var(--text);border-radius:3px}
+  .field-mini textarea{font-family:var(--sans);min-height:60px;resize:vertical}
+  .field-mini input:focus,.field-mini select:focus,.field-mini textarea:focus{outline:none;border-color:var(--accent)}
+  .builder-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .builder-input{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .builder-input .full{grid-column:1/-1}
+  .builder-output{background:var(--bg-tint);border:1px solid var(--border);border-radius:4px;padding:16px}
+  .builder-output h3{font-family:var(--serif);font-size:16px;font-weight:500;margin:0 0 8px}
+  .builder-output .rec{padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:3px;margin-bottom:8px}
+  .builder-output .rec .label{font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px}
+  .builder-output .rec .val{font-family:var(--mono);font-size:13px;color:var(--text)}
+  .builder-output .why{font-size:12px;color:var(--text-muted);line-height:1.5;font-style:italic;margin-top:6px}
+  .empty{padding:28px 20px;text-align:center;color:var(--text-muted);font-size:13px}
+  .msg{padding:10px 14px;font-size:13px;border-radius:4px;line-height:1.5;margin:10px 0}
+  .msg-error{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
+  .msg-success{background:var(--success-bg);border:1px solid #a7f3d0;color:#065f46}
+  .msg-warn{background:var(--warning-bg);border:1px solid #fcd34d;color:#92400e}
+  .msg-info{background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--accent-dark)}
+  @media (max-width:900px){.add-form{grid-template-columns:1fr 1fr}.ideas-grid{grid-template-columns:1fr}.builder-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="loading-screen" class="loading">Loading strategy…</div>
+
+<div id="app" class="shell hidden">
+  <div class="topbar">
+    <div class="brand"><span class="brand-mark">RR</span><span class="brand-name">Ridge Run</span></div>
+    <nav class="nav-tabs">
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/dna.html">Investor DNA</a>
+      <a href="/performance.html">Performance</a>
+      <a href="/watchlist.html">Watchlist</a>
+      <a href="/strategy.html" class="active">Strategy</a>
+      <a href="/ai.html">Ask AI</a>
+    </nav>
+    <div class="user-meta">
+      <span id="user-email"></span>
+      <button class="signout" id="signout-btn">Sign out</button>
+    </div>
+  </div>
+
+  <h1 class="page-title">Strategy</h1>
+  <p class="page-sub">Vol scanner, defined-risk spread builder, and open-position monitor. Built for long-duration, asymmetric, mispriced-vol setups.</p>
+
+  <div id="msg-area"></div>
+
+  <!-- ============================ VOL SCANNER ============================= -->
+  <div class="card">
+    <div class="h2-row">
+      <div>
+        <h2>Vol scanner</h2>
+        <p class="h2-sub">Tracked symbols with their latest IV snapshot. Green = IV in bottom quartile of 1-yr range (cheap long-vol candidates).</p>
+      </div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);letter-spacing:0.1em" id="vol-asof"></div>
+    </div>
+    <div id="vol-table"></div>
+  </div>
+
+  <!-- ============================ TRADE IDEAS ============================ -->
+  <div class="card">
+    <h2>Thesis stack</h2>
+    <p class="h2-sub">Ideas you're considering. Add a name and structure to track it. Symbols here automatically get nightly vol snapshots.</p>
+
+    <div class="add-form">
+      <div class="field-mini"><label>Symbol</label><input id="idea-symbol" type="text" placeholder="TEAM" /></div>
+      <div class="field-mini"><label>Direction</label><select id="idea-direction"><option value="long">Long</option><option value="short">Short</option><option value="neutral">Neutral</option></select></div>
+      <div class="field-mini"><label>Structure</label><select id="idea-structure"><option value="leap">LEAP call</option><option value="long_call">Long call (3-6mo)</option><option value="debit_vertical">Debit vertical</option><option value="calendar">Calendar</option><option value="common">Common stock</option></select></div>
+      <div class="field-mini"><label>Conviction (1-5)</label><input id="idea-conviction" type="number" min="1" max="5" value="3" /></div>
+      <div class="field-mini"><label>Horizon (days)</label><input id="idea-horizon" type="number" min="1" value="180" /></div>
+      <div class="field-mini"><label>Max loss ($)</label><input id="idea-max-loss" type="number" min="0" value="200" /></div>
+      <div class="field-mini" style="grid-column:1/-1"><label>Thesis</label><textarea id="idea-thesis" placeholder="Why does this work? What's the catalyst? What kills it?"></textarea></div>
+      <div class="field-mini" style="grid-column:1/-1"><button class="btn btn-primary" id="add-idea">+ Add to stack</button></div>
+    </div>
+
+    <div id="ideas-list"></div>
+  </div>
+
+  <!-- ============================ TRADE BUILDER ========================== -->
+  <div class="card">
+    <h2>Defined-risk trade builder</h2>
+    <p class="h2-sub">Given a thesis, sizes a position so max loss fits your account. Suggests structure based on vol context.</p>
+
+    <div class="builder-grid">
+      <div>
+        <div class="builder-input">
+          <div class="field-mini full"><label>Symbol</label><input id="b-symbol" type="text" placeholder="TEAM" /></div>
+          <div class="field-mini"><label>Current price ($)</label><input id="b-spot" type="number" step="0.01" placeholder="180" /></div>
+          <div class="field-mini"><label>Target price ($)</label><input id="b-target" type="number" step="0.01" placeholder="230" /></div>
+          <div class="field-mini"><label>Conviction (1-5)</label><input id="b-conviction" type="number" min="1" max="5" value="3" /></div>
+          <div class="field-mini"><label>Account size ($)</label><input id="b-account" type="number" value="2000" /></div>
+          <div class="field-mini"><label>Max loss % of acct</label><input id="b-maxloss-pct" type="number" min="1" max="50" value="10" /></div>
+          <div class="field-mini"><label>Horizon (days)</label><input id="b-horizon" type="number" min="7" value="180" /></div>
+          <div class="field-mini full"><button class="btn btn-primary" id="build-btn">Build trade</button></div>
+        </div>
+      </div>
+      <div class="builder-output" id="builder-output">
+        <h3>Recommendation</h3>
+        <div class="empty">Enter your inputs and click "Build trade" to see a sized structure.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ POSITION MONITOR ======================= -->
+  <div class="card">
+    <div class="h2-row">
+      <div>
+        <h2>Open positions</h2>
+        <p class="h2-sub">Live P/L, days to expiry, and distance to max loss across your open book.</p>
+      </div>
+      <button class="btn btn-ghost" id="add-pos-btn">+ Log a position</button>
+    </div>
+    <div id="position-form" class="hidden" style="margin-bottom:14px">
+      <div class="add-form">
+        <div class="field-mini"><label>Symbol</label><input id="p-symbol" type="text" /></div>
+        <div class="field-mini"><label>Instrument</label><select id="p-instrument"><option value="common">Common</option><option value="call">Long call</option><option value="put">Long put</option><option value="spread">Spread</option><option value="calendar">Calendar</option></select></div>
+        <div class="field-mini"><label>Qty</label><input id="p-qty" type="number" value="1" /></div>
+        <div class="field-mini"><label>Entry price ($)</label><input id="p-entry" type="number" step="0.01" /></div>
+        <div class="field-mini"><label>Max loss ($)</label><input id="p-maxloss" type="number" step="0.01" /></div>
+        <div class="field-mini"><label>Expiry</label><input id="p-expiry" type="date" /></div>
+        <div class="field-mini" style="grid-column:1/-1"><label>Thesis (brief)</label><input id="p-thesis" type="text" /></div>
+        <div class="field-mini" style="grid-column:1/-1"><button class="btn btn-primary" id="save-pos">Save position</button></div>
+      </div>
+    </div>
+    <div id="pos-table"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/config.js"></script>
+<script>
+(() => {
+const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = window.RR_CONFIG;
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+let currentUser=null;
+const $ = id => document.getElementById(id);
+const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => (n==null||isNaN(n))?'—':Number(n).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2});
+const fmt0 = n => (n==null||isNaN(n))?'—':Number(n).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+const fmtPct = n => (n==null||isNaN(n))?'—':(Number(n)*100).toFixed(1)+'%';
+
+(async () => {
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session?.user){ window.location.href='/index.html'; return; }
+  currentUser = session.user;
+  $('user-email').textContent = currentUser.email || '';
+  show('loading-screen',false); show('app',true);
+  await Promise.all([loadVolScanner(), loadIdeas(), loadPositions()]);
+})();
+
+$('signout-btn').addEventListener('click', async()=>{ await sb.auth.signOut(); window.location.href='/index.html'; });
+
+// ========================== VOL SCANNER ===================================
+async function loadVolScanner(){
+  // Pull tracked symbols
+  const { data: tracked } = await sb.rpc('tracked_symbols', { p_user: currentUser.id });
+  const symbols = [...new Set((tracked||[]).map(r=>r.symbol).filter(Boolean))];
+  if(!symbols.length){
+    $('vol-table').innerHTML = '<div class="empty">No tracked symbols yet. Add some to your watchlist or thesis stack and they\'ll appear here once the nightly snapshot runs.</div>';
+    return;
+  }
+  const { data: vols } = await sb.rpc('latest_vol_for_symbols', { p_symbols: symbols });
+  if(!vols?.length){
+    $('vol-table').innerHTML = '<div class="empty">No vol snapshots yet. The nightly workflow runs at 4:30pm ET and populates IV data on tracked symbols.</div>';
+    return;
+  }
+  const latest = vols[0]?.as_of_date;
+  if(latest) $('vol-asof').textContent = 'as of '+latest;
+  // Sort: cheap first, then by rank
+  vols.sort((a,b)=>{
+    if(a.is_cheap !== b.is_cheap) return a.is_cheap ? -1 : 1;
+    return (a.iv_rank_1y ?? 999) - (b.iv_rank_1y ?? 999);
+  });
+  const rows = vols.map(v=>{
+    const rank = v.iv_rank_1y;
+    let pillCls='normal', pillText='—';
+    if(rank!=null){
+      if(rank < 25){ pillCls='cheap'; pillText='cheap'; }
+      else if(rank < 50){ pillCls='normal'; pillText='normal'; }
+      else if(rank < 80){ pillCls='rich'; pillText='rich'; }
+      else { pillCls='extreme'; pillText='extreme'; }
+    }
+    return `<tr>
+      <td><b>${esc(v.symbol)}</b></td>
+      <td class="num">${v.spot?fmt(v.spot):'—'}</td>
+      <td class="num">${v.iv_30d!=null?(v.iv_30d*100).toFixed(1)+'%':'—'}</td>
+      <td class="num">${v.iv_90d!=null?(v.iv_90d*100).toFixed(1)+'%':'—'}</td>
+      <td class="num">${v.iv_180d!=null?(v.iv_180d*100).toFixed(1)+'%':'—'}</td>
+      <td class="num">${v.iv_365d!=null?(v.iv_365d*100).toFixed(1)+'%':'—'}</td>
+      <td class="num">${rank!=null?rank.toFixed(0):'—'}</td>
+      <td><span class="iv-pill ${pillCls}">${pillText}</span></td>
+      <td class="num">${v.skew_25d!=null?(v.skew_25d*100).toFixed(1)+'pp':'—'}</td>
+    </tr>`;
+  }).join('');
+  $('vol-table').innerHTML = `<table>
+    <thead><tr><th>Symbol</th><th style="text-align:right">Spot</th><th style="text-align:right">IV 30d</th><th style="text-align:right">IV 90d</th><th style="text-align:right">IV 180d</th><th style="text-align:right">IV 365d</th><th style="text-align:right">Rank 1y</th><th>Tier</th><th style="text-align:right">25Δ Skew</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+// ========================== IDEAS =========================================
+async function loadIdeas(){
+  const { data, error } = await sb.from('trade_ideas').select('*').neq('status','killed').order('created_at',{ascending:false});
+  if(error){ flash(error.message,'error'); return; }
+  if(!data?.length){ $('ideas-list').innerHTML='<div class="empty">No ideas yet. Add one above.</div>'; return; }
+  const html = `<div class="ideas-grid">${data.map(i=>{
+    const conv = Math.min(5, Math.max(1, i.conviction||3));
+    const bar = Array.from({length:5},(_,k)=>`<span class="${k<conv?'on':''}"></span>`).join('');
+    return `<div class="idea">
+      <div class="head">
+        <div>
+          <div class="sym">${esc(i.symbol)}</div>
+          <div class="meta">${esc(i.direction)} · ${esc(i.proposed_structure||i.status)} · ${i.horizon_days||180}d horizon</div>
+        </div>
+        <div class="conviction-bar" title="Conviction ${conv}/5">${bar}</div>
+      </div>
+      <div class="thesis">${esc(i.thesis||'(no thesis written)')}</div>
+      <div class="meta">Max loss: ${i.max_loss_dollars?fmt(i.max_loss_dollars):'—'}</div>
+      <div class="actions">
+        <button class="btn-icon" onclick="window._buildFromIdea('${esc(i.symbol)}', ${i.conviction||3}, ${i.horizon_days||180}, ${i.max_loss_dollars||200})">Build trade</button>
+        <button class="btn-icon" onclick="window._killIdea('${i.id}')">Kill</button>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+  $('ideas-list').innerHTML = html;
+}
+$('add-idea').addEventListener('click', async()=>{
+  const sym=$('idea-symbol').value.trim().toUpperCase(); if(!sym){ flash('Symbol required','error'); return; }
+  const payload = {
+    user_id: currentUser.id,
+    symbol: sym,
+    direction: $('idea-direction').value,
+    proposed_structure: $('idea-structure').value,
+    conviction: Number($('idea-conviction').value)||3,
+    horizon_days: Number($('idea-horizon').value)||180,
+    max_loss_dollars: Number($('idea-max-loss').value)||null,
+    thesis: $('idea-thesis').value.trim() || null
+  };
+  const { error } = await sb.from('trade_ideas').insert(payload);
+  if(error){ flash(error.message,'error'); return; }
+  $('idea-symbol').value=''; $('idea-thesis').value='';
+  await loadIdeas(); await loadVolScanner();
+});
+window._killIdea = async(id)=>{ if(!confirm('Kill this idea?')) return; await sb.from('trade_ideas').update({status:'killed'}).eq('id',id); await loadIdeas(); };
+window._buildFromIdea = (sym, conv, hor, maxLoss)=>{ $('b-symbol').value=sym; $('b-conviction').value=conv; $('b-horizon').value=hor; const a=Number($('b-account').value)||2000; $('b-maxloss-pct').value=Math.min(50,Math.round((maxLoss/a)*100)); document.getElementById('build-btn').scrollIntoView({behavior:'smooth',block:'center'}); };
+
+// ========================== TRADE BUILDER =================================
+$('build-btn').addEventListener('click', buildTrade);
+async function buildTrade(){
+  const sym=$('b-symbol').value.trim().toUpperCase();
+  const spot=Number($('b-spot').value);
+  const target=Number($('b-target').value);
+  const conv=Number($('b-conviction').value)||3;
+  const acct=Number($('b-account').value)||2000;
+  const maxLossPct=Number($('b-maxloss-pct').value)||10;
+  const horizon=Number($('b-horizon').value)||180;
+  if(!sym||!spot||!target){ flash('Symbol, spot, and target required','error'); return; }
+  const maxLossDollars = acct * (maxLossPct/100);
+  const moveExpected = (target - spot)/spot;
+  const absMove = Math.abs(moveExpected);
+  // Pull IV context from cached snapshots if we have it
+  const { data: vols } = await sb.rpc('latest_vol_for_symbols', { p_symbols: [sym] });
+  const vol = vols?.[0];
+  const ivRank = vol?.iv_rank_1y;
+  const iv180 = vol?.iv_180d;
+
+  // Decision tree for structure
+  let structure, why, sizing;
+  if(absMove > 0.40 && horizon >= 90 && conv >= 3){
+    // Big move, long horizon, conviction: long call (LEAP if 270+)
+    structure = horizon >= 270 ? 'LEAP call' : 'Long call (3-6mo)';
+    // Estimate premium: rough Black-Scholes-ish heuristic — ATM premium ≈ spot * iv * sqrt(T/365)
+    const ivUsed = iv180 || 0.40; // fall back to 40% if no data
+    const estATMPremium = spot * ivUsed * Math.sqrt(horizon/365);
+    const contractCost = estATMPremium * 100;
+    const numContracts = Math.max(1, Math.floor(maxLossDollars / contractCost));
+    const actualMaxLoss = numContracts * contractCost;
+    sizing = {
+      structure: structure + ' (ATM or slightly OTM)',
+      strike: 'Near ${{spot}}'.replace('{{spot}}', spot.toFixed(0)),
+      expiry: '~'+horizon+' days out',
+      contracts: numContracts,
+      est_premium_per: '$'+estATMPremium.toFixed(2),
+      total_cost: fmt0(actualMaxLoss),
+      max_loss: fmt0(actualMaxLoss),
+      breakeven: '$'+(spot + estATMPremium).toFixed(2),
+      target_value_at_expiry: target > spot ? fmt0(Math.max(0, target - spot) * 100 * numContracts) : 'OTM at target',
+      iv_context: ivRank!=null ? `IV rank ${ivRank.toFixed(0)}/100 (${ivRank<25?'cheap — favorable for buying premium':ivRank<50?'normal':ivRank<80?'rich — premium is expensive':'extreme — consider waiting or going to spreads'})` : 'No IV data — add to thesis stack for nightly snapshots'
+    };
+    why = 'High conviction + long horizon + significant expected move: long premium is justified. The asymmetric payoff fits your demonstrated edge in long-duration, mispriced-vol setups. '
+        + (ivRank!=null && ivRank>60 ? '⚠ IV rank is elevated — consider a debit vertical instead to cap premium paid.' : 'IV context is favorable.');
+  } else if(absMove > 0.15 && conv >= 3){
+    // Medium move, medium conviction: debit vertical
+    structure = 'Debit vertical (long ATM / short OTM)';
+    const longStrike = spot;
+    const shortStrike = target;
+    const width = shortStrike - longStrike;
+    const ivUsed = iv180 || 0.35;
+    const estCost = (width * 0.40) * 100;  // rough heuristic: debit ≈ 40% of width
+    const numContracts = Math.max(1, Math.floor(maxLossDollars / estCost));
+    const actualMaxLoss = numContracts * estCost;
+    const maxGain = numContracts * (width * 100 - estCost);
+    sizing = {
+      structure: structure,
+      long_leg: '$'+longStrike.toFixed(0)+' call',
+      short_leg: '$'+shortStrike.toFixed(0)+' call',
+      expiry: '~'+horizon+' days out',
+      contracts: numContracts,
+      est_debit_per: '$'+(estCost/100).toFixed(2),
+      total_cost: fmt0(actualMaxLoss),
+      max_loss: fmt0(actualMaxLoss),
+      max_gain: fmt0(maxGain),
+      risk_reward: ((maxGain/actualMaxLoss) || 0).toFixed(2) + ':1',
+      iv_context: ivRank!=null ? `IV rank ${ivRank.toFixed(0)} — verticals are vol-neutral, less sensitive to IV crush.` : 'No IV data yet.'
+    };
+    why = 'Defined risk + defined reward. Caps both downside and upside. Vol-neutral so less exposed to IV crush than a naked long call. Good fit for medium-conviction directional thesis where you want to leverage the move without paying full premium.';
+  } else if(absMove > 0.05 && horizon >= 30){
+    // Small move or low conviction: calendar or shorter long call
+    structure = 'Calendar spread';
+    const ivUsed = iv180 || 0.30;
+    const estCost = spot * ivUsed * 0.08 * 100;
+    const numContracts = Math.max(1, Math.floor(maxLossDollars / estCost));
+    sizing = {
+      structure: structure + ' at $'+target.toFixed(0)+' strike',
+      short_leg: 'Short '+target.toFixed(0)+' call, ~30d expiry',
+      long_leg: 'Long '+target.toFixed(0)+' call, ~'+horizon+'d expiry',
+      contracts: numContracts,
+      est_debit_per: '$'+(estCost/100).toFixed(2),
+      total_cost: fmt0(numContracts * estCost),
+      max_loss: fmt0(numContracts * estCost),
+      profit_zone: 'Underlying near $'+target.toFixed(0)+' at front expiry',
+      iv_context: ivRank!=null ? `IV rank ${ivRank.toFixed(0)} — calendars profit from IV expansion in back month.` : 'No IV data yet.'
+    };
+    why = 'Modest expected move makes long premium expensive relative to payoff. Calendar profits from time decay on the front month while preserving long-dated exposure. Wins if underlying drifts toward strike.';
+  } else {
+    sizing = { structure: 'Skip', max_loss: '$0', note: 'Expected move too small or horizon too short to justify a defined-risk structure at your max-loss tolerance. Consider waiting for a better setup or sizing in common stock if conviction is high.' };
+    why = 'Premium math doesn\'t work here. Better to pass than force a trade.';
+  }
+
+  const html = `<h3>Recommendation: ${esc(sizing.structure||'—')}</h3>
+    ${Object.entries(sizing).filter(([k])=>k!=='structure').map(([k,v])=>`<div class="rec"><div class="label">${esc(k.replace(/_/g,' '))}</div><div class="val">${esc(String(v))}</div></div>`).join('')}
+    <div class="why">${esc(why)}</div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="btn btn-ghost" onclick="window._addAsIdea('${esc(sym)}', ${conv}, ${horizon}, ${maxLossDollars})">Add to thesis stack</button>
+    </div>`;
+  $('builder-output').innerHTML = html;
+}
+window._addAsIdea = async (sym, conv, hor, maxLoss)=>{
+  await sb.from('trade_ideas').insert({
+    user_id: currentUser.id, symbol: sym, direction: 'long', proposed_structure: 'long_call',
+    conviction: conv, horizon_days: hor, max_loss_dollars: maxLoss,
+    thesis: 'Generated from trade builder'
+  });
+  flash('Added to thesis stack','success'); await loadIdeas();
+};
+
+// ========================== POSITIONS =====================================
+$('add-pos-btn').addEventListener('click', ()=>show('position-form', $('position-form').classList.contains('hidden')));
+$('save-pos').addEventListener('click', async()=>{
+  const payload = {
+    user_id: currentUser.id,
+    symbol: $('p-symbol').value.trim().toUpperCase(),
+    instrument: $('p-instrument').value,
+    qty: Number($('p-qty').value)||1,
+    entry_price: Number($('p-entry').value)||null,
+    entry_total: (Number($('p-entry').value)||0) * (Number($('p-qty').value)||1) * ($('p-instrument').value==='common'?1:100),
+    max_loss: Number($('p-maxloss').value)||null,
+    expiry: $('p-expiry').value || null,
+    thesis: $('p-thesis').value.trim()||null,
+    current_pl: 0
+  };
+  if(!payload.symbol){ flash('Symbol required','error'); return; }
+  const { error } = await sb.from('positions').insert(payload);
+  if(error){ flash(error.message,'error'); return; }
+  ['p-symbol','p-qty','p-entry','p-maxloss','p-expiry','p-thesis'].forEach(id=>{ $(id).value=''; });
+  show('position-form', false);
+  await loadPositions(); await loadVolScanner();
+});
+
+async function loadPositions(){
+  const { data, error } = await sb.rpc('position_monitor', { p_user: currentUser.id });
+  if(error){ $('pos-table').innerHTML = '<div class="empty">'+esc(error.message)+'</div>'; return; }
+  if(!data?.length){ $('pos-table').innerHTML = '<div class="empty">No open positions logged yet. Click "+ Log a position" when you put on a trade.</div>'; return; }
+  $('pos-table').innerHTML = `<table>
+    <thead><tr><th>Symbol</th><th>Instrument</th><th style="text-align:right">Qty</th><th style="text-align:right">Entry</th><th style="text-align:right">Now</th><th style="text-align:right">P/L</th><th>Expiry</th><th style="text-align:right">DTE</th><th style="text-align:right">% to max loss</th><th>Thesis</th><th></th></tr></thead>
+    <tbody>${data.map(p=>{
+      const dte = p.days_to_expiry;
+      const dteCls = dte!=null && dte<14 ? 'neg' : '';
+      const plCls = p.current_pl>0?'pos':p.current_pl<0?'neg':'';
+      const pctCls = p.pct_to_max_loss>=75?'neg':'';
+      return `<tr>
+        <td><b>${esc(p.symbol)}</b></td>
+        <td>${esc(p.instrument)}</td>
+        <td class="num">${p.qty||'—'}</td>
+        <td class="num">${fmt(p.entry_total)}</td>
+        <td class="num">${fmt(p.current_value)}</td>
+        <td class="num ${plCls}">${fmt(p.current_pl)}</td>
+        <td>${p.expiry||'—'}</td>
+        <td class="num ${dteCls}">${dte!=null?dte+'d':'—'}</td>
+        <td class="num ${pctCls}">${p.pct_to_max_loss!=null?p.pct_to_max_loss.toFixed(0)+'%':'—'}</td>
+        <td style="font-size:11px;color:var(--text-muted);max-width:200px">${esc(p.thesis||'')}</td>
+        <td><button class="btn-icon" onclick="window._closePos('${p.id}')">Close</button></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+window._closePos = async(id)=>{
+  if(!confirm('Mark as closed?')) return;
+  await sb.from('positions').update({ is_open:false, closed_dt:new Date().toISOString() }).eq('id',id);
+  await loadPositions();
+};
+
+function flash(text,kind){ $('msg-area').innerHTML = `<div class="msg msg-${kind}">${esc(text)}</div>`; setTimeout(()=>{ $('msg-area').innerHTML=''; }, 5000); }
+})();
+</script>
+</body>
+</html>
