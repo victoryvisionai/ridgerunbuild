@@ -89,7 +89,7 @@
       <a href="/dna.html">Investor DNA</a>
       <a href="/performance.html">Performance</a>
       <a href="/watchlist.html">Watchlist</a>
-      <a href="/strategy.html" class="active">Strategy</a>
+      <a href="/strategy.html" class="active">Strategy</a><a href="/research.html">Research</a><a href="/screener.html">Screener</a>
       <a href="/ai.html">Ask AI</a>
     </nav>
     <div class="user-meta">
@@ -212,13 +212,13 @@ $('signout-btn').addEventListener('click', async()=>{ await sb.auth.signOut(); w
 // ========================== VOL SCANNER ===================================
 async function loadVolScanner(){
   // Pull tracked symbols
-  const { data: tracked } = await sb.rpc('tracked_symbols', { p_user: currentUser.id });
-  const symbols = [...new Set((tracked||[]).map(r=>r.symbol).filter(Boolean))];
+  const { data: tracked } = await sb.rpc('tracked_tickers', { p_user: currentUser.id });
+  const symbols = [...new Set((tracked||[]).map(r=>r.ticker).filter(Boolean))];
   if(!symbols.length){
     $('vol-table').innerHTML = '<div class="empty">No tracked symbols yet. Add some to your watchlist or thesis stack and they\'ll appear here once the nightly snapshot runs.</div>';
     return;
   }
-  const { data: vols } = await sb.rpc('latest_vol_for_symbols', { p_symbols: symbols });
+  const { data: vols } = await sb.rpc('latest_vol_for_tickers', { p_tickers: symbols });
   if(!vols?.length){
     $('vol-table').innerHTML = '<div class="empty">No vol snapshots yet. The nightly workflow runs at 4:30pm ET and populates IV data on tracked symbols.</div>';
     return;
@@ -240,7 +240,7 @@ async function loadVolScanner(){
       else { pillCls='extreme'; pillText='extreme'; }
     }
     return `<tr>
-      <td><b>${esc(v.symbol)}</b></td>
+      <td><b>${esc(v.ticker)}</b></td>
       <td class="num">${v.spot?fmt(v.spot):'—'}</td>
       <td class="num">${v.iv_30d!=null?(v.iv_30d*100).toFixed(1)+'%':'—'}</td>
       <td class="num">${v.iv_90d!=null?(v.iv_90d*100).toFixed(1)+'%':'—'}</td>
@@ -268,7 +268,7 @@ async function loadIdeas(){
     return `<div class="idea">
       <div class="head">
         <div>
-          <div class="sym">${esc(i.symbol)}</div>
+          <div class="sym">${esc(i.ticker)}</div>
           <div class="meta">${esc(i.direction)} · ${esc(i.proposed_structure||i.status)} · ${i.horizon_days||180}d horizon</div>
         </div>
         <div class="conviction-bar" title="Conviction ${conv}/5">${bar}</div>
@@ -276,7 +276,7 @@ async function loadIdeas(){
       <div class="thesis">${esc(i.thesis||'(no thesis written)')}</div>
       <div class="meta">Max loss: ${i.max_loss_dollars?fmt(i.max_loss_dollars):'—'}</div>
       <div class="actions">
-        <button class="btn-icon" onclick="window._buildFromIdea('${esc(i.symbol)}', ${i.conviction||3}, ${i.horizon_days||180}, ${i.max_loss_dollars||200})">Build trade</button>
+        <button class="btn-icon" onclick="window._buildFromIdea('${esc(i.ticker)}', ${i.conviction||3}, ${i.horizon_days||180}, ${i.max_loss_dollars||200})">Build trade</button>
         <button class="btn-icon" onclick="window._killIdea('${i.id}')">Kill</button>
       </div>
     </div>`;
@@ -287,7 +287,7 @@ $('add-idea').addEventListener('click', async()=>{
   const sym=$('idea-symbol').value.trim().toUpperCase(); if(!sym){ flash('Symbol required','error'); return; }
   const payload = {
     user_id: currentUser.id,
-    symbol: sym,
+    ticker: sym,
     direction: $('idea-direction').value,
     proposed_structure: $('idea-structure').value,
     conviction: Number($('idea-conviction').value)||3,
@@ -318,7 +318,7 @@ async function buildTrade(){
   const moveExpected = (target - spot)/spot;
   const absMove = Math.abs(moveExpected);
   // Pull IV context from cached snapshots if we have it
-  const { data: vols } = await sb.rpc('latest_vol_for_symbols', { p_symbols: [sym] });
+  const { data: vols } = await sb.rpc('latest_vol_for_tickers', { p_tickers: [sym] });
   const vol = vols?.[0];
   const ivRank = vol?.iv_rank_1y;
   const iv180 = vol?.iv_180d;
@@ -406,7 +406,7 @@ async function buildTrade(){
 }
 window._addAsIdea = async (sym, conv, hor, maxLoss)=>{
   await sb.from('trade_ideas').insert({
-    user_id: currentUser.id, symbol: sym, direction: 'long', proposed_structure: 'long_call',
+    user_id: currentUser.id, ticker: sym, direction: 'long', proposed_structure: 'long_call',
     conviction: conv, horizon_days: hor, max_loss_dollars: maxLoss,
     thesis: 'Generated from trade builder'
   });
@@ -418,7 +418,7 @@ $('add-pos-btn').addEventListener('click', ()=>show('position-form', $('position
 $('save-pos').addEventListener('click', async()=>{
   const payload = {
     user_id: currentUser.id,
-    symbol: $('p-symbol').value.trim().toUpperCase(),
+    ticker: $('p-symbol').value.trim().toUpperCase(),
     instrument: $('p-instrument').value,
     qty: Number($('p-qty').value)||1,
     entry_price: Number($('p-entry').value)||null,
@@ -428,7 +428,7 @@ $('save-pos').addEventListener('click', async()=>{
     thesis: $('p-thesis').value.trim()||null,
     current_pl: 0
   };
-  if(!payload.symbol){ flash('Symbol required','error'); return; }
+  if(!payload.ticker){ flash('Symbol required','error'); return; }
   const { error } = await sb.from('positions').insert(payload);
   if(error){ flash(error.message,'error'); return; }
   ['p-symbol','p-qty','p-entry','p-maxloss','p-expiry','p-thesis'].forEach(id=>{ $(id).value=''; });
@@ -448,7 +448,7 @@ async function loadPositions(){
       const plCls = p.current_pl>0?'pos':p.current_pl<0?'neg':'';
       const pctCls = p.pct_to_max_loss>=75?'neg':'';
       return `<tr>
-        <td><b>${esc(p.symbol)}</b></td>
+        <td><b>${esc(p.ticker)}</b></td>
         <td>${esc(p.instrument)}</td>
         <td class="num">${p.qty||'—'}</td>
         <td class="num">${fmt(p.entry_total)}</td>
