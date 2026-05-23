@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Portfolio · Ridge Run</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{--bg:#fff;--bg-tint:#f8fafc;--bg-blue:#eff6ff;--border:#e2e8f0;--border-blue:#bfdbfe;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;--accent:#2563eb;--accent-dark:#1e40af;--success:#059669;--success-bg:#d1fae5;--warning:#d97706;--warning-bg:#fed7aa;--danger:#dc2626;--danger-bg:#fee2e2;--serif:'Source Serif 4',Georgia,serif;--sans:'Inter',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace}
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{background:var(--bg-tint);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh}
+  .hidden{display:none!important}
+  .loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim)}
+  .shell{max-width:1400px;margin:0 auto;padding:0 24px 80px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:8px;flex-wrap:wrap;gap:12px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-mark{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--accent);letter-spacing:-0.02em}
+  .brand-name{font-family:var(--mono);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted)}
+  .nav-tabs{display:flex;gap:4px;flex-wrap:wrap}
+  .nav-tabs a{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;padding:6px 10px;border-radius:3px;border:1px solid transparent}
+  .nav-tabs a:hover{color:var(--text);background:var(--bg)}
+  .nav-tabs a.active{color:var(--accent);background:var(--bg-blue);border-color:var(--border-blue)}
+  .user-meta{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:11px;color:var(--text-muted)}
+  .signout{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;background:transparent;border:1px solid var(--border);padding:6px 10px;border-radius:3px}
+  .signout:hover{border-color:var(--text-dim);color:var(--text-muted)}
+
+  h1.page-title{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-0.02em;margin:24px 0 6px}
+  .page-sub{color:var(--text-muted);margin:0 0 28px}
+
+  .card{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:24px;margin-bottom:20px}
+  .card h2{font-family:var(--serif);font-size:19px;font-weight:500;letter-spacing:-0.015em;margin:0 0 4px}
+  .card .h2-sub{color:var(--text-muted);font-size:13px;margin:0 0 18px}
+
+  .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+  .kpi{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:18px 20px}
+  .kpi .l{font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
+  .kpi .v{font-family:var(--serif);font-size:24px;font-weight:500;letter-spacing:-0.01em}
+  .kpi .v.pos{color:var(--success)} .kpi .v.neg{color:var(--danger)}
+  .kpi .sub{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:3px}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:9px 10px;border-bottom:1px solid var(--border)}
+  td{padding:10px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px}
+  td.num{text-align:right} td.pos{color:var(--success)} td.neg{color:var(--danger)}
+  tr:last-child td{border-bottom:none}
+  tr.clickable{cursor:pointer}
+  tr.clickable:hover{background:var(--bg-tint)}
+  tr.option-row td:first-child{padding-left:24px;color:var(--text-muted)}
+
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:10px 16px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500;transition:all .15s}
+  .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)}
+  .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
+  .btn:disabled{opacity:.5;cursor:wait}
+
+  .source-pill{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:var(--bg-tint);border:1px solid var(--border);color:var(--text-muted)}
+  .source-pill.ibkr{background:var(--bg-blue);border-color:var(--border-blue);color:var(--accent-dark)}
+  .source-pill.manual{background:var(--warning-bg);border-color:#fcd34d;color:#92400e}
+
+  .empty{padding:32px 20px;text-align:center;color:var(--text-muted);font-size:13px}
+  .msg{padding:10px 14px;font-size:13px;border-radius:4px;line-height:1.5;margin:10px 0}
+  .msg-error{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
+  .msg-info{background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--accent-dark)}
+
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(2px);z-index:90;display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--bg);border-radius:8px;width:100%;max-width:980px;box-shadow:0 20px 60px rgba(0,0,0,0.25)}
+  .modal-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+  .modal-head h3{font-family:var(--serif);font-size:22px;font-weight:600;margin:0 0 4px;letter-spacing:-0.015em}
+  .modal-head .sub{font-family:var(--mono);font-size:11px;color:var(--text-muted);letter-spacing:0.05em}
+  .modal-close{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:3px;cursor:pointer}
+  .modal-close:hover{border-color:var(--text-dim);color:var(--text)}
+  .modal-body{padding:20px 24px}
+  .modal-body section{margin-bottom:24px}
+  .modal-body section h4{font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+  .metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .metric-tile{background:var(--bg-tint);border:1px solid var(--border);border-radius:4px;padding:10px 12px}
+  .metric-tile .l{font-family:var(--mono);font-size:9px;letter-spacing:0.13em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+  .metric-tile .v{font-family:var(--mono);font-size:13px;font-weight:500}
+  .metric-tile .v.pos{color:var(--success)} .metric-tile .v.neg{color:var(--danger)}
+  .news-list .news-item{padding:10px 0;border-bottom:1px solid var(--border)}
+  .news-list .news-item:last-child{border-bottom:none}
+  .news-list .news-item .title{font-family:var(--sans);font-size:13px;font-weight:500;margin-bottom:3px}
+  .news-list .news-item .title a{color:var(--text);text-decoration:none}
+  .news-list .news-item .title a:hover{color:var(--accent)}
+  .news-list .news-item .meta{font-family:var(--mono);font-size:10px;color:var(--text-dim);display:flex;gap:10px}
+  .news-list .news-item .desc{font-size:12px;color:var(--text-muted);margin-top:4px;line-height:1.5}
+  .sentiment-pill{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:1px 6px;border-radius:2px;border:1px solid}
+  .sentiment-pill.positive{background:var(--success-bg);border-color:#a7f3d0;color:#065f46}
+  .sentiment-pill.negative{background:var(--danger-bg);border-color:#fecaca;color:#991b1b}
+  .sentiment-pill.neutral{background:var(--bg-tint);border-color:var(--border);color:var(--text-muted)}
+
+  @media (max-width:980px){
+    .summary-grid{grid-template-columns:repeat(2,1fr)}
+    .metric-row{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+
+<div id="loading-screen" class="loading">Loading portfolio…</div>
+
+<div id="app" class="shell hidden">
+  <div class="topbar">
+    <div class="brand"><span class="brand-mark">RR</span><span class="brand-name">Ridge Run</span></div>
+    <nav class="nav-tabs">
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/dna.html">Investor DNA</a>
+      <a href="/performance.html">Performance</a>
+      <a href="/portfolio.html" class="active">Portfolio</a>
+      <a href="/watchlist.html">Watchlist</a>
+      <a href="/strategy.html">Strategy</a>
+      <a href="/research.html">Research</a>
+      <a href="/screener.html">Screener</a>
+      <a href="/ai.html">Ask AI</a>
+    </nav>
+    <div class="user-meta">
+      <span id="user-email"></span>
+      <button class="signout" id="signout-btn">Sign out</button>
+    </div>
+  </div>
+
+  <h1 class="page-title">Portfolio</h1>
+  <p class="page-sub">Current live holdings synced from IBKR via Flex Query (read-only). Click any row for a deep dive into that name.</p>
+
+  <div id="msg-area"></div>
+
+  <div class="summary-grid" id="summary-kpis">
+    <div class="kpi"><div class="l">Holdings</div><div class="v" id="kpi-count">—</div><div class="sub" id="kpi-source">no data</div></div>
+    <div class="kpi"><div class="l">Market Value</div><div class="v" id="kpi-value">—</div><div class="sub" id="kpi-currency">USD</div></div>
+    <div class="kpi"><div class="l">Unrealized P/L</div><div class="v" id="kpi-unreal">—</div><div class="sub">vs avg cost</div></div>
+    <div class="kpi"><div class="l">Last sync</div><div class="v" id="kpi-sync" style="font-size:14px;font-family:var(--mono)">—</div><div class="sub" id="kpi-sync-sub">no sync yet</div></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      <div>
+        <h2 style="margin:0">Current holdings</h2>
+        <p class="h2-sub" style="margin:4px 0 0">Sourced from IBKR Flex Query daily, or manually entered positions. Click a row for full details.</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost" id="refresh-btn">Refresh</button>
+        <button class="btn btn-ghost" id="sync-ibkr-btn">Sync IBKR now</button>
+      </div>
+    </div>
+    <div id="holdings-table"><div class="empty">No holdings yet. Set up IBKR Flex Query (see deploy notes) or enter positions on /strategy.html.</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Recent news · all held tickers</h2>
+    <p class="h2-sub">Last 20 articles across your held positions. Click a row for the source. News for any individual ticker is also shown in its detail modal.</p>
+    <div id="all-news-list" class="news-list"><div class="empty">No news fetched yet. The news workflow runs every 2 hours and pulls from Polygon for tickers you hold or track.</div></div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" role="dialog" aria-modal="true">
+  <div class="modal" id="modal-content">
+    <div class="modal-head">
+      <div>
+        <h3 id="m-name">—</h3>
+        <div class="sub" id="m-sub">—</div>
+      </div>
+      <button class="modal-close" id="m-close">Close</button>
+    </div>
+    <div class="modal-body">
+      <section>
+        <h4>Position summary</h4>
+        <div class="metric-row" id="m-position-row"></div>
+      </section>
+      <section>
+        <h4>Valuation</h4>
+        <div class="metric-row" id="m-valuation-row"></div>
+      </section>
+      <section>
+        <h4>Growth</h4>
+        <div class="metric-row" id="m-growth-row"></div>
+      </section>
+      <section>
+        <h4>Ownership &amp; balance sheet</h4>
+        <div class="metric-row" id="m-balance-row"></div>
+      </section>
+      <section>
+        <h4>Implied volatility</h4>
+        <div class="metric-row" id="m-vol-row"></div>
+      </section>
+      <section>
+        <h4>Recent news <span id="m-news-count" style="color:var(--text-muted);font-weight:normal"></span></h4>
+        <div class="news-list" id="m-news-list"></div>
+      </section>
+      <section style="text-align:right">
+        <a id="m-research-link" href="#" class="btn btn-primary" style="text-decoration:none;display:inline-block">Open full research →</a>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/config.js"></script>
+<script>
+(() => {
+const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = window.RR_CONFIG;
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+let currentUser=null;
+let holdings=[];
+const $ = id => document.getElementById(id);
+const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt0 = n => (n==null||isNaN(n))?'—':Number(n).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+const fmt2 = n => (n==null||isNaN(n))?'—':Number(n).toLocaleString('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtBig = n => {
+  if(n==null||isNaN(n)) return '—';
+  const abs=Math.abs(n);
+  if(abs>=1e12) return (n<0?'-':'')+'$'+(Math.abs(n)/1e12).toFixed(2)+'T';
+  if(abs>=1e9) return (n<0?'-':'')+'$'+(Math.abs(n)/1e9).toFixed(2)+'B';
+  if(abs>=1e6) return (n<0?'-':'')+'$'+(Math.abs(n)/1e6).toFixed(1)+'M';
+  return fmt0(n);
+};
+const fmtPct = (n,d=1) => (n==null||isNaN(n))?'—':(Number(n)*100).toFixed(d)+'%';
+const fmtMult = n => (n==null||isNaN(n))?'—':Number(n).toFixed(1)+'x';
+const fmtQty = n => (n==null||isNaN(n))?'—':Number(n).toLocaleString('en-US',{maximumFractionDigits:4});
+const fmtDate = d => {
+  if(!d) return '—';
+  const dt=new Date(d); if(isNaN(dt)) return '—';
+  return dt.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
+};
+const fmtDateTime = d => {
+  if(!d) return '—';
+  const dt=new Date(d); if(isNaN(dt)) return '—';
+  return dt.toLocaleString('en-US',{year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+};
+const relTime = d => {
+  if(!d) return '—';
+  const dt=new Date(d); if(isNaN(dt)) return '—';
+  const sec = Math.floor((Date.now()-dt.getTime())/1000);
+  if(sec < 60) return 'just now';
+  if(sec < 3600) return Math.floor(sec/60)+'m ago';
+  if(sec < 86400) return Math.floor(sec/3600)+'h ago';
+  return Math.floor(sec/86400)+'d ago';
+};
+
+(async () => {
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session?.user){ window.location.href='/index.html'; return; }
+  currentUser = session.user;
+  $('user-email').textContent = currentUser.email || '';
+  show('loading-screen',false); show('app',true);
+  await loadAll();
+})();
+
+$('signout-btn').addEventListener('click', async()=>{ await sb.auth.signOut(); window.location.href='/index.html'; });
+$('refresh-btn').addEventListener('click', loadAll);
+$('sync-ibkr-btn').addEventListener('click', syncIBKR);
+$('m-close').addEventListener('click', closeModal);
+$('modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+async function loadAll(){
+  await Promise.all([loadHoldings(), loadAllNews()]);
+}
+
+async function loadHoldings(){
+  const { data, error } = await sb.rpc('latest_holdings', { p_user: currentUser.id });
+  if(error){ flash('Failed to load holdings: '+error.message, 'error'); return; }
+  holdings = data || [];
+  renderSummary();
+  renderHoldings();
+}
+
+function renderSummary(){
+  if(!holdings.length){
+    $('kpi-count').textContent='0';
+    $('kpi-source').textContent='no holdings yet';
+    $('kpi-value').textContent='—';
+    $('kpi-unreal').textContent='—';
+    $('kpi-sync').textContent='—';
+    $('kpi-sync-sub').textContent='no sync yet';
+    return;
+  }
+  const equities = holdings.filter(h=>h.asset_class==='STK' || h.asset_class==='ETF' || !h.asset_class);
+  const totalValue = holdings.reduce((s,h)=>s+(Number(h.market_value)||0),0);
+  const totalUnreal = holdings.reduce((s,h)=>s+(Number(h.unrealized_pl)||0),0);
+  const latestSync = holdings.reduce((max,h)=>{
+    const t = h.as_of ? new Date(h.as_of).getTime() : 0;
+    return t > max ? t : max;
+  }, 0);
+  const sources = [...new Set(holdings.map(h=>h.source))];
+  $('kpi-count').textContent = holdings.length;
+  $('kpi-source').textContent = `${equities.length} equities, ${holdings.length-equities.length} other`;
+  $('kpi-value').textContent = fmtBig(totalValue);
+  $('kpi-unreal').textContent = fmtBig(totalUnreal);
+  $('kpi-unreal').className = 'v ' + (totalUnreal>0?'pos':totalUnreal<0?'neg':'');
+  $('kpi-sync').textContent = latestSync ? relTime(new Date(latestSync)) : '—';
+  $('kpi-sync-sub').textContent = sources.includes('ibkr_flex') ? 'IBKR Flex' : 'manual entries';
+}
+
+function renderHoldings(){
+  if(!holdings.length){
+    $('holdings-table').innerHTML = `<div class="empty">No holdings yet.<br><br>
+      <strong>To enable IBKR sync:</strong> set up a Flex Query in IBKR Account Management (see <code>14_deploy_pass15.md</code>), then add <code>IBKR_FLEX_TOKEN</code>, <code>IBKR_FLEX_QUERY_ID</code>, and <code>RIDGERUN_USER_ID</code> to n8n variables, then run the workflow manually once.<br><br>
+      <strong>Or manually:</strong> add positions on the <a href="/strategy.html" style="color:var(--accent)">/strategy.html</a> page.</div>`;
+    return;
+  }
+  // Group options under their underlying.
+  const equities = holdings.filter(h => h.asset_class !== 'OPT' && h.asset_class !== 'WAR');
+  const optionsByUnderlying = {};
+  holdings.filter(h => h.asset_class === 'OPT' || h.asset_class === 'WAR').forEach(h => {
+    const key = h.underlying || h.ticker;
+    if(!optionsByUnderlying[key]) optionsByUnderlying[key]=[];
+    optionsByUnderlying[key].push(h);
+  });
+
+  const rows = [];
+  equities.forEach(e => {
+    rows.push(renderRow(e, false));
+    (optionsByUnderlying[e.ticker]||[]).forEach(opt => rows.push(renderRow(opt, true)));
+    delete optionsByUnderlying[e.ticker];
+  });
+  // Any options without a matching underlying equity row:
+  Object.values(optionsByUnderlying).forEach(opts => opts.forEach(o => rows.push(renderRow(o, false))));
+
+  $('holdings-table').innerHTML = `<table>
+    <thead><tr>
+      <th>Ticker</th><th>Asset</th><th style="text-align:right">Quantity</th><th style="text-align:right">Avg cost</th>
+      <th style="text-align:right">Last</th><th style="text-align:right">Mkt value</th>
+      <th style="text-align:right">Unrl P/L</th><th style="text-align:right">% chg</th>
+      <th>Source</th>
+    </tr></thead>
+    <tbody>${rows.join('')}</tbody>
+  </table>`;
+
+  // Attach click handlers
+  document.querySelectorAll('tr[data-ticker]').forEach(tr => {
+    tr.addEventListener('click', () => openModal(tr.dataset.ticker));
+  });
+}
+
+function renderRow(h, isOptionChild){
+  const pctChg = (h.avg_cost && h.market_price) ? ((h.market_price - h.avg_cost) / h.avg_cost) : null;
+  const plClass = h.unrealized_pl > 0 ? 'pos' : h.unrealized_pl < 0 ? 'neg' : '';
+  let label = esc(h.ticker);
+  if(h.asset_class === 'OPT'){
+    const exp = h.expiry ? new Date(h.expiry).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}) : '—';
+    label = `${esc(h.underlying || h.ticker)} ${esc(h.option_type||'')} ${esc(h.strike||'')} ${esc(exp)}`;
+  } else if(h.asset_class === 'WAR'){
+    label = `${esc(h.ticker)} (warrant)`;
+  }
+  const srcCls = h.source === 'ibkr_flex' ? 'ibkr' : h.source === 'manual' ? 'manual' : '';
+  return `<tr class="clickable ${isOptionChild?'option-row':''}" data-ticker="${esc(h.underlying || h.ticker)}">
+    <td><b>${label}</b></td>
+    <td>${esc(h.asset_class||'—')}</td>
+    <td class="num">${fmtQty(h.quantity)}</td>
+    <td class="num">${fmt2(h.avg_cost)}</td>
+    <td class="num">${fmt2(h.market_price)}</td>
+    <td class="num">${fmtBig(h.market_value)}</td>
+    <td class="num ${plClass}">${fmtBig(h.unrealized_pl)}</td>
+    <td class="num ${pctChg>0?'pos':pctChg<0?'neg':''}">${pctChg!=null?fmtPct(pctChg):'—'}</td>
+    <td><span class="source-pill ${srcCls}">${esc(h.source||'—')}</span></td>
+  </tr>`;
+}
+
+async function loadAllNews(){
+  const tickers = [...new Set(holdings.map(h=>h.underlying||h.ticker).filter(Boolean))];
+  if(!tickers.length){
+    // also try tracked tickers
+    const { data } = await sb.rpc('tracked_tickers', { p_user: currentUser.id });
+    const trackedSyms = [...new Set((data||[]).map(r=>r.ticker).filter(Boolean))];
+    if(!trackedSyms.length){
+      $('all-news-list').innerHTML = '<div class="empty">No tickers in holdings or watchlist yet.</div>';
+      return;
+    }
+    return renderNews(trackedSyms);
+  }
+  return renderNews(tickers);
+}
+
+async function renderNews(tickers){
+  const { data, error } = await sb.rpc('news_for_tickers', { p_tickers: tickers, p_limit: 20 });
+  if(error){ $('all-news-list').innerHTML = `<div class="empty">Failed to load news: ${esc(error.message)}</div>`; return; }
+  if(!data?.length){
+    $('all-news-list').innerHTML = '<div class="empty">No news fetched yet for your tickers. Wait for the news workflow to run, or trigger it manually in n8n.</div>';
+    return;
+  }
+  $('all-news-list').innerHTML = data.map(n => newsItemHtml(n)).join('');
+}
+
+function newsItemHtml(n){
+  const sent = (n.sentiment || '').toLowerCase();
+  const sentCls = sent === 'positive' ? 'positive' : sent === 'negative' ? 'negative' : 'neutral';
+  return `<div class="news-item">
+    <div class="title"><a href="${esc(n.article_url||'#')}" target="_blank" rel="noopener">${esc(n.title||'(no title)')}</a></div>
+    <div class="meta">
+      <span><b>${esc(n.ticker)}</b></span>
+      <span>${esc(n.publisher_name||'')}</span>
+      <span>${esc(relTime(n.published_at))}</span>
+      ${sent ? `<span class="sentiment-pill ${sentCls}">${esc(sent)}</span>` : ''}
+    </div>
+    ${n.description ? `<div class="desc">${esc(n.description)}</div>` : ''}
+  </div>`;
+}
+
+async function openModal(ticker){
+  $('modal').classList.add('open');
+  document.body.style.overflow='hidden';
+
+  // Reset content
+  $('m-name').textContent = ticker;
+  $('m-sub').textContent = 'loading…';
+  $('m-position-row').innerHTML='';
+  $('m-valuation-row').innerHTML='';
+  $('m-growth-row').innerHTML='';
+  $('m-balance-row').innerHTML='';
+  $('m-vol-row').innerHTML='';
+  $('m-news-list').innerHTML='';
+  $('m-news-count').textContent='';
+  $('m-research-link').href = `/research.html?t=${encodeURIComponent(ticker)}`;
+
+  // Run all queries in parallel
+  const [profileRes, fundRes, volRes, newsRes] = await Promise.all([
+    sb.from('company_profile').select('*').eq('ticker',ticker).maybeSingle(),
+    sb.from('company_fundamentals').select('*').eq('ticker',ticker).order('as_of_date',{ascending:false}).limit(1),
+    sb.rpc('latest_vol_for_tickers', { p_tickers: [ticker] }),
+    sb.rpc('news_for_tickers', { p_tickers: [ticker], p_limit: 10 })
+  ]);
+
+  const profile = profileRes?.data;
+  const f = fundRes?.data?.[0];
+  const v = volRes?.data?.[0];
+  const news = newsRes?.data || [];
+
+  // Header
+  $('m-name').textContent = profile?.company_name ? `${profile.company_name} (${ticker})` : ticker;
+  $('m-sub').textContent = [profile?.sector, profile?.industry, profile?.hq_location].filter(Boolean).join(' · ') || '—';
+
+  // Position summary - aggregate all rows for this ticker / underlying
+  const myPos = holdings.filter(h => h.ticker === ticker || h.underlying === ticker);
+  const totalQty = myPos.filter(h => h.asset_class==='STK' || h.asset_class==='ETF' || !h.asset_class).reduce((s,h)=>s+(Number(h.quantity)||0),0);
+  const totalValue = myPos.reduce((s,h)=>s+(Number(h.market_value)||0),0);
+  const totalUnreal = myPos.reduce((s,h)=>s+(Number(h.unrealized_pl)||0),0);
+  const avgCostStk = myPos.find(h => (h.asset_class==='STK'||h.asset_class==='ETF') && h.avg_cost);
+  $('m-position-row').innerHTML = [
+    ['Position legs', myPos.length || '—'],
+    ['Total quantity (equity)', fmtQty(totalQty || null)],
+    ['Avg cost (equity)', fmt2(avgCostStk?.avg_cost)],
+    ['Market value', fmtBig(totalValue || null)],
+    ['Unrealized P/L', `<span class="${totalUnreal>0?'pos':totalUnreal<0?'neg':''}">${fmtBig(totalUnreal || null)}</span>`],
+    ['Last price', fmt2(myPos[0]?.market_price)],
+    ['Currency', myPos[0]?.currency || '—'],
+    ['Source', myPos[0]?.source || '—']
+  ].map(([l,v])=>`<div class="metric-tile"><div class="l">${esc(l)}</div><div class="v">${v}</div></div>`).join('');
+
+  // Valuation
+  if(f){
+    $('m-valuation-row').innerHTML = [
+      ['Market Cap', fmtBig(f.market_cap)],
+      ['EV', fmtBig(f.enterprise_value)],
+      ['EV / Rev NTM', fmtMult(f.ev_revenue_ntm)],
+      ['EV / Rev LTM', fmtMult(f.ev_revenue_ltm)],
+      ['EV / EBITDA LTM', fmtMult(f.ev_ebitda_ltm)],
+      ['P/E LTM', f.pe_ltm!=null ? Number(f.pe_ltm).toFixed(1)+'x' : '—'],
+      ['FCF Yield LTM', fmtPct(f.fcf_yield_ltm)],
+      ['Gross margin', fmtPct(f.gross_margin)]
+    ].map(([l,v])=>`<div class="metric-tile"><div class="l">${esc(l)}</div><div class="v">${esc(v)}</div></div>`).join('');
+  } else {
+    $('m-valuation-row').innerHTML = '<div class="empty" style="grid-column:1/-1">No fundamentals snapshot yet. Add to watchlist and run the fundamentals workflow.</div>';
+  }
+
+  // Growth
+  if(f){
+    $('m-growth-row').innerHTML = [
+      ['Rev growth 1yr', fmtPct(f.rev_growth_1y)],
+      ['Rev growth 3yr CAGR', fmtPct(f.rev_growth_3y)],
+      ['Rev growth 5yr CAGR', fmtPct(f.rev_growth_5y)],
+      ['Rev growth NTM', fmtPct(f.rev_growth_ntm)],
+      ['Rev growth 2yr fwd', fmtPct(f.rev_growth_2y_fwd)],
+      ['Rev growth 3yr fwd', fmtPct(f.rev_growth_3y_fwd)],
+      ['EBITDA margin', fmtPct(f.ebitda_margin)],
+      ['FCF margin', fmtPct(f.fcf_margin)]
+    ].map(([l,v])=>`<div class="metric-tile"><div class="l">${esc(l)}</div><div class="v">${esc(v)}</div></div>`).join('');
+  } else {
+    $('m-growth-row').innerHTML = '<div class="empty" style="grid-column:1/-1">—</div>';
+  }
+
+  // Balance sheet & ownership
+  if(f){
+    $('m-balance-row').innerHTML = [
+      ['Net Debt', fmtBig(f.net_debt)],
+      ['ND / EBITDA', f.net_debt_ebitda!=null ? Number(f.net_debt_ebitda).toFixed(1)+'x' : '—'],
+      ['Insider own %', fmtPct(f.insider_ownership_pct)],
+      ['Institut own %', fmtPct(f.institutional_ownership_pct)],
+      ['Short interest %', fmtPct(f.short_interest_pct)],
+      ['Has LEAPS', f.has_leaps ? 'Yes' : 'No'],
+      ['Has warrants', f.has_warrants ? 'Yes' : 'No'],
+      ['Has convertibles', f.has_convertibles ? 'Yes' : 'No']
+    ].map(([l,v])=>`<div class="metric-tile"><div class="l">${esc(l)}</div><div class="v">${esc(v)}</div></div>`).join('');
+  } else {
+    $('m-balance-row').innerHTML = '<div class="empty" style="grid-column:1/-1">—</div>';
+  }
+
+  // Vol
+  if(v){
+    $('m-vol-row').innerHTML = [
+      ['Spot', fmt2(v.spot)],
+      ['IV 30d', v.iv_30d!=null ? (v.iv_30d*100).toFixed(1)+'%' : '—'],
+      ['IV 365d (LEAPS)', v.iv_365d!=null ? (v.iv_365d*100).toFixed(1)+'%' : '—'],
+      ['IV Rank 1yr', v.iv_rank_1y!=null ? v.iv_rank_1y.toFixed(0) : '—'],
+      ['25Δ Skew', v.skew_25d!=null ? (v.skew_25d*100).toFixed(1)+'pp' : '—'],
+      ['As of', fmtDate(v.as_of_date)]
+    ].map(([l,v])=>`<div class="metric-tile"><div class="l">${esc(l)}</div><div class="v">${esc(v)}</div></div>`).join('');
+  } else {
+    $('m-vol-row').innerHTML = '<div class="empty" style="grid-column:1/-1">No vol snapshot yet for this ticker.</div>';
+  }
+
+  // News
+  $('m-news-count').textContent = news.length ? `(${news.length})` : '';
+  if(news.length){
+    $('m-news-list').innerHTML = news.map(n => newsItemHtml(n)).join('');
+  } else {
+    $('m-news-list').innerHTML = '<div class="empty">No news fetched yet for this ticker.</div>';
+  }
+}
+
+function closeModal(){
+  $('modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+async function syncIBKR(){
+  flash('IBKR sync runs server-side on n8n. To trigger now, open n8n → "Ridge Run — IBKR Flex Query Daily Sync" → click "Execute workflow". After the run completes, click Refresh on this page.','info');
+}
+
+function flash(text,kind='info'){
+  $('msg-area').innerHTML = `<div class="msg msg-${kind}">${esc(text)}</div>`;
+  setTimeout(()=>{ $('msg-area').innerHTML=''; }, 8000);
+}
+})();
+</script>
+</body>
+</html>
