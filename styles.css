@@ -1,0 +1,234 @@
+/* ============================================================
+   Ridge Run - Pass 2A styling patch
+   Per handoff §6 Pass 2A item 10:
+     - Darker --text-muted and --text-dim for legibility
+     - Larger small text (10px -> 11-12px, weight 400 -> 500)
+     - Blue rectangle treatment on form input labels with white text
+   Defers full Bloomberg dark theme per user request.
+
+   Apply by appending to existing global stylesheet (after current
+   :root vars so these win) OR include as a separate <link> after
+   the main stylesheet. The blue-label rules are intentionally
+   high-specificity to override existing label styles without
+   touching the upstream CSS file.
+   ============================================================ */
+
+:root {
+  /* Override - darker muted/dim text for legibility */
+  --text-muted: #b8bcc4;    /* was approx #888 - now closer to #b8bcc4 (WCAG AA on #0a0a0a) */
+  --text-dim:   #94989f;    /* was approx #666 - now #94989f */
+  --text-faint: #7a7e85;    /* keep a fainter rung for truly secondary copy */
+
+  --rr-blue: #4a9eff;
+  --rr-blue-strong: #2f7fe0;
+  --rr-blue-bg: rgba(74, 158, 255, 0.95);
+  --rr-blue-border: rgba(74, 158, 255, 0.45);
+}
+
+/* ----------------------------------------------------------------
+   Larger, darker "small text"
+   Targets the common patterns used across Ridge Run pages:
+     <small>, .small, .meta, .hint, .field-hint, .caption, .muted
+   ---------------------------------------------------------------- */
+small,
+.small,
+.meta,
+.hint,
+.field-hint,
+.caption,
+.muted,
+.text-muted,
+.text-dim,
+.text-faint,
+.field-mini > .hint,
+.field-mini > .caption,
+table.compact td,
+table.compact th,
+.tabular-mini {
+  font-size: 12px !important;       /* was 10-11px in several places */
+  font-weight: 500 !important;      /* was 400 */
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* The faintest text - dim/faint classes get a softer color but still readable */
+.text-dim,
+.dim,
+.field-hint--dim {
+  color: var(--text-dim) !important;
+}
+
+.text-faint,
+.faint {
+  color: var(--text-faint) !important;
+}
+
+/* ----------------------------------------------------------------
+   Form input labels - blue rectangle with white text
+   Targets:
+     .field label
+     .field-mini label
+     .form-field label
+     label.field-label
+   plus a fallback rule for any direct label inside a .form container.
+   ---------------------------------------------------------------- */
+.field > label,
+.field-mini > label,
+.form-field > label,
+label.field-label,
+.form .field-row > label,
+.form-row > label {
+  display: inline-block;
+  padding: 4px 10px;
+  margin-bottom: 6px;
+  background: var(--rr-blue-bg);
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  border: 1px solid var(--rr-blue-border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  line-height: 1.3;
+}
+
+/* Required-field indicator - keep the red asterisk visible against blue */
+.field > label .required,
+.field-mini > label .required,
+.form-field > label .required {
+  color: #ffd7d7 !important;
+  margin-left: 4px;
+  font-weight: 700;
+}
+
+/* If a label wraps an input (rare, but possible), don't wrap the input
+   in the blue rectangle - apply rect only to the leading text node */
+.field > label > input,
+.field > label > select,
+.field > label > textarea,
+.field-mini > label > input,
+.field-mini > label > select,
+.field-mini > label > textarea {
+  display: block;
+  margin-top: 6px;
+  background: var(--bg, #141414);
+  color: var(--text, #e6e6e6);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  border-radius: 4px;
+  padding: 8px 10px;
+  border: 1px solid #2a2a2a;
+}
+
+/* ----------------------------------------------------------------
+   Helpers - existing tables that use 10px in compact rows
+   ---------------------------------------------------------------- */
+table.compact {
+  font-size: 12px;
+}
+table.compact th {
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ----------------------------------------------------------------
+   New "today's report" card used by strategy.html rewrite
+   (kept here so Pass 2A is one CSS file, not three)
+   ---------------------------------------------------------------- */
+.todays-report {
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-left: 4px solid var(--rr-blue);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin: 18px 0 28px;
+}
+.todays-report h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  color: #fff;
+}
+.todays-report .report-date {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+.rec-card {
+  background: #1a1a1a;
+  border-left: 3px solid var(--rr-blue);
+  border-radius: 4px;
+  padding: 12px 14px;
+  margin: 10px 0;
+}
+.rec-card .rec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+.rec-card .ticker {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+.rec-card .action {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--rr-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 8px;
+}
+.rec-card .score {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.rec-card .score b {
+  color: var(--rr-blue);
+  font-weight: 700;
+}
+.rec-card .meta-row {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin: 4px 0 8px;
+}
+.rec-card .reasoning {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #ddd;
+}
+.rec-card .rec-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+.rec-card .rec-actions button {
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 3px;
+  border: 1px solid #2a2a2a;
+  background: #1f1f1f;
+  color: #ddd;
+  cursor: pointer;
+}
+.rec-card .rec-actions button:hover {
+  background: #2a2a2a;
+  border-color: var(--rr-blue);
+}
+.rec-card .rec-actions button.accept {
+  background: var(--rr-blue-strong);
+  border-color: var(--rr-blue);
+  color: #fff;
+}
+.rec-card .rec-actions button.dismiss {
+  background: #2a1a1a;
+  border-color: #5a2a2a;
+  color: #ddc;
+}
