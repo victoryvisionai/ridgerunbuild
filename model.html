@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Model · Ridge Run</title>
+<script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/themes.css" />
+<style>
+  .ticker-select-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .ticker-select-wrap select, .ticker-select-wrap input {
+    font-family: var(--mono); font-size: 13px; padding: 6px 10px;
+    border: 1px solid var(--border-strong); border-radius: 4px;
+    background: var(--bg); color: var(--text);
+  }
+  .model-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+  .model-table th, .model-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: right; }
+  .model-table th:first-child, .model-table td:first-child { text-align: left; }
+  .model-table thead th {
+    background: var(--bg-tint); color: var(--text-muted);
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 8px;
+  }
+  .model-table .row-label { font-family: var(--sans); font-weight: 600; color: var(--text); font-size: 12px; }
+  .model-table .bold-row td { font-weight: 600; background: var(--bg-blue-soft); }
+  .model-table td.pos { color: var(--success); }
+  .model-table td.neg { color: var(--danger); }
+  .model-table input.assumption {
+    width: 70px; font-family: var(--mono); font-size: 12px;
+    padding: 4px 6px; border: 1px solid var(--border-strong);
+    border-radius: 3px; background: var(--bg); color: var(--text); text-align: right;
+  }
+  .model-table input.assumption:focus { outline: none; border-color: var(--accent); }
+  .term-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 14px 0; }
+  .sens-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 11px; }
+  .sens-table th, .sens-table td { padding: 8px 6px; text-align: center; border: 1px solid var(--border); }
+  .sens-table thead th { background: var(--bg-tint); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .sens-table td.axis { background: var(--bg-tint); font-weight: 600; color: var(--text); }
+  .sens-cell { cursor: default; }
+  .summary-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 8px 0 14px; }
+  .summary-tile { padding: 14px; background: var(--bg-tint); border: 1px solid var(--border); border-radius: 4px; }
+  .summary-tile .l { font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .summary-tile .v { font-family: var(--serif); font-size: 22px; font-weight: 500; }
+  .summary-tile .v.pos { color: var(--success); }
+  .summary-tile .v.neg { color: var(--danger); }
+  .scenarios-list { display: flex; flex-direction: column; gap: 8px; }
+  .scenario-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-tint); border: 1px solid var(--border); border-radius: 4px; }
+  .scenario-row.active { border-left: 3px solid var(--accent); background: var(--bg-blue-soft); }
+  .scenario-row .info { font-family: var(--mono); font-size: 12px; }
+  .scenario-row .info b { font-family: var(--serif); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div id="rr-nav-container"></div>
+
+<div id="loading-screen" class="loading">Loading model…</div>
+
+<div id="app" class="shell-wide hidden">
+
+  <h1 class="page-title">Model</h1>
+  <p class="page-sub">Bottoms-up valuation with cap-structure flow-through. Changes to growth and margins ripple through cash, debt, shares, and implied price.</p>
+
+  <div id="msg-area"></div>
+
+  <div class="banner-card">
+    <div class="banner-head">
+      <h2>Ticker</h2>
+      <span class="banner-meta">Select a tracked ticker</span>
+    </div>
+    <div class="banner-body">
+      <div class="ticker-select-wrap">
+        <label class="field-hint">Ticker:</label>
+        <select id="ticker-select"><option value="">— pick one —</option></select>
+        <a id="research-link" href="#" style="font-family:var(--mono); font-size:11px; color:var(--accent);">→ View research page</a>
+      </div>
+      <div id="company-block" style="color:var(--text-muted); font-size:13px;">Pick a ticker to begin.</div>
+    </div>
+  </div>
+
+  <div id="model-area" class="hidden">
+
+    <div class="banner-card">
+      <div class="banner-head">
+        <h2>Base anchor</h2>
+        <span class="banner-meta" id="base-year-meta">—</span>
+      </div>
+      <div class="banner-body">
+        <p class="h2-sub">Historical anchor pulled from the latest fundamentals snapshot. Edit any value if the snapshot is stale.</p>
+        <div class="form-grid" id="base-grid"></div>
+      </div>
+    </div>
+
+    <div class="banner-card">
+      <div class="banner-head">
+        <h2>Forward assumptions</h2>
+        <span class="banner-meta">5-year horizon · edit any cell</span>
+      </div>
+      <div class="banner-body">
+        <p class="h2-sub">Enter as percentages (12 means 12%). Changes recompute the flow-through instantly.</p>
+        <table class="model-table" id="assumptions-table"></table>
+        <div class="term-controls">
+          <div class="field">
+            <label>Terminal multiple</label>
+            <input type="number" id="term-multiple" step="0.5" value="14">
+          </div>
+          <div class="field">
+            <label>Multiple type</label>
+            <select id="term-multiple-type">
+              <option value="ev_ebitda">EV / EBITDA</option>
+              <option value="pe">P/E</option>
+              <option value="ev_revenue">EV / Revenue</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Scenario label</label>
+            <input type="text" id="scenario-label" value="base" placeholder="base / bull / bear">
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:14px;">
+          <button class="btn btn-primary" id="save-btn">Save scenario</button>
+          <button class="btn btn-ghost" id="reset-btn">Reset to defaults</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="banner-card">
+      <div class="banner-head">
+        <h2>Summary</h2>
+        <span class="banner-meta">From terminal year</span>
+      </div>
+      <div class="banner-body">
+        <div class="summary-tiles" id="summary-tiles"></div>
+      </div>
+    </div>
+
+    <div class="banner-card">
+      <div class="banner-head">
+        <h2>Flow-through</h2>
+        <span class="banner-meta">Year-by-year cap structure</span>
+      </div>
+      <div class="banner-body">
+        <p class="h2-sub">Revenue → EBITDA → FCF → capital allocated → cash/debt/shares → implied price. Each year compounds from the prior.</p>
+        <table class="model-table" id="flowthrough-table"></table>
+      </div>
+    </div>
+
+    <div class="banner-card">
+      <div class="banner-head">
+        <h2>Sensitivity matrix</h2>
+        <span class="banner-meta">Cumulative return % at terminal year</span>
+      </div>
+      <div class="banner-body">
+        <p class="h2-sub">Terminal multiple (columns) vs avg revenue growth shift (rows). Each cell = cum return % at that combo.</p>
+        <table class="sens-table" id="sens-table"></table>
+      </div>
+    </div>
+
+    <div class="banner-card">
+      <div class="banner-head">
+        <h2>Saved scenarios for this ticker</h2>
+        <span class="banner-meta" id="scn-meta">—</span>
+      </div>
+      <div class="banner-body">
+        <div class="scenarios-list" id="scenarios-list">
+          <div class="empty">No saved scenarios yet.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/config.js"></script>
+<script src="/nav.js"></script>
+<script>
+(() => {
+const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = window.RR_CONFIG;
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+let currentUser = null;
+let currentTicker = null;
+let baseAnchor = null;
+let assumptions = null;
+let computed = null;
+
+const $ = id => document.getElementById(id);
+const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtM = n => (n==null||isNaN(n))?'—': '$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:0})+'M';
+const fmtPx = n => (n==null||isNaN(n))?'—': '$'+Number(n).toFixed(2);
+const fmtPct = (n,d=1) => (n==null||isNaN(n))?'—':(Number(n)*100).toFixed(d)+'%';
+const fmtNum = (n,d=2) => (n==null||isNaN(n))?'—':Number(n).toFixed(d);
+
+(async () => {
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session?.user){ window.location.href='/index.html'; return; }
+  currentUser = session.user;
+  await window.RidgeRunNav.mount({ active: 'model', supabase: sb });
+  show('loading-screen', false);
+  show('app', true);
+  await initTickerSelect();
+  // pre-select via ?ticker= query
+  const params = new URLSearchParams(window.location.search);
+  const t = params.get('ticker');
+  if(t){
+    $('ticker-select').value = t.toUpperCase();
+    await onTickerChange();
+  }
+})();
+
+$('ticker-select').addEventListener('change', onTickerChange);
+$('save-btn').addEventListener('click', saveScenario);
+$('reset-btn').addEventListener('click', resetDefaults);
+$('term-multiple').addEventListener('input', debouncedRecompute);
+$('term-multiple-type').addEventListener('change', recompute);
+
+async function initTickerSelect(){
+  const { data } = await sb.rpc('tracked_tickers', { p_user: currentUser.id });
+  const tickers = [...new Set((data||[]).map(r=>r.ticker).filter(Boolean))].sort();
+  $('ticker-select').innerHTML = '<option value="">— pick one —</option>' + tickers.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');
+}
+
+async function onTickerChange(){
+  const t = $('ticker-select').value;
+  if(!t){ show('model-area', false); return; }
+  currentTicker = t;
+  $('research-link').href = `/research.html?ticker=${encodeURIComponent(t)}`;
+
+  // load company profile
+  const { data: prof } = await sb.from('company_profile').select('*').eq('ticker',t).maybeSingle();
+  if(prof){
+    $('company-block').innerHTML = `<b>${esc(prof.company_name || t)}</b> — ${esc(prof.sector||'')} · ${esc(prof.industry||'')} <br><span style="color:var(--text-dim); font-size:12px;">${esc((prof.description||'').slice(0, 240))}${(prof.description||'').length>240?'…':''}</span>`;
+  } else {
+    $('company-block').innerHTML = `<b>${esc(t)}</b> <span style="color:var(--text-dim);">No company profile data yet.</span>`;
+  }
+
+  // load latest fundamentals
+  const { data: rows } = await sb.from('company_fundamentals').select('*').eq('ticker',t).order('as_of_date',{ascending:false}).limit(1);
+  const f = (rows||[])[0];
+
+  // load active model if exists
+  const { data: existingActive } = await sb.from('thesis_models').select('*').eq('user_id', currentUser.id).eq('ticker',t).eq('is_active',true).order('updated_at',{ascending:false}).limit(1);
+  const active = (existingActive||[])[0];
+
+  if(active){
+    baseAnchor = {
+      base_year: active.base_year,
+      base_revenue: active.base_revenue,
+      base_ebitda: active.base_ebitda,
+      base_shares: active.base_shares,
+      base_cash: active.base_cash,
+      base_debt: active.base_debt,
+      base_price: active.base_price
+    };
+    assumptions = active.assumptions;
+    $('term-multiple').value = assumptions.terminal_multiple ?? 14;
+    $('term-multiple-type').value = assumptions.terminal_multiple_type ?? 'ev_ebitda';
+    $('scenario-label').value = active.scenario_label || 'base';
+  } else {
+    // build defaults from fundamentals
+    const yr = new Date().getFullYear();
+    const rev = (f?.raw_data?.revenue_ltm) || (f?.market_cap && f?.ev_revenue_ltm ? f.market_cap / f.ev_revenue_ltm : null);
+    const ebitda = (f?.raw_data?.ebitda_ltm) || (rev && f?.ebitda_margin ? rev * f.ebitda_margin : null);
+    baseAnchor = {
+      base_year: yr,
+      base_revenue: rev ? Math.round(rev/1e6) : 10000,
+      base_ebitda:  ebitda ? Math.round(ebitda/1e6) : 3000,
+      base_shares:  f?.raw_data?.shares_outstanding ? Math.round(f.raw_data.shares_outstanding/1e6) : 1000,
+      base_cash:    f?.cash ? Math.round(f.cash/1e6) : 1000,
+      base_debt:    f?.total_debt ? Math.round(f.total_debt/1e6) : 1000,
+      base_price:   f?.raw_data?.price ? Number(f.raw_data.price) : 100
+    };
+    assumptions = defaultAssumptions(f);
+    $('term-multiple').value = assumptions.terminal_multiple;
+    $('term-multiple-type').value = assumptions.terminal_multiple_type;
+    $('scenario-label').value = 'base';
+  }
+
+  renderBaseGrid();
+  renderAssumptionsTable();
+  recompute();
+  loadScenariosList();
+  show('model-area', true);
+}
+
+function defaultAssumptions(f){
+  const ntm = f?.rev_growth_ntm ?? 0.10;
+  const m2 = f?.rev_growth_2y_fwd ?? Math.max(0.05, ntm - 0.01);
+  const m3 = f?.rev_growth_3y_fwd ?? Math.max(0.05, ntm - 0.02);
+  const ebm = f?.ebitda_margin ?? 0.25;
+  return {
+    years: [1,2,3,4,5].map(i=>baseAnchor.base_year + i),
+    rev_growth: [ntm, m2, m3, Math.max(0.04, m3-0.02), Math.max(0.04, m3-0.03)],
+    ebitda_margin: [ebm, ebm+0.005, ebm+0.01, ebm+0.015, ebm+0.02],
+    fcf_conversion: [0.85, 0.85, 0.85, 0.85, 0.85],
+    buyback_pct_of_fcf: [0.40, 0.40, 0.40, 0.40, 0.40],
+    dividend_pct_of_fcf: [0.0, 0.0, 0.0, 0.0, 0.0],
+    debt_paydown_pct_of_fcf: [0.10, 0.10, 0.10, 0.10, 0.10],
+    terminal_multiple: 14,
+    terminal_multiple_type: 'ev_ebitda'
+  };
+}
+
+function renderBaseGrid(){
+  const fields = [
+    { k:'base_year', l:'Base year', step:1 },
+    { k:'base_revenue', l:'Revenue ($M)', step:100 },
+    { k:'base_ebitda',  l:'EBITDA ($M)', step:50 },
+    { k:'base_shares',  l:'Shares out ($M)', step:1 },
+    { k:'base_cash',    l:'Cash ($M)', step:100 },
+    { k:'base_debt',    l:'Total debt ($M)', step:100 },
+    { k:'base_price',   l:'Price ($)', step:0.5 }
+  ];
+  $('base-grid').innerHTML = fields.map(f=>`
+    <div class="field">
+      <label>${esc(f.l)}</label>
+      <input type="number" data-bk="${f.k}" step="${f.step}" value="${baseAnchor[f.k] ?? 0}">
+    </div>
+  `).join('');
+  $('base-year-meta').textContent = `Base year ${baseAnchor.base_year}`;
+  document.querySelectorAll('[data-bk]').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      baseAnchor[e.target.dataset.bk] = Number(e.target.value);
+      debouncedRecompute();
+    });
+  });
+}
+
+function renderAssumptionsTable(){
+  const yrs = assumptions.years;
+  const rows = [
+    { k:'rev_growth',              l:'Revenue growth %',    pct:true },
+    { k:'ebitda_margin',           l:'EBITDA margin %',     pct:true },
+    { k:'fcf_conversion',          l:'FCF / EBITDA %',      pct:true },
+    { k:'buyback_pct_of_fcf',      l:'Buyback % of FCF',    pct:true },
+    { k:'dividend_pct_of_fcf',     l:'Dividend % of FCF',   pct:true },
+    { k:'debt_paydown_pct_of_fcf', l:'Debt paydown % of FCF', pct:true }
+  ];
+  const html = `
+    <thead><tr><th>Driver</th>${yrs.map(y=>`<th>${y}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(r=>`
+      <tr>
+        <td class="row-label">${esc(r.l)}</td>
+        ${assumptions[r.k].map((v,i)=>`<td><input class="assumption" data-row="${r.k}" data-idx="${i}" type="number" step="0.5" value="${(Number(v)*100).toFixed(1)}"></td>`).join('')}
+      </tr>
+    `).join('')}</tbody>
+  `;
+  $('assumptions-table').innerHTML = html;
+  document.querySelectorAll('.assumption').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const row = e.target.dataset.row;
+      const idx = Number(e.target.dataset.idx);
+      assumptions[row][idx] = Number(e.target.value) / 100;
+      debouncedRecompute();
+    });
+  });
+}
+
+let debounceTimer = null;
+function debouncedRecompute(){
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(recompute, 300);
+}
+
+function recompute(){
+  if(!baseAnchor) return;
+  const tm = Number($('term-multiple').value);
+  const tmt = $('term-multiple-type').value;
+  assumptions.terminal_multiple = tm;
+  assumptions.terminal_multiple_type = tmt;
+
+  computed = runFlowThrough(baseAnchor, assumptions);
+  // also compute bear and bull at terminal_multiple * 0.7 and * 1.3
+  const bear = runFlowThrough(baseAnchor, { ...assumptions, terminal_multiple: tm * 0.7 });
+  const bull = runFlowThrough(baseAnchor, { ...assumptions, terminal_multiple: tm * 1.3 });
+  computed.bear_implied_price = bear.implied_price[bear.implied_price.length-1];
+  computed.bull_implied_price = bull.implied_price[bull.implied_price.length-1];
+  computed.implied_price_terminal = computed.implied_price[computed.implied_price.length-1];
+  computed.cumulative_return_pct = (computed.implied_price_terminal / baseAnchor.base_price) - 1;
+  computed.annualized_return = Math.pow(computed.implied_price_terminal / baseAnchor.base_price, 1/5) - 1;
+
+  renderFlowthrough(computed);
+  renderSummaryTiles(computed);
+  renderSensitivity();
+}
+
+function runFlowThrough(base, asm){
+  const N = asm.years.length;
+  const out = {
+    years: asm.years.slice(),
+    revenue: [], ebitda: [], fcf: [],
+    buybacks: [], dividends: [], debt_paid: [], cash_added: [],
+    cash: [], debt: [], net_debt: [], shares: [],
+    implied_ev: [], implied_equity: [], implied_price: [],
+    cum_return: []
+  };
+  let prev_rev = base.base_revenue;
+  let prev_cash = base.base_cash;
+  let prev_debt = base.base_debt;
+  let prev_shares = base.base_shares;
+  let prev_price = base.base_price;
+
+  for(let i=0; i<N; i++){
+    const rev = prev_rev * (1 + asm.rev_growth[i]);
+    const ebitda = rev * asm.ebitda_margin[i];
+    const fcf = ebitda * asm.fcf_conversion[i];
+    const buyback = fcf * asm.buyback_pct_of_fcf[i];
+    const dividend = fcf * asm.dividend_pct_of_fcf[i];
+    const debt_pay = fcf * asm.debt_paydown_pct_of_fcf[i];
+    const cash_add = fcf - buyback - dividend - debt_pay;
+    const debt_new = Math.max(0, prev_debt - debt_pay);
+    const cash_new = prev_cash + cash_add;
+    const net_debt = debt_new - cash_new;
+    // shares retired = buyback / avg_price_during_year. Use prev_price as proxy.
+    const shares_retired = prev_price > 0 ? buyback / prev_price : 0;
+    const shares_new = Math.max(0.1, prev_shares - shares_retired);
+    // implied price at this year using terminal multiple
+    let implied_ev, implied_equity, implied_price;
+    if(asm.terminal_multiple_type === 'ev_ebitda'){
+      implied_ev = ebitda * asm.terminal_multiple;
+      implied_equity = implied_ev - net_debt;
+      implied_price = implied_equity / shares_new;
+    } else if(asm.terminal_multiple_type === 'pe'){
+      const ni = ebitda * (1 - 0.21); // 21% rough tax/D&A adj
+      implied_price = (ni * asm.terminal_multiple) / shares_new;
+      implied_ev = null;
+      implied_equity = ni * asm.terminal_multiple;
+    } else { // ev_revenue
+      implied_ev = rev * asm.terminal_multiple;
+      implied_equity = implied_ev - net_debt;
+      implied_price = implied_equity / shares_new;
+    }
+
+    out.revenue.push(rev);
+    out.ebitda.push(ebitda);
+    out.fcf.push(fcf);
+    out.buybacks.push(buyback);
+    out.dividends.push(dividend);
+    out.debt_paid.push(debt_pay);
+    out.cash_added.push(cash_add);
+    out.cash.push(cash_new);
+    out.debt.push(debt_new);
+    out.net_debt.push(net_debt);
+    out.shares.push(shares_new);
+    out.implied_ev.push(implied_ev);
+    out.implied_equity.push(implied_equity);
+    out.implied_price.push(implied_price);
+    out.cum_return.push((implied_price / base.base_price) - 1);
+
+    prev_rev = rev;
+    prev_cash = cash_new;
+    prev_debt = debt_new;
+    prev_shares = shares_new;
+    prev_price = implied_price;
+  }
+  return out;
+}
+
+function renderFlowthrough(c){
+  const yrs = c.years;
+  const cols = ['Base', ...yrs];
+  const baseY = baseAnchor.base_year;
+  const rows = [
+    { l:'Revenue ($M)',       vals: [baseAnchor.base_revenue, ...c.revenue], fmt: fmtM },
+    { l:'EBITDA ($M)',        vals: [baseAnchor.base_ebitda,  ...c.ebitda],  fmt: fmtM },
+    { l:'FCF ($M)',           vals: ['—',                      ...c.fcf],     fmt: fmtM },
+    { l:'Buybacks ($M)',      vals: ['—',                      ...c.buybacks], fmt: fmtM },
+    { l:'Cash ($M)',          vals: [baseAnchor.base_cash,     ...c.cash],     fmt: fmtM },
+    { l:'Total debt ($M)',    vals: [baseAnchor.base_debt,     ...c.debt],     fmt: fmtM },
+    { l:'Net debt ($M)',      vals: [baseAnchor.base_debt - baseAnchor.base_cash, ...c.net_debt], fmt: fmtM },
+    { l:'Shares out ($M)',    vals: [baseAnchor.base_shares,   ...c.shares],   fmt: v=>(v==null||v==='—')?'—':Number(v).toFixed(0)+'M' },
+    { l:'Implied EV ($M)',    vals: ['—',                      ...c.implied_ev], fmt: fmtM },
+    { l:'Implied equity ($M)',vals: ['—',                      ...c.implied_equity], fmt: fmtM },
+    { l:'Implied price',      vals: [baseAnchor.base_price,    ...c.implied_price], fmt: fmtPx, bold: true },
+    { l:'Cum return %',       vals: [0,                        ...c.cum_return], fmt: fmtPct, bold: true, color: true }
+  ];
+  const html = `
+    <thead><tr><th>Line</th>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(r=>`
+      <tr class="${r.bold ? 'bold-row' : ''}">
+        <td class="row-label">${esc(r.l)}</td>
+        ${r.vals.map(v=>{
+          const cls = r.color ? (Number(v)>0?'pos':Number(v)<0?'neg':'') : '';
+          return `<td class="${cls}">${typeof v === 'string' ? v : r.fmt(v)}</td>`;
+        }).join('')}
+      </tr>
+    `).join('')}</tbody>
+  `;
+  $('flowthrough-table').innerHTML = html;
+}
+
+function renderSummaryTiles(c){
+  const cr = c.cumulative_return_pct;
+  const ar = c.annualized_return;
+  const gap = (c.implied_price_terminal - baseAnchor.base_price) / baseAnchor.base_price;
+  const mos = baseAnchor.base_price > 0 ? (baseAnchor.base_price - c.bear_implied_price) / baseAnchor.base_price : null;
+  const asymmetry = (c.bull_implied_price - baseAnchor.base_price) / Math.max(0.01, baseAnchor.base_price - c.bear_implied_price);
+
+  $('summary-tiles').innerHTML = `
+    <div class="summary-tile"><div class="l">Implied price (yr 5)</div><div class="v">${fmtPx(c.implied_price_terminal)}</div></div>
+    <div class="summary-tile"><div class="l">Cum return</div><div class="v ${cr>0?'pos':'neg'}">${fmtPct(cr)}</div></div>
+    <div class="summary-tile"><div class="l">Annualized</div><div class="v ${ar>0?'pos':'neg'}">${fmtPct(ar)}</div></div>
+    <div class="summary-tile"><div class="l">Asymmetry (bull/bear)</div><div class="v">${fmtNum(asymmetry,2)}x</div></div>
+  `;
+}
+
+function renderSensitivity(){
+  const baseMult = Number($('term-multiple').value);
+  const mults = [baseMult*0.7, baseMult*0.85, baseMult, baseMult*1.15, baseMult*1.3];
+  const growthDeltas = [-0.04, -0.02, 0, 0.02, 0.04];
+  let html = `<thead><tr><th>Δ growth → / multiple ↓</th>${mults.map(m=>`<th>${m.toFixed(1)}x</th>`).join('')}</tr></thead><tbody>`;
+  for(const dg of growthDeltas){
+    html += `<tr><td class="axis">${dg>0?'+':''}${(dg*100).toFixed(0)}pp</td>`;
+    for(const m of mults){
+      const asm2 = JSON.parse(JSON.stringify(assumptions));
+      asm2.terminal_multiple = m;
+      asm2.rev_growth = asm2.rev_growth.map(g=>g+dg);
+      const out = runFlowThrough(baseAnchor, asm2);
+      const final = out.implied_price[out.implied_price.length-1];
+      const ret = (final / baseAnchor.base_price) - 1;
+      let bg = 'transparent';
+      if(ret >= 0.5) bg = '#d1fae5';
+      else if(ret >= 0) bg = '#fef9c3';
+      else if(ret >= -0.3) bg = '#fed7aa';
+      else bg = '#fee2e2';
+      html += `<td class="sens-cell" style="background:${bg}">${fmtPct(ret,0)}</td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</tbody>';
+  $('sens-table').innerHTML = html;
+}
+
+async function saveScenario(){
+  const label = $('scenario-label').value.trim() || 'base';
+  // mark all existing models for this ticker as inactive first
+  await sb.from('thesis_models').update({ is_active: false }).eq('user_id', currentUser.id).eq('ticker', currentTicker);
+
+  const payload = {
+    user_id: currentUser.id,
+    ticker: currentTicker,
+    scenario_label: label,
+    ...baseAnchor,
+    assumptions,
+    computed,
+    is_active: true
+  };
+  const { error } = await sb.from('thesis_models').insert(payload);
+  if(error){ flash('Save failed: ' + error.message, 'error'); return; }
+  flash(`Scenario "${label}" saved and set active.`, 'success');
+  await loadScenariosList();
+}
+
+function resetDefaults(){
+  onTickerChange();
+}
+
+async function loadScenariosList(){
+  const { data } = await sb.from('thesis_models').select('id, scenario_label, is_active, created_at, computed').eq('user_id', currentUser.id).eq('ticker', currentTicker).order('created_at', { ascending: false }).limit(20);
+  if(!data || !data.length){
+    $('scenarios-list').innerHTML = '<div class="empty">No saved scenarios yet.</div>';
+    $('scn-meta').textContent = '0 scenarios';
+    return;
+  }
+  $('scn-meta').textContent = `${data.length} scenarios`;
+  $('scenarios-list').innerHTML = data.map(s=>{
+    const cr = s.computed?.cumulative_return_pct;
+    return `<div class="scenario-row ${s.is_active?'active':''}">
+      <div class="info"><b>${esc(s.scenario_label)}</b> · cum return <span class="${cr>0?'pos':'neg'}" style="color:${cr>0?'var(--success)':'var(--danger)'}">${fmtPct(cr)}</span> · ${new Date(s.created_at).toLocaleDateString()}</div>
+      <div style="display:flex; gap:6px;">
+        ${s.is_active ? '<span class="field-hint">Active</span>' : `<button class="btn btn-sm btn-ghost" onclick="window.activateScn('${s.id}')">Set active</button>`}
+        <button class="btn btn-sm btn-ghost" onclick="window.deleteScn('${s.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.activateScn = async function(id){
+  await sb.from('thesis_models').update({ is_active: false }).eq('user_id', currentUser.id).eq('ticker', currentTicker);
+  const { error } = await sb.from('thesis_models').update({ is_active: true }).eq('id', id);
+  if(error){ flash('Failed: '+error.message,'error'); return; }
+  flash('Scenario activated.','success');
+  await loadScenariosList();
+};
+
+window.deleteScn = async function(id){
+  if(!confirm('Delete this scenario?')) return;
+  const { error } = await sb.from('thesis_models').delete().eq('id', id);
+  if(error){ flash('Failed: '+error.message,'error'); return; }
+  await loadScenariosList();
+};
+
+function flash(text, kind='info'){
+  $('msg-area').innerHTML = `<div class="msg msg-${kind}">${esc(text)}</div>`;
+  setTimeout(()=>{ $('msg-area').innerHTML=''; }, 5000);
+}
+
+})();
+</script>
+</body>
+</html>
