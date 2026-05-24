@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Research · Ridge Run</title>
+<script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
@@ -133,6 +134,7 @@
     <button class="btn btn-primary" id="load-btn">Load</button>
     <button class="btn btn-ghost" id="refresh-research-btn">Run fresh AI research</button>
     <button class="btn btn-ghost" id="add-to-watchlist-btn">Add to watchlist</button>
+    <button class="btn btn-ghost" id="open-model-btn">Build/edit model</button>
     <button class="btn btn-ghost" id="add-to-ideas-btn">Add to thesis stack</button>
     <span id="header-status" style="margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--text-dim)"></span>
   </div>
@@ -166,18 +168,14 @@
       </div>
     </div>
 
-    <!-- Valuation snapshot -->
-    <div class="card">
-      <h2>Valuation</h2>
-      <p class="h2-sub">Current multiples vs 1yr/3yr range (when history available).</p>
-      <div class="grid-4" id="r-valuation-grid"></div>
-    </div>
-
-    <!-- Growth -->
-    <div class="card">
-      <h2>Revenue growth</h2>
-      <p class="h2-sub">Historic (trailing) and projected (forward consensus).</p>
-      <div class="grid-3" id="r-growth-grid"></div>
+    <!-- Active thesis model summary (replaces standalone valuation + growth tiles) -->
+    <div class="card" style="border-left:3px solid var(--accent)">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px">
+        <h2>Thesis model</h2>
+        <a id="r-model-link" href="#" class="btn btn-ghost" style="font-family:var(--mono);font-size:11px;text-decoration:none">Open full model →</a>
+      </div>
+      <p class="h2-sub">5-year cap-structure flow-through. Active scenario shown; valuation history and growth context preserved below.</p>
+      <div id="r-model-summary"><div class="empty">No active thesis model for this ticker yet. <a id="r-model-build-link" href="#" style="color:var(--accent);text-decoration:underline">Build one →</a></div></div>
     </div>
 
     <!-- Valuation history charts -->
@@ -244,6 +242,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/config.js"></script>
+<script src="/nav.js"></script>
 <script>
 (() => {
 const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, N8N_RESEARCH_URL } = window.RR_CONFIG;
@@ -596,6 +595,57 @@ function renderMarkdown(md){
 }
 
 function flash(text,kind='info'){ $('msg-area').innerHTML = `<div class="msg msg-${kind}">${esc(text)}</div>`; setTimeout(()=>{ $('msg-area').innerHTML=''; }, 5000); }
+
+// === Pass 3: thesis model summary integration ===
+async function loadModelSummary(ticker){
+  const linkEl = document.getElementById('r-model-link');
+  if(linkEl) linkEl.href = '/model.html?ticker=' + encodeURIComponent(ticker);
+  const buildLinkEl = document.getElementById('r-model-build-link');
+  if(buildLinkEl) buildLinkEl.href = '/model.html?ticker=' + encodeURIComponent(ticker);
+  const out = document.getElementById('r-model-summary');
+  if(!out) return;
+  try {
+    const { data: rows } = await sb.from('thesis_models')
+      .select('id, scenario_label, base_price, computed, updated_at')
+      .eq('user_id', currentUser.id).eq('ticker', ticker).eq('is_active', true)
+      .order('updated_at', { ascending: false }).limit(1);
+    const m = (rows||[])[0];
+    if(!m){
+      out.innerHTML = '<div class="empty">No active thesis model for this ticker yet. <a href="/model.html?ticker='+encodeURIComponent(ticker)+'" style="color:var(--accent);text-decoration:underline">Build one →</a></div>';
+      return;
+    }
+    const cr = m.computed?.cumulative_return_pct;
+    const ar = m.computed?.annualized_return;
+    const ip = m.computed?.implied_price_terminal;
+    const fmtPct1 = n => (n==null||isNaN(n))?'—':(Number(n)*100).toFixed(1)+'%';
+    const fmtPx1 = n => (n==null||isNaN(n))?'—': '$'+Number(n).toFixed(2);
+    out.innerHTML = `<div class="grid-4">
+      <div class="metric-box"><div class="l">Active scenario</div><div class="v" style="font-family:var(--serif);font-size:18px">${m.scenario_label||'base'}</div></div>
+      <div class="metric-box"><div class="l">Implied price (yr 5)</div><div class="v">${fmtPx1(ip)}</div><div class="sub">base ${fmtPx1(m.base_price)}</div></div>
+      <div class="metric-box"><div class="l">5yr cum return</div><div class="v ${cr>0?'pos':cr<0?'neg':''}">${fmtPct1(cr)}</div></div>
+      <div class="metric-box"><div class="l">Annualized</div><div class="v ${ar>0?'pos':ar<0?'neg':''}">${fmtPct1(ar)}</div></div>
+    </div>`;
+  } catch(e){
+    out.innerHTML = '<div class="empty">Could not load model: ' + (e.message||e) + '</div>';
+  }
+}
+// Wire button
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('open-model-btn');
+  if(btn) btn.addEventListener('click', () => {
+    if(!currentTicker){ alert('Load a ticker first'); return; }
+    window.location.href = '/model.html?ticker=' + encodeURIComponent(currentTicker);
+  });
+});
+// Hook into existing loadFull lifecycle: poll for ticker changes
+let _lastModelTicker = null;
+setInterval(() => {
+  if(currentTicker && currentTicker !== _lastModelTicker){
+    _lastModelTicker = currentTicker;
+    loadModelSummary(currentTicker);
+  }
+}, 800);
+
 })();
 </script>
 </body>
