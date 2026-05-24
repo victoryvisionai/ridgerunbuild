@@ -319,7 +319,17 @@ async function onTickerChange(){
     byYear[yr] = row;
   }
   const histYears = Object.keys(byYear).map(Number).sort();
-  historicalCap = histYears.filter(y => y < currentYear).slice(-3).map(yr => buildHistoricalRow(yr, byYear[yr]));
+  // Keep ALL historic rows so we can compute YoY growth for the oldest displayed year too.
+  // Then slice display to last 3 in render functions if needed.
+  const histYearsBase = histYears.filter(y => y < currentYear);
+  historicalCap = histYearsBase.map(yr => buildHistoricalRow(yr, byYear[yr]));
+  // Display window: last 3 years
+  if(historicalCap.length > 3){
+    // Keep all in memory, but flag the visible window. Build a separate _visible array.
+    historicalCap._displayStart = historicalCap.length - 3;
+  } else {
+    historicalCap._displayStart = 0;
+  }
   const f = allFund[allFund.length-1];
 
   // load active model if exists
@@ -418,8 +428,14 @@ function renderAssumptionsTable(){
   const yrs = assumptions.years;
   // Compute historic values from historicalCap rows
   // Need rev_growth (y/y), ebitda_margin, fcf_margin (as proxy for fcf conv)
-  const hist = historicalCap;  // array sorted ascending year
-  function histRev(i){ return (i>0 && hist[i] && hist[i-1] && hist[i].revenue && hist[i-1].revenue) ? (hist[i].revenue / hist[i-1].revenue - 1) : null; }
+  const hist = historicalCap.slice(historicalCap._displayStart || 0);  // last 3 visible
+  function histRev(i){
+    const fullI = (historicalCap._displayStart || 0) + i;
+    const curr = historicalCap[fullI];
+    const prev = historicalCap[fullI - 1];
+    if(curr && prev && curr.revenue && prev.revenue) return curr.revenue / prev.revenue - 1;
+    return null;
+  }
   function histEM(i){ return hist[i]?.ebitda_margin ?? null; }
   function histFM(i){ return hist[i]?.fcf_margin ?? null; }   // FCF / Revenue (not /EBITDA, but close enough as display)
   function histFCFconv(i){ return (hist[i]?.fcf && hist[i]?.ebitda && hist[i].ebitda > 0) ? hist[i].fcf / hist[i].ebitda : null; }
@@ -629,7 +645,7 @@ function buildHistoricalRow(year, row){
 function renderCapStruct(){
   if(!computed || !baseAnchor) return;
   // Build full year list: historical years + base + forward years
-  const histRows = historicalCap.slice();
+  const histRows = historicalCap.slice(historicalCap._displayStart || 0);
   // Add base year as bridge
   const baseRow = {
     year: baseAnchor.base_year,
@@ -862,30 +878,49 @@ function recomputeWithCapOverrides(){
 
 function renderFlowthrough(c){
   const yrs = c.years;
-  const cols = ['Base', ...yrs];
+  const hist = historicalCap.slice(historicalCap._displayStart || 0);
+  const histYrs = hist.map(h => h.year);
   const baseY = baseAnchor.base_year;
+  const cols = [...histYrs, baseY, ...yrs];
+
+  // Build a per-row value array spanning historic + base + forward
+  function row(label, fmt, histKey, baseVal, fwdArr, opts) {
+    opts = opts || {};
+    const histVals = hist.map(h => h[histKey] ?? null);
+    return { l: label, fmt, vals: [...histVals, baseVal, ...fwdArr], ...opts };
+  }
+  const baseNetDebt = baseAnchor.base_debt - baseAnchor.base_cash;
+
   const rows = [
-    { l:'Revenue ($M)',       vals: [baseAnchor.base_revenue, ...c.revenue], fmt: fmtM },
-    { l:'EBITDA ($M)',        vals: [baseAnchor.base_ebitda,  ...c.ebitda],  fmt: fmtM },
-    { l:'FCF ($M)',           vals: ['—',                      ...c.fcf],     fmt: fmtM },
-    { l:'Buybacks ($M)',      vals: ['—',                      ...c.buybacks], fmt: fmtM },
-    { l:'Cash ($M)',          vals: [baseAnchor.base_cash,     ...c.cash],     fmt: fmtM },
-    { l:'Total debt ($M)',    vals: [baseAnchor.base_debt,     ...c.debt],     fmt: fmtM },
-    { l:'Net debt ($M)',      vals: [baseAnchor.base_debt - baseAnchor.base_cash, ...c.net_debt], fmt: fmtM },
-    { l:'Shares out ($M)',    vals: [baseAnchor.base_shares,   ...c.shares],   fmt: v=>(v==null||v==='—')?'—':Number(v).toFixed(0)+'M' },
-    { l:'Implied EV ($M)',    vals: ['—',                      ...c.implied_ev], fmt: fmtM },
-    { l:'Implied equity ($M)',vals: ['—',                      ...c.implied_equity], fmt: fmtM },
-    { l:'Implied price',      vals: [baseAnchor.base_price,    ...c.implied_price], fmt: fmtPx, bold: true },
-    { l:'Cum return %',       vals: [0,                        ...c.cum_return], fmt: fmtPct, bold: true, color: true }
+    row('Revenue ($M)',     fmtM, 'revenue', baseAnchor.base_revenue, c.revenue),
+    row('EBITDA ($M)',      fmtM, 'ebitda',  baseAnchor.base_ebitda,  c.ebitda),
+    row('FCF ($M)',         fmtM, 'fcf',     null,                    c.fcf),
+    { l:'Buybacks ($M)',    fmt: fmtM, vals: [...hist.map(()=>null), null, ...c.buybacks] },
+    row('Cash ($M)',        fmtM, 'cash',    baseAnchor.base_cash,    c.cash),
+    row('Total debt ($M)',  fmtM, 'debt',    baseAnchor.base_debt,    c.debt),
+    row('Net debt ($M)',    fmtM, 'net_debt',baseNetDebt,             c.net_debt),
+    { l:'Shares out (M)',   fmt: v=>(v==null)?'—':Number(v).toFixed(0)+'M', vals: [...hist.map(h=>h.shares), baseAnchor.base_shares, ...c.shares] },
+    { l:'Implied EV ($M)',  fmt: fmtM, vals: [...hist.map(h=>h.ev), null, ...c.implied_ev] },
+    { l:'Implied equity ($M)', fmt: fmtM, vals: [...hist.map(h=>h.market_cap), null, ...c.implied_equity] },
+    { l:'Price',            fmt: fmtPx, vals: [...hist.map(h=>h.price), baseAnchor.base_price, ...c.implied_price], bold: true },
+    { l:'Cum return %',     fmt: fmtPct, vals: [...hist.map(()=>null), 0, ...c.cum_return], bold: true, color: true }
   ];
+
   const html = `
-    <thead><tr><th>Line</th>${cols.map(c=>`<th>${typeof c === 'number' ? 'FY'+c : c}</th>`).join('')}</tr></thead>
+    <thead><tr><th>Line</th>${cols.map((y,i)=>{
+      const isHist = i < hist.length;
+      const isBase = i === hist.length;
+      const cls = isHist ? 'style="color:var(--text-muted)"' : (isBase ? 'style="background:var(--bg-blue-soft)"' : '');
+      return `<th ${cls}>FY${y}${isHist?' (h)':''}</th>`;
+    }).join('')}</tr></thead>
     <tbody>${rows.map(r=>`
       <tr class="${r.bold ? 'bold-row' : ''}">
         <td class="row-label">${esc(r.l)}</td>
-        ${r.vals.map(v=>{
-          const cls = r.color ? (Number(v)>0?'pos':Number(v)<0?'neg':'') : '';
-          return `<td class="${cls}">${typeof v === 'string' ? v : r.fmt(v)}</td>`;
+        ${r.vals.map((v,i)=>{
+          const isHist = i < hist.length;
+          const cls = (r.color && v!=null) ? (Number(v)>0?'pos':Number(v)<0?'neg':'') : '';
+          const muted = isHist ? 'color:var(--text-muted)' : '';
+          return `<td class="${cls}" style="${muted}">${v==null ? '—' : r.fmt(v)}</td>`;
         }).join('')}
       </tr>
     `).join('')}</tbody>
@@ -904,7 +939,7 @@ function renderSummaryTiles(c){
     <div class="summary-tile"><div class="l">Implied price (FY+4)</div><div class="v">${fmtPx(c.implied_price_terminal)}</div></div>
     <div class="summary-tile"><div class="l">Cum return</div><div class="v ${cr>0?'pos':'neg'}">${fmtPct(cr)}</div></div>
     <div class="summary-tile"><div class="l">Annualized</div><div class="v ${ar>0?'pos':'neg'}">${fmtPct(ar)}</div></div>
-    <div class="summary-tile"><div class="l">Asymmetry (bull/bear)</div><div class="v">${fmtNum(asymmetry,2)}x</div></div>
+    <div class="summary-tile" title="Bull case = terminal multiple × 1.3; Bear case = terminal multiple × 0.7. Asymmetry = (bull implied price − current price) / (current price − bear implied price). A value of 2.0x means upside is twice the downside."><div class="l">Asymmetry (bull/bear)</div><div class="v">${fmtNum(asymmetry,2)}x</div><div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:4px">upside / downside ratio</div></div>
   `;
 }
 
