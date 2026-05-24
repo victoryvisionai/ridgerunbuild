@@ -88,7 +88,7 @@
         <span class="banner-meta" id="base-year-meta">—</span>
       </div>
       <div class="banner-body">
-        <p class="h2-sub">Historical anchor pulled from the latest fundamentals snapshot. Edit any value if the snapshot is stale.</p>
+        <p class="h2-sub">Fiscal-year basis throughout. Base anchor = latest fiscal year (typically current FY estimates for revenue/EBITDA; latest filing for cash/debt/shares). Edit any value if the snapshot is stale or off-FY.</p>
         <div class="form-grid" id="base-grid"></div>
       </div>
     </div>
@@ -96,7 +96,7 @@
     <div class="banner-card">
       <div class="banner-head">
         <h2>Forward assumptions</h2>
-        <span class="banner-meta">5-year horizon · edit any cell</span>
+        <span class="banner-meta">4 fiscal years · edit any cell</span>
       </div>
       <div class="banner-body">
         <p class="h2-sub">Enter as percentages (12 means 12%). Changes recompute the flow-through instantly.</p>
@@ -261,7 +261,7 @@ async function onTickerChange(){
     byYear[yr] = row;  // last wins (later date)
   }
   const histYears = Object.keys(byYear).map(Number).sort();
-  historicalCap = histYears.slice(-5).map(yr => buildHistoricalRow(yr, byYear[yr]));
+  historicalCap = histYears.slice(-3).map(yr => buildHistoricalRow(yr, byYear[yr]));
   const f = allFund[allFund.length-1];
 
   // load active model if exists
@@ -282,7 +282,7 @@ async function onTickerChange(){
     $('term-multiple').value = assumptions.terminal_multiple ?? 14;
     $('term-multiple-type').value = assumptions.terminal_multiple_type ?? 'ev_ebitda';
     $('scenario-label').value = active.scenario_label || 'base';
-    forwardMultiples = active.assumptions?.forward_multiples || { pe:[null,null,null,null,null], ev_ebitda:[null,null,null,null,null], fcf_yield:[null,null,null,null,null] };
+    forwardMultiples = active.assumptions?.forward_multiples || { pe:[null,null,null,null], ev_ebitda:[null,null,null,null], fcf_yield:[null,null,null,null] };
   } else {
     // build defaults from fundamentals
     const yr = new Date().getFullYear();
@@ -301,7 +301,7 @@ async function onTickerChange(){
     $('term-multiple').value = assumptions.terminal_multiple;
     $('term-multiple-type').value = assumptions.terminal_multiple_type;
     $('scenario-label').value = 'base';
-    forwardMultiples = { pe:[null,null,null,null,null], ev_ebitda:[null,null,null,null,null], fcf_yield:[null,null,null,null,null] };
+    forwardMultiples = { pe:[null,null,null,null], ev_ebitda:[null,null,null,null], fcf_yield:[null,null,null,null] };
   }
 
   renderBaseGrid();
@@ -317,13 +317,13 @@ function defaultAssumptions(f){
   const m3 = f?.rev_growth_3y_fwd ?? Math.max(0.05, ntm - 0.02);
   const ebm = f?.ebitda_margin ?? 0.25;
   return {
-    years: [1,2,3,4,5].map(i=>baseAnchor.base_year + i),
-    rev_growth: [ntm, m2, m3, Math.max(0.04, m3-0.02), Math.max(0.04, m3-0.03)],
-    ebitda_margin: [ebm, ebm+0.005, ebm+0.01, ebm+0.015, ebm+0.02],
-    fcf_conversion: [0.85, 0.85, 0.85, 0.85, 0.85],
-    buyback_pct_of_fcf: [0.40, 0.40, 0.40, 0.40, 0.40],
-    dividend_pct_of_fcf: [0.0, 0.0, 0.0, 0.0, 0.0],
-    debt_paydown_pct_of_fcf: [0.10, 0.10, 0.10, 0.10, 0.10],
+    years: [1,2,3,4].map(i=>baseAnchor.base_year + i),
+    rev_growth: [ntm, m2, m3, Math.max(0.04, m3-0.02)],
+    ebitda_margin: [ebm, ebm+0.005, ebm+0.01, ebm+0.015],
+    fcf_conversion: [0.85, 0.85, 0.85, 0.85],
+    buyback_pct_of_fcf: [0.40, 0.40, 0.40, 0.40],
+    dividend_pct_of_fcf: [0.0, 0.0, 0.0, 0.0],
+    debt_paydown_pct_of_fcf: [0.10, 0.10, 0.10, 0.10],
     terminal_multiple: 14,
     terminal_multiple_type: 'ev_ebitda'
   };
@@ -331,7 +331,7 @@ function defaultAssumptions(f){
 
 function renderBaseGrid(){
   const fields = [
-    { k:'base_year', l:'Base year', step:1 },
+    { k:'base_year', l:'Base fiscal year (FY)', step:1 },
     { k:'base_revenue', l:'Revenue ($M)', step:100 },
     { k:'base_ebitda',  l:'EBITDA ($M)', step:50 },
     { k:'base_shares',  l:'Shares out ($M)', step:1 },
@@ -365,7 +365,7 @@ function renderAssumptionsTable(){
     { k:'debt_paydown_pct_of_fcf', l:'Debt paydown % of FCF', pct:true }
   ];
   const html = `
-    <thead><tr><th>Driver</th>${yrs.map(y=>`<th>${y}</th>`).join('')}</tr></thead>
+    <thead><tr><th>Driver</th>${yrs.map(y=>`<th>FY${y}</th>`).join('')}</tr></thead>
     <tbody>${rows.map(r=>`
       <tr>
         <td class="row-label">${esc(r.l)}</td>
@@ -405,7 +405,7 @@ function recompute(){
   computed.bull_implied_price = bull.implied_price[bull.implied_price.length-1];
   computed.implied_price_terminal = computed.implied_price[computed.implied_price.length-1];
   computed.cumulative_return_pct = (computed.implied_price_terminal / baseAnchor.base_price) - 1;
-  computed.annualized_return = Math.pow(computed.implied_price_terminal / baseAnchor.base_price, 1/5) - 1;
+  computed.annualized_return = Math.pow(computed.implied_price_terminal / baseAnchor.base_price, 1/4) - 1;
 
   renderFlowthrough(computed);
   renderSummaryTiles(computed);
@@ -588,7 +588,7 @@ function renderCapStruct(){
   let html = '<thead><tr><th>Line</th>';
   for(const r of allRows){
     const cls = r.is_historic ? (r.is_base ? 'style="background:var(--bg-blue-soft)"' : 'style="color:var(--text-muted)"') : '';
-    html += `<th ${cls}>${r.year}${r.is_base?' base':''}${r.is_historic && !r.is_base?' (h)':''}</th>`;
+    html += `<th ${cls}>FY${r.year}${r.is_base?' base':''}${r.is_historic && !r.is_base?' (h)':''}</th>`;
   }
   html += '</tr></thead><tbody>';
 
@@ -729,7 +729,7 @@ function recomputeWithCapOverrides(){
   computed.bull_implied_price = bull.implied_price[bull.implied_price.length-1];
   computed.implied_price_terminal = computed.implied_price[computed.implied_price.length-1];
   computed.cumulative_return_pct = (computed.implied_price_terminal / baseAnchor.base_price) - 1;
-  computed.annualized_return = Math.pow(computed.implied_price_terminal / baseAnchor.base_price, 1/5) - 1;
+  computed.annualized_return = Math.pow(computed.implied_price_terminal / baseAnchor.base_price, 1/4) - 1;
 
   renderFlowthrough(computed);
   renderSummaryTiles(computed);
@@ -756,7 +756,7 @@ function renderFlowthrough(c){
     { l:'Cum return %',       vals: [0,                        ...c.cum_return], fmt: fmtPct, bold: true, color: true }
   ];
   const html = `
-    <thead><tr><th>Line</th>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+    <thead><tr><th>Line</th>${cols.map(c=>`<th>${typeof c === 'number' ? 'FY'+c : c}</th>`).join('')}</tr></thead>
     <tbody>${rows.map(r=>`
       <tr class="${r.bold ? 'bold-row' : ''}">
         <td class="row-label">${esc(r.l)}</td>
@@ -778,7 +778,7 @@ function renderSummaryTiles(c){
   const asymmetry = (c.bull_implied_price - baseAnchor.base_price) / Math.max(0.01, baseAnchor.base_price - c.bear_implied_price);
 
   $('summary-tiles').innerHTML = `
-    <div class="summary-tile"><div class="l">Implied price (yr 5)</div><div class="v">${fmtPx(c.implied_price_terminal)}</div></div>
+    <div class="summary-tile"><div class="l">Implied price (FY+4)</div><div class="v">${fmtPx(c.implied_price_terminal)}</div></div>
     <div class="summary-tile"><div class="l">Cum return</div><div class="v ${cr>0?'pos':'neg'}">${fmtPct(cr)}</div></div>
     <div class="summary-tile"><div class="l">Annualized</div><div class="v ${ar>0?'pos':'neg'}">${fmtPct(ar)}</div></div>
     <div class="summary-tile"><div class="l">Asymmetry (bull/bear)</div><div class="v">${fmtNum(asymmetry,2)}x</div></div>
