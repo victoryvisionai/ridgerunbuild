@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stress · Ridge Run</title>
+<script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/themes.css" />
+<style>
+  .scenario-card {
+    background: var(--bg-tint);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin: 10px 0;
+  }
+  .scenario-card.danger { border-left-color: var(--danger); }
+  .scenario-card.warning { border-left-color: var(--warning); }
+  .scenario-card.success { border-left-color: var(--success); }
+  .scenario-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .scenario-head .name {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .scenario-head .pl {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .scenario-head .pl.pos { color: var(--success); }
+  .scenario-head .pl.neg { color: var(--danger); }
+  .scenario-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 6px 0;
+  }
+  .scenario-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+  .scenario-details {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+    display: none;
+  }
+  .scenario-details.open { display: block; }
+  .toggle-details {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0;
+    margin-top: 6px;
+  }
+  .position-detail-tbl { font-size: 12px; }
+  .position-detail-tbl td { padding: 5px 8px; }
+</style>
+</head>
+<body>
+
+<div id="loading-screen" class="loading">Loading stress…</div>
+
+<div id="app" class="shell hidden">
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-mark">RR</span>
+      <span class="brand-name">Ridge Run</span>
+    </div>
+    <nav class="nav-tabs">
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/dna.html">Investor DNA</a>
+      <a href="/performance.html">Performance</a>
+      <a href="/portfolio.html">Portfolio</a>
+      <a href="/watchlist.html">Watchlist</a>
+      <a href="/strategy.html">Strategy</a>
+      <a href="/stress.html" class="active">Stress</a>
+      <a href="/research.html">Research</a>
+      <a href="/screener.html">Screener</a>
+      <a href="/ai.html">Ask AI</a>
+    </nav>
+    <div class="user-meta">
+      <span id="user-email"></span>
+      <button class="signout" id="signout-btn">Sign out</button>
+    </div>
+  </div>
+
+  <h1 class="page-title">Stress</h1>
+  <p class="page-sub">Portfolio resilience under canned crisis scenarios. The engine runs daily at 7pm ET and on-demand via the button below.</p>
+
+  <div id="msg-area"></div>
+
+  <!-- Portfolio summary KPIs -->
+  <div class="banner-card">
+    <div class="banner-head">
+      <h2>Portfolio under stress</h2>
+      <span class="banner-meta" id="latest-run-meta">No runs yet</span>
+    </div>
+    <div class="banner-body">
+      <p class="h2-sub">Latest run summary across all active scenarios. P/L shown is the estimated dollar impact on your current positions + holdings.</p>
+      <div class="kpi-grid" id="kpis">
+        <div class="kpi"><div class="l">Worst scenario</div><div class="v" id="kpi-worst-scn">—</div><div class="sub" id="kpi-worst-pl">—</div></div>
+        <div class="kpi"><div class="l">Worst position</div><div class="v" id="kpi-worst-pos">—</div><div class="sub" id="kpi-worst-pos-pl">—</div></div>
+        <div class="kpi"><div class="l">Scenarios run</div><div class="v" id="kpi-count">—</div><div class="sub">in latest batch</div></div>
+        <div class="kpi"><div class="l">Last run</div><div class="v" id="kpi-last-run" style="font-size:14px;font-family:var(--mono);">—</div><div class="sub" id="kpi-trigger">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Latest results per scenario -->
+  <div class="banner-card banner-danger">
+    <div class="banner-head">
+      <h2>Latest by scenario</h2>
+      <div class="banner-actions">
+        <button class="btn btn-primary btn-sm" id="run-now-btn">Run stress now</button>
+        <button class="btn btn-ghost btn-sm" id="refresh-btn">Refresh</button>
+      </div>
+    </div>
+    <div class="banner-body">
+      <p class="h2-sub">Each canned scenario is applied to your current portfolio. Click a scenario to see the per-position breakdown.</p>
+      <div id="scenarios-list">
+        <div class="empty">Loading scenarios…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="banner-card">
+    <div class="banner-head">
+      <h2>Run history</h2>
+      <span class="banner-meta">Last 30 days</span>
+    </div>
+    <div class="banner-body">
+      <p class="h2-sub">Stress runs over time. Each row is one scenario in one run. Use this to track how portfolio resilience evolves as you add positions.</p>
+      <div id="history-wrap">
+        <div class="empty">Loading…</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/config.js"></script>
+<script>
+(() => {
+const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = window.RR_CONFIG;
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const STRESS_WEBHOOK = 'https://victoryvision.app.n8n.cloud/webhook/stress/run';
+let currentUser = null;
+
+const $ = id => document.getElementById(id);
+const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt0 = n => (n==null||isNaN(n))?'—':Number(n).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+const fmtPct = (n,d=2) => (n==null||isNaN(n))?'—':(Number(n)*100).toFixed(d)+'%';
+const fmtDate = d => {
+  if(!d) return '—';
+  const dt = new Date(d); if(isNaN(dt)) return '—';
+  return dt.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
+};
+const fmtDateTime = d => {
+  if(!d) return '—';
+  const dt = new Date(d); if(isNaN(dt)) return '—';
+  return dt.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+};
+const relTime = d => {
+  if(!d) return '—';
+  const sec = Math.floor((Date.now() - new Date(d).getTime())/1000);
+  if(sec < 60) return 'just now';
+  if(sec < 3600) return Math.floor(sec/60)+'m ago';
+  if(sec < 86400) return Math.floor(sec/3600)+'h ago';
+  return Math.floor(sec/86400)+'d ago';
+};
+
+(async () => {
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session?.user){ window.location.href='/index.html'; return; }
+  currentUser = session.user;
+  $('user-email').textContent = currentUser.email || '';
+  show('loading-screen', false);
+  show('app', true);
+  await loadAll();
+})();
+
+$('signout-btn').addEventListener('click', async()=>{ await sb.auth.signOut(); window.location.href='/index.html'; });
+$('refresh-btn').addEventListener('click', loadAll);
+$('run-now-btn').addEventListener('click', runStressNow);
+
+async function loadAll(){
+  await Promise.all([loadLatestByScenario(), loadHistory()]);
+}
+
+async function loadLatestByScenario(){
+  // Pull all active scenarios + the latest result for each (last 7 days)
+  const since = new Date(Date.now() - 7*24*3600*1000).toISOString();
+
+  const [scnResp, resResp] = await Promise.all([
+    sb.from('stress_scenarios').select('id, scenario_key, name, description, shocks').eq('is_active', true),
+    sb.from('stress_test_results')
+      .select('id, scenario_id, portfolio_pl, portfolio_pct, worst_position, worst_position_pl, position_details, run_at, triggered_by, related_rec_id')
+      .eq('user_id', currentUser.id)
+      .gte('run_at', since)
+      .order('run_at', { ascending: false })
+  ]);
+
+  if(scnResp.error){ flash('Could not load scenarios: ' + scnResp.error.message, 'error'); return; }
+
+  const scenarios = scnResp.data || [];
+  const results = resResp.data || [];
+
+  // Map: scenario_id -> most recent result
+  const latestByScenario = {};
+  for(const r of results){
+    if(!latestByScenario[r.scenario_id]) latestByScenario[r.scenario_id] = r;
+  }
+
+  // Update top KPIs from the latest *batch*
+  const latestBatch = results.filter(r => {
+    if(!results[0]) return false;
+    return Math.abs(new Date(r.run_at) - new Date(results[0].run_at)) < 60*1000; // within 1 min = same batch
+  });
+
+  if(latestBatch.length){
+    const worst = latestBatch.reduce((w, r) => (r.portfolio_pl < (w?.portfolio_pl ?? 0) ? r : w), null);
+    const scnName = scenarios.find(s => s.id === worst?.scenario_id)?.name || '—';
+    $('kpi-worst-scn').textContent = worst ? scnName : '—';
+    $('kpi-worst-pl').textContent = worst ? `${fmt0(worst.portfolio_pl)} (${fmtPct(worst.portfolio_pct)})` : '—';
+    $('kpi-worst-pl').className = 'sub ' + ((worst?.portfolio_pl ?? 0) < 0 ? 'neg' : '');
+    $('kpi-worst-pos').textContent = worst?.worst_position || '—';
+    $('kpi-worst-pos-pl').textContent = worst?.worst_position_pl != null ? fmt0(worst.worst_position_pl) : '—';
+    $('kpi-count').textContent = latestBatch.length;
+    $('kpi-last-run').textContent = relTime(results[0].run_at);
+    $('kpi-trigger').textContent = results[0].triggered_by || 'auto';
+    $('latest-run-meta').textContent = `Last run ${relTime(results[0].run_at)}`;
+  } else {
+    $('latest-run-meta').textContent = 'No runs in last 7 days';
+  }
+
+  if(!scenarios.length){
+    $('scenarios-list').innerHTML = '<div class="empty">No active stress scenarios.</div>';
+    return;
+  }
+
+  // Render scenario cards
+  $('scenarios-list').innerHTML = scenarios.map(scn => {
+    const r = latestByScenario[scn.id];
+    const sev = !r ? '' :
+      r.portfolio_pct == null ? '' :
+      r.portfolio_pct <= -0.20 ? 'danger' :
+      r.portfolio_pct <= -0.10 ? 'warning' :
+      r.portfolio_pct >= 0     ? 'success' : '';
+
+    const plClass = r?.portfolio_pl > 0 ? 'pos' : r?.portfolio_pl < 0 ? 'neg' : '';
+    const plText = r ? `${fmt0(r.portfolio_pl)} <span style="color:var(--text-muted);">(${fmtPct(r.portfolio_pct)})</span>` : 'not run yet';
+
+    const shocksKv = Object.entries(scn.shocks || {})
+      .map(([k, v]) => `${k}=${typeof v === 'number' ? v : JSON.stringify(v)}`)
+      .join('  ·  ');
+
+    const positionDetails = r?.position_details && Array.isArray(r.position_details) && r.position_details.length
+      ? `<table class="position-detail-tbl" style="width:100%; margin-top:8px;">
+           <thead><tr>
+             <th>Ticker</th><th>Instr</th><th style="text-align:right">Start $</th>
+             <th style="text-align:right">Shock %</th><th style="text-align:right">Est P/L</th>
+             <th style="text-align:right">End $</th>
+           </tr></thead>
+           <tbody>
+             ${r.position_details.map(p => `
+               <tr>
+                 <td><b>${esc(p.ticker)}</b></td>
+                 <td>${esc(p.instrument||'—')}</td>
+                 <td class="num">${fmt0(p.starting_value)}</td>
+                 <td class="num">${fmtPct(p.shock_applied_pct)}</td>
+                 <td class="num ${p.estimated_pl > 0 ? 'pos' : p.estimated_pl < 0 ? 'neg' : ''}">${fmt0(p.estimated_pl)}</td>
+                 <td class="num">${fmt0(p.estimated_value)}</td>
+               </tr>
+             `).join('')}
+           </tbody>
+         </table>`
+      : '<div class="empty" style="padding:12px;">No position breakdown — workflow may have skipped (no portfolio).</div>';
+
+    return `
+      <div class="scenario-card ${sev}">
+        <div class="scenario-head">
+          <span class="name">${esc(scn.name)}</span>
+          <span class="pl ${plClass}">${plText}</span>
+        </div>
+        <div class="scenario-desc">${esc(scn.description || '')}</div>
+        <div class="scenario-meta">${esc(scn.scenario_key)} · shocks: ${esc(shocksKv)}</div>
+        ${r ? `<button class="toggle-details" data-target="scn-${scn.id}">Show position breakdown →</button>` : ''}
+        ${r ? `<div class="scenario-details" id="scn-${scn.id}">
+          <div style="font-family:var(--mono); font-size:10px; color:var(--text-dim); margin-bottom:6px;">
+            Run ${fmtDateTime(r.run_at)} · trigger ${esc(r.triggered_by||'auto')}${r.related_rec_id ? ' · pre-rec stress' : ''}
+          </div>
+          ${positionDetails}
+        </div>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  // Wire toggle buttons
+  document.querySelectorAll('.toggle-details').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = $(btn.dataset.target);
+      if(!target) return;
+      const isOpen = target.classList.toggle('open');
+      btn.textContent = isOpen ? 'Hide position breakdown ↓' : 'Show position breakdown →';
+    });
+  });
+}
+
+async function loadHistory(){
+  const since = new Date(Date.now() - 30*24*3600*1000).toISOString();
+  const { data, error } = await sb
+    .from('stress_test_results')
+    .select('id, portfolio_pl, portfolio_pct, worst_position, worst_position_pl, run_at, triggered_by, related_rec_id, stress_scenarios(name, scenario_key)')
+    .eq('user_id', currentUser.id)
+    .gte('run_at', since)
+    .order('run_at', { ascending: false })
+    .limit(60);
+
+  if(error){
+    $('history-wrap').innerHTML = `<div class="msg msg-error">Failed to load history: ${esc(error.message)}</div>`;
+    return;
+  }
+  if(!data || !data.length){
+    $('history-wrap').innerHTML = '<div class="empty">No stress runs in last 30 days. Click "Run stress now" to generate the first run.</div>';
+    return;
+  }
+
+  $('history-wrap').innerHTML = `<table>
+    <thead><tr>
+      <th>Run at</th>
+      <th>Scenario</th>
+      <th style="text-align:right">Portfolio P/L</th>
+      <th style="text-align:right">%</th>
+      <th>Worst position</th>
+      <th style="text-align:right">Worst P/L</th>
+      <th>Trigger</th>
+    </tr></thead>
+    <tbody>
+      ${data.map(r => `
+        <tr>
+          <td>${fmtDateTime(r.run_at)}</td>
+          <td><b>${esc(r.stress_scenarios?.name || '—')}</b></td>
+          <td class="num ${r.portfolio_pl > 0 ? 'pos' : r.portfolio_pl < 0 ? 'neg' : ''}">${fmt0(r.portfolio_pl)}</td>
+          <td class="num ${r.portfolio_pct > 0 ? 'pos' : r.portfolio_pct < 0 ? 'neg' : ''}">${fmtPct(r.portfolio_pct)}</td>
+          <td>${esc(r.worst_position || '—')}</td>
+          <td class="num ${r.worst_position_pl < 0 ? 'neg' : ''}">${fmt0(r.worst_position_pl)}</td>
+          <td>${esc(r.triggered_by || '—')}${r.related_rec_id ? ' · rec' : ''}</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>`;
+}
+
+async function runStressNow(){
+  const btn = $('run-now-btn');
+  btn.disabled = true;
+  btn.textContent = 'Running…';
+
+  try {
+    const resp = await fetch(STRESS_WEBHOOK, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-trigger': 'webhook' },
+      body: JSON.stringify({ triggered_by: 'manual_ui' })
+    });
+    if(!resp.ok){
+      throw new Error(`Webhook returned ${resp.status}`);
+    }
+    flash('Stress run triggered. Refreshing in 4 seconds…', 'success');
+    setTimeout(async () => {
+      await loadAll();
+      btn.disabled = false;
+      btn.textContent = 'Run stress now';
+    }, 4000);
+  } catch(e){
+    flash('Failed to trigger stress run: ' + e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Run stress now';
+  }
+}
+
+function flash(text, kind='info'){
+  $('msg-area').innerHTML = `<div class="msg msg-${kind}">${esc(text)}</div>`;
+  setTimeout(()=>{ $('msg-area').innerHTML=''; }, 6000);
+}
+
+})();
+</script>
+</body>
+</html>
