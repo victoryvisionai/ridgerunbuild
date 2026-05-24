@@ -128,22 +128,33 @@
 
     <div class="banner-card">
       <div class="banner-head">
-        <h2>Summary</h2>
-        <span class="banner-meta">From terminal year</span>
+        <h2>Flow-through</h2>
+        <span class="banner-meta">Year-by-year cap structure</span>
       </div>
       <div class="banner-body">
-        <div class="summary-tiles" id="summary-tiles"></div>
+        <p class="h2-sub">Revenue → EBITDA → FCF → capital allocated → cash/debt/shares. Each year compounds from the prior.</p>
+        <table class="model-table" id="flowthrough-table"></table>
       </div>
     </div>
 
     <div class="banner-card">
       <div class="banner-head">
-        <h2>Flow-through</h2>
-        <span class="banner-meta">Year-by-year cap structure</span>
+        <h2>Cap structure & valuation</h2>
+        <span class="banner-meta">Historic | implied forward · valuation cells editable</span>
       </div>
       <div class="banner-body">
-        <p class="h2-sub">Revenue → EBITDA → FCF → capital allocated → cash/debt/shares → implied price. Each year compounds from the prior.</p>
-        <table class="model-table" id="flowthrough-table"></table>
+        <p class="h2-sub">Historical years populated from fundamentals snapshots (read-only). Forward years computed from your assumptions. Editing P/E, EV/EBITDA, or FCF yield in a forward year recomputes implied share price for THAT year and every year after (multiple expansion compounds).</p>
+        <table class="model-table" id="capstruct-table"></table>
+      </div>
+    </div>
+
+    <div class="banner-card">
+      <div class="banner-head">
+        <h2>Summary</h2>
+        <span class="banner-meta">From terminal year</span>
+      </div>
+      <div class="banner-body">
+        <div class="summary-tiles" id="summary-tiles"></div>
       </div>
     </div>
 
@@ -186,6 +197,8 @@ let currentTicker = null;
 let baseAnchor = null;
 let assumptions = null;
 let computed = null;
+let historicalCap = [];     // array of {year, revenue, ebitda, fcf, shares, price, market_cap, debt, cash, ev, net_debt, pe, ev_ebitda, fcf_yield}
+let forwardMultiples = null;  // {pe:[5], ev_ebitda:[5], fcf_yield:[5]} - user overrides; null entries fall back to terminal_multiple
 
 const $ = id => document.getElementById(id);
 const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
@@ -238,9 +251,18 @@ async function onTickerChange(){
     $('company-block').innerHTML = `<b>${esc(t)}</b> <span style="color:var(--text-dim);">No company profile data yet.</span>`;
   }
 
-  // load latest fundamentals
-  const { data: rows } = await sb.from('company_fundamentals').select('*').eq('ticker',t).order('as_of_date',{ascending:false}).limit(1);
-  const f = (rows||[])[0];
+  // load all fundamentals history (for historical cap structure)
+  const { data: histRows } = await sb.from('company_fundamentals').select('*').eq('ticker',t).order('as_of_date',{ascending:true});
+  const allFund = histRows || [];
+  // Reduce to one row per calendar year (most recent in that year)
+  const byYear = {};
+  for(const row of allFund){
+    const yr = new Date(row.as_of_date).getFullYear();
+    byYear[yr] = row;  // last wins (later date)
+  }
+  const histYears = Object.keys(byYear).map(Number).sort();
+  historicalCap = histYears.slice(-5).map(yr => buildHistoricalRow(yr, byYear[yr]));
+  const f = allFund[allFund.length-1];
 
   // load active model if exists
   const { data: existingActive } = await sb.from('thesis_models').select('*').eq('user_id', currentUser.id).eq('ticker',t).eq('is_active',true).order('updated_at',{ascending:false}).limit(1);
@@ -260,6 +282,7 @@ async function onTickerChange(){
     $('term-multiple').value = assumptions.terminal_multiple ?? 14;
     $('term-multiple-type').value = assumptions.terminal_multiple_type ?? 'ev_ebitda';
     $('scenario-label').value = active.scenario_label || 'base';
+    forwardMultiples = active.assumptions?.forward_multiples || { pe:[null,null,null,null,null], ev_ebitda:[null,null,null,null,null], fcf_yield:[null,null,null,null,null] };
   } else {
     // build defaults from fundamentals
     const yr = new Date().getFullYear();
@@ -278,6 +301,7 @@ async function onTickerChange(){
     $('term-multiple').value = assumptions.terminal_multiple;
     $('term-multiple-type').value = assumptions.terminal_multiple_type;
     $('scenario-label').value = 'base';
+    forwardMultiples = { pe:[null,null,null,null,null], ev_ebitda:[null,null,null,null,null], fcf_yield:[null,null,null,null,null] };
   }
 
   renderBaseGrid();
@@ -385,6 +409,7 @@ function recompute(){
 
   renderFlowthrough(computed);
   renderSummaryTiles(computed);
+  renderCapStruct();
   renderSensitivity();
 }
 
@@ -458,6 +483,258 @@ function runFlowThrough(base, asm){
     prev_price = implied_price;
   }
   return out;
+}
+
+
+function buildHistoricalRow(year, row){
+  const rev = row?.raw_data?.revenue_ltm ?? null;
+  const ebitda = row?.raw_data?.ebitda_ltm ?? (rev && row?.ebitda_margin ? rev * row.ebitda_margin : null);
+  const fcf = (rev && row?.fcf_margin) ? rev * row.fcf_margin : null;
+  const shares = row?.raw_data?.shares_outstanding ?? null;
+  const price = row?.raw_data?.price ?? null;
+  const debt = row?.total_debt ?? null;
+  const cash = row?.cash ?? null;
+  const mc = row?.market_cap ?? (shares && price ? shares * price : null);
+  const ev = row?.enterprise_value ?? (mc!=null && debt!=null && cash!=null ? mc + debt - cash : null);
+  const net_debt = (debt!=null && cash!=null) ? debt - cash : null;
+  const cps = (cash!=null && shares) ? (cash / shares) : null;
+  return {
+    year, revenue: rev, ebitda, fcf, shares, price,
+    market_cap: mc, debt, cash, ev, net_debt,
+    net_debt_ebitda: (net_debt!=null && ebitda) ? net_debt / ebitda : row?.net_debt_ebitda,
+    cash_per_share: cps,
+    pe: row?.pe_ltm ?? null,
+    ev_ebitda: row?.ev_ebitda_ltm ?? null,
+    fcf_yield: row?.fcf_yield_ltm ?? null,
+    is_historic: true
+  };
+}
+
+function renderCapStruct(){
+  if(!computed || !baseAnchor) return;
+  // Build full year list: historical years + base + forward years
+  const histRows = historicalCap.slice();
+  // Add base year as bridge
+  const baseRow = {
+    year: baseAnchor.base_year,
+    revenue: baseAnchor.base_revenue, ebitda: baseAnchor.base_ebitda,
+    fcf: baseAnchor.base_ebitda * 0.85,
+    shares: baseAnchor.base_shares, price: baseAnchor.base_price,
+    market_cap: baseAnchor.base_shares * baseAnchor.base_price,
+    debt: baseAnchor.base_debt, cash: baseAnchor.base_cash,
+    ev: (baseAnchor.base_shares * baseAnchor.base_price) + baseAnchor.base_debt - baseAnchor.base_cash,
+    net_debt: baseAnchor.base_debt - baseAnchor.base_cash,
+    net_debt_ebitda: baseAnchor.base_ebitda ? (baseAnchor.base_debt - baseAnchor.base_cash) / baseAnchor.base_ebitda : null,
+    cash_per_share: baseAnchor.base_shares ? baseAnchor.base_cash / baseAnchor.base_shares : null,
+    pe: null, ev_ebitda: null, fcf_yield: null,
+    is_historic: true,
+    is_base: true
+  };
+  // Forward rows from computed
+  const fwdRows = computed.years.map((yr, i) => {
+    // Determine implied price by chosen multiple. If user has overridden a per-year multiple, use that.
+    const pe_ovr   = forwardMultiples.pe[i];
+    const eve_ovr  = forwardMultiples.ev_ebitda[i];
+    const fcfy_ovr = forwardMultiples.fcf_yield[i];
+    let implied_price = computed.implied_price[i];   // default from runFlowThrough using terminal_multiple
+    let pe_eff, eve_eff, fcfy_eff;
+    if(eve_ovr != null && computed.ebitda[i] && computed.shares[i]){
+      const ev = computed.ebitda[i] * eve_ovr;
+      const eq = ev - computed.net_debt[i];
+      implied_price = eq / computed.shares[i];
+    } else if(pe_ovr != null && computed.ebitda[i] && computed.shares[i]){
+      const ni = computed.ebitda[i] * (1 - 0.21);
+      implied_price = (ni * pe_ovr) / computed.shares[i];
+    } else if(fcfy_ovr != null && computed.fcf[i] && computed.shares[i]){
+      // FCF yield = FCF / Market Cap → Market Cap = FCF / yield → Price = MC / shares
+      const mc = computed.fcf[i] / fcfy_ovr;
+      implied_price = mc / computed.shares[i];
+    }
+    const market_cap = implied_price * computed.shares[i];
+    const ev = market_cap + computed.debt[i] - computed.cash[i];
+    eve_eff = (computed.ebitda[i]) ? ev / computed.ebitda[i] : null;
+    pe_eff  = (computed.ebitda[i]) ? (market_cap) / (computed.ebitda[i] * (1 - 0.21)) : null;
+    fcfy_eff = (computed.fcf[i] && market_cap) ? computed.fcf[i] / market_cap : null;
+    return {
+      year: yr,
+      revenue: computed.revenue[i], ebitda: computed.ebitda[i], fcf: computed.fcf[i],
+      shares: computed.shares[i], price: implied_price,
+      market_cap, debt: computed.debt[i], cash: computed.cash[i], ev,
+      net_debt: computed.net_debt[i],
+      net_debt_ebitda: computed.ebitda[i] ? computed.net_debt[i] / computed.ebitda[i] : null,
+      cash_per_share: computed.shares[i] ? computed.cash[i] / computed.shares[i] : null,
+      pe: pe_eff, ev_ebitda: eve_eff, fcf_yield: fcfy_eff,
+      pe_user: pe_ovr, ev_ebitda_user: eve_ovr, fcf_yield_user: fcfy_ovr,
+      is_historic: false,
+      idx: i
+    };
+  });
+
+  const allRows = [...histRows, baseRow, ...fwdRows];
+  const lineDefs = [
+    { k:'price', l:'Price per share', fmt:fmtPx, bold:true },
+    { k:'shares', l:'Adj. shares out ($M)', fmt: v=>v==null?'—':Number(v).toFixed(0) },
+    { k:'market_cap', l:'Market Cap ($M)', fmt:fmtM },
+    { k:'debt', l:'+ Debt & Preferred ($M)', fmt:fmtM },
+    { k:'cash', l:'− Cash ($M)', fmt:fmtM },
+    { k:'ev', l:'Enterprise value ($M)', fmt:fmtM, bold:true },
+    { k:'net_debt_ebitda', l:'Net Debt / EBITDA', fmt: v=>v==null?'—':Number(v).toFixed(2)+'x' },
+    { k:'cash_per_share', l:'Cash per share', fmt:fmtPx },
+    { k:'pe', l:'P/E', editable:true, fmt: v=>v==null?'—':Number(v).toFixed(1)+'x' },
+    { k:'ev_ebitda', l:'EV / EBITDA', editable:true, fmt: v=>v==null?'—':Number(v).toFixed(1)+'x' },
+    { k:'fcf_yield', l:'FCF Yield', editable:true, fmt: v=>v==null?'—':(Number(v)*100).toFixed(1)+'%' }
+  ];
+
+  let html = '<thead><tr><th>Line</th>';
+  for(const r of allRows){
+    const cls = r.is_historic ? (r.is_base ? 'style="background:var(--bg-blue-soft)"' : 'style="color:var(--text-muted)"') : '';
+    html += `<th ${cls}>${r.year}${r.is_base?' base':''}${r.is_historic && !r.is_base?' (h)':''}</th>`;
+  }
+  html += '</tr></thead><tbody>';
+
+  for(const def of lineDefs){
+    html += `<tr class="${def.bold?'bold-row':''}"><td class="row-label">${esc(def.l)}</td>`;
+    for(const r of allRows){
+      const v = r[def.k];
+      const formatted = def.fmt ? def.fmt(v) : (v==null?'—':v);
+      if(def.editable && !r.is_historic && !r.is_base){
+        // editable forward valuation
+        const userKey = def.k + '_user';
+        const userVal = r[userKey];
+        const displayVal = userVal != null
+          ? (def.k === 'fcf_yield' ? (Number(userVal)*100).toFixed(2) : Number(userVal).toFixed(2))
+          : (v != null ? (def.k === 'fcf_yield' ? (Number(v)*100).toFixed(2) : Number(v).toFixed(2)) : '');
+        const placeholder = v != null ? (def.k === 'fcf_yield' ? (Number(v)*100).toFixed(2) : Number(v).toFixed(2)) : '';
+        const hl = userVal != null ? 'background:var(--bg-blue-soft)' : '';
+        html += `<td><input class="assumption capmult" data-mult="${def.k}" data-idx="${r.idx}" type="number" step="0.5" placeholder="${placeholder}" value="${userVal != null ? displayVal : ''}" style="width:60px;${hl}"></td>`;
+      } else {
+        html += `<td>${formatted}</td>`;
+      }
+    }
+    html += '</tr>';
+  }
+  html += '</tbody>';
+  document.getElementById('capstruct-table').innerHTML = html;
+
+  // Wire the editable cells
+  document.querySelectorAll('.capmult').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const mult = e.target.dataset.mult;
+      const idx = Number(e.target.dataset.idx);
+      const raw = e.target.value;
+      if(raw === ''){
+        forwardMultiples[mult][idx] = null;
+      } else {
+        const num = Number(raw);
+        forwardMultiples[mult][idx] = (mult === 'fcf_yield') ? num / 100 : num;
+      }
+      // Propagation: a multiple change in year N affects price for year N and every year after.
+      // Because runFlowThrough uses prev_price to compute shares retired next year,
+      // we need to re-run flow-through with the multiple overrides folded in.
+      // Approach: re-run computed using a modified terminal logic per-year.
+      // Simpler: just re-render cap struct — implied_price in fwdRows is computed
+      // independently per year above (uses computed.ebitda[i] etc from the standard runFlowThrough).
+      // To make multiple changes flow into NEXT year's share count (buybacks → fewer shares),
+      // we need to re-run the cap-aware flow.
+      recomputeWithCapOverrides();
+    });
+  });
+}
+
+function recomputeWithCapOverrides(){
+  // Re-run flow-through, but inside the loop use forwardMultiples[i] if set
+  // to override the implied_price calc, which then drives shares retired NEXT year.
+  if(!baseAnchor || !assumptions) return;
+  const asm = assumptions;
+  const N = asm.years.length;
+  const out = {
+    years: asm.years.slice(),
+    revenue: [], ebitda: [], fcf: [],
+    buybacks: [], dividends: [], debt_paid: [], cash_added: [],
+    cash: [], debt: [], net_debt: [], shares: [],
+    implied_ev: [], implied_equity: [], implied_price: [],
+    cum_return: []
+  };
+  let prev_rev = baseAnchor.base_revenue;
+  let prev_cash = baseAnchor.base_cash;
+  let prev_debt = baseAnchor.base_debt;
+  let prev_shares = baseAnchor.base_shares;
+  let prev_price = baseAnchor.base_price;
+  for(let i=0; i<N; i++){
+    const rev = prev_rev * (1 + asm.rev_growth[i]);
+    const ebitda = rev * asm.ebitda_margin[i];
+    const fcf = ebitda * asm.fcf_conversion[i];
+    const buyback = fcf * asm.buyback_pct_of_fcf[i];
+    const dividend = fcf * asm.dividend_pct_of_fcf[i];
+    const debt_pay = fcf * asm.debt_paydown_pct_of_fcf[i];
+    const cash_add = fcf - buyback - dividend - debt_pay;
+    const debt_new = Math.max(0, prev_debt - debt_pay);
+    const cash_new = prev_cash + cash_add;
+    const net_debt = debt_new - cash_new;
+    const shares_retired = prev_price > 0 ? buyback / prev_price : 0;
+    const shares_new = Math.max(0.1, prev_shares - shares_retired);
+
+    // Per-year multiple override
+    const pe_ovr = forwardMultiples.pe[i];
+    const eve_ovr = forwardMultiples.ev_ebitda[i];
+    const fcfy_ovr = forwardMultiples.fcf_yield[i];
+    let implied_ev, implied_equity, implied_price;
+    if(eve_ovr != null){
+      implied_ev = ebitda * eve_ovr;
+      implied_equity = implied_ev - net_debt;
+      implied_price = implied_equity / shares_new;
+    } else if(pe_ovr != null){
+      const ni = ebitda * (1 - 0.21);
+      implied_price = (ni * pe_ovr) / shares_new;
+      implied_ev = null;
+      implied_equity = ni * pe_ovr;
+    } else if(fcfy_ovr != null){
+      const mc = fcf / fcfy_ovr;
+      implied_price = mc / shares_new;
+      implied_equity = mc;
+      implied_ev = mc + debt_new - cash_new;
+    } else if(asm.terminal_multiple_type === 'ev_ebitda'){
+      implied_ev = ebitda * asm.terminal_multiple;
+      implied_equity = implied_ev - net_debt;
+      implied_price = implied_equity / shares_new;
+    } else if(asm.terminal_multiple_type === 'pe'){
+      const ni = ebitda * (1 - 0.21);
+      implied_price = (ni * asm.terminal_multiple) / shares_new;
+      implied_ev = null;
+      implied_equity = ni * asm.terminal_multiple;
+    } else {
+      implied_ev = rev * asm.terminal_multiple;
+      implied_equity = implied_ev - net_debt;
+      implied_price = implied_equity / shares_new;
+    }
+
+    out.revenue.push(rev); out.ebitda.push(ebitda); out.fcf.push(fcf);
+    out.buybacks.push(buyback); out.dividends.push(dividend);
+    out.debt_paid.push(debt_pay); out.cash_added.push(cash_add);
+    out.cash.push(cash_new); out.debt.push(debt_new); out.net_debt.push(net_debt);
+    out.shares.push(shares_new);
+    out.implied_ev.push(implied_ev); out.implied_equity.push(implied_equity);
+    out.implied_price.push(implied_price);
+    out.cum_return.push((implied_price / baseAnchor.base_price) - 1);
+
+    prev_rev = rev; prev_cash = cash_new; prev_debt = debt_new;
+    prev_shares = shares_new; prev_price = implied_price;
+  }
+  computed = out;
+  // bear / bull from raw assumptions w/ multiple shock
+  const tm = asm.terminal_multiple;
+  const bear = runFlowThrough(baseAnchor, { ...asm, terminal_multiple: tm * 0.7 });
+  const bull = runFlowThrough(baseAnchor, { ...asm, terminal_multiple: tm * 1.3 });
+  computed.bear_implied_price = bear.implied_price[bear.implied_price.length-1];
+  computed.bull_implied_price = bull.implied_price[bull.implied_price.length-1];
+  computed.implied_price_terminal = computed.implied_price[computed.implied_price.length-1];
+  computed.cumulative_return_pct = (computed.implied_price_terminal / baseAnchor.base_price) - 1;
+  computed.annualized_return = Math.pow(computed.implied_price_terminal / baseAnchor.base_price, 1/5) - 1;
+
+  renderFlowthrough(computed);
+  renderSummaryTiles(computed);
+  renderCapStruct();
+  renderSensitivity();
 }
 
 function renderFlowthrough(c){
@@ -540,12 +817,13 @@ async function saveScenario(){
   // mark all existing models for this ticker as inactive first
   await sb.from('thesis_models').update({ is_active: false }).eq('user_id', currentUser.id).eq('ticker', currentTicker);
 
+  const assumptionsToSave = { ...assumptions, forward_multiples: forwardMultiples };
   const payload = {
     user_id: currentUser.id,
     ticker: currentTicker,
     scenario_label: label,
     ...baseAnchor,
-    assumptions,
+    assumptions: assumptionsToSave,
     computed,
     is_active: true
   };
