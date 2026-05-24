@@ -179,6 +179,10 @@
             <label>Target year</label>
             <select id="sens-year" onchange="window._rerenderSens()"></select>
           </div>
+          <div class="field" style="margin:0">
+            <label>Center value (override)</label>
+            <input id="sens-center" type="number" step="0.5" placeholder="auto" style="width:100px" oninput="window._rerenderSens()">
+          </div>
           <div class="field-hint" style="margin:0">Multiple expansion + revenue growth combinations at this target year.</div>
         </div>
         <table class="sens-table" id="sens-table"></table>
@@ -332,9 +336,9 @@ async function onTickerChange(){
   }
   // Pick best base-anchor row: prefer FY estimate or daily snapshot, else most recent FY actual
   let f = null;
-  // Look for analyst-estimate row first
+  // Look for current-FY estimate row first (synthetic or analyst)
   for(const row of allFund){
-    if(row.data_source === 'fmp_analyst_estimate'){ f = row; break; }
+    if(row.data_source === 'fmp_analyst_estimate' || row.data_source === 'synthetic_current_fy' || row.data_source === 'fmp_estimate_current_fy'){ f = row; break; }
   }
   // Then look for any row dated within last 30 days (daily snapshot)
   if(!f){
@@ -662,18 +666,28 @@ function renderCapStruct(){
   // Build full year list: historical years + base + forward years
   const histRows = historicalCap.slice(historicalCap._displayStart || 0);
   // Add base year as bridge
+  // For base year FCF: use avg FCF/EBITDA conversion ratio from historic rows
+  const histFcfConv = historicalCap.map(h => (h.fcf && h.ebitda && h.ebitda > 0) ? h.fcf / h.ebitda : null)
+                                    .filter(v => v != null && v > 0 && v < 2);
+  const avgFcfConv = histFcfConv.length ? histFcfConv.reduce((a,b)=>a+b,0)/histFcfConv.length : 0.85;
+  const baseFCF = baseAnchor.base_ebitda * avgFcfConv;
+  const baseMC = baseAnchor.base_shares * baseAnchor.base_price;
+  const baseEV = baseMC + baseAnchor.base_debt - baseAnchor.base_cash;
+  const baseNI = baseAnchor.base_ebitda * (1 - 0.21);
   const baseRow = {
     year: baseAnchor.base_year,
     revenue: baseAnchor.base_revenue, ebitda: baseAnchor.base_ebitda,
-    fcf: baseAnchor.base_ebitda * 0.85,
+    fcf: baseFCF,
     shares: baseAnchor.base_shares, price: baseAnchor.base_price,
-    market_cap: baseAnchor.base_shares * baseAnchor.base_price,
+    market_cap: baseMC,
     debt: baseAnchor.base_debt, cash: baseAnchor.base_cash,
-    ev: (baseAnchor.base_shares * baseAnchor.base_price) + baseAnchor.base_debt - baseAnchor.base_cash,
+    ev: baseEV,
     net_debt: baseAnchor.base_debt - baseAnchor.base_cash,
     net_debt_ebitda: baseAnchor.base_ebitda ? (baseAnchor.base_debt - baseAnchor.base_cash) / baseAnchor.base_ebitda : null,
     cash_per_share: baseAnchor.base_shares ? baseAnchor.base_cash / baseAnchor.base_shares : null,
-    pe: null, ev_ebitda: null, fcf_yield: null,
+    pe: (baseMC > 0 && baseNI > 0) ? baseMC / baseNI : null,
+    ev_ebitda: (baseEV > 0 && baseAnchor.base_ebitda > 0) ? baseEV / baseAnchor.base_ebitda : null,
+    fcf_yield: (baseFCF != null && baseMC > 0) ? baseFCF / baseMC : null,
     is_historic: true,
     is_base: true
   };
@@ -900,6 +914,11 @@ function renderFlowthrough(c){
   // Compute base-year Implied EV / Equity from current price × shares + net debt
   const baseImpliedEquity = (baseAnchor.base_shares && baseAnchor.base_price) ? baseAnchor.base_shares * baseAnchor.base_price : null;
   const baseImpliedEV = (baseImpliedEquity != null && baseAnchor.base_debt != null && baseAnchor.base_cash != null) ? baseImpliedEquity + baseAnchor.base_debt - baseAnchor.base_cash : null;
+  // Base FCF: ebitda × avg historic FCF/EBITDA conversion
+  const histFcfConvFlow = historicalCap.map(h => (h.fcf && h.ebitda && h.ebitda > 0) ? h.fcf / h.ebitda : null)
+                                       .filter(v => v != null && v > 0 && v < 2);
+  const avgFcfConvFlow = histFcfConvFlow.length ? histFcfConvFlow.reduce((a,b)=>a+b,0)/histFcfConvFlow.length : 0.85;
+  const baseFCFflow = (baseAnchor.base_ebitda != null) ? baseAnchor.base_ebitda * avgFcfConvFlow : null;
 
   // Build a per-row value array spanning historic + base + forward
   function row(label, fmt, histKey, baseVal, fwdArr, opts) {
@@ -912,8 +931,16 @@ function renderFlowthrough(c){
   const rows = [
     row('Revenue ($M)',     fmtM, 'revenue', baseAnchor.base_revenue, c.revenue),
     row('EBITDA ($M)',      fmtM, 'ebitda',  baseAnchor.base_ebitda,  c.ebitda),
-    row('FCF ($M)',         fmtM, 'fcf',     null,                    c.fcf),
-    { l:'Buybacks ($M)',    fmt: fmtM, vals: [...hist.map(()=>null), null, ...c.buybacks] },
+    row('FCF ($M)',         fmtM, 'fcf',     baseFCFflow,             c.fcf),
+    { l:'Buybacks ($M)',    fmt: fmtM, vals: [...hist.map((h,i)=>{
+      const fullI = (historicalCap._displayStart || 0) + i;
+      const prev = historicalCap[fullI - 1];
+      if(prev && prev.shares && h.shares && prev.price && h.shares < prev.shares){
+        const sharesRetired = prev.shares - h.shares;
+        return sharesRetired * prev.price;  // approximation: shares retired × prior price
+      }
+      return null;
+    }), null, ...c.buybacks] },
     row('Cash ($M)',        fmtM, 'cash',    baseAnchor.base_cash,    c.cash),
     row('Total debt ($M)',  fmtM, 'debt',    baseAnchor.base_debt,    c.debt),
     row('Net debt ($M)',    fmtM, 'net_debt',baseNetDebt,             c.net_debt),
@@ -991,24 +1018,31 @@ function renderSensitivity(){
   if(!assumptions || !computed) return;
   const sensMTInpEarly = document.getElementById('sens-mtype');
   const sensMTEarly = sensMTInpEarly ? sensMTInpEarly.value : assumptions.terminal_multiple_type;
-  // Anchor around historic avg if available; fall back to terminal_multiple input
+  // Anchor: user override if set, else historic avg, else terminal_multiple input
   const userMult = Number($('term-multiple').value);
   const histAvg = getHistoricAvg(sensMTEarly);
+  const sensCenterInp = document.getElementById('sens-center');
+  const sensCenterRaw = sensCenterInp ? sensCenterInp.value : '';
+  const userCenter = sensCenterRaw !== '' ? Number(sensCenterRaw) : null;
   let mults;
   let anchor;
+  let anchorSource;
   if(sensMTEarly === 'fcf_yield'){
-    // FCF Yield: anchor on historic avg (decimal). If none, default 5%.
-    anchor = histAvg != null ? histAvg : 0.05;
-    // Show as percentages
+    // FCF Yield: user enters as percent (e.g. 5 means 5%)
+    if(userCenter != null){ anchor = userCenter / 100; anchorSource = 'user'; }
+    else if(histAvg != null){ anchor = histAvg; anchorSource = 'historic_avg'; }
+    else { anchor = 0.05; anchorSource = 'default'; }
     const anchorPct = anchor * 100;
     mults = [anchorPct*0.6, anchorPct*0.8, anchorPct, anchorPct*1.2, anchorPct*1.4];
   } else {
-    anchor = histAvg != null ? histAvg : userMult;
+    if(userCenter != null){ anchor = userCenter; anchorSource = 'user'; }
+    else if(histAvg != null){ anchor = histAvg; anchorSource = 'historic_avg'; }
+    else { anchor = userMult; anchorSource = 'terminal_input'; }
     mults = [anchor*0.7, anchor*0.85, anchor, anchor*1.15, anchor*1.3];
   }
   const baseMult = userMult;
   // Stash anchor info for the meta line
-  window._sensAnchor = { type: sensMTEarly, value: anchor, source: histAvg != null ? 'historic_avg' : 'user_input' };
+  window._sensAnchor = { type: sensMTEarly, value: anchor, source: anchorSource };
   const growthDeltas = [-0.02, -0.01, 0, 0.01, 0.02];
   // Determine sensitivity target year (default: 3rd forward year, e.g. 2029 if base=2026)
   const sensYrInp = document.getElementById('sens-year');
@@ -1041,7 +1075,7 @@ function renderSensitivity(){
   if(metaEl && window._sensAnchor){
     const a = window._sensAnchor;
     const valStr = a.type === 'fcf_yield' ? (a.value*100).toFixed(2)+'%' : a.value.toFixed(1)+'x';
-    metaEl.textContent = `Anchor ${valStr} ${a.source === 'historic_avg' ? '(3yr avg)' : '(user input)'} · target year ${sensYr}`;
+    metaEl.textContent = `Anchor ${valStr} (${a.source === 'historic_avg' ? '3yr avg' : a.source === 'user' ? 'user override' : a.source === 'default' ? 'default' : 'terminal input'}) · target year ${sensYr}`;
   }
   html += '</tbody>';
   $('sens-table').innerHTML = html;
