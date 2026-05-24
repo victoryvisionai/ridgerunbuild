@@ -84,7 +84,7 @@
 
     <div class="banner-card">
       <div class="banner-head">
-        <h2>Base anchor</h2>
+        <h2>Current FY anchor</h2>
         <span class="banner-meta" id="base-year-meta">—</span>
       </div>
       <div class="banner-body">
@@ -132,7 +132,7 @@
         <span class="banner-meta">Year-by-year cap structure</span>
       </div>
       <div class="banner-body">
-        <p class="h2-sub">Revenue → EBITDA → FCF → capital allocated → cash/debt/shares. Each year compounds from the prior.</p>
+        <p class="h2-sub">Revenue × growth → Revenue. Revenue × EBITDA margin → EBITDA. EBITDA × FCF conversion → FCF. FCF allocated to buybacks / dividends / debt paydown; remainder builds cash. Net debt = total debt − cash carries to next year.</p>
         <table class="model-table" id="flowthrough-table"></table>
       </div>
     </div>
@@ -161,7 +161,7 @@
     <div class="banner-card">
       <div class="banner-head">
         <h2>Sensitivity matrix</h2>
-        <span class="banner-meta">Cumulative return % at target year</span>
+        <span class="banner-meta" id="sens-meta">Cumulative return % at target year</span>
       </div>
       <div class="banner-body">
         <p class="h2-sub">Multiple type (columns) × revenue growth shift (rows). Each cell = cum return % from base price to implied price at the target year.</p>
@@ -353,7 +353,9 @@ async function onTickerChange(){
       base_shares:  f?.raw_data?.shares_outstanding ? Math.round(f.raw_data.shares_outstanding/1e6) : 1000,
       base_cash:    f?.cash ? Math.round(f.cash/1e6) : 1000,
       base_debt:    f?.total_debt ? Math.round(f.total_debt/1e6) : 1000,
-      base_price:   f?.raw_data?.price ? Number(f.raw_data.price) : 100
+      base_price:   (f?.raw_data?.price ? Number(f.raw_data.price) : null)
+                  ?? (f?.market_cap && f?.raw_data?.shares_outstanding ? Number(f.market_cap) / Number(f.raw_data.shares_outstanding) : null)
+                  ?? 100
     };
     assumptions = defaultAssumptions(f);
     $('term-multiple').value = assumptions.terminal_multiple;
@@ -403,7 +405,7 @@ function renderBaseGrid(){
       <input type="number" data-bk="${f.k}" step="${f.step}" value="${baseAnchor[f.k] ?? 0}">
     </div>
   `).join('');
-  $('base-year-meta').textContent = `Base year ${baseAnchor.base_year}`;
+  $('base-year-meta').textContent = `FY${baseAnchor.base_year} (current)`;
   document.querySelectorAll('[data-bk]').forEach(inp=>{
     inp.addEventListener('input', e=>{
       baseAnchor[e.target.dataset.bk] = Number(e.target.value);
@@ -431,12 +433,26 @@ function renderAssumptionsTable(){
     { k:'debt_paydown_pct_of_fcf', l:'Debt paydown % of FCF', histFn: null }
   ];
   const fmtPctH = v => (v==null||isNaN(v))?'—':(Number(v)*100).toFixed(1)+'%';
+  // Build base-year-equivalent value for each driver (read-only display)
+  // For rev_growth/ebitda_margin/fcf_conversion we can derive from baseAnchor; capital allocation we don't know historically/at-base so dash.
+  function baseVal(rowKey){
+    if(rowKey === 'rev_growth'){
+      // YoY from last historic year
+      const lastHist = hist[hist.length-1];
+      if(lastHist?.revenue && baseAnchor.base_revenue) return (baseAnchor.base_revenue / lastHist.revenue) - 1;
+      return null;
+    }
+    if(rowKey === 'ebitda_margin') return baseAnchor.base_ebitda && baseAnchor.base_revenue ? baseAnchor.base_ebitda / baseAnchor.base_revenue : null;
+    if(rowKey === 'fcf_conversion') return 0.85;  // shown as implied default
+    return null;
+  }
   const html = `
-    <thead><tr><th>Driver</th>${hist.map(h=>`<th style="color:var(--text-muted)">FY${h.year} (h)</th>`).join('')}${yrs.map(y=>`<th>FY${y}</th>`).join('')}</tr></thead>
+    <thead><tr><th>Driver</th>${hist.map(h=>`<th style="color:var(--text-muted)">FY${h.year} (h)</th>`).join('')}<th style="background:var(--bg-blue-soft)">FY${baseAnchor.base_year}</th>${yrs.map(y=>`<th>FY${y}</th>`).join('')}</tr></thead>
     <tbody>${rows.map(r=>`
       <tr>
         <td class="row-label">${esc(r.l)}</td>
         ${hist.map((h,i)=>`<td style="color:var(--text-muted)">${r.histFn ? fmtPctH(r.histFn(i)) : '—'}</td>`).join('')}
+        <td style="background:var(--bg-blue-soft); color:var(--text-muted)">${fmtPctH(baseVal(r.k))}</td>
         ${assumptions[r.k].map((v,i)=>`<td><input class="assumption" data-row="${r.k}" data-idx="${i}" type="number" step="0.5" value="${(Number(v)*100).toFixed(1)}"></td>`).join('')}
       </tr>
     `).join('')}</tbody>
@@ -688,7 +704,7 @@ function renderCapStruct(){
   let html = '<thead><tr><th>Line</th>';
   for(const r of allRows){
     const cls = r.is_historic ? (r.is_base ? 'style="background:var(--bg-blue-soft)"' : 'style="color:var(--text-muted)"') : '';
-    html += `<th ${cls}>FY${r.year}${r.is_base?' base':''}${r.is_historic && !r.is_base?' (h)':''}</th>`;
+    html += `<th ${cls}>FY${r.year}${r.is_historic && !r.is_base?' (h)':''}</th>`;
   }
   html += '</tr></thead><tbody>';
 
@@ -906,37 +922,54 @@ function populateSensYear(){
   if(mt && assumptions) mt.value = assumptions.terminal_multiple_type;
 }
 
+function getHistoricAvg(metric){
+  // metric: 'pe' | 'ev_ebitda' | 'fcf_yield' | 'ev_revenue'
+  const vals = historicalCap.map(h => h[metric]).filter(v => v != null && !isNaN(v) && isFinite(v));
+  // For multiples, drop outliers (negative, or > 100x for P/E and EV/EBITDA)
+  const cleaned = vals.filter(v => {
+    if(metric === 'fcf_yield') return v > 0 && v < 0.30;  // 0-30% yield range reasonable
+    return v > 0 && v < 100;
+  });
+  if(!cleaned.length) return null;
+  return cleaned.reduce((s,v) => s+v, 0) / cleaned.length;
+}
+
 function renderSensitivity(){
   if(!assumptions || !computed) return;
   const sensMTInpEarly = document.getElementById('sens-mtype');
   const sensMTEarly = sensMTInpEarly ? sensMTInpEarly.value : assumptions.terminal_multiple_type;
+  // Anchor around historic avg if available; fall back to terminal_multiple input
+  const userMult = Number($('term-multiple').value);
+  const histAvg = getHistoricAvg(sensMTEarly);
   let mults;
+  let anchor;
   if(sensMTEarly === 'fcf_yield'){
-    mults = [3, 4, 5, 6, 7];   // yield percentages
-  } else if(sensMTEarly === 'pe'){
-    const base = Number($('term-multiple').value);
-    mults = [base*0.7, base*0.85, base, base*1.15, base*1.3];
+    // FCF Yield: anchor on historic avg (decimal). If none, default 5%.
+    anchor = histAvg != null ? histAvg : 0.05;
+    // Show as percentages
+    const anchorPct = anchor * 100;
+    mults = [anchorPct*0.6, anchorPct*0.8, anchorPct, anchorPct*1.2, anchorPct*1.4];
   } else {
-    const base = Number($('term-multiple').value);
-    mults = [base*0.7, base*0.85, base, base*1.15, base*1.3];
+    anchor = histAvg != null ? histAvg : userMult;
+    mults = [anchor*0.7, anchor*0.85, anchor, anchor*1.15, anchor*1.3];
   }
-  const baseMult = Number($('term-multiple').value);
+  const baseMult = userMult;
+  // Stash anchor info for the meta line
+  window._sensAnchor = { type: sensMTEarly, value: anchor, source: histAvg != null ? 'historic_avg' : 'user_input' };
   const growthDeltas = [-0.04, -0.02, 0, 0.02, 0.04];
   // Determine sensitivity target year (default: 3rd forward year, e.g. 2029 if base=2026)
   const sensYrInp = document.getElementById('sens-year');
   const sensYr = sensYrInp ? Number(sensYrInp.value) : assumptions.years[2];
   const sensIdx = assumptions.years.indexOf(sensYr);
   const targetIdx = sensIdx >= 0 ? sensIdx : assumptions.years.length - 1;
-  // Multiple type selector
-  const sensMTInp = document.getElementById('sens-mtype');
-  const sensMT = sensMTInp ? sensMTInp.value : assumptions.terminal_multiple_type;
-  let html = `<thead><tr><th>Δ growth → / multiple ↓</th>${mults.map(m=>`<th>${m.toFixed(1)}x</th>`).join('')}</tr></thead><tbody>`;
+  const unitSuffix = sensMTEarly === 'fcf_yield' ? '%' : 'x';
+  let html = `<thead><tr><th>Δ growth → / multiple ↓</th>${mults.map(m=>`<th>${m.toFixed(1)}${unitSuffix}</th>`).join('')}</tr></thead><tbody>`;
   for(const dg of growthDeltas){
     html += `<tr><td class="axis">${dg>0?'+':''}${(dg*100).toFixed(0)}pp</td>`;
     for(const m of mults){
       const asm2 = JSON.parse(JSON.stringify(assumptions));
       asm2.terminal_multiple = m;
-      asm2.terminal_multiple_type = sensMT;
+      asm2.terminal_multiple_type = sensMTEarly;
       asm2.rev_growth = asm2.rev_growth.map(g=>g+dg);
       const out = runFlowThrough(baseAnchor, asm2);
       const priceAtIdx = out.implied_price[targetIdx];
@@ -949,6 +982,13 @@ function renderSensitivity(){
       html += `<td class="sens-cell" style="background:${bg}">${fmtPct(ret,0)}</td>`;
     }
     html += '</tr>';
+  }
+  // Update meta line
+  const metaEl = document.getElementById('sens-meta');
+  if(metaEl && window._sensAnchor){
+    const a = window._sensAnchor;
+    const valStr = a.type === 'fcf_yield' ? (a.value*100).toFixed(2)+'%' : a.value.toFixed(1)+'x';
+    metaEl.textContent = `Anchor ${valStr} ${a.source === 'historic_avg' ? '(3yr avg)' : '(user input)'} · target year ${sensYr}`;
   }
   html += '</tbody>';
   $('sens-table').innerHTML = html;
