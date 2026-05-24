@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <title>Screener · Ridge Run</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -123,6 +124,9 @@
       <button data-preset="insider">Insider-heavy quality</button>
       <button data-preset="warrant">Has warrants</button>
       <button data-preset="long-vol">Long-vol candidates (cheap IV)</button>
+      <button class="preset-btn" data-preset="asymmetric">Asymmetric upside</button>
+      <button class="preset-btn" data-preset="high-return">High implied return</button>
+      
     </div>
   </div>
 
@@ -137,6 +141,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/config.js"></script>
+<script src="/nav.js"></script>
 <script>
 (() => {
 const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = window.RR_CONFIG;
@@ -183,6 +188,7 @@ function readFilters(){
   const v = id => $(id).value === '' ? null : Number($(id).value);
   const b = id => $(id).value === '' ? null : $(id).value === 'true';
   return {
+    p_user_id: currentUser.id,
     p_max_ev_rev: v('f-max-ev-rev'),
     p_max_ev_ebitda: v('f-max-ev-ebitda'),
     p_min_fcf_yield: $('f-min-fcf-yield').value === '' ? null : Number($('f-min-fcf-yield').value) / 100,
@@ -194,6 +200,8 @@ function readFilters(){
     p_has_leaps: b('f-leaps'),
     p_has_warrants: b('f-warrants'),
     p_sectors: $('f-sector').value ? [$('f-sector').value] : null,
+    p_min_asymmetry: $('f-min-asymmetry') && $('f-min-asymmetry').value !== '' ? Number($('f-min-asymmetry').value) : null,
+    p_min_implied_return: $('f-min-implied-return') && $('f-min-implied-return').value !== '' ? Number($('f-min-implied-return').value) / 100 : null,
     p_limit: Math.min(200, Math.max(1, Number($('f-limit').value)||50))
   };
 }
@@ -226,9 +234,18 @@ function applyPreset(name){
       $('f-warrants').value = 'true';
       break;
     case 'long-vol':
-      // After screen, results will be cross-referenced with vol_snapshots for IV rank
       $('f-leaps').value = 'true';
-      flash('Long-vol candidates: results will be enriched with IV rank. Cheap IV (rank <25) shown in green.','info');
+      flash('Long-vol candidates: results enriched with IV rank. Cheap IV (rank <25) shown in green.','info');
+      break;
+    case 'asymmetric':
+      const asymInp = document.getElementById('f-min-asymmetry');
+      if(asymInp) asymInp.value = '2';
+      flash('Asymmetric upside: filtering for tickers where bull-case upside ≥ 2× bear-case downside (requires active thesis model).','info');
+      break;
+    case 'high-return':
+      const retInp = document.getElementById('f-min-implied-return');
+      if(retInp) retInp.value = '15';
+      flash('High implied return: filtering for tickers with active models projecting ≥15% annualized return.','info');
       break;
   }
   runScreen();
@@ -280,12 +297,14 @@ function renderResults(){
     { key:'company_name',     label:'Company',       sortable:false },
     { key:'sector',           label:'Sector',        sortable:false },
     { key:'market_cap',       label:'Mkt Cap',       sortable:true, fmt:fmtBig },
-    { key:'ev_revenue_ntm',   label:'EV/Rev NTM',    sortable:true, fmt:fmtMult },
     { key:'ev_ebitda_ntm',    label:'EV/EBITDA',     sortable:true, fmt:fmtMult },
     { key:'fcf_yield_ntm',    label:'FCF Yield',     sortable:true, fmt:fmtPct, color:true },
     { key:'rev_growth_ntm',   label:'Rev Gr NTM',    sortable:true, fmt:fmtPct, color:true },
-    { key:'net_debt_ebitda',  label:'ND/EBITDA',     sortable:true, fmt:v=>v==null?'—':v.toFixed(1)+'x' },
-    { key:'insider_ownership_pct', label:'Insider %', sortable:true, fmt:fmtPct },
+    { key:'model_cum_return_yr5',   label:'Implied 5yr', sortable:true, fmt:fmtPct, color:true },
+    { key:'model_annualized_return',label:'Ann %',       sortable:true, fmt:fmtPct, color:true },
+    { key:'margin_of_safety',       label:'MoS',         sortable:true, fmt:fmtPct },
+    { key:'asymmetry',              label:'Asym',        sortable:true, fmt:v=>v==null?'—':v.toFixed(2)+'x' },
+    { key:'vol_adj_rr',             label:'VolAdjRR',    sortable:true, fmt:v=>v==null?'—':v.toFixed(2) },
     { key:'_iv_rank',         label:'IV Rank',       sortable:true, fmt:v=>v==null?'—':v.toFixed(0) },
     { key:'_actions',         label:'',              sortable:false }
   ];
@@ -302,10 +321,10 @@ function renderResults(){
   const rowsHtml = sorted.map(r=>{
     return '<tr>' + cols.map(c=>{
       if(c.key === '_actions'){
-        return `<td style="text-align:right"><a href="/research.html?t=${esc(r.ticker)}" class="pill" style="text-decoration:none;cursor:pointer">Research →</a></td>`;
+        return `<td style="text-align:right"><a href="/model.html?ticker=${esc(r.ticker)}" class="pill" style="text-decoration:none;cursor:pointer;margin-right:4px">Model →</a><a href="/research.html?ticker=${esc(r.ticker)}" class="pill" style="text-decoration:none;cursor:pointer">Research →</a></td>`;
       }
       if(c.key === 'ticker'){
-        return `<td><b><a href="/research.html?t=${esc(r.ticker)}" style="color:var(--accent);text-decoration:none">${esc(r.ticker)}</a></b></td>`;
+        return `<td><b><a href="/research.html?ticker=${esc(r.ticker)}" style="color:var(--accent);text-decoration:none">${esc(r.ticker)}</a></b>${r.has_active_model?' <span class="pill ok" style="font-size:8px;padding:1px 4px">model</span>':''}</td>`;
       }
       if(c.key === '_iv_rank'){
         const v = r._vol?.iv_rank_1y;
