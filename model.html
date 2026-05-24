@@ -252,16 +252,58 @@ async function onTickerChange(){
   }
 
   // load all fundamentals history (for historical cap structure)
-  const { data: histRows } = await sb.from('company_fundamentals').select('*').eq('ticker',t).order('as_of_date',{ascending:true});
-  const allFund = histRows || [];
+  let { data: histRows } = await sb.from('company_fundamentals').select('*').eq('ticker',t).order('as_of_date',{ascending:true});
+  let allFund = histRows || [];
+
+  // Auto-backfill: if we have <3 prior-year rows, fire the historical backfill webhook and poll
+  const currentYear = new Date().getFullYear();
+  const priorYears = new Set();
+  for(const row of allFund){
+    const yr = new Date(row.as_of_date).getFullYear();
+    if(yr < currentYear) priorYears.add(yr);
+  }
+  if(priorYears.size < 3){
+    flash(`Loading 4-year history for ${t} from FMP… (one-time, ~5 sec)`, 'info');
+    try {
+      await fetch('https://victoryvision.app.n8n.cloud/webhook/historical/backfill', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ticker: t, limit: 4 })
+      });
+      // Poll for new rows (up to 10 sec)
+      let attempts = 0;
+      while(attempts < 10){
+        await new Promise(r => setTimeout(r, 1000));
+        const { data: newRows } = await sb.from('company_fundamentals')
+          .select('*').eq('ticker', t).order('as_of_date',{ascending:true});
+        const newPriorYears = new Set();
+        for(const row of (newRows||[])){
+          const yr = new Date(row.as_of_date).getFullYear();
+          if(yr < currentYear) newPriorYears.add(yr);
+        }
+        if(newPriorYears.size >= 3){
+          allFund = newRows;
+          flash(`Historical data loaded.`, 'success');
+          break;
+        }
+        attempts++;
+      }
+      if(attempts >= 10){
+        flash(`Backfill triggered but historical rows not visible yet — check back in a moment, or FMP may not have data for this ticker.`, 'warning');
+      }
+    } catch(e){
+      flash(`Could not auto-backfill history: ${e.message}. Forward model still works; historic columns will be empty.`, 'warning');
+    }
+  }
+
   // Reduce to one row per calendar year (most recent in that year)
   const byYear = {};
   for(const row of allFund){
     const yr = new Date(row.as_of_date).getFullYear();
-    byYear[yr] = row;  // last wins (later date)
+    byYear[yr] = row;
   }
   const histYears = Object.keys(byYear).map(Number).sort();
-  historicalCap = histYears.slice(-3).map(yr => buildHistoricalRow(yr, byYear[yr]));
+  historicalCap = histYears.filter(y => y < currentYear).slice(-3).map(yr => buildHistoricalRow(yr, byYear[yr]));
   const f = allFund[allFund.length-1];
 
   // load active model if exists
