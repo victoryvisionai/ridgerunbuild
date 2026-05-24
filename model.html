@@ -330,7 +330,22 @@ async function onTickerChange(){
   } else {
     historicalCap._displayStart = 0;
   }
-  const f = allFund[allFund.length-1];
+  // Pick best base-anchor row: prefer FY estimate or daily snapshot, else most recent FY actual
+  let f = null;
+  // Look for analyst-estimate row first
+  for(const row of allFund){
+    if(row.data_source === 'fmp_analyst_estimate'){ f = row; break; }
+  }
+  // Then look for any row dated within last 30 days (daily snapshot)
+  if(!f){
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
+    const cutoffStr = cutoff.toISOString().slice(0,10);
+    for(let idx = allFund.length - 1; idx >= 0; idx--){
+      if(allFund[idx].as_of_date > cutoffStr){ f = allFund[idx]; break; }
+    }
+  }
+  // Fall back to most recent row
+  if(!f) f = allFund[allFund.length-1];
 
   // load active model if exists
   const { data: existingActive } = await sb.from('thesis_models').select('*').eq('user_id', currentUser.id).eq('ticker',t).eq('is_active',true).order('updated_at',{ascending:false}).limit(1);
@@ -882,6 +897,9 @@ function renderFlowthrough(c){
   const histYrs = hist.map(h => h.year);
   const baseY = baseAnchor.base_year;
   const cols = [...histYrs, baseY, ...yrs];
+  // Compute base-year Implied EV / Equity from current price × shares + net debt
+  const baseImpliedEquity = (baseAnchor.base_shares && baseAnchor.base_price) ? baseAnchor.base_shares * baseAnchor.base_price : null;
+  const baseImpliedEV = (baseImpliedEquity != null && baseAnchor.base_debt != null && baseAnchor.base_cash != null) ? baseImpliedEquity + baseAnchor.base_debt - baseAnchor.base_cash : null;
 
   // Build a per-row value array spanning historic + base + forward
   function row(label, fmt, histKey, baseVal, fwdArr, opts) {
@@ -900,8 +918,8 @@ function renderFlowthrough(c){
     row('Total debt ($M)',  fmtM, 'debt',    baseAnchor.base_debt,    c.debt),
     row('Net debt ($M)',    fmtM, 'net_debt',baseNetDebt,             c.net_debt),
     { l:'Shares out (M)',   fmt: v=>(v==null)?'—':Number(v).toFixed(0)+'M', vals: [...hist.map(h=>h.shares), baseAnchor.base_shares, ...c.shares] },
-    { l:'Implied EV ($M)',  fmt: fmtM, vals: [...hist.map(h=>h.ev), null, ...c.implied_ev] },
-    { l:'Implied equity ($M)', fmt: fmtM, vals: [...hist.map(h=>h.market_cap), null, ...c.implied_equity] },
+    { l:'Implied EV ($M)',  fmt: fmtM, vals: [...hist.map(h=>h.ev), baseImpliedEV, ...c.implied_ev] },
+    { l:'Implied equity ($M)', fmt: fmtM, vals: [...hist.map(h=>h.market_cap), baseImpliedEquity, ...c.implied_equity] },
     { l:'Price',            fmt: fmtPx, vals: [...hist.map(h=>h.price), baseAnchor.base_price, ...c.implied_price], bold: true },
     { l:'Cum return %',     fmt: fmtPct, vals: [...hist.map(()=>null), 0, ...c.cum_return], bold: true, color: true }
   ];
@@ -991,7 +1009,7 @@ function renderSensitivity(){
   const baseMult = userMult;
   // Stash anchor info for the meta line
   window._sensAnchor = { type: sensMTEarly, value: anchor, source: histAvg != null ? 'historic_avg' : 'user_input' };
-  const growthDeltas = [-0.04, -0.02, 0, 0.02, 0.04];
+  const growthDeltas = [-0.02, -0.01, 0, 0.01, 0.02];
   // Determine sensitivity target year (default: 3rd forward year, e.g. 2029 if base=2026)
   const sensYrInp = document.getElementById('sens-year');
   const sensYr = sensYrInp ? Number(sensYrInp.value) : assumptions.years[2];
