@@ -172,6 +172,7 @@
               <option value="ev_ebitda">EV / EBITDA</option>
               <option value="pe">P/E</option>
               <option value="ev_revenue">EV / Revenue</option>
+              <option value="fcf_yield">FCF Yield</option>
             </select>
           </div>
           <div class="field" style="margin:0">
@@ -413,19 +414,29 @@ function renderBaseGrid(){
 
 function renderAssumptionsTable(){
   const yrs = assumptions.years;
+  // Compute historic values from historicalCap rows
+  // Need rev_growth (y/y), ebitda_margin, fcf_margin (as proxy for fcf conv)
+  const hist = historicalCap;  // array sorted ascending year
+  function histRev(i){ return (i>0 && hist[i] && hist[i-1] && hist[i].revenue && hist[i-1].revenue) ? (hist[i].revenue / hist[i-1].revenue - 1) : null; }
+  function histEM(i){ return hist[i]?.ebitda_margin ?? null; }
+  function histFM(i){ return hist[i]?.fcf_margin ?? null; }   // FCF / Revenue (not /EBITDA, but close enough as display)
+  function histFCFconv(i){ return (hist[i]?.fcf && hist[i]?.ebitda && hist[i].ebitda > 0) ? hist[i].fcf / hist[i].ebitda : null; }
+
   const rows = [
-    { k:'rev_growth',              l:'Revenue growth %',    pct:true },
-    { k:'ebitda_margin',           l:'EBITDA margin %',     pct:true },
-    { k:'fcf_conversion',          l:'FCF / EBITDA %',      pct:true },
-    { k:'buyback_pct_of_fcf',      l:'Buyback % of FCF',    pct:true },
-    { k:'dividend_pct_of_fcf',     l:'Dividend % of FCF',   pct:true },
-    { k:'debt_paydown_pct_of_fcf', l:'Debt paydown % of FCF', pct:true }
+    { k:'rev_growth',              l:'Revenue growth %',    histFn: histRev },
+    { k:'ebitda_margin',           l:'EBITDA margin %',     histFn: histEM },
+    { k:'fcf_conversion',          l:'FCF / EBITDA %',      histFn: histFCFconv },
+    { k:'buyback_pct_of_fcf',      l:'Buyback % of FCF',    histFn: null },
+    { k:'dividend_pct_of_fcf',     l:'Dividend % of FCF',   histFn: null },
+    { k:'debt_paydown_pct_of_fcf', l:'Debt paydown % of FCF', histFn: null }
   ];
+  const fmtPctH = v => (v==null||isNaN(v))?'—':(Number(v)*100).toFixed(1)+'%';
   const html = `
-    <thead><tr><th>Driver</th>${yrs.map(y=>`<th>FY${y}</th>`).join('')}</tr></thead>
+    <thead><tr><th>Driver</th>${hist.map(h=>`<th style="color:var(--text-muted)">FY${h.year} (h)</th>`).join('')}${yrs.map(y=>`<th>FY${y}</th>`).join('')}</tr></thead>
     <tbody>${rows.map(r=>`
       <tr>
         <td class="row-label">${esc(r.l)}</td>
+        ${hist.map((h,i)=>`<td style="color:var(--text-muted)">${r.histFn ? fmtPctH(r.histFn(i)) : '—'}</td>`).join('')}
         ${assumptions[r.k].map((v,i)=>`<td><input class="assumption" data-row="${r.k}" data-idx="${i}" type="number" step="0.5" value="${(Number(v)*100).toFixed(1)}"></td>`).join('')}
       </tr>
     `).join('')}</tbody>
@@ -512,7 +523,19 @@ function runFlowThrough(base, asm){
       implied_price = (ni * asm.terminal_multiple) / shares_new;
       implied_ev = null;
       implied_equity = ni * asm.terminal_multiple;
-    } else { // ev_revenue
+    } else if(asm.terminal_multiple_type === 'ev_revenue'){
+      implied_ev = rev * asm.terminal_multiple;
+      implied_equity = implied_ev - net_debt;
+      implied_price = implied_equity / shares_new;
+    } else if(asm.terminal_multiple_type === 'fcf_yield'){
+      // Multiple is fcf yield (e.g. 0.05 = 5%). Market cap = FCF / yield.
+      // Multiple input field stores it as a number like 5.0 (5%); we treat the value as percent if >1, else decimal.
+      const yieldPct = asm.terminal_multiple > 1 ? asm.terminal_multiple / 100 : asm.terminal_multiple;
+      const mc = yieldPct > 0 ? fcf / yieldPct : 0;
+      implied_equity = mc;
+      implied_ev = mc + net_debt;
+      implied_price = mc / shares_new;
+    } else {
       implied_ev = rev * asm.terminal_multiple;
       implied_equity = implied_ev - net_debt;
       implied_price = implied_equity / shares_new;
@@ -549,7 +572,8 @@ function buildHistoricalRow(year, row){
   const toM = v => (v==null || isNaN(v)) ? null : Number(v) / 1e6;
   const rev = toM(row?.raw_data?.revenue_ltm);
   const ebitda = toM(row?.raw_data?.ebitda_ltm) ?? ((rev != null && row?.ebitda_margin != null) ? rev * row.ebitda_margin : null);
-  const fcf = (rev != null && row?.fcf_margin != null) ? rev * row.fcf_margin : null;
+  const fcfRaw = row?.raw_data?.fcf_ltm;
+  const fcf = fcfRaw != null ? Number(fcfRaw) / 1e6 : ((rev != null && row?.fcf_margin != null) ? rev * row.fcf_margin : null);
   const shares = toM(row?.raw_data?.shares_outstanding);  // also in millions for consistency
   const price = row?.raw_data?.price ?? null;
   const debt = toM(row?.total_debt);
@@ -561,13 +585,24 @@ function buildHistoricalRow(year, row){
   const cps = (cash != null && shares) ? (cash * 1e6) / (shares * 1e6) * (1) : null;  // $M / Mshares = $/share
   // simpler: cps in $ = (cash $M * 1e6) / (shares M * 1e6) = cash/shares
   const cashPerShare = (cash != null && shares) ? (cash / shares) : null;
+  // FCF margin from CFFO-based FCF if available
+  const fcf_margin_calc = (fcf != null && rev) ? fcf / rev : null;
+  // EBITDA margin from underlying values
+  const ebitda_margin_calc = (ebitda != null && rev) ? ebitda / rev : row?.ebitda_margin;
+  const cffo = row?.raw_data?.cffo;
+  const capex = row?.raw_data?.capex;
   return {
     year, revenue: rev, ebitda, fcf,
-    shares,  // in millions
+    cffo: cffo != null ? Number(cffo)/1e6 : null,
+    capex: capex != null ? Number(capex)/1e6 : null,
+    fcf_per_share: (fcf != null && shares) ? fcf / shares : null,
+    shares,
     price,
     market_cap: mc, debt, cash, ev, net_debt,
     net_debt_ebitda: (net_debt != null && ebitda && ebitda > 0) ? net_debt / ebitda : row?.net_debt_ebitda,
     cash_per_share: cashPerShare,
+    ebitda_margin: ebitda_margin_calc,
+    fcf_margin: fcf_margin_calc,
     pe: row?.pe_ltm ?? null,
     ev_ebitda: (row?.ev_ebitda_ltm != null && Math.abs(row.ev_ebitda_ltm) < 200) ? row.ev_ebitda_ltm : null,
     fcf_yield: row?.fcf_yield_ltm ?? null,
@@ -767,6 +802,12 @@ function recomputeWithCapOverrides(){
       implied_price = (ni * asm.terminal_multiple) / shares_new;
       implied_ev = null;
       implied_equity = ni * asm.terminal_multiple;
+    } else if(asm.terminal_multiple_type === 'fcf_yield'){
+      const yieldPct = asm.terminal_multiple > 1 ? asm.terminal_multiple / 100 : asm.terminal_multiple;
+      const mc = yieldPct > 0 ? fcf / yieldPct : 0;
+      implied_equity = mc;
+      implied_ev = mc + net_debt;
+      implied_price = mc / shares_new;
     } else {
       implied_ev = rev * asm.terminal_multiple;
       implied_equity = implied_ev - net_debt;
@@ -866,8 +907,20 @@ function populateSensYear(){
 }
 
 function renderSensitivity(){
+  if(!assumptions || !computed) return;
+  const sensMTInpEarly = document.getElementById('sens-mtype');
+  const sensMTEarly = sensMTInpEarly ? sensMTInpEarly.value : assumptions.terminal_multiple_type;
+  let mults;
+  if(sensMTEarly === 'fcf_yield'){
+    mults = [3, 4, 5, 6, 7];   // yield percentages
+  } else if(sensMTEarly === 'pe'){
+    const base = Number($('term-multiple').value);
+    mults = [base*0.7, base*0.85, base, base*1.15, base*1.3];
+  } else {
+    const base = Number($('term-multiple').value);
+    mults = [base*0.7, base*0.85, base, base*1.15, base*1.3];
+  }
   const baseMult = Number($('term-multiple').value);
-  const mults = [baseMult*0.7, baseMult*0.85, baseMult, baseMult*1.15, baseMult*1.3];
   const growthDeltas = [-0.04, -0.02, 0, 0.02, 0.04];
   // Determine sensitivity target year (default: 3rd forward year, e.g. 2029 if base=2026)
   const sensYrInp = document.getElementById('sens-year');
