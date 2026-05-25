@@ -253,7 +253,8 @@
     });
     $('ticker-status').textContent = 'Loading…';
     $('content').innerHTML = '<div class="banner-card"><div class="banner-body"><div class="empty">Loading data for '+esc(ticker)+'…</div></div></div>';
-    await maybeBootstrap(ticker);
+    // Always fire bootstrap — refreshes API data for this ticker
+    fireBootstrap(ticker, false);
     $('content').innerHTML = renderSkeleton();
     await Promise.allSettled([
       loadHeader(ticker), loadThesis(ticker), loadStrategies(ticker), loadOptionsChain(ticker),
@@ -263,24 +264,33 @@
     $('ticker-status').textContent = 'Loaded ' + ticker;
   }
 
-  async function maybeBootstrap(ticker) {
-    try {
-      const v = await sb.from('vol_snapshots').select('ticker',{count:'exact',head:true}).eq('ticker',ticker);
-      const o = await sb.from('options_chain_snapshots').select('ticker',{count:'exact',head:true}).eq('ticker',ticker);
-      if (((v.count||0)===0) || ((o.count||0)===0)) {
-        fireBootstrap(ticker, false);
-      }
-    } catch(e){}
-  }
-
   function fireBootstrap(ticker, announce) {
-    if (announce) flash('Re-firing data webhooks for '+ticker+'. Data populates within ~30s.', 'info');
+    if (announce) flash('Refreshing data for '+ticker+' — fundamentals, options, vol, insider, analyst. Re-querying in ~10s.', 'info');
+    // Try /research/bootstrap first; if 404 or fail, fall back to firing the 5 individual webhooks.
     fetch(N8N+'/webhook/research/bootstrap', {
       method:'POST',
       headers:{'content-type':'application/json'},
-      body: JSON.stringify({ ticker })
-    }).then(()=>{ if (announce) setTimeout(()=>{ if (currentTicker===ticker) loadTicker(ticker); }, 8000); })
-      .catch(()=>{});
+      body: JSON.stringify({ ticker: ticker })
+    }).then(function(r){
+      if (!r.ok && r.status === 404) {
+        // Fallback: fire 5 webhooks in parallel
+        ['historical/backfill','insider/sync','analyst/sync','options/snap','vol/backfill'].forEach(function(p){
+          fetch(N8N+'/webhook/'+p, {
+            method:'POST', headers:{'content-type':'application/json'},
+            body: JSON.stringify({ ticker: ticker })
+          }).catch(function(){});
+        });
+      }
+      if (announce) setTimeout(function(){ if (currentTicker===ticker) loadTicker(ticker); }, 10000);
+    }).catch(function(){
+      // Network fail — fall back
+      ['historical/backfill','insider/sync','analyst/sync','options/snap','vol/backfill'].forEach(function(p){
+        fetch(N8N+'/webhook/'+p, {
+          method:'POST', headers:{'content-type':'application/json'},
+          body: JSON.stringify({ ticker: ticker })
+        }).catch(function(){});
+      });
+    });
   }
 
   function renderSkeleton() {
