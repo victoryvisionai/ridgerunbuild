@@ -52,7 +52,7 @@
 
   .results-wrap{overflow-x:auto}
   table{width:100%;border-collapse:collapse;font-size:12px;min-width:1400px}
-  th{text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);padding:8px 8px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;background:var(--bg-tint);position:sticky;top:0;z-index:2;white-space:nowrap}
+  th{text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);padding:8px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;background:var(--bg-tint);position:sticky;top:0;z-index:2;white-space:nowrap}
   th:hover{color:var(--accent)}
   th.sorted-asc::after{content:' ↑';color:var(--accent)}
   th.sorted-desc::after{content:' ↓';color:var(--accent)}
@@ -76,11 +76,7 @@
   .msg-error{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
   .msg-info{background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--accent-dark)}
 
-  .result-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-family:var(--mono);font-size:11px;color:var(--text-muted)}
-
-  @media (max-width:980px){
-    .filter-grid{grid-template-columns:repeat(2,1fr)}
-  }
+  @media (max-width:980px){ .filter-grid{grid-template-columns:repeat(2,1fr)} }
 </style>
 </head>
 <body>
@@ -91,7 +87,7 @@
   <div id="rr-nav-container"></div>
 
   <h1 class="page-title">Screener</h1>
-  <p class="page-sub">Multi-ticker scan combining valuation, growth, thesis model, and vol regime. Quick presets surface the highest-conviction setups.</p>
+  <p class="page-sub">Multi-ticker scan combining valuation, growth, thesis model, and vol regime. Presets surface the highest-conviction setups.</p>
 
   <div id="msg-area"></div>
 
@@ -102,49 +98,24 @@
     </div>
     <div class="banner-body">
       <div class="preset-chips" id="presets">
-        <button data-preset="leap_candidates">LEAP candidates</button>
-        <button data-preset="sell_premium">Sell premium</button>
-        <button data-preset="quality_compounders">Quality compounders</button>
-        <button data-preset="asymmetric_upside">Asymmetric upside</button>
-        <button data-preset="watchlist">My watchlist</button>
-        <button data-preset="reset">Reset</button>
+        <button type="button" data-preset="leap_candidates">LEAP candidates</button>
+        <button type="button" data-preset="sell_premium">Sell premium</button>
+        <button type="button" data-preset="quality_compounders">Quality compounders</button>
+        <button type="button" data-preset="asymmetric_upside">Asymmetric upside</button>
+        <button type="button" data-preset="watchlist">My watchlist</button>
+        <button type="button" data-preset="reset">Reset</button>
       </div>
 
       <div class="filter-grid">
-        <div class="field-mini">
-          <label>Max EV/EBITDA</label>
-          <input type="number" id="f-max-ev-ebitda" step="1" placeholder="any">
-        </div>
-        <div class="field-mini">
-          <label>Max EV/Rev NTM</label>
-          <input type="number" id="f-max-ev-rev" step="0.5" placeholder="any">
-        </div>
-        <div class="field-mini">
-          <label>Min FCF yield</label>
-          <input type="number" id="f-min-fcf" step="0.5" placeholder="any %">
-        </div>
-        <div class="field-mini">
-          <label>Min rev growth NTM</label>
-          <input type="number" id="f-min-rev-gr" step="1" placeholder="any %">
-        </div>
-        <div class="field-mini">
-          <label>Max ND/EBITDA</label>
-          <input type="number" id="f-max-nd" step="0.5" placeholder="any">
-        </div>
-        <div class="field-mini">
-          <label>Min market cap</label>
-          <input type="number" id="f-min-mcap" step="100" placeholder="$M">
-        </div>
-        <div class="field-mini">
-          <label>Min asymmetry</label>
-          <input type="number" id="f-min-asym" step="0.1" placeholder="any">
-        </div>
-        <div class="field-mini">
-          <label>Min annualized return</label>
-          <input type="number" id="f-min-ann" step="1" placeholder="any %">
-        </div>
-        <div class="field-mini">
-          <label>Vol regime</label>
+        <div class="field-mini"><label>Max EV/EBITDA</label><input type="number" id="f-max-ev-ebitda" step="1" placeholder="any"></div>
+        <div class="field-mini"><label>Max EV/Rev NTM</label><input type="number" id="f-max-ev-rev" step="0.5" placeholder="any"></div>
+        <div class="field-mini"><label>Min FCF yield (%)</label><input type="number" id="f-min-fcf" step="0.5" placeholder="any"></div>
+        <div class="field-mini"><label>Min rev growth NTM (%)</label><input type="number" id="f-min-rev-gr" step="1" placeholder="any"></div>
+        <div class="field-mini"><label>Max ND/EBITDA</label><input type="number" id="f-max-nd" step="0.5" placeholder="any"></div>
+        <div class="field-mini"><label>Min market cap ($M)</label><input type="number" id="f-min-mcap" step="100" placeholder="any"></div>
+        <div class="field-mini"><label>Min asymmetry</label><input type="number" id="f-min-asym" step="0.1" placeholder="any"></div>
+        <div class="field-mini"><label>Min annualized return (%)</label><input type="number" id="f-min-ann" step="1" placeholder="any"></div>
+        <div class="field-mini"><label>Vol regime</label>
           <select id="f-vol-regime">
             <option value="">Any</option>
             <option value="cheap_vol_buy">Cheap vol — buy premium</option>
@@ -154,16 +125,9 @@
             <option value="rich_vol_sell">Rich vol — sell premium</option>
           </select>
         </div>
-        <div class="field-mini">
-          <label>Sector (comma-sep)</label>
-          <input type="text" id="f-sectors" placeholder="Technology, Health Care">
-        </div>
-        <div class="field-mini">
-          <label>Limit</label>
-          <input type="number" id="f-limit" value="100" min="10" max="500">
-        </div>
-        <div class="field-mini">
-          <label>Toggles</label>
+        <div class="field-mini"><label>Sector (comma-sep)</label><input type="text" id="f-sectors" placeholder="Technology, Financial Services"></div>
+        <div class="field-mini"><label>Limit</label><input type="number" id="f-limit" value="100" min="10" max="500"></div>
+        <div class="field-mini"><label>Toggles</label>
           <div class="check-row" style="padding-top:6px">
             <label><input type="checkbox" id="f-leaps"> LEAPS</label>
             <label><input type="checkbox" id="f-warrants"> Warrants</label>
@@ -172,8 +136,8 @@
       </div>
 
       <div class="filter-row">
-        <button class="btn btn-primary" id="run-btn">Run scan</button>
-        <button class="btn btn-ghost" id="clear-btn">Clear filters</button>
+        <button type="button" class="btn btn-primary" id="run-btn">Run scan</button>
+        <button type="button" class="btn btn-ghost" id="clear-btn">Clear filters</button>
         <span class="banner-meta" id="last-run"></span>
       </div>
     </div>
@@ -182,10 +146,9 @@
   <div class="banner-card">
     <div class="banner-head">
       <h2>Results</h2>
-      <span class="banner-meta">Click ticker to research · Default sort: has model + cheap vol + ann return</span>
+      <span class="banner-meta">Click ticker to research</span>
     </div>
     <div class="banner-body">
-      <div class="result-meta" id="result-summary"></div>
       <div class="results-wrap">
         <table>
           <thead>
@@ -212,7 +175,7 @@
             </tr>
           </thead>
           <tbody id="results-tbody">
-            <tr><td colspan="18" class="empty">Run a scan to populate results.</td></tr>
+            <tr><td colspan="19" class="empty">Loading results…</td></tr>
           </tbody>
         </table>
       </div>
@@ -229,14 +192,14 @@
   const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY);
   let currentUser = null;
   let rows = [];
-  let sortCol = null;
+  let sortCol = 'model_annualized_return';
   let sortDir = 'desc';
 
   const $ = id => document.getElementById(id);
-  const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
-  const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const show = (id, on) => $(id).classList.toggle('hidden', !(on!==false));
+  const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt2 = n => (n==null||isNaN(n))?'—':Number(n).toFixed(2);
-  const fmtPct = (n,d=1) => (n==null||isNaN(n))?'—':(Number(n)*100).toFixed(d)+'%';
+  const fmtPct = (n,d) => (n==null||isNaN(n))?'—':(Number(n)*100).toFixed(d==null?1:d)+'%';
   const fmtBigUSD = n => {
     if (n == null || isNaN(n)) return '—';
     const x = Number(n);
@@ -245,56 +208,53 @@
     if (x >= 1e6) return '$'+(x/1e6).toFixed(1)+'M';
     return '$'+Math.round(x);
   };
-  const flash = (text, kind='info') => {
-    $('msg-area').innerHTML = `<div class="msg msg-${esc(kind)}">${esc(text)}</div>`;
-    if (kind !== 'error') setTimeout(()=>{ $('msg-area').innerHTML=''; }, 6000);
+  const flash = (text, kind) => {
+    $('msg-area').innerHTML = '<div class="msg msg-'+esc(kind||'info')+'">'+esc(text)+'</div>';
+    if (kind !== 'error') setTimeout(function(){ $('msg-area').innerHTML=''; }, 6000);
   };
 
+  function wireEvents() {
+    $('run-btn').addEventListener('click', function(){ runScan({}); });
+    $('clear-btn').addEventListener('click', function(){
+      document.querySelectorAll('.filter-grid input, .filter-grid select').forEach(function(el){
+        if (el.type === 'checkbox') el.checked = false;
+        else if (el.id === 'f-limit') el.value = '100';
+        else el.value = '';
+      });
+      document.querySelectorAll('.preset-chips button').forEach(function(b){ b.classList.remove('active'); });
+      runScan({});
+    });
+    $('presets').addEventListener('click', function(e){
+      const b = e.target.closest('button');
+      if (!b) return;
+      document.querySelectorAll('.preset-chips button').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+      applyPreset(b.dataset.preset);
+    });
+    document.querySelectorAll('th[data-sort]').forEach(function(th){
+      th.addEventListener('click', function(){
+        const col = th.dataset.sort;
+        if (sortCol === col) sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+        else { sortCol = col; sortDir = 'desc'; }
+        renderTable();
+      });
+    });
+  }
+
   (async () => {
-    const { data:{ session } } = await sb.auth.getSession();
-    if (!session?.user) { window.location.href='/index.html'; return; }
+    const r = await sb.auth.getSession();
+    const session = r && r.data && r.data.session;
+    if (!session || !session.user) { window.location.href='/index.html'; return; }
     currentUser = session.user;
     show('loading-screen', false);
     show('app', true);
     try { if (window.RidgeRunNav) await window.RidgeRunNav.mount({active:'screener', supabase:sb}); } catch(e){}
-
-    // Default sort
-    sortCol = 'model_annualized_return';
-    sortDir = 'desc';
-    runScan();
+    wireEvents();
+    runScan({});
   })();
 
-  $('run-btn').addEventListener('click', runScan);
-  $('clear-btn').addEventListener('click', () => {
-    document.querySelectorAll('.filter-grid input, .filter-grid select').forEach(el => {
-      if (el.type === 'checkbox') el.checked = false;
-      else if (el.id === 'f-limit') el.value = '100';
-      else el.value = '';
-    });
-    document.querySelectorAll('.preset-chips button').forEach(b => b.classList.remove('active'));
-    runScan();
-  });
-
-  $('presets').addEventListener('click', e => {
-    const b = e.target.closest('button');
-    if (!b) return;
-    document.querySelectorAll('.preset-chips button').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    applyPreset(b.dataset.preset);
-  });
-
-  document.querySelectorAll('th[data-sort]').forEach(th => {
-    th.addEventListener('click', () => {
-      const col = th.dataset.sort;
-      if (sortCol === col) sortDir = sortDir === 'desc' ? 'asc' : 'desc';
-      else { sortCol = col; sortDir = 'desc'; }
-      renderTable();
-    });
-  });
-
   function applyPreset(name) {
-    // Clear first
-    document.querySelectorAll('.filter-grid input, .filter-grid select').forEach(el => {
+    document.querySelectorAll('.filter-grid input, .filter-grid select').forEach(function(el){
       if (el.type === 'checkbox') el.checked = false;
       else if (el.id === 'f-limit') el.value = '100';
       else el.value = '';
@@ -316,19 +276,19 @@
         $('f-min-ann').value = '15';
         break;
       case 'watchlist':
-        // Handled in runScan via a different path
         runScan({ watchlistOnly: true });
         return;
       case 'reset':
       default:
         break;
     }
-    runScan();
+    runScan({});
   }
 
-  async function runScan(opts = {}) {
+  async function runScan(opts) {
+    opts = opts || {};
     $('result-count').textContent = 'Scanning…';
-    $('results-tbody').innerHTML = '<tr><td colspan="18" class="empty">Loading…</td></tr>';
+    $('results-tbody').innerHTML = '<tr><td colspan="19" class="empty">Loading…</td></tr>';
 
     const pct = id => {
       const v = $(id).value;
@@ -348,7 +308,7 @@
     };
 
     const sectors = txt('f-sectors');
-    const sectorArr = sectors ? sectors.split(',').map(s=>s.trim()).filter(Boolean) : null;
+    const sectorArr = sectors ? sectors.split(',').map(function(s){return s.trim();}).filter(Boolean) : null;
 
     const params = {
       p_user_id: currentUser.id,
@@ -369,95 +329,80 @@
       p_limit: intVal('f-limit') || 100
     };
 
-    const { data, error } = await sb.rpc('screen_companies', params);
-
-    if (error) {
+    const r = await sb.rpc('screen_companies', params);
+    if (r.error) {
       $('result-count').textContent = '0';
-      $('results-tbody').innerHTML = `<tr><td colspan="18" class="empty">Scan failed: ${esc(error.message)}</td></tr>`;
-      flash('screen_companies RPC error: ' + error.message, 'error');
+      $('results-tbody').innerHTML = '<tr><td colspan="19" class="empty">Scan failed: '+esc(r.error.message)+'</td></tr>';
+      flash('screen_companies error: '+r.error.message, 'error');
       return;
     }
 
-    let resultRows = data || [];
-
-    // Watchlist filter
+    let resultRows = r.data || [];
     if (opts.watchlistOnly) {
-      const { data: wl } = await sb.from('ticker_watchlist')
-        .select('ticker').eq('user_id', currentUser.id).eq('is_active', true);
-      const tickers = new Set((wl||[]).map(r => r.ticker));
-      resultRows = resultRows.filter(r => tickers.has(r.ticker));
+      const wl = await sb.from('ticker_watchlist').select('ticker').eq('user_id', currentUser.id).eq('is_active', true);
+      const set = {};
+      (wl.data||[]).forEach(function(rw){ set[rw.ticker]=1; });
+      resultRows = resultRows.filter(function(rw){ return set[rw.ticker]; });
     }
 
     rows = resultRows;
     $('result-count').textContent = rows.length + ' result' + (rows.length===1?'':'s');
     $('last-run').textContent = 'Last run ' + new Date().toLocaleTimeString();
-    $('result-summary').textContent = rows.length + ' tickers · sorted by ' + sortCol + ' ' + sortDir;
     renderTable();
   }
 
   function renderTable() {
     if (!rows.length) {
-      $('results-tbody').innerHTML = '<tr><td colspan="18" class="empty">No matches. Loosen filters.</td></tr>';
+      $('results-tbody').innerHTML = '<tr><td colspan="19" class="empty">No matches. Loosen filters.</td></tr>';
       return;
     }
-
-    // Default multi-key sort if sortCol is the default and we want the original ordering
-    let sorted = [...rows];
+    let sorted = rows.slice();
     if (sortCol) {
-      sorted.sort((a,b) => {
+      sorted.sort(function(a,b){
         const av = a[sortCol], bv = b[sortCol];
         if (av == null && bv == null) return 0;
         if (av == null) return 1;
         if (bv == null) return -1;
-        if (typeof av === 'number' && typeof bv === 'number') {
-          return sortDir === 'desc' ? bv - av : av - bv;
-        }
-        if (typeof av === 'boolean' && typeof bv === 'boolean') {
-          return sortDir === 'desc' ? (bv?1:0)-(av?1:0) : (av?1:0)-(bv?1:0);
-        }
+        const an = typeof av === 'number' ? av : parseFloat(av);
+        const bn = typeof bv === 'number' ? bv : parseFloat(bv);
+        if (!isNaN(an) && !isNaN(bn)) return sortDir === 'desc' ? bn - an : an - bn;
+        if (typeof av === 'boolean' && typeof bv === 'boolean') return sortDir === 'desc' ? (bv?1:0)-(av?1:0) : (av?1:0)-(bv?1:0);
         const as = String(av), bs = String(bv);
         return sortDir === 'desc' ? bs.localeCompare(as) : as.localeCompare(bs);
       });
     }
-
-    // Update th classes
-    document.querySelectorAll('th[data-sort]').forEach(th => {
+    document.querySelectorAll('th[data-sort]').forEach(function(th){
       th.classList.remove('sorted-asc','sorted-desc');
-      if (th.dataset.sort === sortCol) {
-        th.classList.add(sortDir === 'desc' ? 'sorted-desc' : 'sorted-asc');
-      }
+      if (th.dataset.sort === sortCol) th.classList.add(sortDir === 'desc' ? 'sorted-desc' : 'sorted-asc');
     });
 
-    $('results-tbody').innerHTML = sorted.map(r => {
+    $('results-tbody').innerHTML = sorted.map(function(r){
       const volCls = volBadgeCls(r.vol_regime);
       const termCls = r.term_structure === 'contango' ? 'lean-buy' : r.term_structure === 'backwardation' ? 'lean-sell' : 'neutral';
       const stratLabel = (r.top_strategy||'').replace(/_/g,' ');
-      return `
-        <tr>
-          <td><a href="/research.html?ticker=${esc(r.ticker)}">${esc(r.ticker)}</a></td>
-          <td>${esc(r.sector||'')}</td>
-          <td class="num">${fmtBigUSD(r.market_cap)}</td>
-          <td class="num">${fmt2(r.ev_ebitda_ntm)}</td>
-          <td class="num">${r.fcf_yield_ntm!=null?fmtPct(r.fcf_yield_ntm):'—'}</td>
-          <td class="num">${r.rev_growth_ntm!=null?fmtPct(r.rev_growth_ntm):'—'}</td>
-          <td class="num">${fmt2(r.net_debt_ebitda)}</td>
-          <td class="num">${r.iv_rank_1y!=null?Math.round(r.iv_rank_1y):'—'}</td>
-          <td class="num">${r.iv_30d!=null?fmtPct(r.iv_30d):'—'}</td>
-          <td><span class="badge ${volCls}">${esc((r.vol_regime||'').replace(/_/g,' '))}</span></td>
-          <td><span class="badge ${termCls}">${esc(r.term_structure||'—')}</span></td>
-          <td><span class="badge ${stratCls(r.top_strategy)}">${esc(stratLabel||'—')}</span></td>
-          <td>${r.has_active_model ? '<span class="badge has-model">model</span>' : '<span class="badge no-data">—</span>'}</td>
-          <td class="num">${r.model_implied_price_yr5!=null?'$'+fmt2(r.model_implied_price_yr5):'—'}</td>
-          <td class="num ${r.model_annualized_return>0?'pos':r.model_annualized_return<0?'neg':''}">${r.model_annualized_return!=null?fmtPct(r.model_annualized_return):'—'}</td>
-          <td class="num">${r.asymmetry!=null?Number(r.asymmetry).toFixed(2)+'×':'—'}</td>
-          <td class="num">${r.margin_of_safety!=null?fmtPct(r.margin_of_safety):'—'}</td>
-          <td class="num">${r.vol_adj_rr!=null?Number(r.vol_adj_rr).toFixed(2):'—'}</td>
-          <td>
-            <a href="/research.html?ticker=${esc(r.ticker)}" class="btn btn-sm btn-ghost" style="text-decoration:none">Research</a>
-            <a href="/model.html?ticker=${esc(r.ticker)}" class="btn btn-sm btn-ghost" style="text-decoration:none">Model</a>
-          </td>
-        </tr>
-      `;
+      const ar = r.model_annualized_return == null ? null : Number(r.model_annualized_return);
+      return '<tr>'
+        + '<td><a href="/research.html?ticker='+esc(r.ticker)+'">'+esc(r.ticker)+'</a></td>'
+        + '<td>'+esc(r.sector||'')+'</td>'
+        + '<td class="num">'+fmtBigUSD(r.market_cap)+'</td>'
+        + '<td class="num">'+fmt2(r.ev_ebitda_ntm)+'</td>'
+        + '<td class="num">'+(r.fcf_yield_ntm!=null?fmtPct(r.fcf_yield_ntm):'—')+'</td>'
+        + '<td class="num">'+(r.rev_growth_ntm!=null?fmtPct(r.rev_growth_ntm):'—')+'</td>'
+        + '<td class="num">'+fmt2(r.net_debt_ebitda)+'</td>'
+        + '<td class="num">'+(r.iv_rank_1y!=null?Math.round(r.iv_rank_1y):'—')+'</td>'
+        + '<td class="num">'+(r.iv_30d!=null?fmtPct(r.iv_30d):'—')+'</td>'
+        + '<td><span class="badge '+volCls+'">'+esc((r.vol_regime||'').replace(/_/g,' '))+'</span></td>'
+        + '<td><span class="badge '+termCls+'">'+esc(r.term_structure||'—')+'</span></td>'
+        + '<td><span class="badge '+stratCls(r.top_strategy)+'">'+esc(stratLabel||'—')+'</span></td>'
+        + '<td>'+(r.has_active_model ? '<span class="badge has-model">model</span>' : '<span class="badge no-data">—</span>')+'</td>'
+        + '<td class="num">'+(r.model_implied_price_yr5!=null?'$'+fmt2(r.model_implied_price_yr5):'—')+'</td>'
+        + '<td class="num '+(ar>0?'pos':ar<0?'neg':'')+'">'+(ar!=null?fmtPct(ar):'—')+'</td>'
+        + '<td class="num">'+(r.asymmetry!=null?Number(r.asymmetry).toFixed(2)+'×':'—')+'</td>'
+        + '<td class="num">'+(r.margin_of_safety!=null?fmtPct(r.margin_of_safety):'—')+'</td>'
+        + '<td class="num">'+(r.vol_adj_rr!=null?Number(r.vol_adj_rr).toFixed(2):'—')+'</td>'
+        + '<td><a href="/research.html?ticker='+esc(r.ticker)+'" class="btn btn-sm btn-ghost" style="text-decoration:none">Research</a> '
+        + '<a href="/model.html?ticker='+esc(r.ticker)+'" class="btn btn-sm btn-ghost" style="text-decoration:none">Model</a></td>'
+        + '</tr>';
     }).join('');
   }
 
@@ -472,9 +417,9 @@
   }
   function stratCls(s) {
     if (!s) return 'no-data';
-    if (s.includes('LEAP') || s.includes('cheap_vol')) return 'cheap';
-    if (s.includes('iron_condor') || s.includes('csp') || s.includes('sell_vol')) return 'rich';
-    if (s.includes('vertical')) return 'lean-buy';
+    if (s.indexOf('LEAP')>=0 || s.indexOf('cheap_vol')>=0) return 'cheap';
+    if (s.indexOf('iron_condor')>=0 || s.indexOf('csp')>=0 || s.indexOf('sell_vol')>=0) return 'rich';
+    if (s.indexOf('vertical')>=0) return 'lean-buy';
     if (s === 'wait' || s === 'no_vol_data') return 'no-data';
     return 'neutral';
   }
