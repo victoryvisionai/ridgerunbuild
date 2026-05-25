@@ -4,196 +4,200 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Watchlist · Ridge Run</title>
+<script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/themes.css" />
 <style>
-  :root{--bg:#fff;--bg-tint:#f8fafc;--bg-blue:#eff6ff;--bg-blue-soft:#f0f7ff;--border:#e2e8f0;--border-blue:#bfdbfe;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;--accent:#2563eb;--accent-dark:#1e40af;--success:#059669;--success-bg:#d1fae5;--warning:#d97706;--warning-bg:#fed7aa;--danger:#dc2626;--danger-bg:#fee2e2;--serif:'Source Serif 4',Georgia,serif;--sans:'Inter',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace}
-  *{box-sizing:border-box} html,body{margin:0;padding:0}
-  body{background:var(--bg-tint);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh}
-  .hidden{display:none!important}
-  .loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim)}
-  .shell{max-width:1100px;margin:0 auto;padding:0 24px 80px}
-  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:8px;flex-wrap:wrap;gap:12px}
-  .brand{display:flex;align-items:center;gap:12px}
-  .brand-mark{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--accent);letter-spacing:-0.02em}
-  .brand-name{font-family:var(--mono);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted)}
-  .nav-tabs{display:flex;gap:4px;flex-wrap:wrap}
-  .nav-tabs a{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;padding:6px 10px;border-radius:3px;border:1px solid transparent}
-  .nav-tabs a:hover{color:var(--text);background:var(--bg)} .nav-tabs a.active{color:var(--accent);background:var(--bg-blue);border-color:var(--border-blue)}
-  .user-meta{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:11px;color:var(--text-muted)}
-  .signout{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;background:transparent;border:1px solid var(--border);padding:6px 10px;border-radius:3px}
-  .signout:hover{border-color:var(--text-dim);color:var(--text-muted)}
-  h1.page-title{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-0.02em;margin:24px 0 6px}
-  .page-sub{color:var(--text-muted);margin:0 0 28px}
-  .card{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:24px;margin-bottom:20px}
-  .card h2{font-family:var(--serif);font-size:19px;font-weight:500;letter-spacing:-0.015em;margin:0 0 4px}
-  .card .h2-sub{color:var(--text-muted);font-size:13px;margin:0 0 18px}
-  .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:10px 16px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500;transition:all .15s}
-  .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)} .btn-primary:disabled{opacity:.5;cursor:wait}
-  .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
-  .btn-icon{font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;padding:4px 8px;border-radius:3px;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted)}
-  .btn-icon:hover{border-color:var(--danger);color:var(--danger)}
-  .add-form{display:grid;grid-template-columns:1fr 1fr 160px auto;gap:10px;padding:14px;background:var(--bg-tint);border:1px solid var(--border);border-radius:4px;margin-bottom:14px;align-items:end}
-  .add-form.tkr{grid-template-columns:120px 1fr 140px auto}
-  .field-mini label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
-  .field-mini input, .field-mini select, .field-mini textarea{width:100%;background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-family:var(--mono);font-size:12px;color:var(--text);border-radius:3px}
-  .field-mini input:focus, .field-mini select:focus, .field-mini textarea:focus{outline:none;border-color:var(--accent)}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:8px 10px;border-bottom:1px solid var(--border)}
-  td{padding:9px 10px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px}
-  tr:last-child td{border-bottom:none}
-  .cadence-pill{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--accent-dark)}
-  .cadence-pill.quarterly{background:var(--bg-tint);border-color:var(--border);color:var(--text-muted)}
-  .filter-tabs{display:flex;gap:4px;margin-bottom:14px}
-  .filter-tabs button{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;padding:6px 12px;border-radius:3px;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted)}
-  .filter-tabs button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .empty{padding:28px 20px;text-align:center;color:var(--text-muted);font-size:13px}
-  .msg{padding:10px 14px;font-size:13px;border-radius:4px;line-height:1.5;margin:10px 0}
-  .msg-error{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
-  .msg-success{background:var(--success-bg);border:1px solid #a7f3d0;color:#065f46}
-  @media (max-width:720px){.add-form{grid-template-columns:1fr}.add-form.tkr{grid-template-columns:1fr}}
+  .add-form { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:14px; background:var(--bg-tint); border:1px solid var(--border); border-radius:4px; margin-bottom:14px; align-items:end; }
+  @media (max-width: 720px){ .add-form{ grid-template-columns:1fr 1fr; } }
+  .cadence-pill { font-family:var(--mono); font-size:9px; letter-spacing:0.1em; padding:2px 7px; border-radius:3px; background:var(--bg-blue); border:1px solid var(--border-blue); color:var(--accent-dark); }
+  .cadence-pill.quarterly { background:var(--bg-tint); color:var(--text-muted); border-color:var(--border); }
+  .filter-pill { font-family:var(--mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; padding:5px 10px; border:1px solid var(--border); border-radius:3px; background:var(--bg); color:var(--text-muted); cursor:pointer; margin-right:4px; }
+  .filter-pill.active { background:var(--accent); color:#fff; border-color:var(--accent); }
 </style>
 </head>
 <body>
 
+<div id="rr-nav-container"></div>
+
 <div id="loading-screen" class="loading">Loading watchlist…</div>
 
 <div id="app" class="shell hidden">
-  <div class="topbar">
-    <div class="brand"><span class="brand-mark">RR</span><span class="brand-name">Ridge Run</span></div>
-    <nav class="nav-tabs">
-      <a href="/dashboard.html">Dashboard</a>
-      <a href="/dna.html">Investor DNA</a>
-      <a href="/performance.html">Performance</a>
-      <a href="/watchlist.html" class="active">Watchlist</a><a href="/strategy.html">Strategy</a><a href="/research.html">Research</a><a href="/screener.html">Screener</a>
-      <a href="/ai.html">Ask AI</a>
-    </nav>
-    <div class="user-meta">
-      <span id="user-email"></span>
-      <button class="signout" id="signout-btn">Sign out</button>
-    </div>
-  </div>
 
   <h1 class="page-title">Watchlist</h1>
   <p class="page-sub">Investors and tickers the system monitors on your behalf.</p>
 
   <div id="msg-area"></div>
 
-  <div class="card">
-    <h2>Investors</h2>
-    <p class="h2-sub">Public investors whose moves should be tracked. Daily = scanned every morning. Quarterly = scanned on 13F filings.</p>
-
-    <div class="add-form">
-      <div class="field-mini"><label>Name</label><input id="inv-name" type="text" placeholder="Stanley Druckenmiller" /></div>
-      <div class="field-mini"><label>Fund / firm</label><input id="inv-fund" type="text" placeholder="Duquesne Family Office" /></div>
-      <div class="field-mini"><label>Cadence</label><select id="inv-cadence"><option value="daily">Daily</option><option value="quarterly">Quarterly</option></select></div>
-      <div class="field-mini"><button class="btn btn-primary" id="add-investor">+ Add</button></div>
+  <div class="banner-card">
+    <div class="banner-head">
+      <h2>Tickers</h2>
+      <span class="banner-meta" id="tkr-count">--</span>
     </div>
-
-    <div class="filter-tabs">
-      <button class="active" data-filter="all">All</button>
-      <button data-filter="daily">Daily</button>
-      <button data-filter="quarterly">Quarterly</button>
+    <div class="banner-body">
+      <p class="h2-sub">Securities on your radar. Theses + target prices feed daily briefings and price-alert triggers.</p>
+      <div class="add-form">
+        <div class="field"><label>Symbol</label><input id="tkr-symbol" type="text" placeholder="ADBE" style="text-transform:uppercase"></div>
+        <div class="field"><label>Thesis</label><input id="tkr-thesis" type="text" placeholder="Quality compounder, cheap IV LEAP"></div>
+        <div class="field"><label>Target price</label><input id="tkr-target" type="number" step="0.01" placeholder="500.00"></div>
+        <div class="field"><button class="btn btn-primary" id="add-ticker">+ Add</button></div>
+      </div>
+      <div id="tkr-table"><div class="empty">Loading…</div></div>
     </div>
-
-    <div id="inv-table"></div>
   </div>
 
-  <div class="card">
-    <h2>Tickers</h2>
-    <p class="h2-sub">Specific securities on your radar. Theses + target prices feed daily briefings and price-alert triggers.</p>
-
-    <div class="add-form tkr">
-      <div class="field-mini"><label>Symbol</label><input id="tkr-symbol" type="text" placeholder="AAPL" /></div>
-      <div class="field-mini"><label>Thesis</label><input id="tkr-thesis" type="text" placeholder="Services margin expansion through 2027" /></div>
-      <div class="field-mini"><label>Target price</label><input id="tkr-target" type="number" step="0.01" placeholder="240.00" /></div>
-      <div class="field-mini"><button class="btn btn-primary" id="add-ticker">+ Add</button></div>
+  <div class="banner-card">
+    <div class="banner-head">
+      <h2>Investors</h2>
+      <span class="banner-meta" id="inv-count">--</span>
     </div>
-
-    <div id="tkr-table"></div>
+    <div class="banner-body">
+      <p class="h2-sub">Public investors whose moves should be tracked. Daily = scanned every morning. Quarterly = scanned on 13F filings.</p>
+      <div class="add-form">
+        <div class="field"><label>Name</label><input id="inv-name" type="text" placeholder="Stanley Druckenmiller"></div>
+        <div class="field"><label>Fund / firm</label><input id="inv-fund" type="text" placeholder="Duquesne Family Office"></div>
+        <div class="field"><label>Cadence</label>
+          <select id="inv-cadence"><option value="daily">Daily</option><option value="quarterly">Quarterly</option></select>
+        </div>
+        <div class="field"><button class="btn btn-primary" id="add-investor">+ Add</button></div>
+      </div>
+      <div style="margin-bottom:12px">
+        <button class="filter-pill active" data-filter="all">All</button>
+        <button class="filter-pill" data-filter="daily">Daily</button>
+        <button class="filter-pill" data-filter="quarterly">Quarterly</button>
+      </div>
+      <div id="inv-table"><div class="empty">Loading…</div></div>
+    </div>
   </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/config.js"></script>
+<script src="/nav.js"></script>
 <script>
 (() => {
 const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = window.RR_CONFIG;
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 let currentUser = null;
 let filterCadence = 'all';
+let allInv = [];
+
 const $ = id => document.getElementById(id);
 const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
 const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmt = n => (n==null||isNaN(n))?'—':Number(n).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2});
+const fmtUSD = n => (n==null||isNaN(n))?'--':'$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:2});
 
 (async () => {
   const { data:{ session } } = await sb.auth.getSession();
   if(!session?.user){ window.location.href='/index.html'; return; }
   currentUser = session.user;
-  $('user-email').textContent = currentUser.email || '';
-  show('loading-screen',false); show('app',true);
-  await loadAll();
+  await window.RidgeRunNav.mount({ active: 'watchlist', supabase: sb });
+  show('loading-screen', false);
+  show('app', true);
+  await Promise.all([loadTickers(), loadInvestors()]);
 })();
 
-$('signout-btn').addEventListener('click', async()=>{ await sb.auth.signOut(); window.location.href='/index.html'; });
-
-document.querySelectorAll('.filter-tabs button').forEach(btn=>{
-  btn.addEventListener('click',()=>{ document.querySelectorAll('.filter-tabs button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); filterCadence=btn.dataset.filter; renderInvestors(window._inv||[]); });
+document.querySelectorAll('.filter-pill').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    b.classList.add('active');
+    filterCadence = b.dataset.filter;
+    renderInvestors();
+  });
 });
 
-$('add-investor').addEventListener('click', addInvestor);
 $('add-ticker').addEventListener('click', addTicker);
-['inv-name','inv-fund'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')addInvestor()}));
-['tkr-symbol','tkr-thesis','tkr-target'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')addTicker()}));
-
-async function loadAll(){ await Promise.all([loadInvestors(), loadTickers()]); }
-async function loadInvestors(){
-  const { data, error } = await sb.from('investor_watchlist').select('*').eq('is_active',true).order('created_at',{ascending:false});
-  if(error){ flash(error.message,'error'); return; }
-  window._inv = data||[]; renderInvestors(window._inv);
-}
-function renderInvestors(rows){
-  const filtered = filterCadence==='all' ? rows : rows.filter(r=>r.cadence===filterCadence);
-  if(!filtered.length){ $('inv-table').innerHTML='<div class="empty">No investors yet.</div>'; return; }
-  $('inv-table').innerHTML = `<table><thead><tr><th>Name</th><th>Fund</th><th>Cadence</th><th></th></tr></thead><tbody>${filtered.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.fund||'—')}</td><td><span class="cadence-pill ${r.cadence==='quarterly'?'quarterly':''}">${esc(r.cadence)}</span></td><td style="text-align:right"><button class="btn-icon" onclick="removeInv('${r.id}')">Remove</button></td></tr>`).join('')}</tbody></table>`;
-}
-async function addInvestor(){
-  const name=$('inv-name').value.trim(); if(!name){ flash('Name required','error'); return; }
-  const fund=$('inv-fund').value.trim()||null; const cadence=$('inv-cadence').value;
-  const { error } = await sb.from('investor_watchlist').insert({ user_id:currentUser.id, name, fund, cadence });
-  if(error){ flash(error.message,'error'); return; }
-  $('inv-name').value=''; $('inv-fund').value=''; await loadInvestors();
-}
-window.removeInv = async(id) => {
-  if(!confirm('Remove this investor?')) return;
-  const { error } = await sb.from('investor_watchlist').update({ is_active:false }).eq('id',id);
-  if(error){ flash(error.message,'error'); return; }
-  await loadInvestors();
-};
+$('add-investor').addEventListener('click', addInvestor);
+['tkr-symbol','tkr-thesis','tkr-target'].forEach(id => $(id).addEventListener('keydown', e => { if(e.key==='Enter') addTicker(); }));
+['inv-name','inv-fund'].forEach(id => $(id).addEventListener('keydown', e => { if(e.key==='Enter') addInvestor(); }));
 
 async function loadTickers(){
-  const { data, error } = await sb.from('ticker_watchlist').select('*').eq('is_active',true).order('created_at',{ascending:false});
-  if(error){ flash(error.message,'error'); return; }
-  if(!data.length){ $('tkr-table').innerHTML='<div class="empty">No tickers yet.</div>'; return; }
-  $('tkr-table').innerHTML = `<table><thead><tr><th>Symbol</th><th>Thesis</th><th>Target</th><th></th></tr></thead><tbody>${data.map(r=>`<tr><td><b>${esc(r.symbol)}</b></td><td>${esc(r.thesis||'—')}</td><td>${fmt(r.target_price)}</td><td style="text-align:right"><button class="btn-icon" onclick="removeTkr('${r.id}')">Remove</button></td></tr>`).join('')}</tbody></table>`;
+  const { data, error } = await sb.from('ticker_watchlist').select('*').eq('user_id', currentUser.id).eq('is_active', true).order('created_at', { ascending: false });
+  if(error){ flash(error.message, 'error'); return; }
+  const rows = data || [];
+  $('tkr-count').textContent = rows.length + ' tickers';
+  if(!rows.length){ $('tkr-table').innerHTML = '<div class="empty">No tickers yet.</div>'; return; }
+  $('tkr-table').innerHTML = '<table style="width:100%;border-collapse:collapse"><thead><tr>' +
+    ['Symbol','Thesis','Target','Actions'].map(h=>`<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted)">${h}</th>`).join('') +
+    '</tr></thead><tbody>' +
+    rows.map(r => `<tr><td style="padding:8px 10px;border-bottom:1px solid var(--border);font-family:var(--mono)"><b>${esc(r.symbol||r.ticker||'')}</b></td>
+      <td style="padding:8px 10px;border-bottom:1px solid var(--border)">${esc(r.thesis||r.reason||'--')}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid var(--border);font-family:var(--mono)">${r.target_price!=null?fmtUSD(r.target_price):'--'}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid var(--border);text-align:right">
+        <a href="/research.html?ticker=${encodeURIComponent(r.symbol||r.ticker||'')}" class="btn btn-ghost btn-sm">Research</a>
+        <a href="/model.html?ticker=${encodeURIComponent(r.symbol||r.ticker||'')}" class="btn btn-ghost btn-sm">Model</a>
+        <button class="btn btn-ghost btn-sm" onclick="window._rmTkr('${r.id}')">Remove</button>
+      </td></tr>`).join('') + '</tbody></table>';
 }
+
 async function addTicker(){
-  const symbol=$('tkr-symbol').value.trim().toUpperCase(); if(!symbol){ flash('Symbol required','error'); return; }
-  const thesis=$('tkr-thesis').value.trim()||null;
-  const target=$('tkr-target').value? Number($('tkr-target').value): null;
-  const { error } = await sb.from('ticker_watchlist').insert({ user_id:currentUser.id, symbol, thesis, target_price: target });
-  if(error){ flash(error.message,'error'); return; }
-  $('tkr-symbol').value=''; $('tkr-thesis').value=''; $('tkr-target').value=''; await loadTickers();
+  const symbol = $('tkr-symbol').value.trim().toUpperCase();
+  if(!symbol){ flash('Symbol required', 'error'); return; }
+  const thesis = $('tkr-thesis').value.trim() || null;
+  const target = $('tkr-target').value ? Number($('tkr-target').value) : null;
+  const { error } = await sb.from('ticker_watchlist').insert({ user_id: currentUser.id, ticker: symbol, symbol: symbol, thesis: thesis, reason: thesis, target_price: target });
+  if(error){ flash(error.message, 'error'); return; }
+  $('tkr-symbol').value=''; $('tkr-thesis').value=''; $('tkr-target').value='';
+  flash('Ticker added.', 'success');
+  await loadTickers();
 }
-window.removeTkr = async(id) => {
+
+window._rmTkr = async (id) => {
   if(!confirm('Remove this ticker?')) return;
-  const { error } = await sb.from('ticker_watchlist').update({ is_active:false }).eq('id',id);
-  if(error){ flash(error.message,'error'); return; }
+  const { error } = await sb.from('ticker_watchlist').update({ is_active: false }).eq('id', id);
+  if(error){ flash(error.message, 'error'); return; }
   await loadTickers();
 };
 
-function flash(text,kind){ $('msg-area').innerHTML = `<div class="msg msg-${kind}">${esc(text)}</div>`; setTimeout(()=>{ $('msg-area').innerHTML=''; }, 4000); }
+async function loadInvestors(){
+  const { data, error } = await sb.from('investor_watchlist').select('*').eq('user_id', currentUser.id).eq('is_active', true).order('created_at',{ ascending: false });
+  if(error){ flash(error.message,'error'); return; }
+  allInv = data || [];
+  renderInvestors();
+}
+
+function renderInvestors(){
+  const filtered = filterCadence === 'all' ? allInv : allInv.filter(r => (r.cadence||r.monitor_frequency) === filterCadence);
+  $('inv-count').textContent = filtered.length + ' investors';
+  if(!filtered.length){ $('inv-table').innerHTML = '<div class="empty">No investors.</div>'; return; }
+  $('inv-table').innerHTML = '<table style="width:100%;border-collapse:collapse"><thead><tr>' +
+    ['Name','Fund','Cadence','Actions'].map(h=>`<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted)">${h}</th>`).join('') +
+    '</tr></thead><tbody>' +
+    filtered.map(r => {
+      const cad = r.cadence || r.monitor_frequency || 'daily';
+      return `<tr><td style="padding:8px 10px;border-bottom:1px solid var(--border)">${esc(r.name||r.investor_name||'')}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border)">${esc(r.fund||r.fund_name||'--')}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border)"><span class="cadence-pill ${cad==='quarterly'?'quarterly':''}">${esc(cad)}</span></td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border);text-align:right"><button class="btn btn-ghost btn-sm" onclick="window._rmInv('${r.id}')">Remove</button></td></tr>`;
+    }).join('') + '</tbody></table>';
+}
+
+async function addInvestor(){
+  const name = $('inv-name').value.trim();
+  if(!name){ flash('Name required', 'error'); return; }
+  const fund = $('inv-fund').value.trim() || null;
+  const cadence = $('inv-cadence').value;
+  const { error } = await sb.from('investor_watchlist').insert({ user_id: currentUser.id, name, investor_name: name, fund, fund_name: fund, cadence, monitor_frequency: cadence });
+  if(error){ flash(error.message, 'error'); return; }
+  $('inv-name').value=''; $('inv-fund').value='';
+  flash('Investor added.', 'success');
+  await loadInvestors();
+}
+
+window._rmInv = async (id) => {
+  if(!confirm('Remove this investor?')) return;
+  const { error } = await sb.from('investor_watchlist').update({ is_active: false }).eq('id', id);
+  if(error){ flash(error.message, 'error'); return; }
+  await loadInvestors();
+};
+
+function flash(text, kind='info'){
+  $('msg-area').innerHTML = `<div class="msg msg-${kind}">${esc(text)}</div>`;
+  setTimeout(()=>{ $('msg-area').innerHTML=''; }, 4000);
+}
+
 })();
 </script>
 </body>
