@@ -763,8 +763,8 @@
 
   async function loadVolScanner() {
     const tbody = $('vol-tbody');
-    // Use daily scan pool RPC
-    const poolR = await sb.rpc('get_daily_scan_pool', { p_user_id: currentUser.id });
+    // tracked_tickers returns watchlist ∪ ideas ∪ positions ∪ holdings ∪ monthly shortlist
+    const poolR = await sb.rpc('tracked_tickers', { p_user: currentUser.id });
     const pool = poolR.data || [];
     if (!pool.length) { tbody.innerHTML = '<tr><td colspan="12" class="empty">Empty scan pool.</td></tr>'; return; }
     const sourceBy = {};
