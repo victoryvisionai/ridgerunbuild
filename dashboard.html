@@ -4,249 +4,235 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Dashboard · Ridge Run</title>
+<script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/themes.css" />
 <style>
-  :root{--bg:#fff;--bg-tint:#f8fafc;--bg-blue:#eff6ff;--bg-blue-soft:#f0f7ff;--border:#e2e8f0;--border-blue:#bfdbfe;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;--accent:#2563eb;--accent-dark:#1e40af;--success:#059669;--success-bg:#d1fae5;--danger:#dc2626;--danger-bg:#fee2e2;--serif:'Source Serif 4',Georgia,serif;--sans:'Inter',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace}
-  *{box-sizing:border-box} html,body{margin:0;padding:0}
-  body{background:var(--bg-tint);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh}
-  .hidden{display:none!important}
-  .loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim)}
-  .shell{max-width:1100px;margin:0 auto;padding:0 24px 80px}
-  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:8px;flex-wrap:wrap;gap:12px}
-  .brand{display:flex;align-items:center;gap:12px}
-  .brand-mark{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--accent);letter-spacing:-0.02em}
-  .brand-name{font-family:var(--mono);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted)}
-  .nav-tabs{display:flex;gap:4px;flex-wrap:wrap}
-  .nav-tabs a{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;padding:6px 10px;border-radius:3px;border:1px solid transparent}
-  .nav-tabs a:hover{color:var(--text);background:var(--bg)}
-  .nav-tabs a.active{color:var(--accent);background:var(--bg-blue);border-color:var(--border-blue)}
-  .user-meta{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:11px;color:var(--text-muted)}
-  .signout{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;background:transparent;border:1px solid var(--border);padding:6px 10px;border-radius:3px}
-  .signout:hover{border-color:var(--text-dim);color:var(--text-muted)}
-  h1.page-title{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-0.02em;margin:24px 0 6px}
-  .page-sub{color:var(--text-muted);margin:0 0 28px}
-  .card{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:24px;margin-bottom:20px}
-  .card h2{font-family:var(--serif);font-size:19px;font-weight:500;letter-spacing:-0.015em;margin:0 0 4px}
-  .card .h2-sub{color:var(--text-muted);font-size:13px;margin:0 0 18px}
-  .dropzone{border:1px dashed var(--border);border-radius:6px;padding:32px 20px;text-align:center;background:var(--bg-tint);transition:all .15s;cursor:pointer}
-  .dropzone.drag{border-color:var(--accent);background:var(--bg-blue-soft)}
-  .dropzone p{margin:0;color:var(--text-muted)}
-  .dropzone p.primary{color:var(--text);font-weight:500;margin-bottom:4px}
-  .dropzone p.hint{font-size:12px;font-family:var(--mono);letter-spacing:0.05em;color:var(--text-dim);margin-top:10px}
-  .file-input{display:none}
-  .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:10px 16px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500;transition:all .15s}
-  .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)} .btn-primary:disabled{opacity:.5;cursor:wait}
-  .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
-  .file-list{margin-top:16px}
-  .file-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-tint);border:1px solid var(--border);border-radius:4px;margin-bottom:6px;font-family:var(--mono);font-size:12px}
-  .file-row .name{flex:1;color:var(--text)} .file-row .status{color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;font-size:10px}
-  .file-row.done .status{color:var(--success)} .file-row.err .status{color:var(--danger)}
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-  .stat{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:16px}
-  .stat .lbl{font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
-  .stat .val{font-family:var(--serif);font-size:22px;font-weight:500;letter-spacing:-0.01em}
-  .stat .val.pos{color:var(--success)} .stat .val.neg{color:var(--danger)}
-  .stat .sub{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:4px}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:8px 10px;border-bottom:1px solid var(--border)}
-  td{padding:9px 10px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px}
-  td.num{text-align:right} td.pos{color:var(--success)} td.neg{color:var(--danger)}
-  tr:last-child td{border-bottom:none}
-  .msg{padding:10px 14px;font-size:13px;border-radius:4px;line-height:1.5;margin:10px 0}
-  .msg-error{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
-  .msg-success{background:var(--success-bg);border:1px solid #a7f3d0;color:#065f46}
-  .msg-info{background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--accent-dark)}
-  .empty{padding:28px 20px;text-align:center;color:var(--text-muted);font-size:13px}
-  @media (max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}.shell{padding:0 16px 80px}}
+  .dash-grid { display:grid; grid-template-columns: 2fr 1fr; gap:16px; }
+  @media (max-width: 980px) { .dash-grid { grid-template-columns: 1fr; } }
+  .nav-spark { width:100%; height:64px; }
+  .rec-row { padding:10px 12px; border:1px solid var(--border); border-radius:5px; margin-bottom:8px; cursor:pointer; }
+  .rec-row:hover { border-color: var(--accent); background: var(--bg-tint); }
+  .rec-row.dismissed { opacity:0.5; }
+  .rec-head { display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap; }
+  .rec-ticker { font-family:var(--serif); font-size:18px; font-weight:600; }
+  .rec-score { font-family:var(--mono); font-size:11px; padding:2px 8px; border-radius:3px; background:var(--bg-blue); color:var(--accent-dark); }
+  .rec-action { font-family:var(--mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; padding:2px 6px; border-radius:3px; background:var(--bg-tint); color:var(--text-muted); }
+  .rec-reasoning { font-size:12px; color:var(--text-muted); margin-top:4px; line-height:1.5; }
+  .tile-row { display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; }
+  @media (max-width: 720px) { .tile-row { grid-template-columns: 1fr 1fr; } }
+  .alert-row { padding:8px 10px; background:var(--bg-tint); border:1px solid var(--border); border-radius:4px; margin-bottom:6px; font-size:12px; }
+  .alert-row.high { border-left:3px solid var(--warning); }
+  .alert-row.critical { border-left:3px solid var(--danger); }
 </style>
 </head>
 <body>
 
+<div id="rr-nav-container"></div>
+
 <div id="loading-screen" class="loading">Loading dashboard…</div>
 
-<div id="app" class="shell hidden">
-  <div class="topbar">
-    <div class="brand"><span class="brand-mark">RR</span><span class="brand-name">Ridge Run</span></div>
-    <nav class="nav-tabs">
-      <a href="/dashboard.html" class="active">Dashboard</a>
-      <a href="/dna.html">Investor DNA</a>
-      <a href="/performance.html">Performance</a>
-      <a href="/watchlist.html">Watchlist</a><a href="/strategy.html">Strategy</a>
-      <a href="/ai.html">Ask AI</a>
-    </nav>
-    <div class="user-meta">
-      <span id="user-email"></span>
-      <button class="signout" id="signout-btn">Sign out</button>
-    </div>
-  </div>
+<div id="app" class="shell-wide hidden">
 
   <h1 class="page-title">Dashboard</h1>
-  <p class="page-sub">Upload Interactive Brokers activity statements as CSV. The system parses trades, P/L, and NAV.</p>
+  <p class="page-sub">Today's setup: capital deployed, where the AI sees edge, what to watch.</p>
 
-  <div class="card">
-    <h2>Upload trade statements</h2>
-    <p class="h2-sub">CSV files from IBKR (Account Management → Reports → Activity → CSV). Drop multiple at once.</p>
-    <div class="dropzone" id="dropzone">
-      <p class="primary">Drop CSV files here or click to choose</p>
-      <p>Parsed in-browser. Nothing leaves the browser except writes to your Supabase tables.</p>
-      <p class="hint">CSV only — PDFs are rejected for accuracy reasons</p>
-      <input type="file" id="file-input" class="file-input" accept=".csv,text/csv" multiple />
+  <div id="msg-area"></div>
+
+  <div class="banner-card">
+    <div class="banner-head">
+      <h2>Portfolio snapshot</h2>
+      <span class="banner-meta" id="snapshot-meta">--</span>
     </div>
-    <div class="file-list" id="file-list"></div>
-    <div id="upload-msg"></div>
-  </div>
-
-  <div class="card">
-    <h2>Summary</h2>
-    <p class="h2-sub">Across all statements uploaded.</p>
-    <div class="stats">
-      <div class="stat"><div class="lbl">Statements</div><div class="val" id="stat-statements">0</div><div class="sub" id="stat-statements-sub"></div></div>
-      <div class="stat"><div class="lbl">Trades</div><div class="val" id="stat-trades">0</div><div class="sub" id="stat-trades-sub"></div></div>
-      <div class="stat"><div class="lbl">Realized P/L</div><div class="val" id="stat-pl">—</div><div class="sub">cumulative</div></div>
-      <div class="stat"><div class="lbl">Unique symbols</div><div class="val" id="stat-symbols">0</div></div>
+    <div class="banner-body">
+      <div class="tile-row" id="snapshot-tiles">
+        <div class="metric-box"><div class="l">NAV</div><div class="v" id="t-nav">--</div></div>
+        <div class="metric-box"><div class="l">TWR YTD</div><div class="v" id="t-twr">--</div></div>
+        <div class="metric-box"><div class="l">Open positions</div><div class="v" id="t-positions">--</div></div>
+        <div class="metric-box"><div class="l">Last brief</div><div class="v" id="t-brief">--</div></div>
+      </div>
+      <svg class="nav-spark" id="nav-spark" viewBox="0 0 800 64"></svg>
     </div>
   </div>
 
-  <div class="card">
-    <h2>NAV by year</h2>
-    <div id="nav-table-wrap"><div class="empty">No statements uploaded yet.</div></div>
+  <div class="dash-grid">
+
+    <div>
+      <div class="banner-card">
+        <div class="banner-head">
+          <h2>Top recommendations</h2>
+          <span class="banner-meta" id="recs-meta">--</span>
+        </div>
+        <div class="banner-body">
+          <p class="h2-sub">From this morning's 5am ET AI run. Click into Strategy to see full panel for each.</p>
+          <div id="recs-list"><div class="empty">Loading…</div></div>
+          <div style="margin-top:10px"><a href="/strategy.html" class="btn btn-ghost">Open Strategy →</a></div>
+        </div>
+      </div>
+
+      <div class="banner-card">
+        <div class="banner-head">
+          <h2>Latest morning brief</h2>
+          <span class="banner-meta" id="brief-meta">--</span>
+        </div>
+        <div class="banner-body">
+          <div id="brief-body" style="font-size:13px; line-height:1.65;"><div class="empty">No brief yet.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="banner-card">
+        <div class="banner-head">
+          <h2>Watchlist</h2>
+          <span class="banner-meta" id="wl-meta">--</span>
+        </div>
+        <div class="banner-body">
+          <div id="wl-list"><div class="empty">--</div></div>
+          <div style="margin-top:10px"><a href="/watchlist.html" class="btn btn-ghost">Manage →</a></div>
+        </div>
+      </div>
+
+      <div class="banner-card">
+        <div class="banner-head">
+          <h2>Recent alerts</h2>
+          <span class="banner-meta" id="alerts-meta">--</span>
+        </div>
+        <div class="banner-body">
+          <div id="alerts-list"><div class="empty">--</div></div>
+        </div>
+      </div>
+
+      <div class="banner-card">
+        <div class="banner-head">
+          <h2>Recent uploads</h2>
+          <span class="banner-meta" id="ups-meta">--</span>
+        </div>
+        <div class="banner-body">
+          <div id="ups-list"><div class="empty">--</div></div>
+          <div style="margin-top:10px"><a href="/uploads.html" class="btn btn-ghost">Open Uploads →</a></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <div class="card">
-    <h2>Top symbols by realized P/L</h2>
-    <div id="pl-table-wrap"><div class="empty">No statements uploaded yet.</div></div>
-  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="/config.js"></script>
+<script src="/nav.js"></script>
 <script>
 (() => {
 const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = window.RR_CONFIG;
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 let currentUser = null;
+
 const $ = id => document.getElementById(id);
 const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
-const fmt = n => (n==null||isNaN(n))?'—':n.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
-const fmtInt = n => (n==null)?'0':n.toLocaleString('en-US');
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtUSD = n => (n==null||isNaN(n))?'--': '$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
+const fmtPct = (n,d=1) => (n==null||isNaN(n))?'--':(Number(n)*100).toFixed(d)+'%';
 
 (async () => {
   const { data:{ session } } = await sb.auth.getSession();
   if(!session?.user){ window.location.href='/index.html'; return; }
   currentUser = session.user;
-  $('user-email').textContent = currentUser.email || '';
-  show('loading-screen',false); show('app',true);
-  await refreshDashboard();
+  await window.RidgeRunNav.mount({ active: 'dashboard', supabase: sb });
+  show('loading-screen', false);
+  show('app', true);
+  await Promise.all([
+    loadSnapshot(), loadRecs(), loadBrief(), loadWatchlist(), loadAlerts(), loadUploads()
+  ]);
 })();
 
-$('signout-btn').addEventListener('click', async()=>{ await sb.auth.signOut(); window.location.href='/index.html'; });
-
-const dz=$('dropzone'), fi=$('file-input');
-dz.addEventListener('click',()=>fi.click());
-dz.addEventListener('dragover',e=>{e.preventDefault(); dz.classList.add('drag');});
-dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
-dz.addEventListener('drop',e=>{e.preventDefault(); dz.classList.remove('drag'); if(e.dataTransfer.files?.length) handleFiles(e.dataTransfer.files);});
-fi.addEventListener('change',e=>{ if(e.target.files?.length) handleFiles(e.target.files); });
-
-async function handleFiles(fileList){
-  const files=Array.from(fileList); $('upload-msg').innerHTML='';
-  for(const f of files){
-    const row=appendFileRow(f.name,'parsing');
-    try{
-      if(!/\.csv$/i.test(f.name)) throw new Error('Not a CSV. Export the IBKR statement as CSV.');
-      const text=await f.text();
-      const parsed=parseIbkrStatement(text);
-      if(!parsed.account_id && !parsed.trades.length && !parsed.nav.length) throw new Error('No IBKR sections found.');
-      setFileRow(row,'uploading');
-      await persistStatement(f,parsed);
-      setFileRow(row,'done',`${parsed.trades.length} trades · ${parsed.period_start||'?'} → ${parsed.period_end||'?'}`);
-    } catch(err){ console.error(err); setFileRow(row,'err',err.message); }
+async function loadSnapshot(){
+  const { data: navs } = await sb.from('nav_snapshots').select('*').eq('user_id', currentUser.id).order('as_of_date', { ascending: true });
+  if(navs && navs.length){
+    const last = navs[navs.length - 1];
+    $('t-nav').textContent = fmtUSD(last.total_value);
+    $('t-twr').textContent = fmtPct(last.twr_pct);
+    $('snapshot-meta').textContent = 'as of ' + last.as_of_date;
+    // sparkline
+    const W=800, H=64, pad=2;
+    const vals = navs.map(n => Number(n.total_value)||0);
+    const min = Math.min(...vals), max = Math.max(...vals);
+    const range = max-min || 1;
+    const xs = vals.map((v,i) => pad + (i*(W-2*pad))/(vals.length-1 || 1));
+    const ys = vals.map(v => H - pad - ((v-min)/range)*(H-2*pad));
+    const path = xs.map((x,i)=> (i===0?'M':'L')+x.toFixed(1)+','+ys[i].toFixed(1)).join(' ');
+    $('nav-spark').innerHTML = `<path d="${path}" stroke="var(--accent)" stroke-width="1.5" fill="none"/>`;
   }
-  await refreshDashboard();
-}
-function appendFileRow(name,status){ const div=document.createElement('div'); div.className='file-row'; div.innerHTML='<span class="name"></span><span class="status"></span>'; div.querySelector('.name').textContent=name; div.querySelector('.status').textContent=status; $('file-list').appendChild(div); return div; }
-function setFileRow(row,status,detail){ row.classList.remove('done','err'); if(status==='done') row.classList.add('done'); if(status==='err') row.classList.add('err'); row.querySelector('.status').textContent=status+(detail?' · '+detail:''); }
-
-function parseIbkrStatement(text){
-  const rows=Papa.parse(text,{skipEmptyLines:true}).data;
-  const result={account_id:null,period_start:null,period_end:null,trades:[],nav:[],realized_pl:[]};
-  const headers={};
-  for(const r of rows){
-    if(!r.length) continue;
-    const [section,kind,...rest]=r;
-    if(kind==='Header'){ headers[section]=rest; continue; }
-    if(kind!=='Data') continue;
-    const cols=headers[section]||[]; const obj={}; cols.forEach((c,i)=>obj[c]=rest[i]);
-    if(section==='Statement'){
-      if(obj['Field Name']==='Period'){ const m=(obj['Field Value']||'').match(/(\w+\s+\d+,\s+\d+)\s*-\s*(\w+\s+\d+,\s+\d+)/); if(m){result.period_start=isoDate(m[1]); result.period_end=isoDate(m[2]);} }
-    } else if(section==='Account Information'){
-      if(obj['Field Name']==='Account') result.account_id=obj['Field Value'];
-    } else if(section==='Trades' && rest[0]==='Order'){
-      result.trades.push({asset_class:obj['Asset Category'],currency:obj['Currency'],symbol:obj['Symbol'],trade_dt:parseDT(obj['Date/Time']),quantity:num(obj['Quantity']),price:num(obj['T. Price']),close_price:num(obj['C. Price']),proceeds:num(obj['Proceeds']),commission:num(obj['Comm/Fee']),basis:num(obj['Basis']),realized_pl:num(obj['Realized P/L']),mtm_pl:num(obj['MTM P/L']),code:obj['Code']||null});
-    } else if(section==='Net Asset Value'){
-      if(obj['Asset Class']) result.nav.push({asset_class:obj['Asset Class'],long_value:num(obj['Current Long']),short_value:num(obj['Current Short']),total_value:num(obj['Current Total']),change_value:num(obj['Change'])});
-    } else if(section==='Realized & Unrealized Performance Summary'){
-      if(obj['Symbol']) result.realized_pl.push({asset_class:obj['Asset Category'],symbol:obj['Symbol'],st_profit:num(obj['Realized S/T Profit']),st_loss:num(obj['Realized S/T Loss']),lt_profit:num(obj['Realized L/T Profit']),lt_loss:num(obj['Realized L/T Loss']),realized_total:num(obj['Realized Total']),unrealized_total:num(obj['Unrealized Total']),total:num(obj['Total'])});
-    }
-  }
-  return result;
-}
-function num(v){ if(v==null||v==='') return null; const c=String(v).replace(/,/g,'').replace(/%$/,''); const n=Number(c); return isNaN(n)?null:n; }
-function parseDT(v){ if(!v) return null; const m=v.match(/(\d{4}-\d{2}-\d{2})(?:,\s*(\d{2}:\d{2}:\d{2}))?/); if(!m) return null; return m[2]?`${m[1]}T${m[2]}Z`:`${m[1]}T00:00:00Z`; }
-function isoDate(s){ const d=new Date(s); return isNaN(d)?null:d.toISOString().slice(0,10); }
-
-async function persistStatement(file,parsed){
-  const { data: stmt, error } = await sb.from('trade_statements').insert({ user_id:currentUser.id, filename:file.name, period_start:parsed.period_start, period_end:parsed.period_end, account_id:parsed.account_id, row_count:parsed.trades.length, raw_size_bytes:file.size }).select().single();
-  if(error) throw error;
-  const sid = stmt.id;
-  const tradeRows = parsed.trades.map(t=>({user_id:currentUser.id, statement_id:sid, ...t}));
-  for(let i=0;i<tradeRows.length;i+=500){ const chunk=tradeRows.slice(i,i+500); const { error } = await sb.from('trades').insert(chunk); if(error) throw error; }
-  if(parsed.nav.length){
-    const navRows = parsed.nav.map(n=>({user_id:currentUser.id, statement_id:sid, as_of_date:parsed.period_end, ...n}));
-    const { error } = await sb.from('nav_snapshots').insert(navRows); if(error) throw error;
-  }
-  if(parsed.realized_pl.length){
-    const year = parsed.period_end?Number(parsed.period_end.slice(0,4)):null;
-    const plRows = parsed.realized_pl.map(p=>({user_id:currentUser.id, statement_id:sid, period_year:year, ...p}));
-    const { error } = await sb.from('realized_pl_summary').insert(plRows); if(error) throw error;
+  // open positions count
+  const { count: posCount } = await sb.from('positions').select('*', { count:'exact', head:true }).eq('user_id', currentUser.id).eq('is_open', true);
+  $('t-positions').textContent = (posCount ?? 0).toString();
+  // latest brief
+  const { data: briefs } = await sb.from('ai_briefings').select('created_at').eq('user_id', currentUser.id).order('created_at',{ascending:false}).limit(1);
+  if(briefs && briefs.length){
+    $('t-brief').textContent = new Date(briefs[0].created_at).toLocaleDateString();
+  } else {
+    $('t-brief').textContent = '--';
   }
 }
 
-async function refreshDashboard(){
-  const { data: stmts } = await sb.from('trade_statements').select('id, filename, period_start, period_end, row_count, uploaded_at').order('period_end',{ascending:true});
-  $('stat-statements').textContent = fmtInt(stmts?.length||0);
-  if(stmts?.length){ const years=[...new Set(stmts.map(s=>s.period_end?.slice(0,4)).filter(Boolean))].sort(); $('stat-statements-sub').textContent = years.length?`${years[0]} – ${years[years.length-1]}`:''; }
-  const { count: tradeCount } = await sb.from('trades').select('*',{count:'exact',head:true});
-  $('stat-trades').textContent = fmtInt(tradeCount||0);
-  const { data: plRows } = await sb.from('realized_pl_summary').select('symbol, realized_total');
-  const symbols=new Set(); let total=0;
-  (plRows||[]).forEach(r=>{ if(r.symbol) symbols.add(r.symbol); if(typeof r.realized_total==='number') total+=r.realized_total; });
-  $('stat-symbols').textContent = fmtInt(symbols.size);
-  const plEl=$('stat-pl'); plEl.textContent=fmt(total); plEl.classList.toggle('pos',total>0); plEl.classList.toggle('neg',total<0);
-  renderNav(stmts||[]); renderPl(plRows||[]);
+async function loadRecs(){
+  const { data } = await sb.from('ai_recommendations').select('*').eq('user_id', currentUser.id).eq('dismissed', false).order('composite_score',{ascending:false, nullsFirst: false}).limit(5);
+  const out = $('recs-list');
+  if(!data || !data.length){ out.innerHTML = '<div class="empty">No active recommendations. Check back after the 5am ET run.</div>'; $('recs-meta').textContent = '0'; return; }
+  $('recs-meta').textContent = data.length + ' active';
+  out.innerHTML = data.map(r => `<div class="rec-row" onclick="window.location.href='/strategy.html'">
+    <div class="rec-head">
+      <div><span class="rec-ticker">${esc(r.ticker)}</span> <span class="rec-action">${esc(r.recommended_action||'--')}</span> <span class="rec-action">${esc((r.opportunity_type||'').replace(/_/g,' '))}</span></div>
+      ${r.composite_score!=null ? `<span class="rec-score">${Math.round(r.composite_score)}</span>` : ''}
+    </div>
+    <div class="rec-reasoning">${esc((r.reasoning||'').slice(0,280))}</div>
+  </div>`).join('');
 }
 
-async function renderNav(stmts){
-  const wrap=$('nav-table-wrap');
-  if(!stmts.length){ wrap.innerHTML='<div class="empty">No statements uploaded yet.</div>'; return; }
-  const { data: navs } = await sb.from('nav_snapshots').select('as_of_date, asset_class, total_value, change_value').eq('asset_class','Total').order('as_of_date',{ascending:true});
-  if(!navs?.length){ wrap.innerHTML='<div class="empty">No NAV data parsed yet.</div>'; return; }
-  const rows = navs.map(n=>`<tr><td>${n.as_of_date||''}</td><td class="num">${fmt(n.total_value)}</td><td class="num ${n.change_value>0?'pos':n.change_value<0?'neg':''}">${fmt(n.change_value)}</td></tr>`).join('');
-  wrap.innerHTML=`<table><thead><tr><th>As of</th><th style="text-align:right">Ending NAV</th><th style="text-align:right">Change</th></tr></thead><tbody>${rows}</tbody></table>`;
+async function loadBrief(){
+  const { data } = await sb.from('ai_briefings').select('*').eq('user_id', currentUser.id).order('created_at',{ascending:false}).limit(1);
+  if(!data || !data.length){ $('brief-body').innerHTML = '<div class="empty">No brief generated yet.</div>'; return; }
+  const b = data[0];
+  $('brief-meta').textContent = new Date(b.created_at).toLocaleString();
+  const body = (b.body_markdown||'').slice(0, 3000);
+  // basic markdown-ish: line breaks
+  $('brief-body').innerHTML = `<h3 style="font-family:var(--serif);font-size:17px;margin:0 0 8px">${esc(b.title||'Morning brief')}</h3>` + esc(body).replace(/\n/g,'<br>');
 }
 
-function renderPl(plRows){
-  const wrap=$('pl-table-wrap');
-  if(!plRows.length){ wrap.innerHTML='<div class="empty">No P/L data uploaded yet.</div>'; return; }
-  const agg={}; plRows.forEach(r=>{ if(!r.symbol) return; agg[r.symbol]=(agg[r.symbol]||0)+(r.realized_total||0); });
-  const ranked=Object.entries(agg).sort((a,b)=>b[1]-a[1]);
-  const top=ranked.slice(0,10), bottom=ranked.slice(-10).reverse();
-  const rowHtml=arr=>arr.map(([s,v])=>`<tr><td>${s}</td><td class="num ${v>0?'pos':v<0?'neg':''}">${fmt(v)}</td></tr>`).join('');
-  wrap.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><div><div style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px">Top winners</div><table><thead><tr><th>Symbol</th><th style="text-align:right">Realized P/L</th></tr></thead><tbody>${rowHtml(top)}</tbody></table></div><div><div style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px">Worst losers</div><table><thead><tr><th>Symbol</th><th style="text-align:right">Realized P/L</th></tr></thead><tbody>${rowHtml(bottom)}</tbody></table></div></div>`;
+async function loadWatchlist(){
+  const { data } = await sb.from('ticker_watchlist').select('*').eq('user_id', currentUser.id).eq('is_active', true).order('created_at',{ascending:false}).limit(20);
+  const out = $('wl-list');
+  if(!data || !data.length){ out.innerHTML = '<div class="empty">No tickers. Add some via Watchlist.</div>'; $('wl-meta').textContent = '0'; return; }
+  $('wl-meta').textContent = data.length + ' tickers';
+  out.innerHTML = data.map(r => {
+    const t = r.ticker || r.symbol;
+    return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+      <a href="/research.html?ticker=${encodeURIComponent(t)}" style="font-family:var(--mono);font-size:12px;font-weight:500;color:var(--accent);text-decoration:none">${esc(t)}</a>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted)">${esc((r.thesis||r.reason||'').slice(0,40))}</span>
+    </div>`;
+  }).join('');
 }
+
+async function loadAlerts(){
+  const { data } = await sb.from('alerts').select('*').eq('user_id', currentUser.id).eq('is_dismissed', false).order('created_at',{ascending:false}).limit(8);
+  const out = $('alerts-list');
+  if(!data || !data.length){ out.innerHTML = '<div class="empty">No active alerts.</div>'; $('alerts-meta').textContent = '0'; return; }
+  $('alerts-meta').textContent = data.length;
+  out.innerHTML = data.map(a => `<div class="alert-row ${esc(a.severity||'')}"><b>${esc(a.title||'--')}</b><br><span style="color:var(--text-muted);font-size:11px">${esc((a.body_markdown||'').slice(0,160))}</span></div>`).join('');
+}
+
+async function loadUploads(){
+  const { data } = await sb.from('uploaded_documents').select('*').eq('user_id', currentUser.id).order('uploaded_at',{ascending:false}).limit(5);
+  const out = $('ups-list');
+  if(!data || !data.length){ out.innerHTML = '<div class="empty">No uploads yet.</div>'; $('ups-meta').textContent = '0'; return; }
+  $('ups-meta').textContent = data.length;
+  out.innerHTML = data.map(u => `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text)">${esc((u.original_filename||'').slice(0,40))}</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted)">${esc(u.document_type||'--')} · ${esc(u.status||'--')} · ${new Date(u.uploaded_at).toLocaleDateString()}</div>
+  </div>`).join('');
+}
+
 })();
 </script>
 </body>
