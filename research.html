@@ -7,102 +7,128 @@
 <script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/themes.css" />
 <style>
-  :root{--bg:#fff;--bg-tint:#f8fafc;--bg-blue:#eff6ff;--bg-blue-soft:#f0f7ff;--border:#e2e8f0;--border-blue:#bfdbfe;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;--accent:#2563eb;--accent-dark:#1e40af;--success:#059669;--success-bg:#d1fae5;--warning:#d97706;--warning-bg:#fed7aa;--danger:#dc2626;--danger-bg:#fee2e2;--serif:'Source Serif 4',Georgia,serif;--sans:'Inter',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace}
+  :root{
+    --bg:#fff;--bg-tint:#f8fafc;--bg-blue:#eff6ff;--border:#e2e8f0;--border-blue:#bfdbfe;
+    --text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
+    --accent:#2563eb;--accent-dark:#1e40af;
+    --success:#059669;--success-bg:#d1fae5;--warning:#d97706;--warning-bg:#fed7aa;
+    --danger:#dc2626;--danger-bg:#fee2e2;
+    --serif:'Source Serif 4',Georgia,serif;--sans:'Inter',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace;
+  }
   *{box-sizing:border-box} html,body{margin:0;padding:0}
   body{background:var(--bg-tint);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh}
   .hidden{display:none!important}
   .loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim)}
-  .shell{max-width:1300px;margin:0 auto;padding:0 24px 80px}
-  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:8px;flex-wrap:wrap;gap:12px}
-  .brand{display:flex;align-items:center;gap:12px}
-  .brand-mark{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--accent);letter-spacing:-0.02em}
-  .brand-name{font-family:var(--mono);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted)}
-  .nav-tabs{display:flex;gap:4px;flex-wrap:wrap}
-  .nav-tabs a{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;padding:6px 10px;border-radius:3px;border:1px solid transparent}
-  .nav-tabs a:hover{color:var(--text);background:var(--bg)} .nav-tabs a.active{color:var(--accent);background:var(--bg-blue);border-color:var(--border-blue)}
-  .user-meta{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:11px;color:var(--text-muted)}
-  .signout{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;background:transparent;border:1px solid var(--border);padding:6px 10px;border-radius:3px}
-  .signout:hover{border-color:var(--text-dim);color:var(--text-muted)}
+  .shell{max-width:1320px;margin:0 auto;padding:0 24px 80px}
 
   .ticker-bar{display:flex;align-items:center;gap:12px;margin:20px 0 18px;flex-wrap:wrap}
-  .ticker-input{font-family:var(--mono);font-size:16px;font-weight:500;background:var(--bg);border:1px solid var(--border);padding:10px 14px;border-radius:4px;width:180px;color:var(--text);text-transform:uppercase}
+  .ticker-input{font-family:var(--mono);font-size:16px;font-weight:500;background:var(--bg);border:1px solid var(--border);padding:10px 14px;border-radius:4px;width:200px;color:var(--text);text-transform:uppercase;letter-spacing:0.05em}
   .ticker-input:focus{outline:none;border-color:var(--accent)}
-  .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:10px 16px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500;transition:all .15s}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:9px 14px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500;transition:all .15s}
   .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)} .btn-primary:disabled{opacity:.5;cursor:wait}
   .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
+  .btn-sm{font-size:10px;padding:5px 9px}
 
-  .card{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:24px;margin-bottom:20px}
-  .card h2{font-family:var(--serif);font-size:19px;font-weight:500;letter-spacing:-0.015em;margin:0 0 4px}
-  .card .h2-sub{color:var(--text-muted);font-size:13px;margin:0 0 18px}
+  .banner-card{background:var(--bg);border:1px solid var(--border);border-radius:6px;margin-bottom:18px;overflow:hidden}
+  .banner-head{background:#0f172a;color:#f1f5f9;padding:13px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .banner-head h2{font-family:var(--serif);font-size:17px;font-weight:500;margin:0;color:#f1f5f9;letter-spacing:-0.01em}
+  .banner-meta{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8}
+  .banner-body{padding:20px 22px}
+  .h2-sub{color:var(--text-muted);font-size:13px;margin:0 0 14px;line-height:1.55}
 
-  .header-grid{display:grid;grid-template-columns:1fr 240px;gap:20px;align-items:start}
+  .header-grid{display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start}
   .company-block .name{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-0.02em;margin-bottom:4px}
-  .company-block .sub{font-family:var(--mono);font-size:12px;color:var(--text-muted);letter-spacing:0.05em;margin-bottom:14px}
-  .company-block .desc{font-size:13.5px;color:var(--text-muted);line-height:1.6;margin-bottom:14px}
-  .kpi-mini-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-  .kpi-mini{padding:10px 12px;background:var(--bg-tint);border:1px solid var(--border);border-radius:4px}
-  .kpi-mini .l{font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px}
-  .kpi-mini .v{font-family:var(--mono);font-size:14px;color:var(--text);font-weight:500}
-  .kpi-mini .v.pos{color:var(--success)} .kpi-mini .v.neg{color:var(--danger)}
+  .company-block .sub{font-family:var(--mono);font-size:11px;color:var(--text-muted);letter-spacing:0.06em;margin-bottom:14px;text-transform:uppercase}
+  .company-block .desc{font-size:13.5px;color:var(--text-muted);line-height:1.6;margin:0}
 
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 
-  .metric-box{padding:14px;background:var(--bg-tint);border:1px solid var(--border);border-radius:4px;display:flex;flex-direction:column}
-  .metric-box .l{font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
-  .metric-box .v{font-family:var(--serif);font-size:20px;font-weight:500;letter-spacing:-0.01em}
+  .metric-box{padding:13px 14px;background:var(--bg-tint);border:1px solid var(--border);border-radius:4px;display:flex;flex-direction:column}
+  .metric-box .l{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
+  .metric-box .v{font-family:var(--serif);font-size:20px;font-weight:500;letter-spacing:-0.01em;color:var(--text)}
   .metric-box .v.pos{color:var(--success)} .metric-box .v.neg{color:var(--danger)}
   .metric-box .sub{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:3px}
-  .metric-box.cheap{border-color:#a7f3d0;background:var(--success-bg)}
-  .metric-box.rich{border-color:#fcd34d;background:var(--warning-bg)}
+  .metric-box.cheap{border-color:#a7f3d0;background:#ecfdf5}
+  .metric-box.rich{border-color:#fcd34d;background:#fffbeb}
+  .metric-box.neutral{border-color:var(--border-blue);background:var(--bg-blue)}
 
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:8px 10px;border-bottom:1px solid var(--border)}
-  td{padding:9px 10px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px}
+  /* Regime badges */
+  .badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:3px;border:1px solid var(--border);background:var(--bg-tint);color:var(--text-muted);margin-right:6px}
+  .badge.cheap{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
+  .badge.rich{background:#fffbeb;border-color:#fcd34d;color:#92400e}
+  .badge.lean-buy{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+  .badge.lean-sell{background:#fef3c7;border-color:#fcd34d;color:#92400e}
+  .badge.neutral{background:#f1f5f9;border-color:#cbd5e1;color:#334155}
+  .badge.bad{background:var(--danger-bg);border-color:#fecaca;color:#991b1b}
+  .badge.contango{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+  .badge.backwardation{background:#fef3c7;border-color:#fcd34d;color:#92400e}
+  .badge.flat{background:#f1f5f9;border-color:#cbd5e1;color:#334155}
+
+  /* Strategy cards */
+  .strat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  .strat-card{background:var(--bg);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:4px;padding:14px 16px}
+  .strat-card.sell{border-left-color:var(--warning)}
+  .strat-card .strat-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .strat-card .strat-name{font-family:var(--serif);font-size:16px;font-weight:600;color:var(--text)}
+  .strat-card .strat-score{font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:600}
+  .strat-card .strat-side{font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+  .strat-card .strat-rat{font-size:12.5px;color:var(--text);line-height:1.55;margin-bottom:8px}
+  .strat-card .strat-when{font-size:11.5px;color:var(--text-muted);line-height:1.5;margin-bottom:4px}
+  .strat-card .strat-when b{color:var(--text);font-weight:600}
+  .strat-card .strat-flag{font-size:11.5px;color:var(--danger);line-height:1.5;margin-bottom:8px}
+  .strat-card .strat-actions{margin-top:8px}
+
+  /* Tables */
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:8px 8px;border-bottom:1px solid var(--border);background:var(--bg-tint);position:sticky;top:0;z-index:1}
+  td{padding:7px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11.5px;color:var(--text)}
   td.num{text-align:right} td.pos{color:var(--success)} td.neg{color:var(--danger)}
-  tr:last-child td{border-bottom:none}
+  td.itm{background:#fef3c7}
+  tr.atm td{background:#eff6ff;font-weight:600}
+  tr:hover td{background:var(--bg-blue)}
 
-  /* Heatmap */
-  .heatmap{display:grid;grid-template-columns:50px repeat(12, 1fr);gap:2px;margin-top:8px}
-  .heatmap .hm-cell{aspect-ratio:1.5/1;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;border-radius:2px;background:var(--bg-tint);color:var(--text-muted)}
-  .heatmap .hm-cell.year-label{background:transparent;color:var(--text-muted);font-weight:500;justify-content:flex-end;padding-right:6px}
-  .heatmap .hm-cell.header{background:transparent;font-size:8px;letter-spacing:0.1em}
-  .heatmap .hm-cell.has-data{color:var(--text)}
-  .heatmap .hm-row{display:contents}
+  /* Options chain wrapper */
+  .chain-wrap{max-height:520px;overflow:auto;border:1px solid var(--border);border-radius:4px}
+  .chain-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+  .chain-controls select, .chain-controls input{font-family:var(--mono);font-size:11px;background:var(--bg);border:1px solid var(--border);padding:6px 10px;border-radius:3px;color:var(--text)}
+  .chain-controls label{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted)}
 
-  /* Markdown */
-  .md-body{font-family:var(--sans);font-size:13.5px;line-height:1.65;color:var(--text)}
-  .md-body h2{font-family:var(--serif);font-size:17px;font-weight:500;margin:18px 0 6px;letter-spacing:-0.01em}
-  .md-body h3{font-family:var(--serif);font-size:15px;font-weight:500;margin:14px 0 4px}
-  .md-body p{margin:6px 0}
-  .md-body ul{margin:6px 0;padding-left:20px}
-  .md-body li{margin:3px 0}
-  .md-body strong{font-weight:600}
-  .md-body em{font-style:italic}
-  .md-body code{background:var(--bg-tint);padding:1px 4px;border-radius:2px;font-family:var(--mono);font-size:12px}
-  .citations{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
-  .citations .lbl{font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
-  .citations a{display:block;color:var(--accent);font-size:11px;text-decoration:none;margin:2px 0;word-break:break-all}
-  .citations a:hover{text-decoration:underline}
+  .term-sparkline{display:flex;align-items:flex-end;gap:14px;height:80px;padding:8px 0}
+  .term-bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .term-bar .b{width:100%;background:linear-gradient(to top,var(--accent),#60a5fa);border-radius:2px 2px 0 0;min-height:4px;position:relative}
+  .term-bar .l{font-family:var(--mono);font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase}
+  .term-bar .v{font-family:var(--mono);font-size:11px;color:var(--text);font-weight:600}
 
-  svg{display:block;max-width:100%}
-  .empty{padding:32px 20px;text-align:center;color:var(--text-muted);font-size:13px}
-  .msg{padding:10px 14px;font-size:13px;border-radius:4px;line-height:1.5;margin:10px 0}
+  .news-item{padding:10px 0;border-bottom:1px solid var(--border)}
+  .news-item:last-child{border-bottom:none}
+  .news-item .headline{font-size:13.5px;color:var(--text);text-decoration:none;line-height:1.4;display:block;margin-bottom:3px}
+  .news-item .headline:hover{color:var(--accent)}
+  .news-item .src{font-family:var(--mono);font-size:10px;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase}
+
+  .note-item{padding:10px 12px;background:var(--bg-tint);border:1px solid var(--border);border-radius:4px;margin-bottom:8px;display:flex;justify-content:space-between;gap:12px}
+  .note-item.pinned{border-left:3px solid var(--accent)}
+  .note-item .txt{flex:1;font-size:13px;line-height:1.5;white-space:pre-wrap}
+  .note-item .meta{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:4px}
+
+  .field-mini label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+  .field-mini input, .field-mini select, .field-mini textarea{width:100%;background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-family:var(--mono);font-size:12px;color:var(--text);border-radius:3px}
+  .field-mini textarea{font-family:var(--sans);min-height:80px;resize:vertical}
+
+  .empty{padding:24px;text-align:center;color:var(--text-muted);font-size:13px;font-style:italic}
+  .msg{padding:10px 14px;font-size:13px;border-radius:4px;line-height:1.5;margin:8px 0}
   .msg-error{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
   .msg-info{background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--accent-dark)}
-  .pill{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:var(--bg-tint);border:1px solid var(--border);color:var(--text-muted)}
-  .pill.warn{background:var(--warning-bg);border-color:#fcd34d;color:#92400e}
-  .pill.ok{background:var(--success-bg);border-color:#a7f3d0;color:#065f46}
-  .pill.bad{background:var(--danger-bg);border-color:#fecaca;color:#991b1b}
+  .msg-success{background:var(--success-bg);border:1px solid #a7f3d0;color:#065f46}
 
   @media (max-width:980px){
     .header-grid{grid-template-columns:1fr}
-    .grid-2{grid-template-columns:1fr}
-    .grid-3{grid-template-columns:repeat(2,1fr)}
     .grid-4{grid-template-columns:repeat(2,1fr)}
-    .heatmap{font-size:8px}
+    .grid-3{grid-template-columns:1fr}
+    .strat-grid{grid-template-columns:1fr}
   }
 </style>
 </head>
@@ -111,541 +137,747 @@
 <div id="loading-screen" class="loading">Loading research…</div>
 
 <div id="app" class="shell hidden">
-  <div class="topbar">
-    <div class="brand"><span class="brand-mark">RR</span><span class="brand-name">Ridge Run</span></div>
-    <nav class="nav-tabs">
-      <a href="/dashboard.html">Dashboard</a>
-      <a href="/dna.html">Investor DNA</a>
-      <a href="/performance.html">Performance</a>
-      <a href="/watchlist.html">Watchlist</a>
-      <a href="/strategy.html">Strategy</a>
-      <a href="/research.html" class="active">Research</a>
-      <a href="/screener.html">Screener</a>
-      <a href="/ai.html">Ask AI</a>
-    </nav>
-    <div class="user-meta">
-      <span id="user-email"></span>
-      <button class="signout" id="signout-btn">Sign out</button>
-    </div>
-  </div>
+  <div id="rr-nav-container"></div>
 
   <div class="ticker-bar">
-    <input type="text" class="ticker-input" id="ticker-input" placeholder="Enter ticker..." />
+    <input type="text" id="ticker-input" class="ticker-input" placeholder="Ticker" maxlength="8" autocomplete="off">
     <button class="btn btn-primary" id="load-btn">Load</button>
-    <button class="btn btn-ghost" id="refresh-research-btn">Run fresh AI research</button>
-    <button class="btn btn-ghost" id="add-to-watchlist-btn">Add to watchlist</button>
-    <button class="btn btn-ghost" id="open-model-btn">Build/edit model</button>
-    <button class="btn btn-ghost" id="add-to-ideas-btn">Add to thesis stack</button>
-    <span id="header-status" style="margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--text-dim)"></span>
+    <button class="btn btn-ghost" id="refresh-btn" title="Re-fire data webhooks">Refresh data</button>
+    <span class="banner-meta" id="ticker-status"></span>
   </div>
 
   <div id="msg-area"></div>
-
-  <div id="empty-state" class="card">
-    <div class="empty">
-      <div style="font-family:var(--serif);font-size:22px;font-weight:500;margin-bottom:8px;color:var(--text)">Enter a ticker to begin</div>
-      <p>Or pick one of your tracked tickers below:</p>
-      <div id="quick-tickers" style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center"></div>
-    </div>
-  </div>
-
-  <div id="content" class="hidden">
-    <!-- Header / company block -->
-    <div class="card">
-      <div class="header-grid">
-        <div class="company-block">
-          <div class="name" id="r-company-name">—</div>
-          <div class="sub" id="r-company-sub">—</div>
-          <div class="desc" id="r-company-desc"></div>
-          <div id="r-flags" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-        </div>
-        <div class="kpi-mini-grid">
-          <div class="kpi-mini"><div class="l">Mkt Cap</div><div class="v" id="r-mkt-cap">—</div></div>
-          <div class="kpi-mini"><div class="l">EV</div><div class="v" id="r-ev">—</div></div>
-          <div class="kpi-mini"><div class="l">Beta</div><div class="v" id="r-beta">—</div></div>
-          <div class="kpi-mini"><div class="l">Next earnings</div><div class="v" id="r-earnings">—</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Active thesis model summary (replaces standalone valuation + growth tiles) -->
-    <div class="card" style="border-left:3px solid var(--accent)">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px">
-        <h2>Thesis model</h2>
-        <a id="r-model-link" href="#" class="btn btn-ghost" style="font-family:var(--mono);font-size:11px;text-decoration:none">Open full model →</a>
-      </div>
-      <p class="h2-sub">5-year cap-structure flow-through. Active scenario shown; valuation history and growth context preserved below.</p>
-      <div id="r-model-summary"><div class="empty">No active thesis model for this ticker yet. <a id="r-model-build-link" href="#" style="color:var(--accent);text-decoration:underline">Build one →</a></div></div>
-    </div>
-
-    <!-- Valuation history charts -->
-    <div class="card">
-      <h2>Valuation history</h2>
-      <p class="h2-sub">Time series of key multiples since the platform began tracking this ticker.</p>
-      <div class="grid-2">
-        <div>
-          <div style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px">EV / Revenue (NTM)</div>
-          <div id="r-chart-ev-rev"></div>
-        </div>
-        <div>
-          <div style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px">FCF Yield (NTM)</div>
-          <div id="r-chart-fcf-yield"></div>
-        </div>
-        <div>
-          <div style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px">EV / EBITDA (NTM)</div>
-          <div id="r-chart-ev-ebitda"></div>
-        </div>
-        <div>
-          <div style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px">Revenue growth (NTM)</div>
-          <div id="r-chart-rev-growth"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Comps -->
-    <div class="card">
-      <h2>Comps (same sector)</h2>
-      <p class="h2-sub">Other tracked companies in the same sector for relative valuation context.</p>
-      <div id="r-comps-table"></div>
-    </div>
-
-    <!-- Shareholders -->
-    <div class="card">
-      <h2>Top shareholders</h2>
-      <p class="h2-sub">Latest 13F snapshot (when ingested).</p>
-      <div id="r-shareholders-table"></div>
-    </div>
-
-    <!-- Monthly heatmap -->
-    <div class="card">
-      <h2>Monthly returns heatmap</h2>
-      <p class="h2-sub">Monthly % return by year. Green = positive, red = negative.</p>
-      <div id="r-heatmap"></div>
-    </div>
-
-    <!-- AI Research -->
-    <div class="card">
-      <h2>AI research</h2>
-      <p class="h2-sub">Perplexity sonar-pro synthesis: latest news, bull/bear case, near-term catalysts. Click "Run fresh AI research" in the header to update.</p>
-      <div id="r-research" class="md-body"><div class="empty">No research generated yet. Click "Run fresh AI research" above.</div></div>
-      <div id="r-citations"></div>
-    </div>
-
-    <!-- IV / Options context -->
-    <div class="card">
-      <h2>Options / volatility context</h2>
-      <p class="h2-sub">From the nightly vol snapshot. Useful if you're sizing an options trade.</p>
-      <div id="r-vol-context"></div>
-    </div>
-  </div>
+  <div id="content"></div>
 </div>
 
+<script src="/nav.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/config.js"></script>
-<script src="/nav.js"></script>
 <script>
 (() => {
-const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, N8N_RESEARCH_URL } = window.RR_CONFIG;
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-let currentUser=null;
-let currentTicker=null;
-const $ = id => document.getElementById(id);
-const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
-const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmt0 = n => (n==null||isNaN(n))?'—':Number(n).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
-const fmtBig = n => {
-  if(n==null||isNaN(n)) return '—';
-  const abs=Math.abs(n);
-  if(abs>=1e12) return '$'+(n/1e12).toFixed(2)+'T';
-  if(abs>=1e9) return '$'+(n/1e9).toFixed(2)+'B';
-  if(abs>=1e6) return '$'+(n/1e6).toFixed(1)+'M';
-  return fmt0(n);
-};
-const fmtPct = (n, digits=1) => (n==null||isNaN(n))?'—':(Number(n)*100).toFixed(digits)+'%';
-const fmtMult = n => (n==null||isNaN(n))?'—':Number(n).toFixed(1)+'x';
+  const N8N = 'https://victoryvision.app.n8n.cloud';
+  const cfg = window.RR_CONFIG || {};
+  const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY);
+  let currentUser = null;
+  let currentTicker = null;
+  let currentSpot = null;
 
-(async () => {
-  const { data:{ session } } = await sb.auth.getSession();
-  if(!session?.user){ window.location.href='/index.html'; return; }
-  currentUser = session.user;
-  $('user-email').textContent = currentUser.email || '';
-  show('loading-screen',false); show('app',true);
-  await loadQuickTickers();
-  // URL param ?t=PYPL
-  const urlT = new URL(location.href).searchParams.get('t');
-  if(urlT){ $('ticker-input').value = urlT.toUpperCase(); loadTicker(); }
-})();
-
-$('signout-btn').addEventListener('click', async()=>{ await sb.auth.signOut(); window.location.href='/index.html'; });
-$('load-btn').addEventListener('click', loadTicker);
-$('ticker-input').addEventListener('keydown', e=>{ if(e.key==='Enter') loadTicker(); });
-$('refresh-research-btn').addEventListener('click', runResearch);
-$('add-to-watchlist-btn').addEventListener('click', addToWatchlist);
-$('add-to-ideas-btn').addEventListener('click', addToIdeas);
-
-async function loadQuickTickers(){
-  const { data } = await sb.rpc('tracked_tickers', { p_user: currentUser.id });
-  const tickers = [...new Set((data||[]).map(r=>r.ticker).filter(Boolean))];
-  if(!tickers.length){ $('quick-tickers').innerHTML = '<span style="color:var(--text-dim);font-family:var(--mono);font-size:11px">No tracked tickers yet.</span>'; return; }
-  $('quick-tickers').innerHTML = tickers.map(t=>`<button class="pill" style="cursor:pointer" onclick="window._loadTicker('${esc(t)}')">${esc(t)}</button>`).join('');
-}
-window._loadTicker = (t) => { $('ticker-input').value = t; loadTicker(); };
-
-async function loadTicker(){
-  const t = $('ticker-input').value.trim().toUpperCase();
-  if(!t){ flash('Enter a ticker','error'); return; }
-  currentTicker = t;
-  show('empty-state', false);
-  show('content', true);
-  $('header-status').textContent = 'loading…';
-  await Promise.all([
-    loadProfile(t),
-    loadFundamentals(t),
-    loadValuationHistory(t),
-    loadComps(t),
-    loadShareholders(t),
-    loadHeatmap(t),
-    loadResearch(t),
-    loadVolContext(t)
-  ]);
-  $('header-status').textContent = 'loaded';
-}
-
-async function loadProfile(t){
-  const { data } = await sb.from('company_profile').select('*').eq('ticker',t).maybeSingle();
-  if(!data){
-    $('r-company-name').textContent = t;
-    $('r-company-sub').textContent = 'No profile data yet — will populate on next fundamentals snapshot';
-    $('r-company-desc').textContent = '';
-    return;
-  }
-  $('r-company-name').textContent = `${data.company_name || t} (${t})`;
-  $('r-company-sub').textContent = [data.sector, data.industry, data.hq_location].filter(Boolean).join(' · ');
-  $('r-company-desc').textContent = data.description || '';
-  $('r-beta').textContent = data.beta!=null ? Number(data.beta).toFixed(2) : '—';
-  $('r-earnings').textContent = data.next_earnings_date || '—';
-}
-
-async function loadFundamentals(t){
-  const { data: rows } = await sb.from('company_fundamentals').select('*').eq('ticker',t).order('as_of_date',{ascending:false}).limit(1);
-  const f = rows?.[0];
-  const flags = $('r-flags');
-  flags.innerHTML = '';
-  if(!f){
-    $('r-mkt-cap').textContent='—'; $('r-ev').textContent='—';
-    $('r-valuation-grid').innerHTML = '<div class="empty" style="grid-column:1/-1">No fundamentals snapshot yet for this ticker.</div>';
-    $('r-growth-grid').innerHTML = '<div class="empty" style="grid-column:1/-1">No growth data yet.</div>';
-    return;
-  }
-  $('r-mkt-cap').textContent = fmtBig(f.market_cap);
-  $('r-ev').textContent = fmtBig(f.enterprise_value);
-  if(f.has_leaps) flags.innerHTML += '<span class="pill ok">LEAPS available</span>';
-  if(f.has_warrants) flags.innerHTML += '<span class="pill warn">Has warrants</span>';
-  if(f.has_convertibles) flags.innerHTML += '<span class="pill">Has convertibles</span>';
-  if(f.net_debt_ebitda!=null){
-    const cls = f.net_debt_ebitda>3 ? 'bad' : f.net_debt_ebitda<1 ? 'ok' : '';
-    flags.innerHTML += `<span class="pill ${cls}">Net debt / EBITDA: ${Number(f.net_debt_ebitda).toFixed(1)}x</span>`;
-  }
-
-  // Valuation grid
-  const valTiles = [
-    { l:'EV / Revenue NTM', v:fmtMult(f.ev_revenue_ntm), key:'ev_rev_ntm' },
-    { l:'EV / Revenue LTM', v:fmtMult(f.ev_revenue_ltm) },
-    { l:'EV / EBITDA LTM',  v:fmtMult(f.ev_ebitda_ltm) },
-    { l:'P/E LTM',          v:f.pe_ltm!=null ? Number(f.pe_ltm).toFixed(1)+'x' : '—' },
-    { l:'FCF Yield LTM',    v:fmtPct(f.fcf_yield_ltm) },
-    { l:'Gross margin',     v:fmtPct(f.gross_margin) },
-    { l:'EBITDA margin',    v:fmtPct(f.ebitda_margin) },
-    { l:'Insider ownership',v:fmtPct(f.insider_ownership_pct) }
-  ];
-  $('r-valuation-grid').innerHTML = valTiles.map(t=>`<div class="metric-box"><div class="l">${esc(t.l)}</div><div class="v">${esc(t.v)}</div></div>`).join('');
-
-  // Growth grid
-  const growthTiles = [
-    { l:'Rev growth 1yr',    v:fmtPct(f.rev_growth_1y) },
-    { l:'Rev growth 3yr CAGR',v:fmtPct(f.rev_growth_3y) },
-    { l:'Rev growth 5yr CAGR',v:fmtPct(f.rev_growth_5y) },
-    { l:'Rev growth NTM',    v:fmtPct(f.rev_growth_ntm) },
-    { l:'Rev growth 2yr fwd',v:fmtPct(f.rev_growth_2y_fwd) },
-    { l:'Rev growth 3yr fwd',v:fmtPct(f.rev_growth_3y_fwd) }
-  ];
-  $('r-growth-grid').innerHTML = growthTiles.map(t=>{
-    const cls = t.v.startsWith('-') ? 'neg' : (parseFloat(t.v)>15 ? 'pos' : '');
-    return `<div class="metric-box"><div class="l">${esc(t.l)}</div><div class="v ${cls}">${esc(t.v)}</div></div>`;
-  }).join('');
-}
-
-async function loadValuationHistory(t){
-  const metrics = [
-    { key:'ev_revenue_ntm', id:'r-chart-ev-rev', fmt: v=>v.toFixed(1)+'x' },
-    { key:'fcf_yield_ntm',  id:'r-chart-fcf-yield', fmt: v=>(v*100).toFixed(1)+'%' },
-    { key:'ev_ebitda_ntm',  id:'r-chart-ev-ebitda', fmt: v=>v.toFixed(1)+'x' },
-    { key:'rev_growth_ntm', id:'r-chart-rev-growth', fmt: v=>(v*100).toFixed(1)+'%' }
-  ];
-  for(const m of metrics){
-    const { data } = await sb.rpc('valuation_history', { p_ticker: t, p_metric: m.key });
-    drawSparkline(m.id, (data||[]).filter(r=>r.value!=null), m.fmt);
-  }
-}
-
-function drawSparkline(id, points, fmt){
-  const el = $(id);
-  if(!points.length){ el.innerHTML = '<div class="empty" style="padding:24px">No history yet.</div>'; return; }
-  if(points.length===1){ el.innerHTML = `<div class="empty" style="padding:24px">Only one data point: ${esc(fmt(Number(points[0].value)))} on ${points[0].as_of_date}</div>`; return; }
-  const W=380, H=120, P=24;
-  const ys = points.map(p=>Number(p.value));
-  const yMin = Math.min(...ys), yMax = Math.max(...ys);
-  const range = (yMax - yMin) || 1;
-  const xScale = i => P + (i/Math.max(points.length-1,1)) * (W-P*2);
-  const yScale = y => H-P - ((y-yMin)/range) * (H-P*2);
-  const path = points.map((p,i)=>`${i===0?'M':'L'}${xScale(i).toFixed(1)},${yScale(Number(p.value)).toFixed(1)}`).join(' ');
-  const last = points[points.length-1];
-  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
-    <path d="${path}" fill="none" stroke="#2563eb" stroke-width="2"/>
-    <circle cx="${xScale(points.length-1)}" cy="${yScale(Number(last.value))}" r="3" fill="#2563eb"/>
-    <text x="${W-P}" y="14" text-anchor="end" font-family="JetBrains Mono" font-size="11" fill="#0f172a" font-weight="500">${esc(fmt(Number(last.value)))}</text>
-    <text x="${P}" y="14" font-family="JetBrains Mono" font-size="9" fill="#94a3b8">${esc(points[0].as_of_date)}</text>
-    <text x="${W-P}" y="${H-4}" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="#94a3b8">${esc(last.as_of_date)}</text>
-  </svg>`;
-}
-
-async function loadComps(t){
-  const { data: profile } = await sb.from('company_profile').select('sector').eq('ticker',t).maybeSingle();
-  if(!profile?.sector){ $('r-comps-table').innerHTML = '<div class="empty">No sector data — comps unavailable.</div>'; return; }
-  const { data } = await sb.rpc('screen_companies', { p_sectors: [profile.sector], p_limit: 15 });
-  const rows = (data||[]).filter(r=>r.ticker !== t);
-  if(!rows.length){ $('r-comps-table').innerHTML = '<div class="empty">No other tracked tickers in this sector yet.</div>'; return; }
-  $('r-comps-table').innerHTML = `<table>
-    <thead><tr><th>Ticker</th><th>Company</th><th style="text-align:right">Mkt Cap</th><th style="text-align:right">EV/Rev NTM</th><th style="text-align:right">EV/EBITDA NTM</th><th style="text-align:right">FCF Yield NTM</th><th style="text-align:right">Rev Gr NTM</th><th style="text-align:right">ND/EBITDA</th></tr></thead>
-    <tbody>${rows.map(r=>`<tr>
-      <td><b><a href="/research.html?t=${esc(r.ticker)}" style="color:var(--accent);text-decoration:none">${esc(r.ticker)}</a></b></td>
-      <td>${esc(r.company_name||'—')}</td>
-      <td class="num">${fmtBig(r.market_cap)}</td>
-      <td class="num">${fmtMult(r.ev_revenue_ntm)}</td>
-      <td class="num">${fmtMult(r.ev_ebitda_ntm)}</td>
-      <td class="num">${fmtPct(r.fcf_yield_ntm)}</td>
-      <td class="num">${fmtPct(r.rev_growth_ntm)}</td>
-      <td class="num">${r.net_debt_ebitda!=null?Number(r.net_debt_ebitda).toFixed(1)+'x':'—'}</td>
-    </tr>`).join('')}</tbody>
-  </table>`;
-}
-
-async function loadShareholders(t){
-  const { data } = await sb.rpc('top_holders', { p_ticker: t, p_limit: 20 });
-  if(!data?.length){ $('r-shareholders-table').innerHTML = '<div class="empty">No shareholder data yet. 13F ingestion is part of the next build pass.</div>'; return; }
-  $('r-shareholders-table').innerHTML = `<table>
-    <thead><tr><th>Holder</th><th>Type</th><th style="text-align:right">Shares</th><th style="text-align:right">% O/S</th><th style="text-align:right">Value</th><th style="text-align:right">Δ QoQ</th></tr></thead>
-    <tbody>${data.map(h=>`<tr>
-      <td>${esc(h.holder_name)}</td>
-      <td>${esc(h.holder_type||'—')}</td>
-      <td class="num">${h.shares_held?Number(h.shares_held).toLocaleString():'—'}</td>
-      <td class="num">${fmtPct(h.pct_outstanding/100)}</td>
-      <td class="num">${fmtBig(h.value_usd)}</td>
-      <td class="num ${h.change_qoq>0?'pos':h.change_qoq<0?'neg':''}">${h.change_qoq?Number(h.change_qoq).toLocaleString():'—'}</td>
-    </tr>`).join('')}</tbody>
-  </table>`;
-}
-
-async function loadHeatmap(t){
-  const { data } = await sb.rpc('monthly_heatmap', { p_scope:'ticker', p_ticker: t, p_user: null });
-  if(!data?.length){ $('r-heatmap').innerHTML = '<div class="empty">No monthly return data yet for this ticker.</div>'; return; }
-  // Pivot by year and month
-  const byYear = {};
-  data.forEach(r=>{ if(!byYear[r.year]) byYear[r.year]={}; byYear[r.year][r.month] = Number(r.return_pct); });
-  const years = Object.keys(byYear).map(Number).sort((a,b)=>b-a);
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  // Find min/max for color scale
-  const allVals = data.map(r=>Number(r.return_pct)).filter(v=>!isNaN(v));
-  const absMax = Math.max(...allVals.map(Math.abs), 0.01);
-  const colorFor = v => {
-    if(v==null||isNaN(v)) return null;
-    const intensity = Math.min(Math.abs(v)/absMax, 1);
-    if(v>0) return `rgba(5, 150, 105, ${0.15 + intensity*0.65})`;
-    return `rgba(220, 38, 38, ${0.15 + intensity*0.65})`;
+  const $ = id => document.getElementById(id);
+  const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
+  const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmt0 = n => (n==null||isNaN(n))?'—':Number(n).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+  const fmt2 = n => (n==null||isNaN(n))?'—':Number(n).toFixed(2);
+  const fmt4 = n => (n==null||isNaN(n))?'—':Number(n).toFixed(4);
+  const fmtPct = (n,d=1) => (n==null||isNaN(n))?'—':(Number(n)*100).toFixed(d)+'%';
+  const fmtBigUSD = n => {
+    if (n == null || isNaN(n)) return '—';
+    const x = Number(n);
+    if (x >= 1e12) return '$'+(x/1e12).toFixed(2)+'T';
+    if (x >= 1e9) return '$'+(x/1e9).toFixed(2)+'B';
+    if (x >= 1e6) return '$'+(x/1e6).toFixed(1)+'M';
+    return '$'+x.toLocaleString();
   };
-  let html = '<div class="heatmap"><div class="hm-cell header">Year</div>';
-  months.forEach(m=>{ html += `<div class="hm-cell header">${m}</div>`; });
-  years.forEach(y=>{
-    html += `<div class="hm-cell year-label">${y}</div>`;
-    for(let m=1; m<=12; m++){
-      const v = byYear[y]?.[m];
-      const bg = v!=null ? colorFor(v) : null;
-      const cls = v!=null ? 'has-data' : '';
-      html += `<div class="hm-cell ${cls}" ${bg?`style="background:${bg}"`:''}>${v!=null ? (v*100).toFixed(1) : ''}</div>`;
-    }
-  });
-  html += '</div>';
-  $('r-heatmap').innerHTML = html;
-}
+  const flash = (text, kind='info') => {
+    $('msg-area').innerHTML = `<div class="msg msg-${esc(kind)}">${esc(text)}</div>`;
+    if (kind !== 'error') setTimeout(()=>{ $('msg-area').innerHTML=''; }, 6000);
+  };
 
-async function loadResearch(t){
-  // pull most recent perplexity research doc for this ticker
-  const { data } = await sb.from('uploaded_documents').select('*').eq('linked_ticker',t).eq('document_type','research_report').order('uploaded_at',{ascending:false}).limit(1);
-  if(!data?.length){
-    $('r-research').innerHTML = '<div class="empty">No AI research generated yet. Click "Run fresh AI research" above.</div>';
-    $('r-citations').innerHTML = '';
-    return;
-  }
-  const doc = data[0];
-  const markdown = doc.extraction_result?.markdown || '';
-  const citations = doc.extraction_result?.citations || [];
-  $('r-research').innerHTML = renderMarkdown(markdown);
-  if(citations.length){
-    $('r-citations').innerHTML = `<div class="citations"><div class="lbl">Sources</div>${citations.map((c,i)=>{
-      const url = typeof c === 'string' ? c : (c.url || c.link || '');
-      const title = typeof c === 'string' ? c : (c.title || c.url || c.link || '');
-      return `<a href="${esc(url)}" target="_blank" rel="noopener">[${i+1}] ${esc(title)}</a>`;
-    }).join('')}</div>`;
-  } else {
-    $('r-citations').innerHTML = '';
-  }
-}
+  (async () => {
+    const { data:{ session } } = await sb.auth.getSession();
+    if (!session?.user) { window.location.href='/index.html'; return; }
+    currentUser = session.user;
+    show('loading-screen', false);
+    show('app', true);
+    try { if (window.RidgeRunNav) await window.RidgeRunNav.mount({active:'research', supabase:sb}); } catch(e){}
 
-async function runResearch(){
-  if(!currentTicker){ flash('Load a ticker first','error'); return; }
-  if(!N8N_RESEARCH_URL){ flash('Set N8N_RESEARCH_URL in config.js','error'); return; }
-  $('refresh-research-btn').disabled = true;
-  $('refresh-research-btn').textContent = 'Running…';
-  flash('Running Perplexity research. This takes ~30 seconds.','info');
-  try{
-    const resp = await fetch(N8N_RESEARCH_URL, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ ticker: currentTicker, user_id: currentUser.id })
-    });
-    if(!resp.ok) throw new Error('Webhook returned '+resp.status);
-    await resp.json();
-    flash('Research complete.','info');
-    await loadResearch(currentTicker);
-  } catch(err){ flash('Research failed: '+err.message,'error'); }
-  $('refresh-research-btn').disabled = false;
-  $('refresh-research-btn').textContent = 'Run fresh AI research';
-}
-
-async function loadVolContext(t){
-  const { data } = await sb.rpc('latest_vol_for_tickers', { p_tickers: [t] });
-  const v = data?.[0];
-  if(!v){ $('r-vol-context').innerHTML = '<div class="empty">No vol snapshot yet for this ticker. Add it to your watchlist or thesis stack and the nightly job will populate it.</div>'; return; }
-  const rank = v.iv_rank_1y;
-  let pillCls='', pillText='—';
-  if(rank!=null){
-    if(rank < 25){ pillCls='ok'; pillText='cheap'; }
-    else if(rank < 50){ pillCls=''; pillText='normal'; }
-    else if(rank < 80){ pillCls='warn'; pillText='rich'; }
-    else { pillCls='bad'; pillText='extreme'; }
-  }
-  $('r-vol-context').innerHTML = `<div class="grid-3">
-    <div class="metric-box"><div class="l">Spot</div><div class="v">${v.spot?fmt0(v.spot):'—'}</div><div class="sub">as of ${esc(v.as_of_date)}</div></div>
-    <div class="metric-box"><div class="l">IV 30d</div><div class="v">${v.iv_30d!=null?(v.iv_30d*100).toFixed(1)+'%':'—'}</div></div>
-    <div class="metric-box"><div class="l">IV 365d (LEAPS)</div><div class="v">${v.iv_365d!=null?(v.iv_365d*100).toFixed(1)+'%':'—'}</div></div>
-    <div class="metric-box"><div class="l">IV Rank 1yr</div><div class="v">${rank!=null?rank.toFixed(0):'—'} <span class="pill ${pillCls}" style="margin-left:6px">${pillText}</span></div></div>
-    <div class="metric-box"><div class="l">25Δ Skew</div><div class="v">${v.skew_25d!=null?(v.skew_25d*100).toFixed(1)+'pp':'—'}</div><div class="sub">Put IV − Call IV</div></div>
-    <div class="metric-box"><div class="l">Long-vol setup?</div><div class="v ${rank<25?'pos':rank>80?'neg':''}">${rank<25?'Favorable':rank>80?'Avoid':'Neutral'}</div><div class="sub">For buying premium</div></div>
-  </div>`;
-}
-
-async function addToWatchlist(){
-  if(!currentTicker){ flash('Load a ticker first','error'); return; }
-  const { data: existing } = await sb.from('ticker_watchlist').select('id').eq('user_id',currentUser.id).eq('ticker',currentTicker).eq('is_active',true).maybeSingle();
-  if(existing){ flash(`${currentTicker} is already on your watchlist`,'info'); return; }
-  const { error } = await sb.from('ticker_watchlist').insert({ user_id:currentUser.id, ticker:currentTicker, is_active:true });
-  if(error){ flash(error.message,'error'); return; }
-  flash(`${currentTicker} added to watchlist. Nightly snapshots will start tomorrow.`,'info');
-  await loadQuickTickers();
-}
-
-async function addToIdeas(){
-  if(!currentTicker){ flash('Load a ticker first','error'); return; }
-  const thesis = prompt(`Thesis for ${currentTicker} (one or two sentences):`);
-  if(!thesis) return;
-  const conviction = parseInt(prompt('Conviction 1-5:','3'),10) || 3;
-  const horizon = parseInt(prompt('Horizon (days):','180'),10) || 180;
-  const { error } = await sb.from('trade_ideas').insert({
-    user_id: currentUser.id, ticker: currentTicker, direction:'long', thesis,
-    conviction, horizon_days: horizon, status:'idea'
-  });
-  if(error){ flash(error.message,'error'); return; }
-  flash(`${currentTicker} added to thesis stack.`,'info');
-}
-
-function renderMarkdown(md){
-  if(!md) return '';
-  let html = esc(md);
-  html = html.replace(/^###\s+(.*)$/gm,'<h3>$1</h3>');
-  html = html.replace(/^##\s+(.*)$/gm,'<h2>$1</h2>');
-  html = html.replace(/^#\s+(.*)$/gm,'<h2>$1</h2>');
-  html = html.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
-  html = html.replace(/\*([^*]+)\*/g,'<em>$1</em>');
-  html = html.replace(/`([^`]+)`/g,'<code>$1</code>');
-  // lists
-  const lines = html.split('\n');
-  let out = '', inList = false;
-  for(const ln of lines){
-    if(/^\s*[-*]\s+/.test(ln)){
-      if(!inList){ out+='<ul>'; inList=true; }
-      out += '<li>'+ln.replace(/^\s*[-*]\s+/,'')+'</li>';
+    const params = new URLSearchParams(location.search);
+    const t = (params.get('ticker') || '').toUpperCase();
+    if (t) {
+      $('ticker-input').value = t;
+      loadTicker(t);
     } else {
-      if(inList){ out+='</ul>'; inList=false; }
-      if(ln.trim() && !ln.startsWith('<h')) out += '<p>'+ln+'</p>';
-      else if(ln.startsWith('<h')) out += ln;
+      $('content').innerHTML = '<div class="banner-card"><div class="banner-body"><div class="empty">Enter a ticker above to load research.</div></div></div>';
     }
+  })();
+
+  $('load-btn').addEventListener('click', () => {
+    const t = ($('ticker-input').value||'').trim().toUpperCase();
+    if (t) {
+      history.replaceState(null,'','?ticker='+encodeURIComponent(t));
+      loadTicker(t);
+    }
+  });
+  $('ticker-input').addEventListener('keydown', e => { if (e.key==='Enter') $('load-btn').click(); });
+  $('refresh-btn').addEventListener('click', () => {
+    if (currentTicker) fireBootstrap(currentTicker, true);
+  });
+
+  async function loadTicker(ticker) {
+    currentTicker = ticker;
+    $('ticker-status').textContent = 'Loading…';
+    $('content').innerHTML = '<div class="banner-card"><div class="banner-body"><div class="empty">Loading data for ' + esc(ticker) + '…</div></div></div>';
+
+    // Check if bootstrap needed
+    await maybeBootstrap(ticker);
+
+    // Render skeleton
+    $('content').innerHTML = renderSkeleton();
+
+    // Parallel-load every section
+    await Promise.allSettled([
+      loadHeader(ticker),
+      loadThesis(ticker),
+      loadStrategies(ticker),
+      loadOptionsChain(ticker),
+      loadTermStructure(ticker),
+      loadInsider(ticker),
+      loadAnalysts(ticker),
+      loadPriceTargets(ticker),
+      loadNews(ticker),
+      loadCatalysts(ticker),
+      loadFundamentals(ticker),
+      loadNotes(ticker)
+    ]);
+    $('ticker-status').textContent = 'Loaded ' + ticker;
   }
-  if(inList) out += '</ul>';
-  return out;
-}
 
-function flash(text,kind='info'){ $('msg-area').innerHTML = `<div class="msg msg-${kind}">${esc(text)}</div>`; setTimeout(()=>{ $('msg-area').innerHTML=''; }, 5000); }
+  async function maybeBootstrap(ticker) {
+    try {
+      const [{ count: c1 }, { count: c2 }, { count: c3 }, { count: c4 }] = await Promise.all([
+        sb.from('vol_snapshots').select('ticker', { count:'exact', head:true }).eq('ticker', ticker),
+        sb.from('insider_transactions').select('ticker', { count:'exact', head:true }).eq('ticker', ticker),
+        sb.from('analyst_ratings').select('ticker', { count:'exact', head:true }).eq('ticker', ticker),
+        sb.from('options_chain_snapshots').select('ticker', { count:'exact', head:true }).eq('ticker', ticker)
+      ]);
+      if ((c1||0)===0 && (c2||0)===0 && (c3||0)===0 && (c4||0)===0) {
+        fireBootstrap(ticker, false);
+      }
+    } catch(e){}
+  }
 
-// === Pass 3: thesis model summary integration ===
-async function loadModelSummary(ticker){
-  const linkEl = document.getElementById('r-model-link');
-  if(linkEl) linkEl.href = '/model.html?ticker=' + encodeURIComponent(ticker);
-  const buildLinkEl = document.getElementById('r-model-build-link');
-  if(buildLinkEl) buildLinkEl.href = '/model.html?ticker=' + encodeURIComponent(ticker);
-  const out = document.getElementById('r-model-summary');
-  if(!out) return;
-  try {
-    const { data: rows } = await sb.from('thesis_models')
-      .select('id, scenario_label, base_price, computed, updated_at')
-      .eq('user_id', currentUser.id).eq('ticker', ticker).eq('is_active', true)
-      .order('updated_at', { ascending: false }).limit(1);
-    const m = (rows||[])[0];
-    if(!m){
-      out.innerHTML = '<div class="empty">No active thesis model for this ticker yet. <a href="/model.html?ticker='+encodeURIComponent(ticker)+'" style="color:var(--accent);text-decoration:underline">Build one →</a></div>';
+  function fireBootstrap(ticker, announce) {
+    if (announce) flash('Re-firing data webhooks for ' + ticker + '. Data will populate within ~30s.', 'info');
+    fetch(N8N + '/webhook/research/bootstrap', {
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body: JSON.stringify({ ticker })
+    }).catch(()=>{});
+  }
+
+  function renderSkeleton() {
+    return `
+      <div id="sec-header"></div>
+      <div id="sec-thesis"></div>
+      <div id="sec-regime"></div>
+      <div id="sec-term"></div>
+      <div id="sec-chain"></div>
+      <div class="grid-2">
+        <div id="sec-insider"></div>
+        <div id="sec-analysts"></div>
+      </div>
+      <div id="sec-targets"></div>
+      <div class="grid-2">
+        <div id="sec-news"></div>
+        <div id="sec-catalysts"></div>
+      </div>
+      <div id="sec-fund"></div>
+      <div id="sec-notes"></div>
+    `;
+  }
+
+  async function loadHeader(ticker) {
+    const [{ data: prof }, { data: fund }, { data: vol }] = await Promise.all([
+      sb.from('company_profile').select('*').eq('ticker', ticker).maybeSingle(),
+      sb.from('company_fundamentals').select('*').eq('ticker', ticker).order('as_of_date',{ascending:false}).limit(1).maybeSingle(),
+      sb.from('v_latest_vol_strategy').select('*').eq('ticker', ticker).maybeSingle()
+    ]);
+
+    if (vol?.spot) currentSpot = Number(vol.spot);
+
+    const mcap = fund && currentSpot ? null : null; // mkt_cap may be in raw_data
+    const ivR = vol?.iv_rank_1y;
+    const ivClass = ivR == null ? 'neutral' : (ivR < 25 ? 'cheap' : ivR > 75 ? 'rich' : 'neutral');
+    const ivLabel = ivR == null ? '' : (ivR < 25 ? 'Cheap vol' : ivR > 75 ? 'Rich vol' : 'Moderate');
+
+    $('sec-header').innerHTML = `
+      <div class="banner-card">
+        <div class="banner-head">
+          <h2>${esc(ticker)}${prof?.company_name ? ' · '+esc(prof.company_name) : ''}</h2>
+          <span class="banner-meta">${prof?.sector ? esc(prof.sector) : ''}${prof?.industry ? ' · '+esc(prof.industry) : ''}</span>
+        </div>
+        <div class="banner-body">
+          <div class="header-grid">
+            <div class="company-block">
+              <div class="sub">${[
+                prof?.ceo ? 'CEO ' + esc(prof.ceo) : null,
+                prof?.employees ? Number(prof.employees).toLocaleString() + ' employees' : null,
+                prof?.beta != null ? 'β ' + Number(prof.beta).toFixed(2) : null,
+                prof?.next_earnings_date ? 'Next earnings ' + esc(prof.next_earnings_date) : null
+              ].filter(Boolean).join(' · ')}</div>
+              <p class="desc">${esc(prof?.description || 'No description available.').slice(0,640)}${(prof?.description||'').length>640?'…':''}</p>
+            </div>
+            <div class="grid-2" style="grid-template-columns:1fr 1fr">
+              <div class="metric-box">
+                <div class="l">Spot</div>
+                <div class="v">${vol?.spot != null ? '$'+fmt2(vol.spot) : '—'}</div>
+                <div class="sub">${vol?.as_of_date || ''}</div>
+              </div>
+              <div class="metric-box ${ivClass}">
+                <div class="l">IV Rank 1y</div>
+                <div class="v">${vol?.iv_rank_1y != null ? Math.round(vol.iv_rank_1y) : '—'}</div>
+                <div class="sub">${ivLabel}</div>
+              </div>
+              <div class="metric-box">
+                <div class="l">IV 30d</div>
+                <div class="v">${vol?.iv_30d != null ? fmtPct(vol.iv_30d) : '—'}</div>
+                <div class="sub">${vol?.hv_30d != null ? 'HV30 '+fmtPct(vol.hv_30d) : ''}</div>
+              </div>
+              <div class="metric-box">
+                <div class="l">25Δ Skew</div>
+                <div class="v">${vol?.skew_25d != null ? (vol.skew_25d*100).toFixed(1)+'pp' : '—'}</div>
+                <div class="sub">${vol?.skew_signal || ''}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadThesis(ticker) {
+    const { data } = await sb.from('thesis_models')
+      .select('*').eq('user_id', currentUser.id).eq('ticker', ticker).eq('is_active', true)
+      .order('updated_at',{ascending:false}).limit(1).maybeSingle();
+    if (!data) {
+      $('sec-thesis').innerHTML = `
+        <div class="banner-card">
+          <div class="banner-head"><h2>Thesis model</h2>
+            <span class="banner-meta"><a class="btn btn-sm btn-ghost" style="text-decoration:none" href="/model.html?ticker=${esc(ticker)}">Build model →</a></span>
+          </div>
+          <div class="banner-body"><div class="empty">No active thesis model for ${esc(ticker)}.</div></div>
+        </div>`;
       return;
     }
-    const cr = m.computed?.cumulative_return_pct;
-    const ar = m.computed?.annualized_return;
-    const ip = m.computed?.implied_price_terminal;
-    const fmtPct1 = n => (n==null||isNaN(n))?'—':(Number(n)*100).toFixed(1)+'%';
-    const fmtPx1 = n => (n==null||isNaN(n))?'—': '$'+Number(n).toFixed(2);
-    out.innerHTML = `<div class="grid-4">
-      <div class="metric-box"><div class="l">Active scenario</div><div class="v" style="font-family:var(--serif);font-size:18px">${m.scenario_label||'base'}</div></div>
-      <div class="metric-box"><div class="l">Implied price (yr 5)</div><div class="v">${fmtPx1(ip)}</div><div class="sub">base ${fmtPx1(m.base_price)}</div></div>
-      <div class="metric-box"><div class="l">5yr cum return</div><div class="v ${cr>0?'pos':cr<0?'neg':''}">${fmtPct1(cr)}</div></div>
-      <div class="metric-box"><div class="l">Annualized</div><div class="v ${ar>0?'pos':ar<0?'neg':''}">${fmtPct1(ar)}</div></div>
-    </div>`;
-  } catch(e){
-    out.innerHTML = '<div class="empty">Could not load model: ' + (e.message||e) + '</div>';
+    const c = data.computed || {};
+    $('sec-thesis').innerHTML = `
+      <div class="banner-card">
+        <div class="banner-head">
+          <h2>Thesis model · ${esc(data.scenario_label || 'base')}</h2>
+          <span class="banner-meta"><a class="btn btn-sm btn-ghost" style="text-decoration:none" href="/model.html?ticker=${esc(ticker)}">Open model →</a></span>
+        </div>
+        <div class="banner-body">
+          <div class="grid-4">
+            <div class="metric-box"><div class="l">Base price</div><div class="v">${data.base_price != null ? '$'+fmt2(data.base_price) : '—'}</div></div>
+            <div class="metric-box"><div class="l">Implied terminal</div><div class="v">${c.implied_price_terminal != null ? '$'+fmt2(c.implied_price_terminal) : '—'}</div></div>
+            <div class="metric-box"><div class="l">Annualized</div><div class="v ${c.annualized_return>0?'pos':'neg'}">${c.annualized_return != null ? fmtPct(c.annualized_return) : '—'}</div></div>
+            <div class="metric-box"><div class="l">Asymmetry</div><div class="v">${c.asymmetry != null ? Number(c.asymmetry).toFixed(2)+'×' : '—'}</div></div>
+          </div>
+          <div class="grid-4" style="margin-top:12px">
+            <div class="metric-box"><div class="l">Bull case</div><div class="v pos">${c.bull_implied_price != null ? '$'+fmt2(c.bull_implied_price) : '—'}</div></div>
+            <div class="metric-box"><div class="l">Bear case</div><div class="v neg">${c.bear_implied_price != null ? '$'+fmt2(c.bear_implied_price) : '—'}</div></div>
+            <div class="metric-box"><div class="l">MoS</div><div class="v">${c.margin_of_safety != null ? fmtPct(c.margin_of_safety) : '—'}</div></div>
+            <div class="metric-box"><div class="l">Cumulative</div><div class="v ${c.cumulative_return_pct>0?'pos':'neg'}">${c.cumulative_return_pct != null ? fmtPct(c.cumulative_return_pct) : '—'}</div></div>
+          </div>
+        </div>
+      </div>
+    `;
   }
-}
-// Wire button
-document.addEventListener('DOMContentLoaded', () => {
-  const btn = document.getElementById('open-model-btn');
-  if(btn) btn.addEventListener('click', () => {
-    if(!currentTicker){ alert('Load a ticker first'); return; }
-    window.location.href = '/model.html?ticker=' + encodeURIComponent(currentTicker);
-  });
-});
-// Hook into existing loadFull lifecycle: poll for ticker changes
-let _lastModelTicker = null;
-setInterval(() => {
-  if(currentTicker && currentTicker !== _lastModelTicker){
-    _lastModelTicker = currentTicker;
-    loadModelSummary(currentTicker);
-  }
-}, 800);
 
+  async function loadStrategies(ticker) {
+    const { data, error } = await sb.rpc('get_option_strategies', { ticker });
+    if (error || !data) {
+      $('sec-regime').innerHTML = `
+        <div class="banner-card">
+          <div class="banner-head"><h2>IV regime + strategy fit</h2></div>
+          <div class="banner-body"><div class="empty">No vol data for ${esc(ticker)}. ${error?'Error: '+esc(error.message):''}</div></div>
+        </div>`;
+      return;
+    }
+
+    const d = data;
+    const regimeBadge = badgeFor('vol', d.vol_regime);
+    const termBadge = badgeFor('term', d.term_structure);
+    const skewBadge = badgeFor('skew', d.skew_signal);
+    const strats = (d.strategies || []).slice(0, 5);
+
+    $('sec-regime').innerHTML = `
+      <div class="banner-card">
+        <div class="banner-head"><h2>IV regime + strategy fit</h2>
+          <span class="banner-meta">Spot $${fmt2(d.spot)} · IV30 ${fmtPct(d.iv_30d)} · IV365 ${fmtPct(d.iv_365d)}</span>
+        </div>
+        <div class="banner-body">
+          <p class="h2-sub">Strategy selector reads IV rank, term structure, and skew. Cheap vol → buy premium. Rich vol → sell premium. Each card has a "Use this idea" button to seed a trade idea.</p>
+          <div style="margin-bottom:10px">${regimeBadge} ${termBadge} ${skewBadge}</div>
+          <div class="strat-grid">
+            ${strats.length ? strats.map(s => renderStrategyCard(s, ticker)).join('') : '<div class="empty" style="grid-column:1/-1">No strategies returned.</div>'}
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Wire up "Use this idea" buttons
+    $('sec-regime').querySelectorAll('button[data-strat]').forEach(btn => {
+      btn.addEventListener('click', () => useStrategy(ticker, btn.dataset.strat, btn.dataset.side));
+    });
+  }
+
+  function renderStrategyCard(s, ticker) {
+    const side = (s.side||'').toLowerCase();
+    const sellClass = side === 'sell' ? 'sell' : '';
+    return `
+      <div class="strat-card ${sellClass}">
+        <div class="strat-head">
+          <div class="strat-name">${esc(s.name)}</div>
+          <div class="strat-score">Score ${s.score != null ? Number(s.score).toFixed(0) : '—'}</div>
+        </div>
+        <div class="strat-side">${esc(s.side||'')} premium · ${s.horizon_days ? s.horizon_days+'d horizon' : ''}</div>
+        <div class="strat-rat">${esc(s.rationale||'')}</div>
+        ${s.best_when ? `<div class="strat-when"><b>Best when:</b> ${esc(s.best_when)}</div>`:''}
+        ${s.red_flag ? `<div class="strat-flag"><b>Red flag:</b> ${esc(s.red_flag)}</div>`:''}
+        <div class="strat-actions">
+          <button class="btn btn-sm btn-primary" data-strat="${esc(s.name)}" data-side="${esc(side)}">Use this idea</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function badgeFor(kind, val) {
+    if (!val) return '';
+    const lbl = String(val).replace(/_/g,' ');
+    let cls = 'neutral';
+    if (kind === 'vol') {
+      if (val.includes('cheap')) cls='cheap';
+      else if (val.includes('rich')) cls='rich';
+      else if (val.includes('lean_buy')) cls='lean-buy';
+      else if (val.includes('lean_sell')) cls='lean-sell';
+    } else if (kind === 'term') {
+      if (val === 'contango') cls='contango';
+      else if (val === 'backwardation') cls='backwardation';
+      else cls='flat';
+    } else if (kind === 'skew') {
+      if (val.includes('put')) cls='lean-sell';
+      else if (val.includes('call')) cls='lean-buy';
+    }
+    return `<span class="badge ${cls}">${esc(lbl)}</span>`;
+  }
+
+  async function useStrategy(ticker, stratName, side) {
+    const oppType = inferOppType(stratName);
+    const structure = stratName.toLowerCase().replace(/ /g,'_');
+    const direction = side === 'buy' ? 'long' : 'short';
+    const { error } = await sb.from('trade_ideas').insert({
+      user_id: currentUser.id,
+      ticker,
+      opportunity_type: oppType,
+      direction,
+      proposed_structure: structure,
+      thesis: 'Seeded from research.html strategy selector: ' + stratName,
+      status: 'idea',
+      source: 'research_strategy_button',
+      conviction: 3
+    });
+    if (error) flash('Failed to save: ' + error.message, 'error');
+    else flash('Saved as trade idea: ' + stratName + ' on ' + ticker + '. Open Strategy page to flesh out.', 'success');
+  }
+
+  function inferOppType(s) {
+    s = s.toLowerCase();
+    if (s.includes('leap')) return 'asymmetric_leap';
+    if (s.includes('straddle') || s.includes('strangle')) return 'earnings_play';
+    if (s.includes('iron condor') || s.includes('covered call') || s.includes('cash-secured')) return 'short_thesis';
+    if (s.includes('calendar')) return 'pair_trade';
+    return 'asymmetric_leap';
+  }
+
+  async function loadOptionsChain(ticker) {
+    const fiveDaysAgo = new Date(Date.now()-5*86400000).toISOString().slice(0,10);
+    const { data, error } = await sb.from('options_chain_snapshots')
+      .select('expiry, strike, side, bid, ask, last, volume, open_interest, iv, delta, gamma, theta, vega, underlying_price, as_of_date')
+      .eq('ticker', ticker)
+      .gte('as_of_date', fiveDaysAgo)
+      .order('expiry', { ascending: true })
+      .order('strike', { ascending: true })
+      .limit(2000);
+
+    if (error || !data || !data.length) {
+      $('sec-chain').innerHTML = `
+        <div class="banner-card">
+          <div class="banner-head"><h2>Options chain</h2><span class="banner-meta">Multi-strike · multi-expiry · bid/ask/IV/greeks/OI</span></div>
+          <div class="banner-body"><div class="empty">No recent options chain for ${esc(ticker)}. ${error?'Error: '+esc(error.message):''}</div></div>
+        </div>`;
+      return;
+    }
+
+    // Use freshest snapshot
+    const latestDate = data.reduce((m,r) => r.as_of_date > m ? r.as_of_date : m, '');
+    const fresh = data.filter(r => r.as_of_date === latestDate);
+
+    const spot = fresh[0]?.underlying_price || currentSpot;
+    const expiries = [...new Set(fresh.map(r => r.expiry))].sort();
+
+    $('sec-chain').innerHTML = `
+      <div class="banner-card">
+        <div class="banner-head"><h2>Options chain</h2>
+          <span class="banner-meta">As of ${esc(latestDate)} · Spot $${fmt2(spot)} · ${fresh.length} contracts · ${expiries.length} expirations</span>
+        </div>
+        <div class="banner-body">
+          <div class="chain-controls">
+            <label>Expiry
+              <select id="chain-expiry">
+                <option value="">All (${expiries.length})</option>
+                ${expiries.map(e => `<option value="${esc(e)}">${esc(e)}</option>`).join('')}
+              </select>
+            </label>
+            <label>Side
+              <select id="chain-side">
+                <option value="">Both</option>
+                <option value="call">Calls only</option>
+                <option value="put">Puts only</option>
+              </select>
+            </label>
+            <label>Strike window (% from spot)
+              <select id="chain-pct">
+                <option value="0.20" selected>±20%</option>
+                <option value="0.10">±10%</option>
+                <option value="0.30">±30%</option>
+                <option value="1.0">All</option>
+              </select>
+            </label>
+            <label>Min OI
+              <input type="number" id="chain-min-oi" min="0" value="0" style="width:80px">
+            </label>
+          </div>
+          <div class="chain-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Expiry</th><th>Strike</th><th>Side</th>
+                  <th style="text-align:right">Bid</th><th style="text-align:right">Ask</th><th style="text-align:right">Last</th>
+                  <th style="text-align:right">IV</th>
+                  <th style="text-align:right">Δ</th><th style="text-align:right">Γ</th><th style="text-align:right">Θ</th><th style="text-align:right">ν</th>
+                  <th style="text-align:right">OI</th><th style="text-align:right">Vol</th>
+                </tr>
+              </thead>
+              <tbody id="chain-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const render = () => {
+      const exp = $('chain-expiry').value;
+      const side = $('chain-side').value;
+      const pct = parseFloat($('chain-pct').value);
+      const minOI = parseInt($('chain-min-oi').value||'0', 10);
+      const lo = spot ? spot*(1-pct) : 0;
+      const hi = spot ? spot*(1+pct) : Infinity;
+      let rows = fresh.filter(r => {
+        if (exp && r.expiry !== exp) return false;
+        if (side && r.side !== side) return false;
+        if (pct < 1 && spot && (r.strike < lo || r.strike > hi)) return false;
+        if (minOI > 0 && (r.open_interest||0) < minOI) return false;
+        return true;
+      });
+      if (!rows.length) {
+        $('chain-tbody').innerHTML = '<tr><td colspan="13" class="empty">No contracts match filters.</td></tr>';
+        return;
+      }
+      // Find ATM strike per expiry
+      const atmByExp = {};
+      const grouped = {};
+      rows.forEach(r => {
+        grouped[r.expiry] = grouped[r.expiry] || [];
+        grouped[r.expiry].push(r);
+      });
+      Object.keys(grouped).forEach(e => {
+        const strikes = [...new Set(grouped[e].map(r=>r.strike))];
+        if (spot && strikes.length) {
+          atmByExp[e] = strikes.reduce((a,b) => Math.abs(b-spot) < Math.abs(a-spot) ? b : a);
+        }
+      });
+      $('chain-tbody').innerHTML = rows.map(r => {
+        const isATM = spot && r.strike === atmByExp[r.expiry];
+        const itm = (r.side==='call' && spot && r.strike < spot) || (r.side==='put' && spot && r.strike > spot);
+        return `
+        <tr class="${isATM?'atm':''}">
+          <td>${esc(r.expiry)}</td>
+          <td class="num ${itm?'itm':''}"><b>${fmt2(r.strike)}</b></td>
+          <td>${esc(r.side||'')}</td>
+          <td class="num">${r.bid!=null?fmt2(r.bid):'—'}</td>
+          <td class="num">${r.ask!=null?fmt2(r.ask):'—'}</td>
+          <td class="num">${r.last!=null?fmt2(r.last):'—'}</td>
+          <td class="num">${r.iv!=null?(r.iv*100).toFixed(1)+'%':'—'}</td>
+          <td class="num">${r.delta!=null?fmt2(r.delta):'—'}</td>
+          <td class="num">${r.gamma!=null?fmt4(r.gamma):'—'}</td>
+          <td class="num">${r.theta!=null?fmt2(r.theta):'—'}</td>
+          <td class="num">${r.vega!=null?fmt2(r.vega):'—'}</td>
+          <td class="num">${r.open_interest!=null?Number(r.open_interest).toLocaleString():'—'}</td>
+          <td class="num">${r.volume!=null?Number(r.volume).toLocaleString():'—'}</td>
+        </tr>`;
+      }).join('');
+    };
+
+    $('chain-expiry').addEventListener('change', render);
+    $('chain-side').addEventListener('change', render);
+    $('chain-pct').addEventListener('change', render);
+    $('chain-min-oi').addEventListener('input', render);
+    render();
+  }
+
+  async function loadTermStructure(ticker) {
+    const { data } = await sb.from('v_latest_vol_strategy').select('*').eq('ticker', ticker).maybeSingle();
+    if (!data) { $('sec-term').innerHTML=''; return; }
+    const pts = [
+      { l:'30d', v: data.iv_30d },
+      { l:'90d', v: data.iv_90d },
+      { l:'180d', v: data.iv_180d },
+      { l:'365d', v: data.iv_365d }
+    ].filter(p => p.v != null);
+    if (!pts.length) { $('sec-term').innerHTML=''; return; }
+    const max = Math.max(...pts.map(p=>p.v));
+    const slope = (data.iv_365d != null && data.iv_30d != null)
+      ? ((data.iv_365d - data.iv_30d) / data.iv_30d) : null;
+    const slopeLabel = slope == null ? '' : (slope > 0.05 ? 'Contango (back richer)' : slope < -0.05 ? 'Backwardation (front richer)' : 'Flat term');
+
+    $('sec-term').innerHTML = `
+      <div class="banner-card">
+        <div class="banner-head"><h2>IV term structure</h2><span class="banner-meta">${esc(slopeLabel)}${slope!=null?' · slope '+(slope*100).toFixed(1)+'%':''}</span></div>
+        <div class="banner-body">
+          <div class="term-sparkline">
+            ${pts.map(p => `
+              <div class="term-bar">
+                <div class="v">${fmtPct(p.v)}</div>
+                <div class="b" style="height:${(p.v/max*72).toFixed(1)}px"></div>
+                <div class="l">${p.l}</div>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadInsider(ticker) {
+    const since = new Date(Date.now()-90*86400000).toISOString().slice(0,10);
+    const { data } = await sb.from('insider_transactions')
+      .select('*').eq('ticker', ticker).gte('transaction_date', since)
+      .order('transaction_date',{ascending:false}).limit(20);
+    if (!data || !data.length) {
+      $('sec-insider').innerHTML = `<div class="banner-card"><div class="banner-head"><h2>Insider transactions</h2><span class="banner-meta">90d</span></div><div class="banner-body"><div class="empty">No insider transactions in last 90d.</div></div></div>`;
+      return;
+    }
+    $('sec-insider').innerHTML = `
+      <div class="banner-card">
+        <div class="banner-head"><h2>Insider transactions</h2><span class="banner-meta">Last 90d · ${data.length} filings</span></div>
+        <div class="banner-body" style="max-height:340px;overflow:auto">
+          <table>
+            <thead><tr><th>Date</th><th>Insider</th><th>Type</th><th style="text-align:right">Shares</th><th style="text-align:right">Value</th></tr></thead>
+            <tbody>
+              ${data.map(r => {
+                const isBuy = (r.transaction_type||'').toLowerCase().includes('buy') || (r.transaction_type||'').toLowerCase().includes('purchase');
+                return `<tr>
+                  <td>${esc(r.transaction_date||'')}</td>
+                  <td>${esc((r.insider_name||'').slice(0,28))}<br><span style="font-size:9px;color:var(--text-dim)">${esc(r.insider_title||'')}</span></td>
+                  <td class="${isBuy?'pos':'neg'}">${esc(r.transaction_type||'')}</td>
+                  <td class="num">${r.shares!=null?Number(r.shares).toLocaleString():'—'}</td>
+                  <td class="num">${fmtBigUSD(r.value)}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadAnalysts(ticker) {
+    const since = new Date(Date.now()-90*86400000).toISOString().slice(0,10);
+    const { data } = await sb.from('analyst_ratings')
+      .select('*').eq('ticker', ticker).gte('published_date', since)
+      .order('published_date',{ascending:false}).limit(15);
+    if (!data || !data.length) {
+      $('sec-analysts').innerHTML = `<div class="banner-card"><div class="banner-head"><h2>Analyst ratings</h2><span class="banner-meta">90d</span></div><div class="banner-body"><div class="empty">No analyst actions in last 90d.</div></div></div>`;
+      return;
+    }
+    $('sec-analysts').innerHTML = `
+      <div class="banner-card">
+        <div class="banner-head"><h2>Analyst ratings</h2><span class="banner-meta">Last 90d · ${data.length} actions</span></div>
+        <div class="banner-body" style="max-height:340px;overflow:auto">
+          <table>
+            <thead><tr><th>Date</th><th>Firm</th><th>Action</th><th>Rating</th><th style="text-align:right">PT</th></tr></thead>
+            <tbody>
+              ${data.map(r => `<tr>
+                <td>${esc(r.published_date||'')}</td>
+                <td>${esc(r.firm||'')}</td>
+                <td>${esc(r.action||'')}</td>
+                <td>${esc(r.rating_current||r.rating_prior||'')}</td>
+                <td class="num">${r.price_target_current!=null?'$'+fmt2(r.price_target_current):''}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadPriceTargets(ticker) {
+    const { data } = await sb.from('analyst_price_targets')
+      .select('*').eq('ticker', ticker).order('as_of_date',{ascending:false}).limit(1).maybeSingle();
+    if (!data) { $('sec-targets').innerHTML=''; return; }
+    $('sec-targets').innerHTML = `
+      <div class="banner-card">
+        <div class="banner-head"><h2>Analyst price targets</h2><span class="banner-meta">${data.analyst_count||0} analysts</span></div>
+        <div class="banner-body">
+          <div class="grid-4">
+            <div class="metric-box"><div class="l">High</div><div class="v pos">${data.target_high!=null?'$'+fmt2(data.target_high):'—'}</div></div>
+            <div class="metric-box"><div class="l">Consensus</div><div class="v">${data.target_consensus!=null?'$'+fmt2(data.target_consensus):'—'}</div></div>
+            <div class="metric-box"><div class="l">Median</div><div class="v">${data.target_median!=null?'$'+fmt2(data.target_median):'—'}</div></div>
+            <div class="metric-box"><div class="l">Low</div><div class="v neg">${data.target_low!=null?'$'+fmt2(data.target_low):'—'}</div></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadNews(ticker) {
+    const since = new Date(Date.now()-14*86400000).toISOString();
+    const { data } = await sb.from('news_articles')
+      .select('headline, source, url, published_at')
+      .eq('ticker', ticker).gte('published_at', since)
+      .order('published_at',{ascending:false}).limit(12);
+    if (!data || !data.length) {
+      $('sec-news').innerHTML = `<div class="banner-card"><div class="banner-head"><h2>Recent news</h2><span class="banner-meta">14d</span></div><div class="banner-body"><div class="empty">No news.</div></div></div>`;
+      return;
+    }
+    $('sec-news').innerHTML = `
+      <div class="banner-card">
+        <div class="banner-head"><h2>Recent news</h2><span class="banner-meta">14d · top 12</span></div>
+        <div class="banner-body" style="max-height:380px;overflow:auto">
+          ${data.map(n => `
+            <div class="news-item">
+              <a class="headline" href="${esc(n.url||'#')}" target="_blank" rel="noopener">${esc(n.headline||'')}</a>
+              <div class="src">${esc(n.source||'')} · ${esc((n.published_at||'').slice(0,10))}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadCatalysts(ticker) {
+    const today = new Date().toISOString().slice(0,10);
+    const in30 = new Date(Date.now()+30*86400000).toISOString().slice(0,10);
+    const { data } = await sb.from('catalysts')
+      .select('*').eq('ticker', ticker)
+      .gte('catalyst_date', today).lte('catalyst_date', in30)
+      .order('catalyst_date',{ascending:true}).limit(20);
+    $('sec-catalysts').innerHTML = `
+      <div class="banner-card">
+        <div class="banner-head"><h2>Upcoming catalysts</h2><span class="banner-meta">Next 30d</span></div>
+        <div class="banner-body" style="max-height:380px;overflow:auto">
+          ${(!data||!data.length) ? '<div class="empty">No upcoming catalysts.</div>' :
+            data.map(c => `
+              <div class="news-item">
+                <div class="headline">${esc(c.catalyst_type||'')} — ${esc(c.description||'')}</div>
+                <div class="src">${esc(c.catalyst_date||'')}${c.importance ? ' · importance '+esc(c.importance) : ''}</div>
+              </div>
+            `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadFundamentals(ticker) {
+    const { data } = await sb.from('company_fundamentals')
+      .select('as_of_date, ev_ebitda_ltm, pe_ltm, fcf_yield_ltm, ev_revenue_ntm, rev_growth_1y, gross_margin, ebitda_margin, fcf_margin, net_debt_ebitda')
+      .eq('ticker', ticker).order('as_of_date',{ascending:false}).limit(5);
+    if (!data || !data.length) {
+      $('sec-fund').innerHTML = `<div class="banner-card"><div class="banner-head"><h2>Fundamentals history</h2></div><div class="banner-body"><div class="empty">No fundamentals.</div></div></div>`;
+      return;
+    }
+    $('sec-fund').innerHTML = `
+      <div class="banner-card">
+        <div class="banner-head"><h2>Fundamentals history</h2><span class="banner-meta">Last ${data.length} FY</span></div>
+        <div class="banner-body" style="overflow-x:auto">
+          <table>
+            <thead><tr>
+              <th>As of</th>
+              <th style="text-align:right">P/E</th>
+              <th style="text-align:right">EV/EBITDA</th>
+              <th style="text-align:right">EV/Rev NTM</th>
+              <th style="text-align:right">FCF yld</th>
+              <th style="text-align:right">Rev gr 1y</th>
+              <th style="text-align:right">GM</th>
+              <th style="text-align:right">EBITDA m</th>
+              <th style="text-align:right">FCF m</th>
+              <th style="text-align:right">ND/EBITDA</th>
+            </tr></thead>
+            <tbody>
+              ${data.map(r => `<tr>
+                <td>${esc(r.as_of_date||'')}</td>
+                <td class="num">${r.pe_ltm!=null?fmt2(r.pe_ltm):'—'}</td>
+                <td class="num">${r.ev_ebitda_ltm!=null?fmt2(r.ev_ebitda_ltm):'—'}</td>
+                <td class="num">${r.ev_revenue_ntm!=null?fmt2(r.ev_revenue_ntm):'—'}</td>
+                <td class="num">${r.fcf_yield_ltm!=null?fmtPct(r.fcf_yield_ltm):'—'}</td>
+                <td class="num">${r.rev_growth_1y!=null?fmtPct(r.rev_growth_1y):'—'}</td>
+                <td class="num">${r.gross_margin!=null?fmtPct(r.gross_margin):'—'}</td>
+                <td class="num">${r.ebitda_margin!=null?fmtPct(r.ebitda_margin):'—'}</td>
+                <td class="num">${r.fcf_margin!=null?fmtPct(r.fcf_margin):'—'}</td>
+                <td class="num">${r.net_debt_ebitda!=null?fmt2(r.net_debt_ebitda):'—'}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadNotes(ticker) {
+    const { data } = await sb.from('ticker_notes')
+      .select('*').eq('user_id', currentUser.id).eq('ticker', ticker)
+      .order('pinned',{ascending:false}).order('created_at',{ascending:false}).limit(50);
+    $('sec-notes').innerHTML = `
+      <div class="banner-card">
+        <div class="banner-head"><h2>Notes</h2><span class="banner-meta">${data?data.length:0} note(s)</span></div>
+        <div class="banner-body">
+          <div style="display:flex;gap:8px;margin-bottom:14px">
+            <textarea id="note-text" class="ticker-input" style="flex:1;width:auto;font-family:var(--sans);text-transform:none;letter-spacing:0;min-height:60px;font-size:13px" placeholder="Add a note for ${esc(ticker)}…"></textarea>
+            <button class="btn btn-primary" id="add-note-btn">Add note</button>
+          </div>
+          <div id="notes-list">
+            ${(!data||!data.length) ? '<div class="empty">No notes yet.</div>' : data.map(n => `
+              <div class="note-item ${n.pinned?'pinned':''}">
+                <div>
+                  <div class="txt">${esc(n.note_text||'')}</div>
+                  <div class="meta">${esc((n.created_at||'').slice(0,16).replace('T',' '))}${n.pinned?' · pinned':''}</div>
+                </div>
+                <div>
+                  <button class="btn btn-sm btn-ghost" data-note-del="${esc(n.id)}">Delete</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+
+    $('add-note-btn').addEventListener('click', async () => {
+      const text = ($('note-text').value||'').trim();
+      if (!text) return;
+      const { error } = await sb.from('ticker_notes').insert({
+        user_id: currentUser.id, ticker, note_text: text, pinned: false
+      });
+      if (error) flash('Failed to save note: ' + error.message, 'error');
+      else { $('note-text').value=''; loadNotes(ticker); }
+    });
+    $('notes-list').querySelectorAll('button[data-note-del]').forEach(b => {
+      b.addEventListener('click', async () => {
+        if (!confirm('Delete this note?')) return;
+        await sb.from('ticker_notes').delete().eq('id', b.dataset.noteDel);
+        loadNotes(ticker);
+      });
+    });
+  }
 })();
 </script>
 </body>
