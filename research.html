@@ -23,13 +23,19 @@
   .loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim)}
   .shell{max-width:1320px;margin:0 auto;padding:0 24px 80px}
 
-  .ticker-bar{display:flex;align-items:center;gap:12px;margin:20px 0 18px;flex-wrap:wrap}
-  .ticker-input{font-family:var(--mono);font-size:16px;font-weight:500;background:var(--bg);border:1px solid var(--border);padding:10px 14px;border-radius:4px;width:200px;color:var(--text);text-transform:uppercase;letter-spacing:0.05em}
+  .ticker-bar{display:flex;align-items:center;gap:10px;margin:18px 0 8px;flex-wrap:wrap}
+  .ticker-input{font-family:var(--mono);font-size:16px;font-weight:500;background:var(--bg);border:1px solid var(--border);padding:9px 12px;border-radius:4px;width:180px;color:var(--text);text-transform:uppercase;letter-spacing:0.05em}
   .ticker-input:focus{outline:none;border-color:var(--accent)}
   .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:9px 14px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500;transition:all .15s}
   .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)} .btn-primary:disabled{opacity:.5;cursor:wait}
   .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
   .btn-sm{font-size:10px;padding:5px 9px}
+
+  .watchlist-row{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 18px;align-items:center}
+  .watchlist-row .wl-label{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);margin-right:6px}
+  .watchlist-chip{font-family:var(--mono);font-size:11px;letter-spacing:0.04em;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 11px;border-radius:14px;cursor:pointer;text-decoration:none;font-weight:600}
+  .watchlist-chip:hover{border-color:var(--accent);color:var(--accent);background:var(--bg-blue)}
+  .watchlist-chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 
   .banner-card{background:var(--bg);border:1px solid var(--border);border-radius:6px;margin-bottom:18px;overflow:hidden}
   .banner-head{background:#0f172a;color:#f1f5f9;padding:13px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
@@ -39,7 +45,7 @@
   .h2-sub{color:var(--text-muted);font-size:13px;margin:0 0 14px;line-height:1.55}
 
   .header-grid{display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start}
-  .company-block .name{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-0.02em;margin-bottom:4px}
+  .company-block .name{font-family:var(--serif);font-size:28px;font-weight:600;letter-spacing:-0.02em;margin-bottom:4px}
   .company-block .sub{font-family:var(--mono);font-size:11px;color:var(--text-muted);letter-spacing:0.06em;margin-bottom:14px;text-transform:uppercase}
   .company-block .desc{font-size:13.5px;color:var(--text-muted);line-height:1.6;margin:0}
 
@@ -56,42 +62,35 @@
   .metric-box.rich{border-color:#fcd34d;background:#fffbeb}
   .metric-box.neutral{border-color:var(--border-blue);background:var(--bg-blue)}
 
-  /* Regime badges */
   .badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:3px;border:1px solid var(--border);background:var(--bg-tint);color:var(--text-muted);margin-right:6px}
   .badge.cheap{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
   .badge.rich{background:#fffbeb;border-color:#fcd34d;color:#92400e}
   .badge.lean-buy{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
   .badge.lean-sell{background:#fef3c7;border-color:#fcd34d;color:#92400e}
   .badge.neutral{background:#f1f5f9;border-color:#cbd5e1;color:#334155}
-  .badge.bad{background:var(--danger-bg);border-color:#fecaca;color:#991b1b}
   .badge.contango{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
   .badge.backwardation{background:#fef3c7;border-color:#fcd34d;color:#92400e}
-  .badge.flat{background:#f1f5f9;border-color:#cbd5e1;color:#334155}
 
-  /* Strategy cards */
   .strat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
   .strat-card{background:var(--bg);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:4px;padding:14px 16px}
   .strat-card.sell{border-left-color:var(--warning)}
   .strat-card .strat-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
-  .strat-card .strat-name{font-family:var(--serif);font-size:16px;font-weight:600;color:var(--text)}
+  .strat-card .strat-name{font-family:var(--serif);font-size:16px;font-weight:600}
   .strat-card .strat-score{font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:600}
   .strat-card .strat-side{font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
-  .strat-card .strat-rat{font-size:12.5px;color:var(--text);line-height:1.55;margin-bottom:8px}
+  .strat-card .strat-rat{font-size:12.5px;line-height:1.55;margin-bottom:8px}
   .strat-card .strat-when{font-size:11.5px;color:var(--text-muted);line-height:1.5;margin-bottom:4px}
   .strat-card .strat-when b{color:var(--text);font-weight:600}
   .strat-card .strat-flag{font-size:11.5px;color:var(--danger);line-height:1.5;margin-bottom:8px}
-  .strat-card .strat-actions{margin-top:8px}
 
-  /* Tables */
   table{width:100%;border-collapse:collapse;font-size:12.5px}
-  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:8px 8px;border-bottom:1px solid var(--border);background:var(--bg-tint);position:sticky;top:0;z-index:1}
+  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:8px;border-bottom:1px solid var(--border);background:var(--bg-tint);position:sticky;top:0;z-index:1}
   td{padding:7px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11.5px;color:var(--text)}
   td.num{text-align:right} td.pos{color:var(--success)} td.neg{color:var(--danger)}
   td.itm{background:#fef3c7}
   tr.atm td{background:#eff6ff;font-weight:600}
   tr:hover td{background:var(--bg-blue)}
 
-  /* Options chain wrapper */
   .chain-wrap{max-height:520px;overflow:auto;border:1px solid var(--border);border-radius:4px}
   .chain-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
   .chain-controls select, .chain-controls input{font-family:var(--mono);font-size:11px;background:var(--bg);border:1px solid var(--border);padding:6px 10px;border-radius:3px;color:var(--text)}
@@ -99,7 +98,7 @@
 
   .term-sparkline{display:flex;align-items:flex-end;gap:14px;height:80px;padding:8px 0}
   .term-bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
-  .term-bar .b{width:100%;background:linear-gradient(to top,var(--accent),#60a5fa);border-radius:2px 2px 0 0;min-height:4px;position:relative}
+  .term-bar .b{width:100%;background:linear-gradient(to top,var(--accent),#60a5fa);border-radius:2px 2px 0 0;min-height:4px}
   .term-bar .l{font-family:var(--mono);font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase}
   .term-bar .v{font-family:var(--mono);font-size:11px;color:var(--text);font-weight:600}
 
@@ -113,10 +112,6 @@
   .note-item.pinned{border-left:3px solid var(--accent)}
   .note-item .txt{flex:1;font-size:13px;line-height:1.5;white-space:pre-wrap}
   .note-item .meta{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:4px}
-
-  .field-mini label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
-  .field-mini input, .field-mini select, .field-mini textarea{width:100%;background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-family:var(--mono);font-size:12px;color:var(--text);border-radius:3px}
-  .field-mini textarea{font-family:var(--sans);min-height:80px;resize:vertical}
 
   .empty{padding:24px;text-align:center;color:var(--text-muted);font-size:13px;font-style:italic}
   .msg{padding:10px 14px;font-size:13px;border-radius:4px;line-height:1.5;margin:8px 0}
@@ -146,6 +141,11 @@
     <span class="banner-meta" id="ticker-status"></span>
   </div>
 
+  <div class="watchlist-row" id="watchlist-row">
+    <span class="wl-label">Watchlist</span>
+    <span class="banner-meta" id="wl-empty" style="font-style:italic">Loading…</span>
+  </div>
+
   <div id="msg-area"></div>
   <div id="content"></div>
 </div>
@@ -164,8 +164,7 @@
 
   const $ = id => document.getElementById(id);
   const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
-  const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const fmt0 = n => (n==null||isNaN(n))?'—':Number(n).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+  const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt2 = n => (n==null||isNaN(n))?'—':Number(n).toFixed(2);
   const fmt4 = n => (n==null||isNaN(n))?'—':Number(n).toFixed(4);
   const fmtPct = (n,d=1) => (n==null||isNaN(n))?'—':(Number(n)*100).toFixed(d)+'%';
@@ -177,18 +176,21 @@
     if (x >= 1e6) return '$'+(x/1e6).toFixed(1)+'M';
     return '$'+x.toLocaleString();
   };
-  const flash = (text, kind='info') => {
-    $('msg-area').innerHTML = `<div class="msg msg-${esc(kind)}">${esc(text)}</div>`;
-    if (kind !== 'error') setTimeout(()=>{ $('msg-area').innerHTML=''; }, 6000);
+  const flash = (text, kind) => {
+    $('msg-area').innerHTML = '<div class="msg msg-'+esc(kind||'info')+'">'+esc(text)+'</div>';
+    if (kind !== 'error') setTimeout(function(){ $('msg-area').innerHTML=''; }, 6000);
   };
 
   (async () => {
-    const { data:{ session } } = await sb.auth.getSession();
-    if (!session?.user) { window.location.href='/index.html'; return; }
+    const r = await sb.auth.getSession();
+    const session = r && r.data && r.data.session;
+    if (!session || !session.user) { window.location.href='/index.html'; return; }
     currentUser = session.user;
     show('loading-screen', false);
     show('app', true);
     try { if (window.RidgeRunNav) await window.RidgeRunNav.mount({active:'research', supabase:sb}); } catch(e){}
+
+    loadWatchlist();
 
     const params = new URLSearchParams(location.search);
     const t = (params.get('ticker') || '').toUpperCase();
@@ -196,7 +198,7 @@
       $('ticker-input').value = t;
       loadTicker(t);
     } else {
-      $('content').innerHTML = '<div class="banner-card"><div class="banner-body"><div class="empty">Enter a ticker above to load research.</div></div></div>';
+      $('content').innerHTML = '<div class="banner-card"><div class="banner-body"><div class="empty">Click a watchlist ticker above or enter a symbol to load research.</div></div></div>';
     }
   })();
 
@@ -208,214 +210,172 @@
     }
   });
   $('ticker-input').addEventListener('keydown', e => { if (e.key==='Enter') $('load-btn').click(); });
-  $('refresh-btn').addEventListener('click', () => {
-    if (currentTicker) fireBootstrap(currentTicker, true);
-  });
+  $('refresh-btn').addEventListener('click', () => { if (currentTicker) fireBootstrap(currentTicker, true); });
+
+  async function loadWatchlist() {
+    const res = await sb.from('ticker_watchlist')
+      .select('ticker, company_name').eq('user_id', currentUser.id).eq('is_active', true)
+      .order('ticker');
+    const data = res.data || [];
+    const row = $('watchlist-row');
+    const html = ['<span class="wl-label">Watchlist</span>'];
+    if (!data.length) {
+      html.push('<span class="banner-meta" style="font-style:italic">No watchlist tickers — add some on /watchlist.html</span>');
+    } else {
+      data.forEach(w => {
+        const title = w.company_name ? esc(w.company_name) : esc(w.ticker);
+        html.push('<a href="?ticker='+esc(w.ticker)+'" class="watchlist-chip" data-wl="'+esc(w.ticker)+'" title="'+title+'">'+esc(w.ticker)+'</a>');
+      });
+    }
+    row.innerHTML = html.join('');
+    row.querySelectorAll('a.watchlist-chip').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const t = a.dataset.wl;
+        $('ticker-input').value = t;
+        history.replaceState(null,'','?ticker='+encodeURIComponent(t));
+        document.querySelectorAll('.watchlist-chip').forEach(x => x.classList.remove('active'));
+        a.classList.add('active');
+        loadTicker(t);
+      });
+    });
+    // Mark active if URL has ticker
+    if (currentTicker) {
+      const m = row.querySelector('a.watchlist-chip[data-wl="'+currentTicker+'"]');
+      if (m) m.classList.add('active');
+    }
+  }
 
   async function loadTicker(ticker) {
     currentTicker = ticker;
+    document.querySelectorAll('.watchlist-chip').forEach(x => {
+      x.classList.toggle('active', x.dataset.wl === ticker);
+    });
     $('ticker-status').textContent = 'Loading…';
-    $('content').innerHTML = '<div class="banner-card"><div class="banner-body"><div class="empty">Loading data for ' + esc(ticker) + '…</div></div></div>';
-
-    // Check if bootstrap needed
+    $('content').innerHTML = '<div class="banner-card"><div class="banner-body"><div class="empty">Loading data for '+esc(ticker)+'…</div></div></div>';
     await maybeBootstrap(ticker);
-
-    // Render skeleton
     $('content').innerHTML = renderSkeleton();
-
-    // Parallel-load every section
     await Promise.allSettled([
-      loadHeader(ticker),
-      loadThesis(ticker),
-      loadStrategies(ticker),
-      loadOptionsChain(ticker),
-      loadTermStructure(ticker),
-      loadInsider(ticker),
-      loadAnalysts(ticker),
-      loadPriceTargets(ticker),
-      loadNews(ticker),
-      loadCatalysts(ticker),
-      loadFundamentals(ticker),
-      loadNotes(ticker)
+      loadHeader(ticker), loadThesis(ticker), loadStrategies(ticker), loadOptionsChain(ticker),
+      loadTermStructure(ticker), loadInsider(ticker), loadAnalysts(ticker), loadPriceTargets(ticker),
+      loadNews(ticker), loadCatalysts(ticker), loadFundamentals(ticker), loadNotes(ticker)
     ]);
     $('ticker-status').textContent = 'Loaded ' + ticker;
   }
 
   async function maybeBootstrap(ticker) {
     try {
-      const [{ count: c1 }, { count: c2 }, { count: c3 }, { count: c4 }] = await Promise.all([
-        sb.from('vol_snapshots').select('ticker', { count:'exact', head:true }).eq('ticker', ticker),
-        sb.from('insider_transactions').select('ticker', { count:'exact', head:true }).eq('ticker', ticker),
-        sb.from('analyst_ratings').select('ticker', { count:'exact', head:true }).eq('ticker', ticker),
-        sb.from('options_chain_snapshots').select('ticker', { count:'exact', head:true }).eq('ticker', ticker)
-      ]);
-      if ((c1||0)===0 && (c2||0)===0 && (c3||0)===0 && (c4||0)===0) {
+      const v = await sb.from('vol_snapshots').select('ticker',{count:'exact',head:true}).eq('ticker',ticker);
+      const o = await sb.from('options_chain_snapshots').select('ticker',{count:'exact',head:true}).eq('ticker',ticker);
+      if (((v.count||0)===0) || ((o.count||0)===0)) {
         fireBootstrap(ticker, false);
       }
     } catch(e){}
   }
 
   function fireBootstrap(ticker, announce) {
-    if (announce) flash('Re-firing data webhooks for ' + ticker + '. Data will populate within ~30s.', 'info');
-    fetch(N8N + '/webhook/research/bootstrap', {
+    if (announce) flash('Re-firing data webhooks for '+ticker+'. Data populates within ~30s.', 'info');
+    fetch(N8N+'/webhook/research/bootstrap', {
       method:'POST',
       headers:{'content-type':'application/json'},
       body: JSON.stringify({ ticker })
-    }).catch(()=>{});
+    }).then(()=>{ if (announce) setTimeout(()=>{ if (currentTicker===ticker) loadTicker(ticker); }, 8000); })
+      .catch(()=>{});
   }
 
   function renderSkeleton() {
-    return `
-      <div id="sec-header"></div>
-      <div id="sec-thesis"></div>
-      <div id="sec-regime"></div>
-      <div id="sec-term"></div>
-      <div id="sec-chain"></div>
-      <div class="grid-2">
-        <div id="sec-insider"></div>
-        <div id="sec-analysts"></div>
-      </div>
-      <div id="sec-targets"></div>
-      <div class="grid-2">
-        <div id="sec-news"></div>
-        <div id="sec-catalysts"></div>
-      </div>
-      <div id="sec-fund"></div>
-      <div id="sec-notes"></div>
-    `;
+    return ''
+      + '<div id="sec-header"></div>'
+      + '<div id="sec-thesis"></div>'
+      + '<div id="sec-regime"></div>'
+      + '<div id="sec-term"></div>'
+      + '<div id="sec-chain"></div>'
+      + '<div class="grid-2"><div id="sec-insider"></div><div id="sec-analysts"></div></div>'
+      + '<div id="sec-targets"></div>'
+      + '<div class="grid-2"><div id="sec-news"></div><div id="sec-catalysts"></div></div>'
+      + '<div id="sec-fund"></div>'
+      + '<div id="sec-notes"></div>';
   }
 
   async function loadHeader(ticker) {
-    const [{ data: prof }, { data: fund }, { data: vol }] = await Promise.all([
-      sb.from('company_profile').select('*').eq('ticker', ticker).maybeSingle(),
-      sb.from('company_fundamentals').select('*').eq('ticker', ticker).order('as_of_date',{ascending:false}).limit(1).maybeSingle(),
-      sb.from('v_latest_vol_strategy').select('*').eq('ticker', ticker).maybeSingle()
-    ]);
-
-    if (vol?.spot) currentSpot = Number(vol.spot);
-
-    const mcap = fund && currentSpot ? null : null; // mkt_cap may be in raw_data
-    const ivR = vol?.iv_rank_1y;
+    const profR = await sb.from('company_profile').select('*').eq('ticker',ticker).maybeSingle();
+    const fundR = await sb.from('company_fundamentals').select('*').eq('ticker',ticker).order('as_of_date',{ascending:false}).limit(1).maybeSingle();
+    const volR = await sb.from('v_latest_vol_strategy').select('*').eq('ticker',ticker).maybeSingle();
+    const prof = profR.data; const fund = fundR.data; const vol = volR.data;
+    if (vol && vol.spot) currentSpot = Number(vol.spot);
+    const ivR = vol && vol.iv_rank_1y;
     const ivClass = ivR == null ? 'neutral' : (ivR < 25 ? 'cheap' : ivR > 75 ? 'rich' : 'neutral');
     const ivLabel = ivR == null ? '' : (ivR < 25 ? 'Cheap vol' : ivR > 75 ? 'Rich vol' : 'Moderate');
-
-    $('sec-header').innerHTML = `
-      <div class="banner-card">
-        <div class="banner-head">
-          <h2>${esc(ticker)}${prof?.company_name ? ' · '+esc(prof.company_name) : ''}</h2>
-          <span class="banner-meta">${prof?.sector ? esc(prof.sector) : ''}${prof?.industry ? ' · '+esc(prof.industry) : ''}</span>
-        </div>
-        <div class="banner-body">
-          <div class="header-grid">
-            <div class="company-block">
-              <div class="sub">${[
-                prof?.ceo ? 'CEO ' + esc(prof.ceo) : null,
-                prof?.employees ? Number(prof.employees).toLocaleString() + ' employees' : null,
-                prof?.beta != null ? 'β ' + Number(prof.beta).toFixed(2) : null,
-                prof?.next_earnings_date ? 'Next earnings ' + esc(prof.next_earnings_date) : null
-              ].filter(Boolean).join(' · ')}</div>
-              <p class="desc">${esc(prof?.description || 'No description available.').slice(0,640)}${(prof?.description||'').length>640?'…':''}</p>
-            </div>
-            <div class="grid-2" style="grid-template-columns:1fr 1fr">
-              <div class="metric-box">
-                <div class="l">Spot</div>
-                <div class="v">${vol?.spot != null ? '$'+fmt2(vol.spot) : '—'}</div>
-                <div class="sub">${vol?.as_of_date || ''}</div>
-              </div>
-              <div class="metric-box ${ivClass}">
-                <div class="l">IV Rank 1y</div>
-                <div class="v">${vol?.iv_rank_1y != null ? Math.round(vol.iv_rank_1y) : '—'}</div>
-                <div class="sub">${ivLabel}</div>
-              </div>
-              <div class="metric-box">
-                <div class="l">IV 30d</div>
-                <div class="v">${vol?.iv_30d != null ? fmtPct(vol.iv_30d) : '—'}</div>
-                <div class="sub">${vol?.hv_30d != null ? 'HV30 '+fmtPct(vol.hv_30d) : ''}</div>
-              </div>
-              <div class="metric-box">
-                <div class="l">25Δ Skew</div>
-                <div class="v">${vol?.skew_25d != null ? (vol.skew_25d*100).toFixed(1)+'pp' : '—'}</div>
-                <div class="sub">${vol?.skew_signal || ''}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
+    const sub = [
+      prof && prof.ceo ? 'CEO '+esc(prof.ceo) : null,
+      prof && prof.employees ? Number(prof.employees).toLocaleString()+' employees' : null,
+      prof && prof.beta != null ? 'β '+Number(prof.beta).toFixed(2) : null,
+      prof && prof.next_earnings_date ? 'Next earnings '+esc(prof.next_earnings_date) : null
+    ].filter(Boolean).join(' · ');
+    const desc = (prof && prof.description) ? prof.description.slice(0,640)+((prof.description.length>640)?'…':'') : 'No description available.';
+    $('sec-header').innerHTML = ''
+      + '<div class="banner-card"><div class="banner-head">'
+      + '<h2>'+esc(ticker)+(prof && prof.company_name ? ' · '+esc(prof.company_name) : '')+'</h2>'
+      + '<span class="banner-meta">'+(prof && prof.sector ? esc(prof.sector) : '')+(prof && prof.industry ? ' · '+esc(prof.industry) : '')+'</span>'
+      + '</div><div class="banner-body">'
+      + '<div class="header-grid"><div class="company-block">'
+      + '<div class="sub">'+sub+'</div><p class="desc">'+esc(desc)+'</p>'
+      + '</div><div class="grid-2" style="grid-template-columns:1fr 1fr">'
+      + '<div class="metric-box"><div class="l">Spot</div><div class="v">'+(vol && vol.spot!=null?'$'+fmt2(vol.spot):'—')+'</div><div class="sub">'+(vol && vol.as_of_date || '')+'</div></div>'
+      + '<div class="metric-box '+ivClass+'"><div class="l">IV Rank 1y</div><div class="v">'+(vol && vol.iv_rank_1y!=null?Math.round(vol.iv_rank_1y):'—')+'</div><div class="sub">'+ivLabel+'</div></div>'
+      + '<div class="metric-box"><div class="l">IV 30d</div><div class="v">'+(vol && vol.iv_30d!=null?fmtPct(vol.iv_30d):'—')+'</div><div class="sub">'+(vol && vol.hv_30d!=null?'HV30 '+fmtPct(vol.hv_30d):'')+'</div></div>'
+      + '<div class="metric-box"><div class="l">25Δ Skew</div><div class="v">'+(vol && vol.skew_25d!=null?(vol.skew_25d*100).toFixed(1)+'pp':'—')+'</div><div class="sub">'+(vol && vol.skew_signal ? esc(vol.skew_signal) : '')+'</div></div>'
+      + '</div></div></div></div>';
   }
 
   async function loadThesis(ticker) {
-    const { data } = await sb.from('thesis_models')
-      .select('*').eq('user_id', currentUser.id).eq('ticker', ticker).eq('is_active', true)
+    const r = await sb.from('thesis_models').select('*')
+      .eq('user_id', currentUser.id).eq('ticker', ticker).eq('is_active', true)
       .order('updated_at',{ascending:false}).limit(1).maybeSingle();
+    const data = r.data;
     if (!data) {
-      $('sec-thesis').innerHTML = `
-        <div class="banner-card">
-          <div class="banner-head"><h2>Thesis model</h2>
-            <span class="banner-meta"><a class="btn btn-sm btn-ghost" style="text-decoration:none" href="/model.html?ticker=${esc(ticker)}">Build model →</a></span>
-          </div>
-          <div class="banner-body"><div class="empty">No active thesis model for ${esc(ticker)}.</div></div>
-        </div>`;
+      $('sec-thesis').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>Thesis model</h2>'
+        + '<span class="banner-meta"><a class="btn btn-sm btn-ghost" style="text-decoration:none" href="/model.html?ticker='+esc(ticker)+'">Build model →</a></span>'
+        + '</div><div class="banner-body"><div class="empty">No active thesis model for '+esc(ticker)+'.</div></div></div>';
       return;
     }
     const c = data.computed || {};
-    $('sec-thesis').innerHTML = `
-      <div class="banner-card">
-        <div class="banner-head">
-          <h2>Thesis model · ${esc(data.scenario_label || 'base')}</h2>
-          <span class="banner-meta"><a class="btn btn-sm btn-ghost" style="text-decoration:none" href="/model.html?ticker=${esc(ticker)}">Open model →</a></span>
-        </div>
-        <div class="banner-body">
-          <div class="grid-4">
-            <div class="metric-box"><div class="l">Base price</div><div class="v">${data.base_price != null ? '$'+fmt2(data.base_price) : '—'}</div></div>
-            <div class="metric-box"><div class="l">Implied terminal</div><div class="v">${c.implied_price_terminal != null ? '$'+fmt2(c.implied_price_terminal) : '—'}</div></div>
-            <div class="metric-box"><div class="l">Annualized</div><div class="v ${c.annualized_return>0?'pos':'neg'}">${c.annualized_return != null ? fmtPct(c.annualized_return) : '—'}</div></div>
-            <div class="metric-box"><div class="l">Asymmetry</div><div class="v">${c.asymmetry != null ? Number(c.asymmetry).toFixed(2)+'×' : '—'}</div></div>
-          </div>
-          <div class="grid-4" style="margin-top:12px">
-            <div class="metric-box"><div class="l">Bull case</div><div class="v pos">${c.bull_implied_price != null ? '$'+fmt2(c.bull_implied_price) : '—'}</div></div>
-            <div class="metric-box"><div class="l">Bear case</div><div class="v neg">${c.bear_implied_price != null ? '$'+fmt2(c.bear_implied_price) : '—'}</div></div>
-            <div class="metric-box"><div class="l">MoS</div><div class="v">${c.margin_of_safety != null ? fmtPct(c.margin_of_safety) : '—'}</div></div>
-            <div class="metric-box"><div class="l">Cumulative</div><div class="v ${c.cumulative_return_pct>0?'pos':'neg'}">${c.cumulative_return_pct != null ? fmtPct(c.cumulative_return_pct) : '—'}</div></div>
-          </div>
-        </div>
-      </div>
-    `;
+    $('sec-thesis').innerHTML = ''
+      + '<div class="banner-card"><div class="banner-head">'
+      + '<h2>Thesis model · '+esc(data.scenario_label||'base')+'</h2>'
+      + '<span class="banner-meta"><a class="btn btn-sm btn-ghost" style="text-decoration:none" href="/model.html?ticker='+esc(ticker)+'">Open model →</a></span>'
+      + '</div><div class="banner-body"><div class="grid-4">'
+      + '<div class="metric-box"><div class="l">Base price</div><div class="v">'+(data.base_price!=null?'$'+fmt2(data.base_price):'—')+'</div></div>'
+      + '<div class="metric-box"><div class="l">Implied terminal</div><div class="v">'+(c.implied_price_terminal!=null?'$'+fmt2(c.implied_price_terminal):'—')+'</div></div>'
+      + '<div class="metric-box"><div class="l">Annualized</div><div class="v '+(c.annualized_return>0?'pos':c.annualized_return<0?'neg':'')+'">'+(c.annualized_return!=null?fmtPct(c.annualized_return):'—')+'</div></div>'
+      + '<div class="metric-box"><div class="l">Asymmetry</div><div class="v">'+(c.asymmetry!=null?Number(c.asymmetry).toFixed(2)+'×':'—')+'</div></div>'
+      + '</div><div class="grid-4" style="margin-top:12px">'
+      + '<div class="metric-box"><div class="l">Bull case</div><div class="v pos">'+(c.bull_implied_price!=null?'$'+fmt2(c.bull_implied_price):'—')+'</div></div>'
+      + '<div class="metric-box"><div class="l">Bear case</div><div class="v neg">'+(c.bear_implied_price!=null?'$'+fmt2(c.bear_implied_price):'—')+'</div></div>'
+      + '<div class="metric-box"><div class="l">MoS</div><div class="v">'+(c.margin_of_safety!=null?fmtPct(c.margin_of_safety):'—')+'</div></div>'
+      + '<div class="metric-box"><div class="l">Cumulative</div><div class="v '+(c.cumulative_return_pct>0?'pos':c.cumulative_return_pct<0?'neg':'')+'">'+(c.cumulative_return_pct!=null?fmtPct(c.cumulative_return_pct):'—')+'</div></div>'
+      + '</div></div></div>';
   }
 
   async function loadStrategies(ticker) {
-    const { data, error } = await sb.rpc('get_option_strategies', { ticker });
-    if (error || !data) {
-      $('sec-regime').innerHTML = `
-        <div class="banner-card">
-          <div class="banner-head"><h2>IV regime + strategy fit</h2></div>
-          <div class="banner-body"><div class="empty">No vol data for ${esc(ticker)}. ${error?'Error: '+esc(error.message):''}</div></div>
-        </div>`;
+    // FIX: param name is p_ticker, not ticker
+    const r = await sb.rpc('get_option_strategies', { p_ticker: ticker });
+    if (r.error || !r.data) {
+      $('sec-regime').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>IV regime + strategy fit</h2></div>'
+        + '<div class="banner-body"><div class="empty">No vol data for '+esc(ticker)+'.'+(r.error?' Error: '+esc(r.error.message):'')+'</div></div></div>';
       return;
     }
-
-    const d = data;
-    const regimeBadge = badgeFor('vol', d.vol_regime);
-    const termBadge = badgeFor('term', d.term_structure);
-    const skewBadge = badgeFor('skew', d.skew_signal);
-    const strats = (d.strategies || []).slice(0, 5);
-
-    $('sec-regime').innerHTML = `
-      <div class="banner-card">
-        <div class="banner-head"><h2>IV regime + strategy fit</h2>
-          <span class="banner-meta">Spot $${fmt2(d.spot)} · IV30 ${fmtPct(d.iv_30d)} · IV365 ${fmtPct(d.iv_365d)}</span>
-        </div>
-        <div class="banner-body">
-          <p class="h2-sub">Strategy selector reads IV rank, term structure, and skew. Cheap vol → buy premium. Rich vol → sell premium. Each card has a "Use this idea" button to seed a trade idea.</p>
-          <div style="margin-bottom:10px">${regimeBadge} ${termBadge} ${skewBadge}</div>
-          <div class="strat-grid">
-            ${strats.length ? strats.map(s => renderStrategyCard(s, ticker)).join('') : '<div class="empty" style="grid-column:1/-1">No strategies returned.</div>'}
-          </div>
-        </div>
-      </div>
-    `;
-
-    // Wire up "Use this idea" buttons
+    const d = r.data;
+    const strats = (d.strategies || []).slice(0,5);
+    $('sec-regime').innerHTML = ''
+      + '<div class="banner-card"><div class="banner-head"><h2>IV regime + strategy fit</h2>'
+      + '<span class="banner-meta">Spot $'+fmt2(d.spot)+' · IV30 '+fmtPct(d.iv_30d)+' · IV365 '+(d.iv_365d!=null?fmtPct(d.iv_365d):'—')+'</span>'
+      + '</div><div class="banner-body">'
+      + '<p class="h2-sub">Strategy selector reads IV rank, term structure, and skew. Cheap vol → buy premium. Rich vol → sell premium.</p>'
+      + '<div style="margin-bottom:10px">'+badgeFor('vol',d.vol_regime)+' '+badgeFor('term',d.term_structure)+' '+badgeFor('skew',d.skew_signal)+'</div>'
+      + '<div class="strat-grid">'
+      + (strats.length ? strats.map(s=>renderStrategyCard(s,ticker)).join('') : '<div class="empty" style="grid-column:1/-1">No strategies returned.</div>')
+      + '</div></div></div>';
     $('sec-regime').querySelectorAll('button[data-strat]').forEach(btn => {
       btn.addEventListener('click', () => useStrategy(ticker, btn.dataset.strat, btn.dataset.side));
     });
@@ -423,22 +383,15 @@
 
   function renderStrategyCard(s, ticker) {
     const side = (s.side||'').toLowerCase();
-    const sellClass = side === 'sell' ? 'sell' : '';
-    return `
-      <div class="strat-card ${sellClass}">
-        <div class="strat-head">
-          <div class="strat-name">${esc(s.name)}</div>
-          <div class="strat-score">Score ${s.score != null ? Number(s.score).toFixed(0) : '—'}</div>
-        </div>
-        <div class="strat-side">${esc(s.side||'')} premium · ${s.horizon_days ? s.horizon_days+'d horizon' : ''}</div>
-        <div class="strat-rat">${esc(s.rationale||'')}</div>
-        ${s.best_when ? `<div class="strat-when"><b>Best when:</b> ${esc(s.best_when)}</div>`:''}
-        ${s.red_flag ? `<div class="strat-flag"><b>Red flag:</b> ${esc(s.red_flag)}</div>`:''}
-        <div class="strat-actions">
-          <button class="btn btn-sm btn-primary" data-strat="${esc(s.name)}" data-side="${esc(side)}">Use this idea</button>
-        </div>
-      </div>
-    `;
+    return '<div class="strat-card '+(side==='sell'?'sell':'')+'">'
+      + '<div class="strat-head"><div class="strat-name">'+esc(s.name)+'</div>'
+      + '<div class="strat-score">Score '+(s.score!=null?Number(s.score).toFixed(0):'—')+'</div></div>'
+      + '<div class="strat-side">'+esc(s.side||'')+' premium · '+(s.horizon_days?s.horizon_days+'d horizon':'')+'</div>'
+      + '<div class="strat-rat">'+esc(s.rationale||'')+'</div>'
+      + (s.best_when?'<div class="strat-when"><b>Best when:</b> '+esc(s.best_when)+'</div>':'')
+      + (s.red_flag?'<div class="strat-flag"><b>Red flag:</b> '+esc(s.red_flag)+'</div>':'')
+      + '<div style="margin-top:8px"><button class="btn btn-sm btn-primary" data-strat="'+esc(s.name)+'" data-side="'+esc(side)+'">Use this idea</button></div>'
+      + '</div>';
   }
 
   function badgeFor(kind, val) {
@@ -446,124 +399,76 @@
     const lbl = String(val).replace(/_/g,' ');
     let cls = 'neutral';
     if (kind === 'vol') {
-      if (val.includes('cheap')) cls='cheap';
-      else if (val.includes('rich')) cls='rich';
-      else if (val.includes('lean_buy')) cls='lean-buy';
-      else if (val.includes('lean_sell')) cls='lean-sell';
+      if (val.indexOf('cheap')>=0) cls='cheap';
+      else if (val.indexOf('rich')>=0) cls='rich';
+      else if (val==='lean_buy') cls='lean-buy';
+      else if (val==='lean_sell') cls='lean-sell';
     } else if (kind === 'term') {
-      if (val === 'contango') cls='contango';
-      else if (val === 'backwardation') cls='backwardation';
-      else cls='flat';
+      if (val==='contango') cls='contango';
+      else if (val==='backwardation') cls='backwardation';
     } else if (kind === 'skew') {
-      if (val.includes('put')) cls='lean-sell';
-      else if (val.includes('call')) cls='lean-buy';
+      if (String(val).indexOf('put')>=0) cls='lean-sell';
+      else if (String(val).indexOf('call')>=0) cls='lean-buy';
     }
-    return `<span class="badge ${cls}">${esc(lbl)}</span>`;
+    return '<span class="badge '+cls+'">'+esc(lbl)+'</span>';
   }
 
   async function useStrategy(ticker, stratName, side) {
     const oppType = inferOppType(stratName);
     const structure = stratName.toLowerCase().replace(/ /g,'_');
     const direction = side === 'buy' ? 'long' : 'short';
-    const { error } = await sb.from('trade_ideas').insert({
-      user_id: currentUser.id,
-      ticker,
-      opportunity_type: oppType,
-      direction,
-      proposed_structure: structure,
-      thesis: 'Seeded from research.html strategy selector: ' + stratName,
-      status: 'idea',
-      source: 'research_strategy_button',
-      conviction: 3
+    const r = await sb.from('trade_ideas').insert({
+      user_id: currentUser.id, ticker, opportunity_type: oppType, direction,
+      proposed_structure: structure, thesis: 'Seeded from research.html: '+stratName,
+      status: 'idea', source: 'research_strategy_button', conviction: 3
     });
-    if (error) flash('Failed to save: ' + error.message, 'error');
-    else flash('Saved as trade idea: ' + stratName + ' on ' + ticker + '. Open Strategy page to flesh out.', 'success');
+    if (r.error) flash('Save failed: '+r.error.message, 'error');
+    else flash('Saved as trade idea: '+stratName+' on '+ticker+'. Open Strategy page to flesh out.', 'success');
   }
 
   function inferOppType(s) {
-    s = s.toLowerCase();
-    if (s.includes('leap')) return 'asymmetric_leap';
-    if (s.includes('straddle') || s.includes('strangle')) return 'earnings_play';
-    if (s.includes('iron condor') || s.includes('covered call') || s.includes('cash-secured')) return 'short_thesis';
-    if (s.includes('calendar')) return 'pair_trade';
+    s = (s||'').toLowerCase();
+    if (s.indexOf('leap')>=0) return 'asymmetric_leap';
+    if (s.indexOf('straddle')>=0 || s.indexOf('strangle')>=0) return 'earnings_play';
+    if (s.indexOf('iron condor')>=0 || s.indexOf('covered call')>=0 || s.indexOf('cash-secured')>=0) return 'short_thesis';
+    if (s.indexOf('calendar')>=0) return 'pair_trade';
     return 'asymmetric_leap';
   }
 
   async function loadOptionsChain(ticker) {
     const fiveDaysAgo = new Date(Date.now()-5*86400000).toISOString().slice(0,10);
-    const { data, error } = await sb.from('options_chain_snapshots')
+    const r = await sb.from('options_chain_snapshots')
       .select('expiry, strike, side, bid, ask, last, volume, open_interest, iv, delta, gamma, theta, vega, underlying_price, as_of_date')
-      .eq('ticker', ticker)
-      .gte('as_of_date', fiveDaysAgo)
-      .order('expiry', { ascending: true })
-      .order('strike', { ascending: true })
-      .limit(2000);
-
+      .eq('ticker', ticker).gte('as_of_date', fiveDaysAgo)
+      .order('expiry',{ascending:true}).order('strike',{ascending:true}).limit(2000);
+    const data = r.data; const error = r.error;
     if (error || !data || !data.length) {
-      $('sec-chain').innerHTML = `
-        <div class="banner-card">
-          <div class="banner-head"><h2>Options chain</h2><span class="banner-meta">Multi-strike · multi-expiry · bid/ask/IV/greeks/OI</span></div>
-          <div class="banner-body"><div class="empty">No recent options chain for ${esc(ticker)}. ${error?'Error: '+esc(error.message):''}</div></div>
-        </div>`;
+      $('sec-chain').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>Options chain</h2><span class="banner-meta">Multi-strike · multi-expiry · bid/ask/IV/greeks/OI</span></div>'
+        + '<div class="banner-body"><div class="empty">No recent options chain for '+esc(ticker)+'. Click "Refresh data" above to fire backfill.'+(error?' Error: '+esc(error.message):'')+'</div></div></div>';
       return;
     }
+    const latestDate = data.reduce((m,row) => row.as_of_date > m ? row.as_of_date : m, '');
+    const fresh = data.filter(row => row.as_of_date === latestDate);
+    const spot = (fresh[0] && fresh[0].underlying_price) || currentSpot;
+    const expiries = Array.from(new Set(fresh.map(row => row.expiry))).sort();
 
-    // Use freshest snapshot
-    const latestDate = data.reduce((m,r) => r.as_of_date > m ? r.as_of_date : m, '');
-    const fresh = data.filter(r => r.as_of_date === latestDate);
-
-    const spot = fresh[0]?.underlying_price || currentSpot;
-    const expiries = [...new Set(fresh.map(r => r.expiry))].sort();
-
-    $('sec-chain').innerHTML = `
-      <div class="banner-card">
-        <div class="banner-head"><h2>Options chain</h2>
-          <span class="banner-meta">As of ${esc(latestDate)} · Spot $${fmt2(spot)} · ${fresh.length} contracts · ${expiries.length} expirations</span>
-        </div>
-        <div class="banner-body">
-          <div class="chain-controls">
-            <label>Expiry
-              <select id="chain-expiry">
-                <option value="">All (${expiries.length})</option>
-                ${expiries.map(e => `<option value="${esc(e)}">${esc(e)}</option>`).join('')}
-              </select>
-            </label>
-            <label>Side
-              <select id="chain-side">
-                <option value="">Both</option>
-                <option value="call">Calls only</option>
-                <option value="put">Puts only</option>
-              </select>
-            </label>
-            <label>Strike window (% from spot)
-              <select id="chain-pct">
-                <option value="0.20" selected>±20%</option>
-                <option value="0.10">±10%</option>
-                <option value="0.30">±30%</option>
-                <option value="1.0">All</option>
-              </select>
-            </label>
-            <label>Min OI
-              <input type="number" id="chain-min-oi" min="0" value="0" style="width:80px">
-            </label>
-          </div>
-          <div class="chain-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Expiry</th><th>Strike</th><th>Side</th>
-                  <th style="text-align:right">Bid</th><th style="text-align:right">Ask</th><th style="text-align:right">Last</th>
-                  <th style="text-align:right">IV</th>
-                  <th style="text-align:right">Δ</th><th style="text-align:right">Γ</th><th style="text-align:right">Θ</th><th style="text-align:right">ν</th>
-                  <th style="text-align:right">OI</th><th style="text-align:right">Vol</th>
-                </tr>
-              </thead>
-              <tbody id="chain-tbody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    `;
+    $('sec-chain').innerHTML = ''
+      + '<div class="banner-card"><div class="banner-head"><h2>Options chain</h2>'
+      + '<span class="banner-meta">As of '+esc(latestDate)+' · Spot $'+fmt2(spot)+' · '+fresh.length+' contracts · '+expiries.length+' expirations</span>'
+      + '</div><div class="banner-body">'
+      + '<div class="chain-controls">'
+      + '<label>Expiry <select id="chain-expiry"><option value="">All ('+expiries.length+')</option>'+expiries.map(e=>'<option value="'+esc(e)+'">'+esc(e)+'</option>').join('')+'</select></label>'
+      + '<label>Side <select id="chain-side"><option value="">Both</option><option value="call">Calls only</option><option value="put">Puts only</option></select></label>'
+      + '<label>Strike window <select id="chain-pct"><option value="0.20" selected>±20%</option><option value="0.10">±10%</option><option value="0.30">±30%</option><option value="1.0">All</option></select></label>'
+      + '<label>Min OI <input type="number" id="chain-min-oi" min="0" value="0" style="width:80px"></label>'
+      + '</div>'
+      + '<div class="chain-wrap"><table><thead><tr>'
+      + '<th>Expiry</th><th>Strike</th><th>Side</th>'
+      + '<th style="text-align:right">Bid</th><th style="text-align:right">Ask</th><th style="text-align:right">Last</th>'
+      + '<th style="text-align:right">IV</th><th style="text-align:right">Δ</th><th style="text-align:right">Γ</th><th style="text-align:right">Θ</th><th style="text-align:right">ν</th>'
+      + '<th style="text-align:right">OI</th><th style="text-align:right">Vol</th>'
+      + '</tr></thead><tbody id="chain-tbody"></tbody></table></div>'
+      + '</div></div>';
 
     const render = () => {
       const exp = $('chain-expiry').value;
@@ -572,52 +477,44 @@
       const minOI = parseInt($('chain-min-oi').value||'0', 10);
       const lo = spot ? spot*(1-pct) : 0;
       const hi = spot ? spot*(1+pct) : Infinity;
-      let rows = fresh.filter(r => {
-        if (exp && r.expiry !== exp) return false;
-        if (side && r.side !== side) return false;
-        if (pct < 1 && spot && (r.strike < lo || r.strike > hi)) return false;
-        if (minOI > 0 && (r.open_interest||0) < minOI) return false;
+      const rows = fresh.filter(rw => {
+        if (exp && rw.expiry !== exp) return false;
+        if (side && rw.side !== side) return false;
+        if (pct < 1 && spot && (rw.strike < lo || rw.strike > hi)) return false;
+        if (minOI > 0 && (rw.open_interest||0) < minOI) return false;
         return true;
       });
       if (!rows.length) {
         $('chain-tbody').innerHTML = '<tr><td colspan="13" class="empty">No contracts match filters.</td></tr>';
         return;
       }
-      // Find ATM strike per expiry
-      const atmByExp = {};
       const grouped = {};
-      rows.forEach(r => {
-        grouped[r.expiry] = grouped[r.expiry] || [];
-        grouped[r.expiry].push(r);
-      });
+      rows.forEach(rw => { (grouped[rw.expiry] = grouped[rw.expiry]||[]).push(rw); });
+      const atmByExp = {};
       Object.keys(grouped).forEach(e => {
-        const strikes = [...new Set(grouped[e].map(r=>r.strike))];
-        if (spot && strikes.length) {
-          atmByExp[e] = strikes.reduce((a,b) => Math.abs(b-spot) < Math.abs(a-spot) ? b : a);
-        }
+        const strikes = Array.from(new Set(grouped[e].map(rw=>rw.strike)));
+        if (spot && strikes.length) atmByExp[e] = strikes.reduce((a,b)=>Math.abs(b-spot)<Math.abs(a-spot)?b:a);
       });
-      $('chain-tbody').innerHTML = rows.map(r => {
-        const isATM = spot && r.strike === atmByExp[r.expiry];
-        const itm = (r.side==='call' && spot && r.strike < spot) || (r.side==='put' && spot && r.strike > spot);
-        return `
-        <tr class="${isATM?'atm':''}">
-          <td>${esc(r.expiry)}</td>
-          <td class="num ${itm?'itm':''}"><b>${fmt2(r.strike)}</b></td>
-          <td>${esc(r.side||'')}</td>
-          <td class="num">${r.bid!=null?fmt2(r.bid):'—'}</td>
-          <td class="num">${r.ask!=null?fmt2(r.ask):'—'}</td>
-          <td class="num">${r.last!=null?fmt2(r.last):'—'}</td>
-          <td class="num">${r.iv!=null?(r.iv*100).toFixed(1)+'%':'—'}</td>
-          <td class="num">${r.delta!=null?fmt2(r.delta):'—'}</td>
-          <td class="num">${r.gamma!=null?fmt4(r.gamma):'—'}</td>
-          <td class="num">${r.theta!=null?fmt2(r.theta):'—'}</td>
-          <td class="num">${r.vega!=null?fmt2(r.vega):'—'}</td>
-          <td class="num">${r.open_interest!=null?Number(r.open_interest).toLocaleString():'—'}</td>
-          <td class="num">${r.volume!=null?Number(r.volume).toLocaleString():'—'}</td>
-        </tr>`;
+      $('chain-tbody').innerHTML = rows.map(rw => {
+        const isATM = spot && rw.strike === atmByExp[rw.expiry];
+        const itm = (rw.side==='call' && spot && rw.strike<spot) || (rw.side==='put' && spot && rw.strike>spot);
+        return '<tr class="'+(isATM?'atm':'')+'">'
+          + '<td>'+esc(rw.expiry)+'</td>'
+          + '<td class="num '+(itm?'itm':'')+'"><b>'+fmt2(rw.strike)+'</b></td>'
+          + '<td>'+esc(rw.side||'')+'</td>'
+          + '<td class="num">'+(rw.bid!=null?fmt2(rw.bid):'—')+'</td>'
+          + '<td class="num">'+(rw.ask!=null?fmt2(rw.ask):'—')+'</td>'
+          + '<td class="num">'+(rw.last!=null?fmt2(rw.last):'—')+'</td>'
+          + '<td class="num">'+(rw.iv!=null?(rw.iv*100).toFixed(1)+'%':'—')+'</td>'
+          + '<td class="num">'+(rw.delta!=null?fmt2(rw.delta):'—')+'</td>'
+          + '<td class="num">'+(rw.gamma!=null?fmt4(rw.gamma):'—')+'</td>'
+          + '<td class="num">'+(rw.theta!=null?fmt2(rw.theta):'—')+'</td>'
+          + '<td class="num">'+(rw.vega!=null?fmt2(rw.vega):'—')+'</td>'
+          + '<td class="num">'+(rw.open_interest!=null?Number(rw.open_interest).toLocaleString():'—')+'</td>'
+          + '<td class="num">'+(rw.volume!=null?Number(rw.volume).toLocaleString():'—')+'</td>'
+          + '</tr>';
       }).join('');
     };
-
     $('chain-expiry').addEventListener('change', render);
     $('chain-side').addEventListener('change', render);
     $('chain-pct').addEventListener('change', render);
@@ -626,248 +523,157 @@
   }
 
   async function loadTermStructure(ticker) {
-    const { data } = await sb.from('v_latest_vol_strategy').select('*').eq('ticker', ticker).maybeSingle();
+    const r = await sb.from('v_latest_vol_strategy').select('*').eq('ticker',ticker).maybeSingle();
+    const data = r.data;
     if (!data) { $('sec-term').innerHTML=''; return; }
     const pts = [
-      { l:'30d', v: data.iv_30d },
-      { l:'90d', v: data.iv_90d },
-      { l:'180d', v: data.iv_180d },
-      { l:'365d', v: data.iv_365d }
+      { l:'30d', v:data.iv_30d },
+      { l:'90d', v:data.iv_90d },
+      { l:'180d', v:data.iv_180d },
+      { l:'365d', v:data.iv_365d }
     ].filter(p => p.v != null);
     if (!pts.length) { $('sec-term').innerHTML=''; return; }
-    const max = Math.max(...pts.map(p=>p.v));
-    const slope = (data.iv_365d != null && data.iv_30d != null)
-      ? ((data.iv_365d - data.iv_30d) / data.iv_30d) : null;
-    const slopeLabel = slope == null ? '' : (slope > 0.05 ? 'Contango (back richer)' : slope < -0.05 ? 'Backwardation (front richer)' : 'Flat term');
-
-    $('sec-term').innerHTML = `
-      <div class="banner-card">
-        <div class="banner-head"><h2>IV term structure</h2><span class="banner-meta">${esc(slopeLabel)}${slope!=null?' · slope '+(slope*100).toFixed(1)+'%':''}</span></div>
-        <div class="banner-body">
-          <div class="term-sparkline">
-            ${pts.map(p => `
-              <div class="term-bar">
-                <div class="v">${fmtPct(p.v)}</div>
-                <div class="b" style="height:${(p.v/max*72).toFixed(1)}px"></div>
-                <div class="l">${p.l}</div>
-              </div>`).join('')}
-          </div>
-        </div>
-      </div>
-    `;
+    const max = Math.max.apply(null, pts.map(p=>p.v));
+    const slope = (data.iv_365d != null && data.iv_30d != null) ? ((data.iv_365d-data.iv_30d)/data.iv_30d) : null;
+    const slopeLabel = slope == null ? '' : (slope > 0.05 ? 'Contango' : slope < -0.05 ? 'Backwardation' : 'Flat term');
+    $('sec-term').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>IV term structure</h2>'
+      + '<span class="banner-meta">'+esc(slopeLabel)+(slope!=null?' · slope '+(slope*100).toFixed(1)+'%':'')+'</span>'
+      + '</div><div class="banner-body"><div class="term-sparkline">'
+      + pts.map(p => '<div class="term-bar"><div class="v">'+fmtPct(p.v)+'</div><div class="b" style="height:'+(p.v/max*72).toFixed(1)+'px"></div><div class="l">'+p.l+'</div></div>').join('')
+      + '</div></div></div>';
   }
 
   async function loadInsider(ticker) {
     const since = new Date(Date.now()-90*86400000).toISOString().slice(0,10);
-    const { data } = await sb.from('insider_transactions')
-      .select('*').eq('ticker', ticker).gte('transaction_date', since)
+    const r = await sb.from('insider_transactions')
+      .select('*').eq('ticker',ticker).gte('transaction_date',since)
       .order('transaction_date',{ascending:false}).limit(20);
+    const data = r.data;
     if (!data || !data.length) {
-      $('sec-insider').innerHTML = `<div class="banner-card"><div class="banner-head"><h2>Insider transactions</h2><span class="banner-meta">90d</span></div><div class="banner-body"><div class="empty">No insider transactions in last 90d.</div></div></div>`;
+      $('sec-insider').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>Insider transactions</h2><span class="banner-meta">90d</span></div><div class="banner-body"><div class="empty">No insider transactions in last 90d.</div></div></div>';
       return;
     }
-    $('sec-insider').innerHTML = `
-      <div class="banner-card">
-        <div class="banner-head"><h2>Insider transactions</h2><span class="banner-meta">Last 90d · ${data.length} filings</span></div>
-        <div class="banner-body" style="max-height:340px;overflow:auto">
-          <table>
-            <thead><tr><th>Date</th><th>Insider</th><th>Type</th><th style="text-align:right">Shares</th><th style="text-align:right">Value</th></tr></thead>
-            <tbody>
-              ${data.map(r => {
-                const isBuy = (r.transaction_type||'').toLowerCase().includes('buy') || (r.transaction_type||'').toLowerCase().includes('purchase');
-                return `<tr>
-                  <td>${esc(r.transaction_date||'')}</td>
-                  <td>${esc((r.insider_name||'').slice(0,28))}<br><span style="font-size:9px;color:var(--text-dim)">${esc(r.insider_title||'')}</span></td>
-                  <td class="${isBuy?'pos':'neg'}">${esc(r.transaction_type||'')}</td>
-                  <td class="num">${r.shares!=null?Number(r.shares).toLocaleString():'—'}</td>
-                  <td class="num">${fmtBigUSD(r.value)}</td>
-                </tr>`;
-              }).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    `;
+    $('sec-insider').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>Insider transactions</h2><span class="banner-meta">Last 90d · '+data.length+' filings</span></div>'
+      + '<div class="banner-body" style="max-height:340px;overflow:auto"><table><thead><tr><th>Date</th><th>Insider</th><th>Type</th><th style="text-align:right">Shares</th><th style="text-align:right">Value</th></tr></thead><tbody>'
+      + data.map(rw => {
+        const isBuy = (rw.transaction_type||'').toLowerCase().indexOf('buy')>=0 || (rw.transaction_type||'').toLowerCase().indexOf('purchase')>=0;
+        return '<tr><td>'+esc(rw.transaction_date||'')+'</td><td>'+esc((rw.insider_name||'').slice(0,28))+'<br><span style="font-size:9px;color:var(--text-dim)">'+esc(rw.insider_title||'')+'</span></td>'
+          + '<td class="'+(isBuy?'pos':'neg')+'">'+esc(rw.transaction_type||'')+'</td>'
+          + '<td class="num">'+(rw.shares!=null?Number(rw.shares).toLocaleString():'—')+'</td>'
+          + '<td class="num">'+fmtBigUSD(rw.value)+'</td></tr>';
+      }).join('')
+      + '</tbody></table></div></div>';
   }
 
   async function loadAnalysts(ticker) {
     const since = new Date(Date.now()-90*86400000).toISOString().slice(0,10);
-    const { data } = await sb.from('analyst_ratings')
-      .select('*').eq('ticker', ticker).gte('published_date', since)
+    const r = await sb.from('analyst_ratings').select('*').eq('ticker',ticker).gte('published_date',since)
       .order('published_date',{ascending:false}).limit(15);
+    const data = r.data;
     if (!data || !data.length) {
-      $('sec-analysts').innerHTML = `<div class="banner-card"><div class="banner-head"><h2>Analyst ratings</h2><span class="banner-meta">90d</span></div><div class="banner-body"><div class="empty">No analyst actions in last 90d.</div></div></div>`;
+      $('sec-analysts').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>Analyst ratings</h2><span class="banner-meta">90d</span></div><div class="banner-body"><div class="empty">No analyst actions in last 90d.</div></div></div>';
       return;
     }
-    $('sec-analysts').innerHTML = `
-      <div class="banner-card">
-        <div class="banner-head"><h2>Analyst ratings</h2><span class="banner-meta">Last 90d · ${data.length} actions</span></div>
-        <div class="banner-body" style="max-height:340px;overflow:auto">
-          <table>
-            <thead><tr><th>Date</th><th>Firm</th><th>Action</th><th>Rating</th><th style="text-align:right">PT</th></tr></thead>
-            <tbody>
-              ${data.map(r => `<tr>
-                <td>${esc(r.published_date||'')}</td>
-                <td>${esc(r.firm||'')}</td>
-                <td>${esc(r.action||'')}</td>
-                <td>${esc(r.rating_current||r.rating_prior||'')}</td>
-                <td class="num">${r.price_target_current!=null?'$'+fmt2(r.price_target_current):''}</td>
-              </tr>`).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    `;
+    $('sec-analysts').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>Analyst ratings</h2><span class="banner-meta">Last 90d · '+data.length+' actions</span></div>'
+      + '<div class="banner-body" style="max-height:340px;overflow:auto"><table><thead><tr><th>Date</th><th>Firm</th><th>Action</th><th>Rating</th><th style="text-align:right">PT</th></tr></thead><tbody>'
+      + data.map(rw => '<tr><td>'+esc(rw.published_date||'')+'</td><td>'+esc(rw.firm||'')+'</td><td>'+esc(rw.action||'')+'</td><td>'+esc(rw.rating_current||rw.rating_prior||'')+'</td><td class="num">'+(rw.price_target_current!=null?'$'+fmt2(rw.price_target_current):'')+'</td></tr>').join('')
+      + '</tbody></table></div></div>';
   }
 
   async function loadPriceTargets(ticker) {
-    const { data } = await sb.from('analyst_price_targets')
-      .select('*').eq('ticker', ticker).order('as_of_date',{ascending:false}).limit(1).maybeSingle();
+    const r = await sb.from('analyst_price_targets').select('*').eq('ticker',ticker)
+      .order('as_of_date',{ascending:false}).limit(1).maybeSingle();
+    const data = r.data;
     if (!data) { $('sec-targets').innerHTML=''; return; }
-    $('sec-targets').innerHTML = `
-      <div class="banner-card">
-        <div class="banner-head"><h2>Analyst price targets</h2><span class="banner-meta">${data.analyst_count||0} analysts</span></div>
-        <div class="banner-body">
-          <div class="grid-4">
-            <div class="metric-box"><div class="l">High</div><div class="v pos">${data.target_high!=null?'$'+fmt2(data.target_high):'—'}</div></div>
-            <div class="metric-box"><div class="l">Consensus</div><div class="v">${data.target_consensus!=null?'$'+fmt2(data.target_consensus):'—'}</div></div>
-            <div class="metric-box"><div class="l">Median</div><div class="v">${data.target_median!=null?'$'+fmt2(data.target_median):'—'}</div></div>
-            <div class="metric-box"><div class="l">Low</div><div class="v neg">${data.target_low!=null?'$'+fmt2(data.target_low):'—'}</div></div>
-          </div>
-        </div>
-      </div>
-    `;
+    $('sec-targets').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>Analyst price targets</h2><span class="banner-meta">'+(data.analyst_count||0)+' analysts</span></div>'
+      + '<div class="banner-body"><div class="grid-4">'
+      + '<div class="metric-box"><div class="l">High</div><div class="v pos">'+(data.target_high!=null?'$'+fmt2(data.target_high):'—')+'</div></div>'
+      + '<div class="metric-box"><div class="l">Consensus</div><div class="v">'+(data.target_consensus!=null?'$'+fmt2(data.target_consensus):'—')+'</div></div>'
+      + '<div class="metric-box"><div class="l">Median</div><div class="v">'+(data.target_median!=null?'$'+fmt2(data.target_median):'—')+'</div></div>'
+      + '<div class="metric-box"><div class="l">Low</div><div class="v neg">'+(data.target_low!=null?'$'+fmt2(data.target_low):'—')+'</div></div>'
+      + '</div></div></div>';
   }
 
   async function loadNews(ticker) {
     const since = new Date(Date.now()-14*86400000).toISOString();
-    const { data } = await sb.from('news_articles')
-      .select('headline, source, url, published_at')
-      .eq('ticker', ticker).gte('published_at', since)
+    // FIX: real columns are title, article_url, publisher_name
+    const r = await sb.from('news_articles')
+      .select('title, publisher_name, article_url, published_at')
+      .eq('ticker',ticker).gte('published_at',since)
       .order('published_at',{ascending:false}).limit(12);
+    const data = r.data;
     if (!data || !data.length) {
-      $('sec-news').innerHTML = `<div class="banner-card"><div class="banner-head"><h2>Recent news</h2><span class="banner-meta">14d</span></div><div class="banner-body"><div class="empty">No news.</div></div></div>`;
+      $('sec-news').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>Recent news</h2><span class="banner-meta">14d</span></div><div class="banner-body"><div class="empty">No news.</div></div></div>';
       return;
     }
-    $('sec-news').innerHTML = `
-      <div class="banner-card">
-        <div class="banner-head"><h2>Recent news</h2><span class="banner-meta">14d · top 12</span></div>
-        <div class="banner-body" style="max-height:380px;overflow:auto">
-          ${data.map(n => `
-            <div class="news-item">
-              <a class="headline" href="${esc(n.url||'#')}" target="_blank" rel="noopener">${esc(n.headline||'')}</a>
-              <div class="src">${esc(n.source||'')} · ${esc((n.published_at||'').slice(0,10))}</div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
+    $('sec-news').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>Recent news</h2><span class="banner-meta">14d · top 12</span></div>'
+      + '<div class="banner-body" style="max-height:380px;overflow:auto">'
+      + data.map(n => '<div class="news-item"><a class="headline" href="'+esc(n.article_url||'#')+'" target="_blank" rel="noopener">'+esc(n.title||'')+'</a><div class="src">'+esc(n.publisher_name||'')+' · '+esc((n.published_at||'').slice(0,10))+'</div></div>').join('')
+      + '</div></div>';
   }
 
   async function loadCatalysts(ticker) {
     const today = new Date().toISOString().slice(0,10);
     const in30 = new Date(Date.now()+30*86400000).toISOString().slice(0,10);
-    const { data } = await sb.from('catalysts')
-      .select('*').eq('ticker', ticker)
-      .gte('catalyst_date', today).lte('catalyst_date', in30)
+    const r = await sb.from('catalysts').select('*').eq('ticker',ticker)
+      .gte('catalyst_date',today).lte('catalyst_date',in30)
       .order('catalyst_date',{ascending:true}).limit(20);
-    $('sec-catalysts').innerHTML = `
-      <div class="banner-card">
-        <div class="banner-head"><h2>Upcoming catalysts</h2><span class="banner-meta">Next 30d</span></div>
-        <div class="banner-body" style="max-height:380px;overflow:auto">
-          ${(!data||!data.length) ? '<div class="empty">No upcoming catalysts.</div>' :
-            data.map(c => `
-              <div class="news-item">
-                <div class="headline">${esc(c.catalyst_type||'')} — ${esc(c.description||'')}</div>
-                <div class="src">${esc(c.catalyst_date||'')}${c.importance ? ' · importance '+esc(c.importance) : ''}</div>
-              </div>
-            `).join('')}
-        </div>
-      </div>
-    `;
+    const data = r.data;
+    $('sec-catalysts').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>Upcoming catalysts</h2><span class="banner-meta">Next 30d</span></div>'
+      + '<div class="banner-body" style="max-height:380px;overflow:auto">'
+      + ((!data||!data.length) ? '<div class="empty">No upcoming catalysts.</div>'
+        : data.map(c => '<div class="news-item"><div class="headline">'+esc(c.catalyst_type||'')+' — '+esc(c.description||'')+'</div><div class="src">'+esc(c.catalyst_date||'')+(c.importance?' · importance '+esc(c.importance):'')+'</div></div>').join(''))
+      + '</div></div>';
   }
 
   async function loadFundamentals(ticker) {
-    const { data } = await sb.from('company_fundamentals')
+    const r = await sb.from('company_fundamentals')
       .select('as_of_date, ev_ebitda_ltm, pe_ltm, fcf_yield_ltm, ev_revenue_ntm, rev_growth_1y, gross_margin, ebitda_margin, fcf_margin, net_debt_ebitda')
-      .eq('ticker', ticker).order('as_of_date',{ascending:false}).limit(5);
+      .eq('ticker',ticker).order('as_of_date',{ascending:false}).limit(5);
+    const data = r.data;
     if (!data || !data.length) {
-      $('sec-fund').innerHTML = `<div class="banner-card"><div class="banner-head"><h2>Fundamentals history</h2></div><div class="banner-body"><div class="empty">No fundamentals.</div></div></div>`;
+      $('sec-fund').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>Fundamentals history</h2></div><div class="banner-body"><div class="empty">No fundamentals.</div></div></div>';
       return;
     }
-    $('sec-fund').innerHTML = `
-      <div class="banner-card">
-        <div class="banner-head"><h2>Fundamentals history</h2><span class="banner-meta">Last ${data.length} FY</span></div>
-        <div class="banner-body" style="overflow-x:auto">
-          <table>
-            <thead><tr>
-              <th>As of</th>
-              <th style="text-align:right">P/E</th>
-              <th style="text-align:right">EV/EBITDA</th>
-              <th style="text-align:right">EV/Rev NTM</th>
-              <th style="text-align:right">FCF yld</th>
-              <th style="text-align:right">Rev gr 1y</th>
-              <th style="text-align:right">GM</th>
-              <th style="text-align:right">EBITDA m</th>
-              <th style="text-align:right">FCF m</th>
-              <th style="text-align:right">ND/EBITDA</th>
-            </tr></thead>
-            <tbody>
-              ${data.map(r => `<tr>
-                <td>${esc(r.as_of_date||'')}</td>
-                <td class="num">${r.pe_ltm!=null?fmt2(r.pe_ltm):'—'}</td>
-                <td class="num">${r.ev_ebitda_ltm!=null?fmt2(r.ev_ebitda_ltm):'—'}</td>
-                <td class="num">${r.ev_revenue_ntm!=null?fmt2(r.ev_revenue_ntm):'—'}</td>
-                <td class="num">${r.fcf_yield_ltm!=null?fmtPct(r.fcf_yield_ltm):'—'}</td>
-                <td class="num">${r.rev_growth_1y!=null?fmtPct(r.rev_growth_1y):'—'}</td>
-                <td class="num">${r.gross_margin!=null?fmtPct(r.gross_margin):'—'}</td>
-                <td class="num">${r.ebitda_margin!=null?fmtPct(r.ebitda_margin):'—'}</td>
-                <td class="num">${r.fcf_margin!=null?fmtPct(r.fcf_margin):'—'}</td>
-                <td class="num">${r.net_debt_ebitda!=null?fmt2(r.net_debt_ebitda):'—'}</td>
-              </tr>`).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    `;
+    $('sec-fund').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>Fundamentals history</h2><span class="banner-meta">Last '+data.length+' FY</span></div>'
+      + '<div class="banner-body" style="overflow-x:auto"><table><thead><tr><th>As of</th><th style="text-align:right">P/E</th><th style="text-align:right">EV/EBITDA</th><th style="text-align:right">EV/Rev NTM</th><th style="text-align:right">FCF yld</th><th style="text-align:right">Rev gr 1y</th><th style="text-align:right">GM</th><th style="text-align:right">EBITDA m</th><th style="text-align:right">FCF m</th><th style="text-align:right">ND/EBITDA</th></tr></thead><tbody>'
+      + data.map(rw => '<tr><td>'+esc(rw.as_of_date||'')+'</td>'
+        + '<td class="num">'+(rw.pe_ltm!=null?fmt2(rw.pe_ltm):'—')+'</td>'
+        + '<td class="num">'+(rw.ev_ebitda_ltm!=null?fmt2(rw.ev_ebitda_ltm):'—')+'</td>'
+        + '<td class="num">'+(rw.ev_revenue_ntm!=null?fmt2(rw.ev_revenue_ntm):'—')+'</td>'
+        + '<td class="num">'+(rw.fcf_yield_ltm!=null?fmtPct(rw.fcf_yield_ltm):'—')+'</td>'
+        + '<td class="num">'+(rw.rev_growth_1y!=null?fmtPct(rw.rev_growth_1y):'—')+'</td>'
+        + '<td class="num">'+(rw.gross_margin!=null?fmtPct(rw.gross_margin):'—')+'</td>'
+        + '<td class="num">'+(rw.ebitda_margin!=null?fmtPct(rw.ebitda_margin):'—')+'</td>'
+        + '<td class="num">'+(rw.fcf_margin!=null?fmtPct(rw.fcf_margin):'—')+'</td>'
+        + '<td class="num">'+(rw.net_debt_ebitda!=null?fmt2(rw.net_debt_ebitda):'—')+'</td>'
+        + '</tr>').join('')
+      + '</tbody></table></div></div>';
   }
 
   async function loadNotes(ticker) {
-    const { data } = await sb.from('ticker_notes')
-      .select('*').eq('user_id', currentUser.id).eq('ticker', ticker)
+    const r = await sb.from('ticker_notes')
+      .select('*').eq('user_id',currentUser.id).eq('ticker',ticker)
       .order('pinned',{ascending:false}).order('created_at',{ascending:false}).limit(50);
-    $('sec-notes').innerHTML = `
-      <div class="banner-card">
-        <div class="banner-head"><h2>Notes</h2><span class="banner-meta">${data?data.length:0} note(s)</span></div>
-        <div class="banner-body">
-          <div style="display:flex;gap:8px;margin-bottom:14px">
-            <textarea id="note-text" class="ticker-input" style="flex:1;width:auto;font-family:var(--sans);text-transform:none;letter-spacing:0;min-height:60px;font-size:13px" placeholder="Add a note for ${esc(ticker)}…"></textarea>
-            <button class="btn btn-primary" id="add-note-btn">Add note</button>
-          </div>
-          <div id="notes-list">
-            ${(!data||!data.length) ? '<div class="empty">No notes yet.</div>' : data.map(n => `
-              <div class="note-item ${n.pinned?'pinned':''}">
-                <div>
-                  <div class="txt">${esc(n.note_text||'')}</div>
-                  <div class="meta">${esc((n.created_at||'').slice(0,16).replace('T',' '))}${n.pinned?' · pinned':''}</div>
-                </div>
-                <div>
-                  <button class="btn btn-sm btn-ghost" data-note-del="${esc(n.id)}">Delete</button>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      </div>
-    `;
+    const data = r.data;
+    $('sec-notes').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>Notes</h2><span class="banner-meta">'+(data?data.length:0)+' note(s)</span></div>'
+      + '<div class="banner-body">'
+      + '<div style="display:flex;gap:8px;margin-bottom:14px;align-items:flex-start">'
+      + '<textarea id="note-text" style="flex:1;background:var(--bg);border:1px solid var(--border);padding:9px 12px;border-radius:3px;min-height:60px;font-size:13px;font-family:var(--sans)" placeholder="Add a note for '+esc(ticker)+'…"></textarea>'
+      + '<button class="btn btn-primary" id="add-note-btn">Add note</button></div>'
+      + '<div id="notes-list">'
+      + ((!data||!data.length) ? '<div class="empty">No notes yet.</div>'
+        : data.map(n => '<div class="note-item '+(n.pinned?'pinned':'')+'">'
+            + '<div><div class="txt">'+esc(n.note_text||'')+'</div>'
+            + '<div class="meta">'+esc((n.created_at||'').slice(0,16).replace('T',' '))+(n.pinned?' · pinned':'')+'</div></div>'
+            + '<div><button class="btn btn-sm btn-ghost" data-note-del="'+esc(n.id)+'">Delete</button></div></div>').join(''))
+      + '</div></div></div>';
 
     $('add-note-btn').addEventListener('click', async () => {
       const text = ($('note-text').value||'').trim();
       if (!text) return;
-      const { error } = await sb.from('ticker_notes').insert({
-        user_id: currentUser.id, ticker, note_text: text, pinned: false
-      });
-      if (error) flash('Failed to save note: ' + error.message, 'error');
+      const ins = await sb.from('ticker_notes').insert({ user_id: currentUser.id, ticker, note_text: text, pinned: false });
+      if (ins.error) flash('Failed: '+ins.error.message,'error');
       else { $('note-text').value=''; loadNotes(ticker); }
     });
     $('notes-list').querySelectorAll('button[data-note-del]').forEach(b => {
