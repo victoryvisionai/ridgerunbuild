@@ -162,6 +162,7 @@
 <script src="/config.js"></script>
 <script>
 (() => {
+  const N8N = 'https://victoryvision.app.n8n.cloud';
   const cfg = window.RR_CONFIG || {};
   const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY);
   let currentUser = null;
@@ -271,7 +272,36 @@
     };
     const r = await sb.from('positions').insert(row);
     if (r.error) flash('Save failed: '+r.error.message, 'error');
-    else { flash('Position added.','success'); e.target.reset(); document.querySelector('input[name="entry_dt"]').value = new Date().toISOString().slice(0,10); loadPositions(); }
+    else {
+      flash('Position added for '+ticker+'. Refreshing data feeds…','success');
+      fireBootstrapForTicker(ticker);
+      e.target.reset();
+      document.querySelector('input[name="entry_dt"]').value = new Date().toISOString().slice(0,10);
+      loadPositions();
+    }
+  }
+
+  function fireBootstrapForTicker(ticker) {
+    fetch(N8N+'/webhook/research/bootstrap', {
+      method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ ticker: ticker })
+    }).then(function(r){
+      if (!r.ok && r.status === 404) {
+        ['historical/backfill','insider/sync','analyst/sync','options/snap','vol/backfill'].forEach(function(p){
+          fetch(N8N+'/webhook/'+p, {
+            method:'POST', headers:{'content-type':'application/json'},
+            body: JSON.stringify({ ticker: ticker })
+          }).catch(function(){});
+        });
+      }
+    }).catch(function(){
+      ['historical/backfill','insider/sync','analyst/sync','options/snap','vol/backfill'].forEach(function(p){
+        fetch(N8N+'/webhook/'+p, {
+          method:'POST', headers:{'content-type':'application/json'},
+          body: JSON.stringify({ ticker: ticker })
+        }).catch(function(){});
+      });
+    });
   }
 })();
 </script>
