@@ -3,521 +3,218 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Watchlist · Ridge Run</title>
+<title>Uploads · Ridge Run</title>
+<script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-
+<link rel="stylesheet" href="/assets/themes.css" />
 <style>
-  :root {
-    --bg: #ffffff;
-    --bg-tint: #f8fafc;
-    --bg-blue: #eff6ff;
-    --bg-blue-soft: #f0f7ff;
-    --border: #e2e8f0;
-    --border-blue: #bfdbfe;
-    --text: #0f172a;
-    --text-muted: #475569;
-    --text-dim: #94a3b8;
-    --accent: #2563eb;
-    --accent-dark: #1e40af;
-    --accent-bg: #dbeafe;
-    --success: #059669;
-    --success-bg: #d1fae5;
-    --warning: #d97706;
-    --warning-bg: #fed7aa;
-    --danger: #dc2626;
-    --danger-bg: #fee2e2;
-    --serif: 'Source Serif 4', Georgia, serif;
-    --sans: 'Inter', -apple-system, sans-serif;
-    --mono: 'JetBrains Mono', monospace;
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
-  body {
-    min-height: 100vh; background: var(--bg-tint);
-    font-family: var(--sans); color: var(--text); font-size: 14px;
-    line-height: 1.5;
-  }
-  .hidden { display: none !important; }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  /* Topbar styles live in nav.js (shared) */
-
-  /* ===== Page ===== */
-  .page { max-width: 1280px; margin: 0 auto; padding: 32px 24px; }
-  .page-header {
-    display: flex; align-items: flex-end; justify-content: space-between;
-    margin-bottom: 28px;
-  }
-  .page-title {
-    font-family: var(--serif); font-size: 32px; font-weight: 500;
-    letter-spacing: -0.02em; color: var(--text); margin: 0;
-  }
-  .page-subtitle {
-    color: var(--text-muted); margin: 6px 0 0; font-size: 14px;
-  }
-
-  /* ===== Tabs ===== */
-  .tabs {
-    display: flex; gap: 0; border-bottom: 1px solid var(--border);
-    margin-bottom: 24px;
-  }
-  .tab {
-    padding: 12px 16px; cursor: pointer;
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--text-muted);
-    background: transparent; border: none; border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
-  }
-  .tab:hover { color: var(--text); }
-  .tab.active { color: var(--accent-dark); border-bottom-color: var(--accent); }
-  .tab-count {
-    font-family: var(--mono); font-size: 10px; color: var(--text-dim);
-    margin-left: 6px;
-  }
-
-  /* ===== Add bar ===== */
-  .add-bar {
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: 6px; padding: 16px; margin-bottom: 20px;
-    display: flex; gap: 10px; flex-wrap: wrap;
-  }
-  .add-bar .input-group { display: flex; gap: 8px; flex: 1; min-width: 240px; }
-  .input {
-    flex: 1; min-width: 0;
-    background: var(--bg); border: 1px solid var(--border);
-    padding: 9px 12px; font-size: 13px; font-family: var(--sans);
-    border-radius: 4px; color: var(--text);
-  }
-  .input:focus { outline: none; border-color: var(--accent); }
-  .select {
-    background: var(--bg); border: 1px solid var(--border);
-    padding: 9px 12px; font-size: 13px; font-family: var(--sans);
-    border-radius: 4px; color: var(--text);
-  }
-  .btn {
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
-    text-transform: uppercase; padding: 9px 14px; border-radius: 4px;
-    cursor: pointer; transition: all 0.15s; border: 1px solid transparent;
-    font-weight: 500;
-  }
-  .btn-primary { background: var(--accent); color: white; }
-  .btn-primary:hover { background: var(--accent-dark); }
-  .btn-ghost {
-    background: var(--bg); color: var(--text-muted); border-color: var(--border);
-  }
-  .btn-ghost:hover { border-color: var(--text-dim); color: var(--text); }
-  .btn-danger {
-    background: transparent; color: var(--danger); border-color: transparent;
-    padding: 4px 8px; font-size: 10px;
-  }
-  .btn-danger:hover { background: var(--danger-bg); }
-
-  /* ===== List ===== */
-  .list {
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: 6px; overflow: hidden;
-  }
-  .list-item {
-    padding: 14px 18px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 16px;
-  }
-  .list-item:last-child { border-bottom: none; }
-  .list-item:hover { background: var(--bg-tint); }
-  .list-item-main { flex: 1; min-width: 0; }
-  .list-item-title { font-weight: 500; color: var(--text); margin: 0 0 2px; }
-  .list-item-sub {
-    font-family: var(--mono); font-size: 11px; color: var(--text-muted);
-    margin: 0;
-  }
-  .list-item-meta {
-    display: flex; align-items: center; gap: 8px;
-  }
-  .pill {
-    display: inline-block; padding: 3px 8px; border-radius: 3px;
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  .pill-blue { background: var(--bg-blue); color: var(--accent-dark); }
-  .pill-green { background: var(--success-bg); color: #065f46; }
-  .pill-amber { background: var(--warning-bg); color: #92400e; }
-  .pill-gray { background: var(--bg-tint); color: var(--text-muted); }
-
-  /* ===== Empty ===== */
-  .empty {
-    background: var(--bg); border: 1px dashed var(--border);
-    border-radius: 6px; padding: 40px 20px; text-align: center;
-    color: var(--text-muted); font-size: 13px;
-  }
-  .empty-mark {
-    font-family: var(--serif); font-size: 40px; color: var(--text-dim);
-    margin-bottom: 8px; opacity: 0.5;
-  }
-
-  /* ===== Info banner ===== */
-  .banner {
-    background: var(--bg-blue-soft); border: 1px solid var(--border-blue);
-    border-radius: 6px; padding: 14px 18px; margin-bottom: 20px;
-    font-size: 13px; color: var(--accent-dark);
-  }
-  .banner b { color: var(--accent-dark); }
-
-  /* ===== Gate / loading ===== */
-  .gate {
-    min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  }
-  .gate-content { text-align: center; max-width: 360px; }
-  .gate p { color: var(--text-muted); margin: 0 0 20px; }
-  .loading {
-    text-align: center; padding: 60px 20px;
-    color: var(--text-muted); font-family: var(--mono); font-size: 11px;
-    letter-spacing: 0.15em; text-transform: uppercase;
-  }
-  .msg {
-    margin-bottom: 16px; padding: 10px 14px; font-size: 13px;
-    border-radius: 4px;
-  }
-  .msg-error { background: var(--danger-bg); color: #991b1b; border: 1px solid #fecaca; }
-  .msg-success { background: var(--success-bg); color: #065f46; border: 1px solid #a7f3d0; }
+  .drop-zone { border:2px dashed var(--border-strong); border-radius:8px; padding:40px 20px; text-align:center; cursor:pointer; transition:all 0.15s; background:var(--bg-tint); }
+  .drop-zone:hover, .drop-zone.dragover { border-color:var(--accent); background:var(--bg-blue); }
+  .drop-zone .hint { font-family:var(--mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px; }
+  .drop-zone .label { font-family:var(--serif); font-size:18px; color:var(--text); }
+  .upload-row { padding:10px 12px; background:var(--bg-tint); border:1px solid var(--border); border-radius:4px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .pending-row { padding:8px 12px; background:var(--bg); border:1px solid var(--border); border-radius:4px; margin-bottom:6px; }
+  .status-pill { font-family:var(--mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; padding:2px 8px; border-radius:3px; }
+  .status-pill.indexed { background:var(--success-bg); color:#065f46; }
+  .status-pill.uploaded { background:var(--bg-blue); color:var(--accent-dark); }
+  .status-pill.processing { background:var(--warning-bg); color:#92400e; }
+  .status-pill.failed { background:var(--danger-bg); color:#991b1b; }
 </style>
 </head>
 <body>
 
-<div id="gate" class="gate hidden">
-  <div class="gate-content">
-    <div class="brand-mark" style="font-size: 32px; margin-bottom: 12px;">RR</div>
-    <p>You must be signed in.</p>
-    <a href="/" class="btn btn-primary">Sign in</a>
+<div id="rr-nav-container"></div>
+
+<div id="loading-screen" class="loading">Loading uploads…</div>
+
+<div id="app" class="shell hidden">
+
+  <h1 class="page-title">Uploads</h1>
+  <p class="page-sub">Drop IBKR statements (CSV) for trade ingest, or sell-side research PDFs for RAG indexing.</p>
+
+  <div id="msg-area"></div>
+
+  <div class="banner-card">
+    <div class="banner-head">
+      <h2>Drop files</h2>
+      <span class="banner-meta">CSV → pending trades · PDF → research index</span>
+    </div>
+    <div class="banner-body">
+      <div class="drop-zone" id="drop-zone">
+        <div class="hint">Drag &amp; drop</div>
+        <div class="label">or click to choose files</div>
+        <input id="file-input" type="file" accept=".csv,.pdf,.xml" multiple style="display:none">
+      </div>
+      <div style="margin-top:10px">
+        <label class="field-hint">Document type: 
+          <select id="doc-type" style="margin-left:6px">
+            <option value="brokerage_csv">Brokerage CSV (IBKR)</option>
+            <option value="brokerage_statement_pdf">Brokerage statement (PDF)</option>
+            <option value="research_report">Research report (PDF)</option>
+            <option value="flex_query_xml">Flex query XML</option>
+            <option value="transcript">Earnings transcript</option>
+            <option value="investor_letter">Investor letter</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label class="field-hint" style="margin-left:14px">Linked ticker (optional): 
+          <input id="link-ticker" type="text" placeholder="ADBE" style="text-transform:uppercase; width:80px">
+        </label>
+      </div>
+    </div>
   </div>
-</div>
 
-<div id="loading" class="loading">Loading watchlists…</div>
-
-<div id="app" class="hidden">
-  <div id="rr-nav-container"></div>
-
-  <main class="page">
-    <header class="page-header">
-      <div>
-        <h1 class="page-title">Watchlist</h1>
-        <p class="page-subtitle">Investors and tickers monitored for SEC filings, 13F changes, and price moves.</p>
-      </div>
-    </header>
-
-    <div class="banner" id="import-banner" style="display:none;">
-      <b>Tip:</b> Your onboarding answers (Q32 & Q33) listed investors to monitor.
-      <a href="#" id="import-link" style="text-decoration: underline;">Import them now →</a>
+  <div class="banner-card">
+    <div class="banner-head">
+      <h2>Pending trade review</h2>
+      <span class="banner-meta" id="pending-meta">--</span>
     </div>
-
-    <div id="msg-area"></div>
-
-    <div class="tabs">
-      <button class="tab active" data-tab="investors">
-        Investors <span class="tab-count" id="investor-count"></span>
-      </button>
-      <button class="tab" data-tab="tickers">
-        Tickers <span class="tab-count" id="ticker-count"></span>
-      </button>
+    <div class="banner-body">
+      <p class="h2-sub">CSV uploads land here for your review before committing to positions. Click Accept to commit, Reject to discard.</p>
+      <div id="pending-list"><div class="empty">No pending trades.</div></div>
     </div>
+  </div>
 
-    <!-- Investors tab -->
-    <div id="tab-investors">
-      <div class="add-bar">
-        <div class="input-group">
-          <input class="input" id="inv-name" placeholder="Investor name (e.g. Stanley Druckenmiller)" />
-          <input class="input" id="inv-fund" placeholder="Fund name (e.g. Duquesne)" style="max-width: 220px;" />
-        </div>
-        <select class="select" id="inv-frequency">
-          <option value="daily">Daily</option>
-          <option value="weekly">Weekly</option>
-          <option value="quarterly">Quarterly</option>
-        </select>
-        <select class="select" id="inv-treatment">
-          <option value="research_lead">Research lead</option>
-          <option value="confirmation">Confirmation</option>
-          <option value="clone_selective">Clone selective</option>
-          <option value="clone_broad">Clone broad</option>
-          <option value="fade">Fade</option>
-        </select>
-        <button class="btn btn-primary" id="inv-add">Add</button>
-      </div>
-
-      <div id="investors-list"></div>
+  <div class="banner-card">
+    <div class="banner-head">
+      <h2>Upload history</h2>
+      <span class="banner-meta" id="ups-meta">--</span>
     </div>
-
-    <!-- Tickers tab -->
-    <div id="tab-tickers" class="hidden">
-      <div class="add-bar">
-        <div class="input-group">
-          <input class="input" id="tic-ticker" placeholder="Ticker (e.g. PYPL)" style="max-width: 140px;" />
-          <input class="input" id="tic-company" placeholder="Company name (optional)" />
-        </div>
-        <select class="select" id="tic-reason">
-          <option value="researching">Researching</option>
-          <option value="owned">Owned</option>
-          <option value="thesis_in_progress">Thesis in progress</option>
-          <option value="post_mortem">Post-mortem</option>
-        </select>
-        <button class="btn btn-primary" id="tic-add">Add</button>
-      </div>
-
-      <div id="tickers-list"></div>
+    <div class="banner-body">
+      <div id="ups-list"><div class="empty">No uploads yet.</div></div>
     </div>
-  </main>
+  </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/config.js"></script>
 <script src="/nav.js"></script>
 <script>
-const SUPABASE_URL = 'https://nrbffnsheenmewijeapb.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_WjDoqgd4_eDE1lpfZHkT0g_cyArLkvI';
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-const $ = id => document.getElementById(id);
-const show = (id, on = true) => $(id).classList.toggle('hidden', !on);
-const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
+(() => {
+const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = window.RR_CONFIG;
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 let currentUser = null;
 
-(async () => {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) {
-    show('loading', false); show('gate', true);
-    return;
-  }
-  currentUser = session.user;
-  RidgeRunNav.mount({ active: 'watchlist', supabase });
-  await loadAll();
-  show('loading', false);
-  show('app', true);
+const $ = id => document.getElementById(id);
+const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-  // Check for unprocessed onboarding investors
-  await checkOnboardingImport();
+(async () => {
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session?.user){ window.location.href='/index.html'; return; }
+  currentUser = session.user;
+  await window.RidgeRunNav.mount({ active: 'uploads', supabase: sb });
+  show('loading-screen', false);
+  show('app', true);
+  await Promise.all([loadUploads(), loadPending()]);
+  setupDropZone();
 })();
 
-// nav.js handles signout
-// Tab switching
-document.querySelectorAll('.tab').forEach(t => {
-  t.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-    t.classList.add('active');
-    show('tab-investors', t.dataset.tab === 'investors');
-    show('tab-tickers', t.dataset.tab === 'tickers');
+function setupDropZone(){
+  const dz = $('drop-zone');
+  const inp = $('file-input');
+  dz.addEventListener('click', () => inp.click());
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('dragover');
+    handleFiles(e.dataTransfer.files);
   });
-});
-
-// ===== LOAD =====
-async function loadAll() {
-  await Promise.all([loadInvestors(), loadTickers()]);
+  inp.addEventListener('change', e => handleFiles(e.target.files));
 }
 
-async function loadInvestors() {
-  const { data, error } = await supabase
-    .from('investor_watchlist')
-    .select('*')
-    .eq('is_active', true)
-    .order('investor_name', { ascending: true });
-
-  if (error) return showMsg('Failed to load investors: ' + error.message, 'error');
-
-  $('investor-count').textContent = `(${data?.length || 0})`;
-
-  if (!data || data.length === 0) {
-    $('investors-list').innerHTML = `
-      <div class="empty">
-        <div class="empty-mark">—</div>
-        No investors on your watchlist yet. Add one above.
-      </div>
-    `;
-    return;
-  }
-
-  $('investors-list').innerHTML = '<div class="list">' + data.map(inv => `
-    <div class="list-item">
-      <div class="list-item-main">
-        <p class="list-item-title">${escapeHtml(inv.investor_name)}</p>
-        <p class="list-item-sub">${inv.fund_name ? escapeHtml(inv.fund_name) : 'No fund'} ${inv.cik ? '· CIK ' + inv.cik : '· CIK pending'}</p>
-      </div>
-      <div class="list-item-meta">
-        <span class="pill ${freqClass(inv.monitor_frequency)}">${inv.monitor_frequency}</span>
-        <span class="pill pill-gray">${inv.signal_treatment.replace(/_/g, ' ')}</span>
-        <button class="btn btn-danger" data-id="${inv.id}" data-kind="investor">Remove</button>
-      </div>
-    </div>
-  `).join('') + '</div>';
-
-  // Wire remove buttons
-  $('investors-list').querySelectorAll('.btn-danger').forEach(b => {
-    b.addEventListener('click', () => removeItem(b.dataset.id, 'investor'));
-  });
-}
-
-async function loadTickers() {
-  const { data, error } = await supabase
-    .from('ticker_watchlist')
-    .select('*')
-    .eq('is_active', true)
-    .order('ticker', { ascending: true });
-
-  if (error) return showMsg('Failed to load tickers: ' + error.message, 'error');
-
-  $('ticker-count').textContent = `(${data?.length || 0})`;
-
-  if (!data || data.length === 0) {
-    $('tickers-list').innerHTML = `
-      <div class="empty">
-        <div class="empty-mark">—</div>
-        No tickers on your watchlist yet. Add one above.
-      </div>
-    `;
-    return;
-  }
-
-  $('tickers-list').innerHTML = '<div class="list">' + data.map(t => `
-    <div class="list-item">
-      <div class="list-item-main">
-        <p class="list-item-title">${escapeHtml(t.ticker)} ${t.company_name ? `<span style="font-weight: 400; color: var(--text-muted);">· ${escapeHtml(t.company_name)}</span>` : ''}</p>
-        <p class="list-item-sub">${t.cik ? 'CIK ' + t.cik : 'CIK pending'} · Added ${new Date(t.added_at).toLocaleDateString()}</p>
-      </div>
-      <div class="list-item-meta">
-        <span class="pill ${reasonClass(t.reason)}">${(t.reason || 'unknown').replace(/_/g, ' ')}</span>
-        <button class="btn btn-danger" data-id="${t.id}" data-kind="ticker">Remove</button>
-      </div>
-    </div>
-  `).join('') + '</div>';
-
-  $('tickers-list').querySelectorAll('.btn-danger').forEach(b => {
-    b.addEventListener('click', () => removeItem(b.dataset.id, 'ticker'));
-  });
-}
-
-function freqClass(f) {
-  return f === 'daily' ? 'pill-blue' : f === 'weekly' ? 'pill-green' : 'pill-amber';
-}
-function reasonClass(r) {
-  return r === 'owned' ? 'pill-green' : r === 'thesis_in_progress' ? 'pill-blue' : 'pill-gray';
-}
-
-// ===== ADD =====
-$('inv-add').addEventListener('click', async () => {
-  const name = $('inv-name').value.trim();
-  const fund = $('inv-fund').value.trim();
-  if (!name) return showMsg('Investor name is required.', 'error');
-
-  const { error } = await supabase.from('investor_watchlist').insert({
-    user_id: currentUser.id,
-    investor_name: name,
-    fund_name: fund || null,
-    monitor_frequency: $('inv-frequency').value,
-    signal_treatment: $('inv-treatment').value
-  });
-
-  if (error) return showMsg('Failed to add: ' + error.message, 'error');
-
-  $('inv-name').value = ''; $('inv-fund').value = '';
-  showMsg('Added.', 'success');
-  await loadInvestors();
-});
-
-$('tic-add').addEventListener('click', async () => {
-  const ticker = $('tic-ticker').value.trim().toUpperCase();
-  const company = $('tic-company').value.trim();
-  if (!ticker) return showMsg('Ticker is required.', 'error');
-
-  const { error } = await supabase.from('ticker_watchlist').insert({
-    user_id: currentUser.id,
-    ticker,
-    company_name: company || null,
-    reason: $('tic-reason').value
-  });
-
-  if (error) {
-    if (error.code === '23505') return showMsg('That ticker is already on your watchlist.', 'error');
-    return showMsg('Failed to add: ' + error.message, 'error');
-  }
-
-  $('tic-ticker').value = ''; $('tic-company').value = '';
-  showMsg('Added.', 'success');
-  await loadTickers();
-});
-
-// ===== REMOVE =====
-async function removeItem(id, kind) {
-  const table = kind === 'investor' ? 'investor_watchlist' : 'ticker_watchlist';
-  if (!confirm('Remove this item from the watchlist?')) return;
-  const { error } = await supabase.from(table).update({ is_active: false }).eq('id', id);
-  if (error) return showMsg('Failed to remove: ' + error.message, 'error');
-  showMsg('Removed.', 'success');
-  if (kind === 'investor') await loadInvestors();
-  else await loadTickers();
-}
-
-// ===== IMPORT FROM ONBOARDING =====
-async function checkOnboardingImport() {
-  // Get onboarding answers for Q32 (daily investors) and Q33 (quarterly)
-  const { data: responses } = await supabase
-    .from('onboarding_responses')
-    .select('question_id, answer')
-    .in('question_id', ['q32_daily_investors', 'q33_quarterly_investors'])
-    .eq('user_id', currentUser.id);
-
-  if (!responses || responses.length === 0) return;
-
-  // Get current watchlist to check what's already imported
-  const { data: existing } = await supabase
-    .from('investor_watchlist')
-    .select('investor_name')
-    .eq('user_id', currentUser.id);
-  const existingNames = new Set((existing || []).map(e => e.investor_name.toLowerCase()));
-
-  // Build pending import list
-  const pending = [];
-  for (const r of responses) {
-    const list = r.answer?.value;
-    if (!Array.isArray(list)) continue;
-    const freq = r.question_id === 'q32_daily_investors' ? 'daily' : 'quarterly';
-    for (const entry of list) {
-      // Entry might be "Stanley Druckenmiller / Duquesne" — split if so
-      const [name, fund] = entry.split('/').map(s => s.trim());
-      if (!name || existingNames.has(name.toLowerCase())) continue;
-      pending.push({ name, fund: fund || null, freq });
+async function handleFiles(files){
+  const docType = $('doc-type').value;
+  const linkTicker = $('link-ticker').value.trim().toUpperCase() || null;
+  for(const f of files){
+    flash(`Uploading ${f.name}...`, 'info');
+    try {
+      // upload to Supabase storage
+      const path = `${currentUser.id}/${Date.now()}_${f.name}`;
+      const { error: upErr } = await sb.storage.from('user-uploads').upload(path, f);
+      if(upErr){ flash('Upload failed: ' + upErr.message, 'error'); continue; }
+      // insert metadata
+      const { data: doc, error: insErr } = await sb.from('uploaded_documents').insert({
+        user_id: currentUser.id,
+        storage_path: path,
+        original_filename: f.name,
+        mime_type: f.type,
+        file_size_bytes: f.size,
+        document_type: docType,
+        linked_ticker: linkTicker,
+        status: 'queued'
+      }).select().single();
+      if(insErr){ flash('Metadata insert failed: ' + insErr.message, 'error'); continue; }
+      // fire appropriate webhook
+      if(docType === 'brokerage_csv' || docType === 'flex_query_xml'){
+        fetch('https://victoryvision.app.n8n.cloud/webhook/brokerage/parse', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ document_id: doc.id, user_id: currentUser.id }) }).catch(()=>{});
+      } else if(docType === 'research_report' || docType === 'investment_memo' || docType === 'transcript' || docType === 'investor_letter'){
+        fetch('https://victoryvision.app.n8n.cloud/webhook/documents/ingest', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ document_id: doc.id, user_id: currentUser.id }) }).catch(()=>{});
+      }
+      flash(`Uploaded ${f.name}.`, 'success');
+    } catch(e) {
+      flash('Error: ' + e.message, 'error');
     }
   }
-
-  if (pending.length === 0) return;
-
-  $('import-banner').style.display = 'block';
-  $('import-banner').innerHTML = `
-    <b>Tip:</b> Your onboarding listed <b>${pending.length}</b> investor${pending.length === 1 ? '' : 's'} to monitor.
-    <a href="#" id="import-link" style="text-decoration: underline;">Import them now →</a>
-  `;
-  $('import-link').addEventListener('click', async (e) => {
-    e.preventDefault();
-    await doImport(pending);
-  });
+  await loadUploads();
+  await loadPending();
 }
 
-async function doImport(pending) {
-  const rows = pending.map(p => ({
-    user_id: currentUser.id,
-    investor_name: p.name,
-    fund_name: p.fund,
-    monitor_frequency: p.freq,
-    signal_treatment: 'research_lead'  // safe default; user can change later
-  }));
-  const { error } = await supabase.from('investor_watchlist').insert(rows);
-  if (error) return showMsg('Import failed: ' + error.message, 'error');
-  showMsg(`Imported ${rows.length} investors.`, 'success');
-  $('import-banner').style.display = 'none';
-  await loadInvestors();
+async function loadUploads(){
+  const { data } = await sb.from('uploaded_documents').select('*').eq('user_id', currentUser.id).order('uploaded_at',{ascending:false}).limit(50);
+  const out = $('ups-list');
+  if(!data || !data.length){ out.innerHTML = '<div class="empty">No uploads yet.</div>'; $('ups-meta').textContent = '0'; return; }
+  $('ups-meta').textContent = data.length + ' total';
+  out.innerHTML = data.map(u => `<div class="upload-row">
+    <div>
+      <div style="font-family:var(--mono); font-size:12px;"><b>${esc(u.original_filename||'')}</b></div>
+      <div style="font-family:var(--mono); font-size:10px; color:var(--text-muted);">${esc(u.document_type||'')} ${u.linked_ticker?'· '+esc(u.linked_ticker):''} · ${new Date(u.uploaded_at).toLocaleString()}</div>
+    </div>
+    <div><span class="status-pill ${esc(u.status||'')}">${esc(u.status||'--')}</span></div>
+  </div>`).join('');
 }
 
-// ===== UI HELPERS =====
-function showMsg(text, kind) {
-  $('msg-area').innerHTML = `<div class="msg msg-${kind}">${escapeHtml(text)}</div>`;
-  setTimeout(() => { $('msg-area').innerHTML = ''; }, 4000);
+async function loadPending(){
+  const { data } = await sb.from('pending_trades').select('*').eq('user_id', currentUser.id).eq('review_status', 'pending').order('created_at',{ascending:false}).limit(50);
+  const out = $('pending-list');
+  if(!data || !data.length){ out.innerHTML = '<div class="empty">No pending trades. Upload an IBKR CSV to populate.</div>'; $('pending-meta').textContent = '0 pending'; return; }
+  $('pending-meta').textContent = data.length + ' pending';
+  out.innerHTML = data.map(p => `<div class="pending-row">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+      <div style="flex:1; font-family:var(--mono); font-size:12px;">
+        <b>${esc(p.symbol||p.raw_symbol||'--')}</b> · ${esc(p.side||'--')} ${p.quantity!=null?p.quantity:'--'} @ ${p.price!=null?'$'+Number(p.price).toFixed(2):'--'} on ${p.trade_date||p.raw_date||'--'}
+      </div>
+      <div style="display:flex; gap:6px;">
+        <button class="btn btn-ghost btn-sm" onclick="window._acceptTrade('${p.id}')">Accept</button>
+        <button class="btn btn-ghost btn-sm" onclick="window._rejectTrade('${p.id}')">Reject</button>
+      </div>
+    </div>
+    ${p.parser_warnings && p.parser_warnings.length ? `<div style="color:var(--warning); font-size:10px; margin-top:4px;">⚠ ${esc(JSON.stringify(p.parser_warnings).slice(0,120))}</div>` : ''}
+  </div>`).join('');
 }
+
+window._acceptTrade = async (id) => {
+  const { error } = await sb.rpc('commit_pending_trade', { p_pending_id: id });
+  if(error){ flash('Accept failed: ' + error.message, 'error'); return; }
+  flash('Trade committed.', 'success');
+  await loadPending();
+};
+
+window._rejectTrade = async (id) => {
+  const { error } = await sb.from('pending_trades').update({ review_status: 'rejected' }).eq('id', id);
+  if(error){ flash('Reject failed: ' + error.message, 'error'); return; }
+  await loadPending();
+};
+
+function flash(text, kind='info'){
+  $('msg-area').innerHTML = `<div class="msg msg-${kind}">${esc(text)}</div>`;
+  setTimeout(()=>{ $('msg-area').innerHTML=''; }, 4000);
+}
+
+})();
 </script>
 </body>
 </html>
