@@ -27,13 +27,12 @@
   .page-sub{color:var(--text-muted);margin:0 0 22px;font-size:14px}
 
   .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:9px 14px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500;transition:all .15s}
-  .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)} .btn-primary:disabled{opacity:.5;cursor:wait}
+  .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)}
   .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
   .btn-success{background:var(--success);color:#fff} .btn-success:hover{background:#047857}
   .btn-danger{background:var(--bg);color:var(--danger);border-color:#fecaca} .btn-danger:hover{background:var(--danger-bg)}
   .btn-sm{font-size:10px;padding:5px 9px}
 
-  /* Two-column layout */
   .layout{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start}
   .main-col{min-width:0}
   .side-col{position:sticky;top:16px}
@@ -45,25 +44,20 @@
   .banner-body{padding:18px 22px}
   .h2-sub{color:var(--text-muted);font-size:13px;margin:0 0 14px;line-height:1.55}
 
-  /* Filter pills */
   .pill-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
   .pill-row button{font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;background:var(--bg-tint);border:1px solid var(--border);color:var(--text-muted);padding:6px 12px;border-radius:14px;cursor:pointer}
   .pill-row button:hover{border-color:var(--accent);color:var(--accent)}
   .pill-row button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 
-  /* Opportunity row (list view) */
   .opp-list{display:flex;flex-direction:column;gap:8px}
   .opp-row{background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:12px 14px;display:grid;grid-template-columns:80px 1fr auto;gap:12px;align-items:center;cursor:pointer;transition:all .12s}
   .opp-row:hover{border-color:var(--accent);box-shadow:0 1px 4px rgba(37,99,235,0.12)}
-  .opp-ticker{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--text);letter-spacing:0.02em}
-  .opp-mid{min-width:0}
-  .opp-title{font-family:var(--serif);font-size:14.5px;font-weight:500;color:var(--text);margin-bottom:3px}
-  .opp-meta{font-family:var(--mono);font-size:10.5px;color:var(--text-muted);letter-spacing:0.04em;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .opp-ticker{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--text)}
+  .opp-title{font-family:var(--serif);font-size:14.5px;font-weight:500;margin-bottom:3px}
+  .opp-meta{font-family:var(--mono);font-size:10.5px;color:var(--text-muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   .opp-right{text-align:right;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
   .opp-score{font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:600}
-  .opp-actions{display:flex;gap:4px}
 
-  /* Badges */
   .badge{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:3px;border:1px solid var(--border);background:var(--bg-tint);color:var(--text-muted)}
   .badge.opp-leap{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
   .badge.opp-arb{background:#fef3c7;border-color:#fcd34d;color:#92400e}
@@ -81,7 +75,6 @@
   .badge.src-ai{background:var(--bg-blue);border-color:var(--border-blue);color:var(--accent)}
   .badge.src-manual{background:var(--bg-tint);border-color:var(--border);color:var(--text-muted)}
 
-  /* Modal */
   .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(2px);z-index:90;display:none;align-items:flex-start;justify-content:center;padding:30px 16px;overflow-y:auto}
   .modal-overlay.open{display:flex}
   .modal{background:var(--bg);border-radius:8px;width:100%;max-width:980px;box-shadow:0 20px 60px rgba(0,0,0,0.25);overflow:hidden}
@@ -90,7 +83,6 @@
   .modal-close{background:transparent;border:1px solid #475569;color:#cbd5e1;font-family:var(--mono);font-size:10px;padding:5px 12px;border-radius:3px;cursor:pointer;letter-spacing:0.08em;text-transform:uppercase}
   .modal-body{padding:22px}
 
-  /* Modal metrics */
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
   .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
@@ -101,7 +93,6 @@
   .metric-box.cheap{border-color:#a7f3d0;background:#ecfdf5}
   .metric-box.rich{border-color:#fcd34d;background:#fffbeb}
 
-  /* Option panel within modal */
   .opt-panel{margin-top:16px;border:1px solid var(--border);border-radius:5px;overflow:hidden}
   .opt-panel-head{background:var(--bg-tint);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
   .opt-panel-head h4{font-family:var(--serif);font-size:14px;font-weight:600;margin:0}
@@ -115,20 +106,16 @@
   td{padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;white-space:nowrap}
   td.num{text-align:right} td.pos{color:var(--success)} td.neg{color:var(--danger)}
   tr.atm td{background:#eff6ff;font-weight:600}
-  tr.suggested td{background:#ecfdf5}
-  tr:hover td{background:var(--bg-blue);cursor:pointer}
+  tr:hover td{background:var(--bg-blue)}
 
-  /* Strategy fit card inside modal */
   .strat-fit{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:4px;padding:12px 14px;margin-top:14px}
   .strat-fit h5{font-family:var(--serif);font-size:13px;font-weight:600;margin:0 0 4px;color:#065f46}
   .strat-fit p{margin:3px 0;font-size:12px;color:#065f46;line-height:1.5}
   .strat-fit .when{color:#047857;font-size:11.5px}
   .strat-fit .flag{color:#991b1b;font-size:11.5px}
 
-  /* Vol scanner table */
   .vol-table-wrap{overflow-x:auto;max-height:420px;overflow-y:auto}
 
-  /* Chat panel */
   .chat-card{background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden;max-height:80vh;display:flex;flex-direction:column}
   .chat-head{background:#0f172a;color:#f1f5f9;padding:12px 18px;display:flex;justify-content:space-between;align-items:center}
   .chat-head h2{font-family:var(--serif);font-size:15px;font-weight:500;margin:0;color:#f1f5f9}
@@ -143,9 +130,7 @@
   #chat-input:focus{outline:none;border-color:var(--accent)}
   .chat-typing{color:var(--text-dim);font-style:italic;font-size:12px;padding:6px 12px}
 
-  /* New idea form */
   .form-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
-  .form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
   .field label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
   .field input, .field select, .field textarea{width:100%;background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-family:var(--mono);font-size:12px;color:var(--text);border-radius:3px}
   .field textarea{font-family:var(--sans);min-height:70px;resize:vertical}
@@ -166,7 +151,7 @@
     .opp-row{grid-template-columns:1fr;text-align:left}
     .opp-right{align-items:flex-start;text-align:left}
     .grid-4{grid-template-columns:repeat(2,1fr)}
-    .form-grid-3, .form-grid-2{grid-template-columns:1fr}
+    .form-grid-3{grid-template-columns:1fr}
   }
 </style>
 </head>
@@ -178,7 +163,7 @@
   <div id="rr-nav-container"></div>
 
   <h1 class="page-title">Strategy</h1>
-  <p class="page-sub">AI recommendations + manual trade ideas, enriched with thesis models and live vol regime. Click any opportunity for the full options chain and suggested structure. Chat with Ridge Run on the right.</p>
+  <p class="page-sub">AI recommendations + manual trade ideas, enriched with thesis models and live vol regime. Click any opportunity for full options chain and suggested structure.</p>
 
   <div id="msg-area"></div>
 
@@ -192,14 +177,14 @@
         </div>
         <div class="banner-body">
           <div class="pill-row" id="type-pills">
-            <button data-type="" class="active">All</button>
-            <button data-type="asymmetric_leap">LEAPS</button>
-            <button data-type="special_situation_arbitrage">Arb</button>
-            <button data-type="pair_trade">Pair</button>
-            <button data-type="core_holding">Core</button>
-            <button data-type="earnings_play">Earnings</button>
-            <button data-type="short_thesis">Short</button>
-            <button data-type="distressed_credit">Distressed</button>
+            <button type="button" data-type="" class="active">All</button>
+            <button type="button" data-type="asymmetric_leap">LEAPS</button>
+            <button type="button" data-type="special_situation_arbitrage">Arb</button>
+            <button type="button" data-type="pair_trade">Pair</button>
+            <button type="button" data-type="core_holding">Core</button>
+            <button type="button" data-type="earnings_play">Earnings</button>
+            <button type="button" data-type="short_thesis">Short</button>
+            <button type="button" data-type="distressed_credit">Distressed</button>
           </div>
           <div id="opp-list" class="opp-list">
             <div class="empty">Loading opportunities…</div>
@@ -232,9 +217,7 @@
                   <th></th>
                 </tr>
               </thead>
-              <tbody id="vol-tbody">
-                <tr><td colspan="12" class="empty">Loading…</td></tr>
-              </tbody>
+              <tbody id="vol-tbody"><tr><td colspan="12" class="empty">Loading…</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -289,7 +272,7 @@
             <div class="form-grid-3">
               <div class="field"><label>Max loss ($)</label><input type="number" name="max_loss" placeholder="500" max="500"></div>
               <div class="field"><label>Conviction (1-5)</label><input type="number" name="conviction" min="1" max="5" value="3"></div>
-              <div class="field"><label></label><div style="padding-top:6px"></div></div>
+              <div class="field"></div>
             </div>
             <div class="field" style="margin-bottom:12px">
               <label>Thesis</label>
@@ -299,7 +282,6 @@
           </form>
         </div>
       </div>
-
     </div>
 
     <div class="side-col">
@@ -313,19 +295,18 @@
         </div>
         <div class="chat-input-row">
           <textarea id="chat-input" placeholder="Ask about a trade… (Cmd+Enter to send)"></textarea>
-          <button class="btn btn-primary" id="chat-send">Send</button>
+          <button type="button" class="btn btn-primary" id="chat-send">Send</button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Opportunity detail modal -->
 <div class="modal-overlay" id="opp-modal" role="dialog" aria-modal="true">
   <div class="modal">
     <div class="modal-head">
       <h3 id="modal-title">Opportunity</h3>
-      <button class="modal-close" id="modal-close">Close</button>
+      <button type="button" class="modal-close" id="modal-close">Close</button>
     </div>
     <div class="modal-body" id="modal-body"></div>
   </div>
@@ -345,41 +326,47 @@
   let chatHistory = [];
 
   const $ = id => document.getElementById(id);
-  const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
-  const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const show = (id, on) => $(id).classList.toggle('hidden', !(on!==false));
+  const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt0 = n => (n==null||isNaN(n))?'—':Number(n).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
   const fmt2 = n => (n==null||isNaN(n))?'—':Number(n).toFixed(2);
   const fmt4 = n => (n==null||isNaN(n))?'—':Number(n).toFixed(4);
-  const fmtPct = (n,d=1) => (n==null||isNaN(n))?'—':(Number(n)*100).toFixed(d)+'%';
-  const flash = (text, kind='info') => {
-    $('msg-area').innerHTML = `<div class="msg msg-${esc(kind)}">${esc(text)}</div>`;
-    if (kind !== 'error') setTimeout(()=>{ $('msg-area').innerHTML=''; }, 6000);
+  const fmtPct = (n,d) => (n==null||isNaN(n))?'—':(Number(n)*100).toFixed(d==null?1:d)+'%';
+  const flash = (text, kind) => {
+    $('msg-area').innerHTML = '<div class="msg msg-'+esc(kind||'info')+'">'+esc(text)+'</div>';
+    if (kind !== 'error') setTimeout(function(){ $('msg-area').innerHTML=''; }, 6000);
   };
 
   (async () => {
-    const { data:{ session } } = await sb.auth.getSession();
-    if (!session?.user) { window.location.href='/index.html'; return; }
+    const r = await sb.auth.getSession();
+    const session = r && r.data && r.data.session;
+    if (!session || !session.user) { window.location.href='/index.html'; return; }
     currentUser = session.user;
     show('loading-screen', false);
     show('app', true);
     try { if (window.RidgeRunNav) await window.RidgeRunNav.mount({active:'strategy', supabase:sb}); } catch(e){}
+    wireEvents();
     await Promise.all([loadOpportunities(), loadVolScanner()]);
   })();
 
-  // Type filter pills
-  $('type-pills').addEventListener('click', e => {
-    const b = e.target.closest('button');
-    if (!b) return;
-    document.querySelectorAll('#type-pills button').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    activeType = b.dataset.type || '';
-    renderOpps();
-  });
-
-  // Modal close
-  $('modal-close').addEventListener('click', closeModal);
-  $('opp-modal').addEventListener('click', e => { if (e.target.id==='opp-modal') closeModal(); });
-  document.addEventListener('keydown', e => { if (e.key==='Escape') closeModal(); });
+  function wireEvents() {
+    $('type-pills').addEventListener('click', function(e){
+      const b = e.target.closest('button');
+      if (!b) return;
+      document.querySelectorAll('#type-pills button').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+      activeType = b.dataset.type || '';
+      renderOpps();
+    });
+    $('modal-close').addEventListener('click', closeModal);
+    $('opp-modal').addEventListener('click', function(e){ if (e.target.id==='opp-modal') closeModal(); });
+    document.addEventListener('keydown', function(e){ if (e.key==='Escape') closeModal(); });
+    $('new-idea-form').addEventListener('submit', saveNewIdea);
+    $('chat-send').addEventListener('click', sendChat);
+    $('chat-input').addEventListener('keydown', function(e){
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); sendChat(); }
+    });
+  }
 
   function closeModal() {
     $('opp-modal').classList.remove('open');
@@ -387,124 +374,87 @@
   }
 
   async function loadOpportunities() {
-    // Pull ai_recommendations and trade_ideas in parallel
-    const [recsR, ideasR] = await Promise.all([
-      sb.from('ai_recommendations')
-        .select('id, ticker, opportunity_type, composite_score, recommended_action, structure, sizing_dollars, max_loss, reasoning, source_signals, generated_at, accepted, dismissed')
-        .eq('user_id', currentUser.id)
-        .eq('dismissed', false)
-        .order('composite_score', { ascending: false, nullsFirst: false })
-        .limit(40),
-      sb.from('trade_ideas')
-        .select('id, ticker, opportunity_type, direction, thesis, conviction, proposed_structure, proposed_strike, proposed_expiry, max_loss_dollars, status, source, created_at')
-        .eq('user_id', currentUser.id)
-        .in('status', ['idea','sized','open'])
-        .order('created_at', { ascending: false })
-        .limit(40)
-    ]);
+    const recsR = await sb.from('ai_recommendations')
+      .select('id, ticker, opportunity_type, composite_score, recommended_action, structure, sizing_dollars, max_loss, reasoning, source_signals, generated_at, accepted, dismissed')
+      .eq('user_id', currentUser.id).eq('dismissed', false)
+      .order('composite_score', { ascending: false, nullsFirst: false }).limit(40);
+    const ideasR = await sb.from('trade_ideas')
+      .select('id, ticker, opportunity_type, direction, thesis, conviction, proposed_structure, proposed_strike, proposed_expiry, max_loss_dollars, status, source, created_at')
+      .eq('user_id', currentUser.id).in('status', ['idea','sized','open'])
+      .order('created_at', { ascending: false }).limit(40);
 
-    if (recsR.error) flash('Recs error: ' + recsR.error.message, 'error');
-    if (ideasR.error) flash('Ideas error: ' + ideasR.error.message, 'error');
+    if (recsR.error) flash('Recs error: '+recsR.error.message, 'error');
+    if (ideasR.error) flash('Ideas error: '+ideasR.error.message, 'error');
 
-    const recs = (recsR.data||[]).map(r => ({
-      kind: 'ai_rec',
-      id: r.id,
-      ticker: r.ticker,
-      opportunity_type: r.opportunity_type || inferOppType(r.structure||''),
-      title: (r.structure || r.recommended_action || 'Recommendation') + ' on ' + r.ticker,
-      score: r.composite_score,
-      structure: r.structure,
-      sizing: r.sizing_dollars,
-      max_loss: r.max_loss,
-      reasoning: r.reasoning,
-      source: 'ai',
-      raw: r
-    }));
-    const ideas = (ideasR.data||[]).map(r => ({
-      kind: 'trade_idea',
-      id: r.id,
-      ticker: r.ticker,
-      opportunity_type: r.opportunity_type || inferOppType(r.proposed_structure||''),
-      title: (r.proposed_structure || 'Idea') + ' on ' + r.ticker,
-      score: r.conviction != null ? r.conviction * 20 : null,
-      structure: r.proposed_structure,
-      strike: r.proposed_strike,
-      expiry: r.proposed_expiry,
-      max_loss: r.max_loss_dollars,
-      reasoning: r.thesis,
-      direction: r.direction,
-      source: 'manual',
-      raw: r
-    }));
+    const recs = (recsR.data||[]).map(function(r){
+      return {
+        kind:'ai_rec', id:r.id, ticker:r.ticker,
+        opportunity_type: r.opportunity_type || inferOppType(r.structure||''),
+        title: (r.structure || r.recommended_action || 'Recommendation')+' on '+r.ticker,
+        score: r.composite_score, structure: r.structure,
+        sizing: r.sizing_dollars, max_loss: r.max_loss,
+        reasoning: r.reasoning, source: 'ai'
+      };
+    });
+    const ideas = (ideasR.data||[]).map(function(r){
+      return {
+        kind:'trade_idea', id:r.id, ticker:r.ticker,
+        opportunity_type: r.opportunity_type || inferOppType(r.proposed_structure||''),
+        title: (r.proposed_structure || 'Idea')+' on '+r.ticker,
+        score: r.conviction != null ? r.conviction * 20 : null,
+        structure: r.proposed_structure, strike: r.proposed_strike, expiry: r.proposed_expiry,
+        max_loss: r.max_loss_dollars, reasoning: r.thesis, direction: r.direction, source: 'manual'
+      };
+    });
+    allOpps = recs.concat(ideas);
 
-    allOpps = [...recs, ...ideas];
-
-    // Enrich with vol regime per unique ticker
-    const tickers = [...new Set(allOpps.map(o => o.ticker).filter(Boolean))];
+    const tickers = Array.from(new Set(allOpps.map(function(o){return o.ticker;}).filter(Boolean)));
     if (tickers.length) {
-      const { data: volRows } = await sb.from('v_latest_vol_strategy')
+      const volR = await sb.from('v_latest_vol_strategy')
         .select('ticker, vol_regime, term_structure, iv_rank_1y, iv_30d, spot, skew_signal')
         .in('ticker', tickers);
-      const volBy = {};
-      (volRows||[]).forEach(v => { volBy[v.ticker] = v; });
-      allOpps.forEach(o => { o.vol = volBy[o.ticker] || null; });
+      const by = {};
+      (volR.data||[]).forEach(function(v){ by[v.ticker]=v; });
+      allOpps.forEach(function(o){ o.vol = by[o.ticker] || null; });
     }
-
     renderOpps();
   }
 
   function inferOppType(s) {
-    if (!s) return 'asymmetric_leap';
-    s = String(s).toLowerCase();
-    if (s.includes('leap')) return 'asymmetric_leap';
-    if (s.includes('straddle') || s.includes('strangle')) return 'earnings_play';
-    if (s.includes('iron_condor') || s.includes('csp') || s.includes('covered_call')) return 'short_thesis';
-    if (s.includes('vertical') || s.includes('spread')) return 'pair_trade';
-    if (s.includes('arb')) return 'special_situation_arbitrage';
+    s = String(s||'').toLowerCase();
+    if (s.indexOf('leap')>=0) return 'asymmetric_leap';
+    if (s.indexOf('straddle')>=0 || s.indexOf('strangle')>=0) return 'earnings_play';
+    if (s.indexOf('iron_condor')>=0 || s.indexOf('csp')>=0 || s.indexOf('covered_call')>=0) return 'short_thesis';
+    if (s.indexOf('vertical')>=0 || s.indexOf('spread')>=0) return 'pair_trade';
     return 'asymmetric_leap';
   }
 
   function renderOpps() {
-    const filtered = activeType ? allOpps.filter(o => o.opportunity_type === activeType) : allOpps;
+    const filtered = activeType ? allOpps.filter(function(o){return o.opportunity_type === activeType;}) : allOpps;
     $('opp-count').textContent = filtered.length + ' opportunity(s)';
-
     if (!filtered.length) {
       $('opp-list').innerHTML = '<div class="empty">No opportunities for this filter. Try another type or save a new idea below.</div>';
       return;
     }
-
-    $('opp-list').innerHTML = filtered.map((o, i) => {
-      const volBadge = o.vol?.vol_regime ? `<span class="badge ${volBadgeCls(o.vol.vol_regime)}">${esc(o.vol.vol_regime.replace(/_/g,' '))}</span>` : '';
-      const typeBadge = `<span class="badge ${oppTypeCls(o.opportunity_type)}">${esc((o.opportunity_type||'').replace(/_/g,' '))}</span>`;
-      const sourceBadge = `<span class="badge src-${o.source}">${o.source==='ai'?'AI':'Manual'}</span>`;
-      const ivR = o.vol?.iv_rank_1y;
-      return `
-        <div class="opp-row" data-idx="${i}" data-opp-id="${esc(o.id)}" data-kind="${o.kind}">
-          <div class="opp-ticker">${esc(o.ticker)}</div>
-          <div class="opp-mid">
-            <div class="opp-title">${esc(o.title)}</div>
-            <div class="opp-meta">
-              ${typeBadge}
-              ${volBadge}
-              ${sourceBadge}
-              ${ivR!=null?'<span>IV rank '+Math.round(ivR)+'</span>':''}
-              ${o.vol?.spot!=null?'<span>Spot $'+fmt2(o.vol.spot)+'</span>':''}
-              ${o.max_loss!=null?'<span>Max loss '+fmt0(o.max_loss)+'</span>':''}
-            </div>
-          </div>
-          <div class="opp-right">
-            <div class="opp-score">${o.score!=null?'Score '+Math.round(o.score):''}</div>
-            <div class="opp-actions">
-              <button class="btn btn-sm btn-primary" data-action="open" data-idx="${i}">Details</button>
-            </div>
-          </div>
-        </div>
-      `;
+    $('opp-list').innerHTML = filtered.map(function(o, i){
+      const volBadge = (o.vol && o.vol.vol_regime) ? '<span class="badge '+volBadgeCls(o.vol.vol_regime)+'">'+esc(o.vol.vol_regime.replace(/_/g,' '))+'</span>' : '';
+      const typeBadge = '<span class="badge '+oppTypeCls(o.opportunity_type)+'">'+esc((o.opportunity_type||'').replace(/_/g,' '))+'</span>';
+      const sourceBadge = '<span class="badge src-'+o.source+'">'+(o.source==='ai'?'AI':'Manual')+'</span>';
+      const ivR = o.vol && o.vol.iv_rank_1y;
+      return '<div class="opp-row" data-idx="'+i+'">'
+        + '<div class="opp-ticker">'+esc(o.ticker)+'</div>'
+        + '<div><div class="opp-title">'+esc(o.title)+'</div>'
+        + '<div class="opp-meta">'+typeBadge+volBadge+sourceBadge
+        + (ivR!=null?'<span>IV rank '+Math.round(ivR)+'</span>':'')
+        + (o.vol && o.vol.spot!=null?'<span>Spot $'+fmt2(o.vol.spot)+'</span>':'')
+        + (o.max_loss!=null?'<span>Max loss '+fmt0(o.max_loss)+'</span>':'')
+        + '</div></div>'
+        + '<div class="opp-right"><div class="opp-score">'+(o.score!=null?'Score '+Math.round(o.score):'')+'</div>'
+        + '<div><button type="button" class="btn btn-sm btn-primary" data-action="open" data-idx="'+i+'">Details</button></div>'
+        + '</div></div>';
     }).join('');
-
-    // Bind row clicks
-    $('opp-list').querySelectorAll('.opp-row').forEach(row => {
-      row.addEventListener('click', () => openOppModal(parseInt(row.dataset.idx,10)));
+    $('opp-list').querySelectorAll('.opp-row').forEach(function(row){
+      row.addEventListener('click', function(){ openOppModal(parseInt(row.dataset.idx,10)); });
     });
   }
 
@@ -518,33 +468,23 @@
   }
   function oppTypeCls(t) {
     const map = {
-      asymmetric_leap:'opp-leap',
-      special_situation_arbitrage:'opp-arb',
-      pair_trade:'opp-pair',
-      core_holding:'opp-core',
-      core_holding_hy_etf:'opp-core',
-      short_thesis:'opp-short',
-      earnings_play:'opp-earn',
-      distressed_credit:'opp-distr'
+      asymmetric_leap:'opp-leap', special_situation_arbitrage:'opp-arb',
+      pair_trade:'opp-pair', core_holding:'opp-core', core_holding_hy_etf:'opp-core',
+      short_thesis:'opp-short', earnings_play:'opp-earn', distressed_credit:'opp-distr'
     };
     return map[t] || 'neutral';
   }
 
   async function openOppModal(idx) {
-    const filtered = activeType ? allOpps.filter(o => o.opportunity_type === activeType) : allOpps;
+    const filtered = activeType ? allOpps.filter(function(o){return o.opportunity_type === activeType;}) : allOpps;
     const opp = filtered[idx];
     if (!opp) return;
     $('modal-title').textContent = opp.ticker + ' · ' + (opp.title || '');
-    $('modal-body').innerHTML = '<div class="empty">Loading…</div>';
+    $('modal-body').innerHTML = renderModalBody(opp);
     $('opp-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
-
-    // Render the panel body (type-specific) + options chain
-    $('modal-body').innerHTML = renderModalBody(opp);
     wireModalActions(opp);
-    // Load options chain into the panel
     await loadModalOptions(opp);
-    // Load strategy fit suggestion
     await loadStrategyFit(opp);
   }
 
@@ -552,104 +492,67 @@
     const v = o.vol || {};
     const ivR = v.iv_rank_1y;
     const ivClass = ivR == null ? '' : (ivR < 25 ? 'cheap' : ivR > 75 ? 'rich' : '');
-    return `
-      <div class="grid-4">
-        <div class="metric-box"><div class="l">Spot</div><div class="v">${v.spot!=null?'$'+fmt2(v.spot):'—'}</div></div>
-        <div class="metric-box ${ivClass}"><div class="l">IV Rank 1y</div><div class="v">${ivR!=null?Math.round(ivR):'—'}</div></div>
-        <div class="metric-box"><div class="l">IV 30d</div><div class="v">${v.iv_30d!=null?fmtPct(v.iv_30d):'—'}</div></div>
-        <div class="metric-box"><div class="l">Max loss</div><div class="v">${o.max_loss!=null?fmt0(o.max_loss):'—'}</div></div>
-      </div>
-
-      <div style="margin-top:14px">
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <span class="badge ${oppTypeCls(o.opportunity_type)}">${esc((o.opportunity_type||'').replace(/_/g,' '))}</span>
-          ${v.vol_regime?'<span class="badge '+volBadgeCls(v.vol_regime)+'">'+esc(v.vol_regime.replace(/_/g,' '))+'</span>':''}
-          ${v.term_structure?'<span class="badge neutral">term: '+esc(v.term_structure)+'</span>':''}
-          ${v.skew_signal?'<span class="badge neutral">skew: '+esc(v.skew_signal)+'</span>':''}
-          ${o.structure?'<span class="badge neutral">'+esc(o.structure)+'</span>':''}
-          ${o.strike?'<span class="badge neutral">strike '+fmt2(o.strike)+'</span>':''}
-          ${o.expiry?'<span class="badge neutral">exp '+esc(o.expiry)+'</span>':''}
-        </div>
-      </div>
-
-      ${o.reasoning ? '<div class="reasoning">'+esc(o.reasoning)+'</div>' : ''}
-
-      <div id="strat-fit-slot"></div>
-
-      <div class="opt-panel">
-        <div class="opt-panel-head">
-          <h4>Options chain — ${esc(o.ticker)}</h4>
-          <span class="banner-meta" style="color:var(--text-muted)" id="opt-meta">Loading…</span>
-        </div>
-        <div class="opt-controls">
-          <label>Expiry <select id="m-expiry"><option value="">All</option></select></label>
-          <label>Side
-            <select id="m-side">
-              <option value="">Both</option>
-              <option value="call">Calls only</option>
-              <option value="put">Puts only</option>
-            </select>
-          </label>
-          <label>Strike window
-            <select id="m-pct">
-              <option value="0.20" selected>±20%</option>
-              <option value="0.10">±10%</option>
-              <option value="0.30">±30%</option>
-              <option value="1.0">All</option>
-            </select>
-          </label>
-          <label>Min OI <input type="number" id="m-min-oi" min="0" value="0" style="width:70px"></label>
-        </div>
-        <div class="opt-table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Expiry</th><th>Strike</th><th>Side</th>
-                <th style="text-align:right">Bid</th><th style="text-align:right">Ask</th><th style="text-align:right">Last</th>
-                <th style="text-align:right">IV</th>
-                <th style="text-align:right">Δ</th><th style="text-align:right">Γ</th><th style="text-align:right">Θ</th><th style="text-align:right">ν</th>
-                <th style="text-align:right">OI</th><th style="text-align:right">Vol</th>
-              </tr>
-            </thead>
-            <tbody id="m-tbody"><tr><td colspan="13" class="empty">Loading chain…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
-        <a class="btn btn-ghost" href="/research.html?ticker=${esc(o.ticker)}" style="text-decoration:none">Open research →</a>
-        <a class="btn btn-ghost" href="/model.html?ticker=${esc(o.ticker)}" style="text-decoration:none">Open model →</a>
-        ${o.kind === 'ai_rec' ? `
-          <button class="btn btn-success" data-modal-action="accept">Mark accepted</button>
-          <button class="btn btn-danger" data-modal-action="dismiss">Dismiss</button>
-        ` : `
-          <button class="btn btn-danger" data-modal-action="remove">Remove idea</button>
-        `}
-      </div>
-    `;
+    return ''
+      + '<div class="grid-4">'
+      + '<div class="metric-box"><div class="l">Spot</div><div class="v">'+(v.spot!=null?'$'+fmt2(v.spot):'—')+'</div></div>'
+      + '<div class="metric-box '+ivClass+'"><div class="l">IV Rank 1y</div><div class="v">'+(ivR!=null?Math.round(ivR):'—')+'</div></div>'
+      + '<div class="metric-box"><div class="l">IV 30d</div><div class="v">'+(v.iv_30d!=null?fmtPct(v.iv_30d):'—')+'</div></div>'
+      + '<div class="metric-box"><div class="l">Max loss</div><div class="v">'+(o.max_loss!=null?fmt0(o.max_loss):'—')+'</div></div>'
+      + '</div>'
+      + '<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">'
+      + '<span class="badge '+oppTypeCls(o.opportunity_type)+'">'+esc((o.opportunity_type||'').replace(/_/g,' '))+'</span>'
+      + (v.vol_regime?'<span class="badge '+volBadgeCls(v.vol_regime)+'">'+esc(v.vol_regime.replace(/_/g,' '))+'</span>':'')
+      + (v.term_structure?'<span class="badge neutral">term: '+esc(v.term_structure)+'</span>':'')
+      + (v.skew_signal?'<span class="badge neutral">skew: '+esc(v.skew_signal)+'</span>':'')
+      + (o.structure?'<span class="badge neutral">'+esc(o.structure)+'</span>':'')
+      + (o.strike?'<span class="badge neutral">strike '+fmt2(o.strike)+'</span>':'')
+      + (o.expiry?'<span class="badge neutral">exp '+esc(o.expiry)+'</span>':'')
+      + '</div>'
+      + (o.reasoning?'<div class="reasoning">'+esc(o.reasoning)+'</div>':'')
+      + '<div id="strat-fit-slot"></div>'
+      + '<div class="opt-panel">'
+      + '<div class="opt-panel-head"><h4>Options chain — '+esc(o.ticker)+'</h4>'
+      + '<span class="banner-meta" style="color:var(--text-muted)" id="opt-meta">Loading…</span></div>'
+      + '<div class="opt-controls">'
+      + '<label>Expiry <select id="m-expiry"><option value="">All</option></select></label>'
+      + '<label>Side <select id="m-side"><option value="">Both</option><option value="call">Calls</option><option value="put">Puts</option></select></label>'
+      + '<label>Strike window <select id="m-pct"><option value="0.20" selected>±20%</option><option value="0.10">±10%</option><option value="0.30">±30%</option><option value="1.0">All</option></select></label>'
+      + '<label>Min OI <input type="number" id="m-min-oi" min="0" value="0" style="width:70px"></label>'
+      + '</div>'
+      + '<div class="opt-table-wrap"><table><thead><tr>'
+      + '<th>Expiry</th><th>Strike</th><th>Side</th>'
+      + '<th style="text-align:right">Bid</th><th style="text-align:right">Ask</th><th style="text-align:right">Last</th>'
+      + '<th style="text-align:right">IV</th><th style="text-align:right">Δ</th><th style="text-align:right">Γ</th><th style="text-align:right">Θ</th><th style="text-align:right">ν</th>'
+      + '<th style="text-align:right">OI</th><th style="text-align:right">Vol</th>'
+      + '</tr></thead><tbody id="m-tbody"><tr><td colspan="13" class="empty">Loading chain…</td></tr></tbody></table></div>'
+      + '</div>'
+      + '<div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">'
+      + '<a class="btn btn-ghost" href="/research.html?ticker='+esc(o.ticker)+'" style="text-decoration:none">Open research →</a>'
+      + '<a class="btn btn-ghost" href="/model.html?ticker='+esc(o.ticker)+'" style="text-decoration:none">Open model →</a>'
+      + (o.kind === 'ai_rec'
+          ? '<button type="button" class="btn btn-success" data-modal-action="accept">Mark accepted</button>'
+            + '<button type="button" class="btn btn-danger" data-modal-action="dismiss">Dismiss</button>'
+          : '<button type="button" class="btn btn-danger" data-modal-action="remove">Remove idea</button>')
+      + '</div>';
   }
 
   function wireModalActions(o) {
-    $('modal-body').querySelectorAll('button[data-modal-action]').forEach(b => {
-      b.addEventListener('click', async () => {
+    $('modal-body').querySelectorAll('button[data-modal-action]').forEach(function(b){
+      b.addEventListener('click', async function(){
         const action = b.dataset.modalAction;
         if (action === 'accept') {
-          const { error } = await sb.from('ai_recommendations')
-            .update({ accepted: true, accepted_at: new Date().toISOString() })
-            .eq('id', o.id);
-          if (error) flash('Accept failed: '+error.message,'error');
+          const r = await sb.from('ai_recommendations').update({ accepted:true, accepted_at:new Date().toISOString() }).eq('id', o.id);
+          if (r.error) flash('Accept failed: '+r.error.message,'error');
           else { flash('Marked accepted','success'); closeModal(); loadOpportunities(); }
         } else if (action === 'dismiss') {
           const reason = prompt('Reason for dismissing (optional):') || '';
-          const { error } = await sb.from('ai_recommendations')
-            .update({ dismissed: true, dismissed_at: new Date().toISOString(), dismissed_reason: reason })
-            .eq('id', o.id);
-          if (error) flash('Dismiss failed: '+error.message,'error');
+          const r = await sb.from('ai_recommendations').update({ dismissed:true, dismissed_at:new Date().toISOString(), dismissed_reason:reason }).eq('id', o.id);
+          if (r.error) flash('Dismiss failed: '+r.error.message,'error');
           else { flash('Dismissed','success'); closeModal(); loadOpportunities(); }
         } else if (action === 'remove') {
           if (!confirm('Remove this trade idea?')) return;
-          const { error } = await sb.from('trade_ideas').delete().eq('id', o.id);
-          if (error) flash('Remove failed: '+error.message,'error');
+          const r = await sb.from('trade_ideas').delete().eq('id', o.id);
+          if (r.error) flash('Remove failed: '+r.error.message,'error');
           else { flash('Removed','success'); closeModal(); loadOpportunities(); }
         }
       });
@@ -658,82 +561,68 @@
 
   async function loadModalOptions(o) {
     const fiveDaysAgo = new Date(Date.now()-5*86400000).toISOString().slice(0,10);
-    const { data, error } = await sb.from('options_chain_snapshots')
+    const r = await sb.from('options_chain_snapshots')
       .select('expiry, strike, side, bid, ask, last, volume, open_interest, iv, delta, gamma, theta, vega, underlying_price, as_of_date')
-      .eq('ticker', o.ticker)
-      .gte('as_of_date', fiveDaysAgo)
-      .order('expiry',{ascending:true})
-      .order('strike',{ascending:true})
-      .limit(2000);
+      .eq('ticker', o.ticker).gte('as_of_date', fiveDaysAgo)
+      .order('expiry',{ascending:true}).order('strike',{ascending:true}).limit(2000);
 
-    if (error || !data || !data.length) {
-      $('m-tbody').innerHTML = `<tr><td colspan="13" class="empty">No recent chain data. Click "Open research" and use "Refresh data" to backfill.</td></tr>`;
-      $('opt-meta').textContent = error ? 'Error' : 'No data';
+    if (r.error || !r.data || !r.data.length) {
+      $('m-tbody').innerHTML = '<tr><td colspan="13" class="empty">No recent chain data. Open research and click "Refresh data" to backfill.</td></tr>';
+      $('opt-meta').textContent = r.error ? 'Error' : 'No data';
       return;
     }
-
-    const latestDate = data.reduce((m,r) => r.as_of_date > m ? r.as_of_date : m, '');
-    const fresh = data.filter(r => r.as_of_date === latestDate);
-    const spot = fresh[0]?.underlying_price || o.vol?.spot;
-    const expiries = [...new Set(fresh.map(r => r.expiry))].sort();
-
+    const latestDate = r.data.reduce(function(m,rw){return rw.as_of_date>m?rw.as_of_date:m;},'');
+    const fresh = r.data.filter(function(rw){return rw.as_of_date===latestDate;});
+    const spot = (fresh[0] && fresh[0].underlying_price) || (o.vol && o.vol.spot);
+    const expiries = Array.from(new Set(fresh.map(function(rw){return rw.expiry;}))).sort();
     const expSel = $('m-expiry');
-    expSel.innerHTML = '<option value="">All ('+expiries.length+')</option>' + expiries.map(e => `<option value="${esc(e)}">${esc(e)}</option>`).join('');
+    expSel.innerHTML = '<option value="">All ('+expiries.length+')</option>' + expiries.map(function(e){return '<option value="'+esc(e)+'">'+esc(e)+'</option>';}).join('');
+    $('opt-meta').textContent = 'As of '+latestDate+' · Spot $'+fmt2(spot)+' · '+fresh.length+' contracts';
 
-    $('opt-meta').textContent = 'As of ' + latestDate + ' · Spot $' + fmt2(spot) + ' · ' + fresh.length + ' contracts';
-
-    const renderChain = () => {
+    function renderChain() {
       const exp = $('m-expiry').value;
       const side = $('m-side').value;
       const pct = parseFloat($('m-pct').value);
       const minOI = parseInt($('m-min-oi').value||'0', 10);
       const lo = spot ? spot*(1-pct) : 0;
       const hi = spot ? spot*(1+pct) : Infinity;
-
-      let rows = fresh.filter(r => {
-        if (exp && r.expiry !== exp) return false;
-        if (side && r.side !== side) return false;
-        if (pct < 1 && spot && (r.strike < lo || r.strike > hi)) return false;
-        if (minOI > 0 && (r.open_interest||0) < minOI) return false;
+      const rows = fresh.filter(function(rw){
+        if (exp && rw.expiry !== exp) return false;
+        if (side && rw.side !== side) return false;
+        if (pct < 1 && spot && (rw.strike < lo || rw.strike > hi)) return false;
+        if (minOI > 0 && (rw.open_interest||0) < minOI) return false;
         return true;
       });
-
       if (!rows.length) {
         $('m-tbody').innerHTML = '<tr><td colspan="13" class="empty">No contracts match filters.</td></tr>';
         return;
       }
-
-      // ATM per expiry
       const grouped = {};
-      rows.forEach(r => { (grouped[r.expiry] = grouped[r.expiry] || []).push(r); });
+      rows.forEach(function(rw){ (grouped[rw.expiry]=grouped[rw.expiry]||[]).push(rw); });
       const atmByExp = {};
-      Object.keys(grouped).forEach(e => {
-        const strikes = [...new Set(grouped[e].map(r => r.strike))];
-        if (spot && strikes.length) atmByExp[e] = strikes.reduce((a,b) => Math.abs(b-spot) < Math.abs(a-spot) ? b : a);
+      Object.keys(grouped).forEach(function(e){
+        const strikes = Array.from(new Set(grouped[e].map(function(rw){return rw.strike;})));
+        if (spot && strikes.length) atmByExp[e] = strikes.reduce(function(a,b){return Math.abs(b-spot)<Math.abs(a-spot)?b:a;});
       });
-
-      $('m-tbody').innerHTML = rows.map(r => {
-        const isATM = spot && r.strike === atmByExp[r.expiry];
-        return `
-          <tr class="${isATM?'atm':''}">
-            <td>${esc(r.expiry)}</td>
-            <td class="num">${fmt2(r.strike)}</td>
-            <td>${esc(r.side||'')}</td>
-            <td class="num">${r.bid!=null?fmt2(r.bid):'—'}</td>
-            <td class="num">${r.ask!=null?fmt2(r.ask):'—'}</td>
-            <td class="num">${r.last!=null?fmt2(r.last):'—'}</td>
-            <td class="num">${r.iv!=null?(r.iv*100).toFixed(1)+'%':'—'}</td>
-            <td class="num">${r.delta!=null?fmt2(r.delta):'—'}</td>
-            <td class="num">${r.gamma!=null?fmt4(r.gamma):'—'}</td>
-            <td class="num">${r.theta!=null?fmt2(r.theta):'—'}</td>
-            <td class="num">${r.vega!=null?fmt2(r.vega):'—'}</td>
-            <td class="num">${r.open_interest!=null?Number(r.open_interest).toLocaleString():'—'}</td>
-            <td class="num">${r.volume!=null?Number(r.volume).toLocaleString():'—'}</td>
-          </tr>
-        `;
+      $('m-tbody').innerHTML = rows.map(function(rw){
+        const isATM = spot && rw.strike === atmByExp[rw.expiry];
+        return '<tr class="'+(isATM?'atm':'')+'">'
+          + '<td>'+esc(rw.expiry)+'</td>'
+          + '<td class="num">'+fmt2(rw.strike)+'</td>'
+          + '<td>'+esc(rw.side||'')+'</td>'
+          + '<td class="num">'+(rw.bid!=null?fmt2(rw.bid):'—')+'</td>'
+          + '<td class="num">'+(rw.ask!=null?fmt2(rw.ask):'—')+'</td>'
+          + '<td class="num">'+(rw.last!=null?fmt2(rw.last):'—')+'</td>'
+          + '<td class="num">'+(rw.iv!=null?(rw.iv*100).toFixed(1)+'%':'—')+'</td>'
+          + '<td class="num">'+(rw.delta!=null?fmt2(rw.delta):'—')+'</td>'
+          + '<td class="num">'+(rw.gamma!=null?fmt4(rw.gamma):'—')+'</td>'
+          + '<td class="num">'+(rw.theta!=null?fmt2(rw.theta):'—')+'</td>'
+          + '<td class="num">'+(rw.vega!=null?fmt2(rw.vega):'—')+'</td>'
+          + '<td class="num">'+(rw.open_interest!=null?Number(rw.open_interest).toLocaleString():'—')+'</td>'
+          + '<td class="num">'+(rw.volume!=null?Number(rw.volume).toLocaleString():'—')+'</td>'
+          + '</tr>';
       }).join('');
-    };
-
+    }
     $('m-expiry').addEventListener('change', renderChain);
     $('m-side').addEventListener('change', renderChain);
     $('m-pct').addEventListener('change', renderChain);
@@ -742,84 +631,70 @@
   }
 
   async function loadStrategyFit(o) {
-    const { data, error } = await sb.rpc('get_option_strategies', { ticker: o.ticker });
-    if (error || !data || !data.strategies || !data.strategies.length) return;
-    const top = data.strategies[0];
+    // FIX: param name is p_ticker
+    const r = await sb.rpc('get_option_strategies', { p_ticker: o.ticker });
+    if (r.error || !r.data || !r.data.strategies || !r.data.strategies.length) return;
+    const top = r.data.strategies[0];
     const slot = $('strat-fit-slot');
     if (!slot) return;
-    slot.innerHTML = `
-      <div class="strat-fit">
-        <h5>Suggested structure: ${esc(top.name)} · score ${Math.round(top.score||0)}</h5>
-        <p>${esc(top.rationale||'')}</p>
-        ${top.best_when ? '<p class="when"><b>Best when:</b> '+esc(top.best_when)+'</p>' : ''}
-        ${top.red_flag ? '<p class="flag"><b>Red flag:</b> '+esc(top.red_flag)+'</p>' : ''}
-      </div>
-    `;
+    slot.innerHTML = '<div class="strat-fit"><h5>Suggested structure: '+esc(top.name)+' · score '+Math.round(top.score||0)+'</h5>'
+      + '<p>'+esc(top.rationale||'')+'</p>'
+      + (top.best_when?'<p class="when"><b>Best when:</b> '+esc(top.best_when)+'</p>':'')
+      + (top.red_flag?'<p class="flag"><b>Red flag:</b> '+esc(top.red_flag)+'</p>':'')
+      + '</div>';
   }
 
-  // Vol scanner
   async function loadVolScanner() {
     const tbody = $('vol-tbody');
-    // Try tracked_tickers RPC, fall back to ticker_watchlist
     let tickers = [];
-    const { data: trackedData, error: trackedErr } = await sb.rpc('tracked_tickers', { p_user: currentUser.id });
-    if (!trackedErr && trackedData) {
-      tickers = [...new Set((trackedData||[]).map(r => r.ticker).filter(Boolean))];
+    const tr = await sb.rpc('tracked_tickers', { p_user: currentUser.id });
+    if (!tr.error && tr.data) {
+      tickers = Array.from(new Set((tr.data||[]).map(function(r){return r.ticker;}).filter(Boolean)));
     }
     if (!tickers.length) {
-      const { data: wl } = await sb.from('ticker_watchlist')
-        .select('ticker').eq('user_id', currentUser.id).eq('is_active', true);
-      tickers = [...new Set((wl||[]).map(r => r.ticker).filter(Boolean))];
+      const wl = await sb.from('ticker_watchlist').select('ticker').eq('user_id', currentUser.id).eq('is_active', true);
+      tickers = Array.from(new Set((wl.data||[]).map(function(r){return r.ticker;}).filter(Boolean)));
     }
-
     if (!tickers.length) {
       tbody.innerHTML = '<tr><td colspan="12" class="empty">No tracked tickers. Add to watchlist to populate.</td></tr>';
       return;
     }
-
-    const { data: volData, error: volErr } = await sb.from('v_latest_vol_strategy')
-      .select('*').in('ticker', tickers);
-
-    if (volErr || !volData || !volData.length) {
-      tbody.innerHTML = `<tr><td colspan="12" class="empty">No vol data yet. The vol snapshot workflow runs weekdays at 4:30pm ET.${volErr?' Error: '+esc(volErr.message):''}</td></tr>`;
+    const vr = await sb.from('v_latest_vol_strategy').select('*').in('ticker', tickers);
+    if (vr.error || !vr.data || !vr.data.length) {
+      tbody.innerHTML = '<tr><td colspan="12" class="empty">No vol data yet.'+(vr.error?' '+esc(vr.error.message):'')+'</td></tr>';
       return;
     }
-
-    const sorted = [...volData].sort((a,b) => {
+    const sorted = vr.data.slice().sort(function(a,b){
       const ar = a.iv_rank_1y == null ? 9999 : Number(a.iv_rank_1y);
       const br = b.iv_rank_1y == null ? 9999 : Number(b.iv_rank_1y);
       return ar - br;
     });
-
-    $('vol-meta').textContent = sorted.length + ' tickers · low → high IV rank';
-
-    tbody.innerHTML = sorted.map(v => `
-      <tr>
-        <td><a href="/research.html?ticker=${esc(v.ticker)}" style="color:var(--accent);text-decoration:none;font-weight:600">${esc(v.ticker)}</a></td>
-        <td class="num">${v.spot!=null?fmt2(v.spot):'—'}</td>
-        <td class="num">${v.iv_30d!=null?fmtPct(v.iv_30d):'—'}</td>
-        <td class="num">${v.iv_90d!=null?fmtPct(v.iv_90d):'—'}</td>
-        <td class="num">${v.iv_180d!=null?fmtPct(v.iv_180d):'—'}</td>
-        <td class="num">${v.iv_365d!=null?fmtPct(v.iv_365d):'—'}</td>
-        <td class="num">${v.hv_30d!=null?fmtPct(v.hv_30d):'—'}</td>
-        <td class="num">${v.iv_rank_1y!=null?Math.round(v.iv_rank_1y):'—'}</td>
-        <td class="num">${v.skew_25d!=null?(v.skew_25d*100).toFixed(1)+'pp':'—'}</td>
-        <td><span class="badge ${volBadgeCls(v.vol_regime)}">${esc((v.vol_regime||'').replace(/_/g,' '))}</span></td>
-        <td><span class="badge neutral">${esc(v.term_structure||'—')}</span></td>
-        <td><a class="btn btn-sm btn-ghost" href="/research.html?ticker=${esc(v.ticker)}" style="text-decoration:none">Open</a></td>
-      </tr>
-    `).join('');
+    $('vol-meta').textContent = sorted.length+' tickers · low → high IV rank';
+    tbody.innerHTML = sorted.map(function(v){
+      return '<tr><td><a href="/research.html?ticker='+esc(v.ticker)+'" style="color:var(--accent);text-decoration:none;font-weight:600">'+esc(v.ticker)+'</a></td>'
+        + '<td class="num">'+(v.spot!=null?fmt2(v.spot):'—')+'</td>'
+        + '<td class="num">'+(v.iv_30d!=null?fmtPct(v.iv_30d):'—')+'</td>'
+        + '<td class="num">'+(v.iv_90d!=null?fmtPct(v.iv_90d):'—')+'</td>'
+        + '<td class="num">'+(v.iv_180d!=null?fmtPct(v.iv_180d):'—')+'</td>'
+        + '<td class="num">'+(v.iv_365d!=null?fmtPct(v.iv_365d):'—')+'</td>'
+        + '<td class="num">'+(v.hv_30d!=null?fmtPct(v.hv_30d):'—')+'</td>'
+        + '<td class="num">'+(v.iv_rank_1y!=null?Math.round(v.iv_rank_1y):'—')+'</td>'
+        + '<td class="num">'+(v.skew_25d!=null?(v.skew_25d*100).toFixed(1)+'pp':'—')+'</td>'
+        + '<td><span class="badge '+volBadgeCls(v.vol_regime)+'">'+esc((v.vol_regime||'').replace(/_/g,' '))+'</span></td>'
+        + '<td><span class="badge neutral">'+esc(v.term_structure||'—')+'</span></td>'
+        + '<td><a class="btn btn-sm btn-ghost" href="/research.html?ticker='+esc(v.ticker)+'" style="text-decoration:none">Open</a></td>'
+        + '</tr>';
+    }).join('');
   }
 
-  // New idea form
-  $('new-idea-form').addEventListener('submit', async e => {
+  async function saveNewIdea(e) {
     e.preventDefault();
     const fd = new FormData(e.target);
     const ticker = (fd.get('ticker')||'').trim().toUpperCase();
     if (!ticker) return;
     const idea = {
       user_id: currentUser.id,
-      ticker,
+      ticker: ticker,
       opportunity_type: fd.get('opportunity_type'),
       direction: fd.get('direction'),
       proposed_structure: fd.get('structure'),
@@ -831,23 +706,10 @@
       status: 'idea',
       source: 'strategy_page'
     };
-    const { error } = await sb.from('trade_ideas').insert(idea);
-    if (error) flash('Save failed: ' + error.message, 'error');
-    else {
-      flash('Trade idea saved.', 'success');
-      e.target.reset();
-      loadOpportunities();
-    }
-  });
-
-  // Chat
-  $('chat-send').addEventListener('click', sendChat);
-  $('chat-input').addEventListener('keydown', e => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-      e.preventDefault();
-      sendChat();
-    }
-  });
+    const r = await sb.from('trade_ideas').insert(idea);
+    if (r.error) flash('Save failed: '+r.error.message,'error');
+    else { flash('Trade idea saved.','success'); e.target.reset(); loadOpportunities(); }
+  }
 
   async function sendChat() {
     const input = $('chat-input');
@@ -865,32 +727,29 @@
     $('chat-log').scrollTop = $('chat-log').scrollHeight;
 
     try {
-      const r = await fetch(N8N + '/webhook/dna/chat', {
-        method: 'POST',
-        headers: { 'content-type':'application/json' },
-        body: JSON.stringify({ user_id: currentUser.id, message: text, surface: 'strategy', history: chatHistory.slice(-10) })
+      const resp = await fetch(N8N + '/webhook/dna/chat', {
+        method:'POST',
+        headers:{'content-type':'application/json'},
+        body: JSON.stringify({ user_id: currentUser.id, message: text, surface:'strategy', history: chatHistory.slice(-10) })
       });
       const t = document.getElementById('chat-typing');
       if (t) t.remove();
-      if (!r.ok) {
-        appendChat('error', 'Chat error: HTTP ' + r.status);
-        return;
-      }
+      if (!resp.ok) { appendChat('error','Chat error: HTTP '+resp.status); return; }
       let data = null;
-      try { data = await r.json(); } catch(e){ data = null; }
-      const reply = data?.reply || data?.message || data?.text || (typeof data === 'string' ? data : '') || 'No reply received.';
+      try { data = await resp.json(); } catch(e){ data=null; }
+      const reply = (data && (data.reply || data.message || data.text)) || (typeof data === 'string' ? data : '') || 'No reply received.';
       appendChat('assistant', reply);
-      chatHistory.push({ role:'assistant', content:reply });
+      chatHistory.push({ role:'assistant', content: reply });
     } catch(err) {
       const t = document.getElementById('chat-typing');
       if (t) t.remove();
-      appendChat('error', 'Chat failed: ' + (err.message || 'network error'));
+      appendChat('error', 'Chat failed: '+(err.message||'network error'));
     }
   }
 
   function appendChat(kind, text) {
     const d = document.createElement('div');
-    d.className = 'chat-msg ' + kind;
+    d.className = 'chat-msg '+kind;
     d.textContent = text;
     $('chat-log').appendChild(d);
     $('chat-log').scrollTop = $('chat-log').scrollHeight;
