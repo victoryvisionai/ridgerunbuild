@@ -163,7 +163,7 @@
   <div id="rr-nav-container"></div>
 
   <h1 class="page-title">Strategy</h1>
-  <p class="page-sub">AI recommendations + manual trade ideas, enriched with thesis models and live vol regime. Click any opportunity for full options chain and suggested structure.</p>
+  <p class="page-sub">Today's top 3 actionable trades from the recommendations engine, the monitoring queue, your manual ideas, and signals from tracked elite investors. Click any row for the full options chain and suggested structure.</p>
 
   <div id="msg-area"></div>
 
@@ -172,10 +172,37 @@
 
       <div class="banner-card">
         <div class="banner-head">
-          <h2>Active opportunities</h2>
-          <span class="banner-meta" id="opp-count">—</span>
+          <h2>Top 3 today</h2>
+          <span class="banner-meta" id="top3-meta">—</span>
         </div>
         <div class="banner-body">
+          <p class="h2-sub">Highest-conviction setups from the recommendations engine's daily ranking. These are actionable today — research the underlying business, then size and execute.</p>
+          <div id="top3-list" class="opp-list">
+            <div class="empty">Loading…</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="banner-card">
+        <div class="banner-head">
+          <h2>Monitoring queue</h2>
+          <span class="banner-meta" id="mon-meta">—</span>
+        </div>
+        <div class="banner-body">
+          <p class="h2-sub">Names worth watching but not actionable today. Each has a specific trigger to look for. When a trigger fires, promote to a trade idea.</p>
+          <div id="mon-list" class="opp-list">
+            <div class="empty">Loading…</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="banner-card">
+        <div class="banner-head">
+          <h2>My trade ideas</h2>
+          <span class="banner-meta" id="myideas-meta">—</span>
+        </div>
+        <div class="banner-body">
+          <p class="h2-sub">Manual ideas you've saved. Filter by opportunity type.</p>
           <div class="pill-row" id="type-pills">
             <button type="button" data-type="" class="active">All</button>
             <button type="button" data-type="asymmetric_leap">LEAPS</button>
@@ -186,8 +213,21 @@
             <button type="button" data-type="short_thesis">Short</button>
             <button type="button" data-type="distressed_credit">Distressed</button>
           </div>
-          <div id="opp-list" class="opp-list">
-            <div class="empty">Loading opportunities…</div>
+          <div id="myideas-list" class="opp-list">
+            <div class="empty">Loading…</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="banner-card">
+        <div class="banner-head">
+          <h2>Elite investor signals</h2>
+          <span class="banner-meta" id="sig-meta">13F filings · last 90d</span>
+        </div>
+        <div class="banner-body">
+          <p class="h2-sub">High-conviction positions from tracked investors (Druckenmiller, Klarman, Loeb, Buffett, etc.). Only holdings ≥1% of their portfolio shown. Click any to research.</p>
+          <div id="sig-list" class="opp-list">
+            <div class="empty">Loading…</div>
           </div>
         </div>
       </div>
@@ -195,7 +235,7 @@
       <div class="banner-card">
         <div class="banner-head">
           <h2>Vol scanner</h2>
-          <span class="banner-meta" id="vol-meta">All tracked tickers · ranked low → high</span>
+          <span class="banner-meta" id="vol-meta">Daily scan pool · low → high IV rank</span>
         </div>
         <div class="banner-body">
           <p class="h2-sub">Ranked by IV rank ascending. Cheap-vol names at the top are LEAPS candidates; rich-vol names at the bottom favor premium-selling structures.</p>
@@ -203,11 +243,10 @@
             <table>
               <thead>
                 <tr>
-                  <th>Ticker</th>
+                  <th>Ticker</th><th>Source</th>
                   <th style="text-align:right">Spot</th>
                   <th style="text-align:right">IV 30d</th>
                   <th style="text-align:right">IV 90d</th>
-                  <th style="text-align:right">IV 180d</th>
                   <th style="text-align:right">IV 365d</th>
                   <th style="text-align:right">HV 30d</th>
                   <th style="text-align:right">IV Rank</th>
@@ -229,7 +268,7 @@
           <span class="banner-meta">Defined-risk · $500 max loss target</span>
         </div>
         <div class="banner-body">
-          <p class="h2-sub">At $2K capital, prefer defined-risk options on quality compounders. LEAPS in cheap-IV names is the high-conviction template.</p>
+          <p class="h2-sub">Adding a new idea fires the research bootstrap for the ticker — fundamentals, options chain, vol, insider, and analyst data refresh in the background.</p>
           <form id="new-idea-form">
             <div class="form-grid-3">
               <div class="field"><label>Ticker</label><input type="text" name="ticker" placeholder="ADBE" required maxlength="8" style="text-transform:uppercase"></div>
@@ -245,10 +284,7 @@
                 </select>
               </div>
               <div class="field"><label>Direction</label>
-                <select name="direction">
-                  <option value="long">Long</option>
-                  <option value="short">Short</option>
-                </select>
+                <select name="direction"><option value="long">Long</option><option value="short">Short</option></select>
               </div>
             </div>
             <div class="form-grid-3">
@@ -321,7 +357,7 @@
   const cfg = window.RR_CONFIG || {};
   const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY);
   let currentUser = null;
-  let allOpps = [];
+  let top3 = [], monitoring = [], myIdeas = [], signals = [];
   let activeType = '';
   let chatHistory = [];
 
@@ -337,6 +373,23 @@
     if (kind !== 'error') setTimeout(function(){ $('msg-area').innerHTML=''; }, 6000);
   };
 
+  function fireBootstrapForTicker(ticker) {
+    fetch(N8N+'/webhook/research/bootstrap', {
+      method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ ticker: ticker })
+    }).then(function(r){
+      if (!r.ok && r.status === 404) {
+        ['historical/backfill','insider/sync','analyst/sync','options/snap','vol/backfill'].forEach(function(p){
+          fetch(N8N+'/webhook/'+p, {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ticker:ticker})}).catch(function(){});
+        });
+      }
+    }).catch(function(){
+      ['historical/backfill','insider/sync','analyst/sync','options/snap','vol/backfill'].forEach(function(p){
+        fetch(N8N+'/webhook/'+p, {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ticker:ticker})}).catch(function(){});
+      });
+    });
+  }
+
   (async () => {
     const r = await sb.auth.getSession();
     const session = r && r.data && r.data.session;
@@ -346,7 +399,7 @@
     show('app', true);
     try { if (window.RidgeRunNav) await window.RidgeRunNav.mount({active:'strategy', supabase:sb}); } catch(e){}
     wireEvents();
-    await Promise.all([loadOpportunities(), loadVolScanner()]);
+    await Promise.all([loadTop3(), loadMonitoring(), loadMyIdeas(), loadSignals(), loadVolScanner()]);
   })();
 
   function wireEvents() {
@@ -356,7 +409,7 @@
       document.querySelectorAll('#type-pills button').forEach(function(x){ x.classList.remove('active'); });
       b.classList.add('active');
       activeType = b.dataset.type || '';
-      renderOpps();
+      renderMyIdeas();
     });
     $('modal-close').addEventListener('click', closeModal);
     $('opp-modal').addEventListener('click', function(e){ if (e.target.id==='opp-modal') closeModal(); });
@@ -373,51 +426,95 @@
     document.body.style.overflow = '';
   }
 
-  async function loadOpportunities() {
-    const recsR = await sb.from('ai_recommendations')
+  async function loadTop3() {
+    // Pull today's actionable ai_recommendations
+    const since = new Date(Date.now()-18*3600*1000).toISOString();
+    const r = await sb.from('ai_recommendations')
       .select('id, ticker, opportunity_type, composite_score, recommended_action, structure, sizing_dollars, max_loss, reasoning, source_signals, generated_at, accepted, dismissed')
-      .eq('user_id', currentUser.id).eq('dismissed', false)
-      .order('composite_score', { ascending: false, nullsFirst: false }).limit(40);
-    const ideasR = await sb.from('trade_ideas')
+      .eq('user_id', currentUser.id).eq('dismissed', false).gte('generated_at', since)
+      .order('composite_score',{ascending:false,nullsFirst:false}).limit(3);
+    const data = r.data || [];
+    top3 = data.map(function(rec){
+      return { kind:'ai_rec', id:rec.id, ticker:rec.ticker,
+        opportunity_type: rec.opportunity_type || inferOppType(rec.structure||''),
+        title: (rec.structure || rec.recommended_action || 'Recommendation')+' on '+rec.ticker,
+        score: rec.composite_score, structure: rec.structure,
+        max_loss: rec.max_loss, sizing: rec.sizing_dollars,
+        reasoning: rec.reasoning, source:'ai' };
+    });
+    await enrichVol(top3);
+    renderTop3();
+  }
+
+  async function loadMonitoring() {
+    const r = await sb.from('trade_ideas')
+      .select('id, ticker, opportunity_type, direction, thesis, conviction, proposed_structure, status, source, created_at')
+      .eq('user_id', currentUser.id).eq('status','monitoring')
+      .order('created_at',{ascending:false}).limit(20);
+    const data = r.data || [];
+    monitoring = data.map(function(rec){
+      return { kind:'trade_idea', id:rec.id, ticker:rec.ticker,
+        opportunity_type: rec.opportunity_type || inferOppType(rec.proposed_structure||''),
+        title: (rec.proposed_structure || 'Monitor')+' '+rec.ticker,
+        score: rec.conviction != null ? rec.conviction * 20 : null,
+        structure: rec.proposed_structure, reasoning: rec.thesis,
+        direction: rec.direction, source:'engine' };
+    });
+    await enrichVol(monitoring);
+    renderMonitoring();
+  }
+
+  async function loadMyIdeas() {
+    const r = await sb.from('trade_ideas')
       .select('id, ticker, opportunity_type, direction, thesis, conviction, proposed_structure, proposed_strike, proposed_expiry, max_loss_dollars, status, source, created_at')
       .eq('user_id', currentUser.id).in('status', ['idea','sized','open'])
-      .order('created_at', { ascending: false }).limit(40);
-
-    if (recsR.error) flash('Recs error: '+recsR.error.message, 'error');
-    if (ideasR.error) flash('Ideas error: '+ideasR.error.message, 'error');
-
-    const recs = (recsR.data||[]).map(function(r){
-      return {
-        kind:'ai_rec', id:r.id, ticker:r.ticker,
-        opportunity_type: r.opportunity_type || inferOppType(r.structure||''),
-        title: (r.structure || r.recommended_action || 'Recommendation')+' on '+r.ticker,
-        score: r.composite_score, structure: r.structure,
-        sizing: r.sizing_dollars, max_loss: r.max_loss,
-        reasoning: r.reasoning, source: 'ai'
-      };
+      .order('created_at',{ascending:false}).limit(40);
+    const data = r.data || [];
+    myIdeas = data.map(function(rec){
+      return { kind:'trade_idea', id:rec.id, ticker:rec.ticker,
+        opportunity_type: rec.opportunity_type || inferOppType(rec.proposed_structure||''),
+        title: (rec.proposed_structure || 'Idea')+' on '+rec.ticker,
+        score: rec.conviction != null ? rec.conviction * 20 : null,
+        structure: rec.proposed_structure, strike: rec.proposed_strike, expiry: rec.proposed_expiry,
+        max_loss: rec.max_loss_dollars, reasoning: rec.thesis,
+        direction: rec.direction, source:'manual' };
     });
-    const ideas = (ideasR.data||[]).map(function(r){
-      return {
-        kind:'trade_idea', id:r.id, ticker:r.ticker,
-        opportunity_type: r.opportunity_type || inferOppType(r.proposed_structure||''),
-        title: (r.proposed_structure || 'Idea')+' on '+r.ticker,
-        score: r.conviction != null ? r.conviction * 20 : null,
-        structure: r.proposed_structure, strike: r.proposed_strike, expiry: r.proposed_expiry,
-        max_loss: r.max_loss_dollars, reasoning: r.thesis, direction: r.direction, source: 'manual'
-      };
-    });
-    allOpps = recs.concat(ideas);
+    await enrichVol(myIdeas);
+    renderMyIdeas();
+  }
 
-    const tickers = Array.from(new Set(allOpps.map(function(o){return o.ticker;}).filter(Boolean)));
-    if (tickers.length) {
-      const volR = await sb.from('v_latest_vol_strategy')
-        .select('ticker, vol_regime, term_structure, iv_rank_1y, iv_30d, spot, skew_signal')
-        .in('ticker', tickers);
-      const by = {};
-      (volR.data||[]).forEach(function(v){ by[v.ticker]=v; });
-      allOpps.forEach(function(o){ o.vol = by[o.ticker] || null; });
+  async function loadSignals() {
+    const since = new Date(Date.now()-90*86400000).toISOString();
+    const r = await sb.from('investor_signals')
+      .select('id, ticker, signal_type, position_size_usd, pct_of_portfolio, composite_score, notes, created_at, filing_id')
+      .eq('user_id', currentUser.id).gte('created_at', since)
+      .order('composite_score',{ascending:false,nullsFirst:false}).limit(15);
+    const data = r.data || [];
+    if (!data.length) {
+      $('sig-list').innerHTML = '<div class="empty">No 13F signals yet. Workflow 35 runs Friday 5pm ET.</div>';
+      $('sig-meta').textContent = '0 signals';
+      return;
     }
-    renderOpps();
+    signals = data.map(function(s){
+      return { kind:'signal', id:s.id, ticker:s.ticker || s.notes,
+        opportunity_type: 'core_holding',
+        title: (s.notes || '13F holding'),
+        score: s.composite_score, pct: s.pct_of_portfolio, size: s.position_size_usd,
+        source:'signal' };
+    });
+    await enrichVol(signals);
+    renderSignals();
+  }
+
+  async function enrichVol(arr) {
+    const tickers = Array.from(new Set(arr.map(function(o){return o.ticker;}).filter(Boolean)));
+    if (!tickers.length) return;
+    const volR = await sb.from('v_latest_vol_strategy')
+      .select('ticker, vol_regime, term_structure, iv_rank_1y, iv_30d, spot, skew_signal')
+      .in('ticker', tickers);
+    const by = {};
+    (volR.data||[]).forEach(function(v){ by[v.ticker]=v; });
+    arr.forEach(function(o){ o.vol = by[o.ticker] || null; });
   }
 
   function inferOppType(s) {
@@ -429,32 +526,58 @@
     return 'asymmetric_leap';
   }
 
-  function renderOpps() {
-    const filtered = activeType ? allOpps.filter(function(o){return o.opportunity_type === activeType;}) : allOpps;
-    $('opp-count').textContent = filtered.length + ' opportunity(s)';
-    if (!filtered.length) {
-      $('opp-list').innerHTML = '<div class="empty">No opportunities for this filter. Try another type or save a new idea below.</div>';
-      return;
-    }
-    $('opp-list').innerHTML = filtered.map(function(o, i){
-      const volBadge = (o.vol && o.vol.vol_regime) ? '<span class="badge '+volBadgeCls(o.vol.vol_regime)+'">'+esc(o.vol.vol_regime.replace(/_/g,' '))+'</span>' : '';
-      const typeBadge = '<span class="badge '+oppTypeCls(o.opportunity_type)+'">'+esc((o.opportunity_type||'').replace(/_/g,' '))+'</span>';
-      const sourceBadge = '<span class="badge src-'+o.source+'">'+(o.source==='ai'?'AI':'Manual')+'</span>';
-      const ivR = o.vol && o.vol.iv_rank_1y;
-      return '<div class="opp-row" data-idx="'+i+'">'
-        + '<div class="opp-ticker">'+esc(o.ticker)+'</div>'
-        + '<div><div class="opp-title">'+esc(o.title)+'</div>'
-        + '<div class="opp-meta">'+typeBadge+volBadge+sourceBadge
-        + (ivR!=null?'<span>IV rank '+Math.round(ivR)+'</span>':'')
-        + (o.vol && o.vol.spot!=null?'<span>Spot $'+fmt2(o.vol.spot)+'</span>':'')
-        + (o.max_loss!=null?'<span>Max loss '+fmt0(o.max_loss)+'</span>':'')
-        + '</div></div>'
-        + '<div class="opp-right"><div class="opp-score">'+(o.score!=null?'Score '+Math.round(o.score):'')+'</div>'
-        + '<div><button type="button" class="btn btn-sm btn-primary" data-action="open" data-idx="'+i+'">Details</button></div>'
-        + '</div></div>';
-    }).join('');
-    $('opp-list').querySelectorAll('.opp-row').forEach(function(row){
-      row.addEventListener('click', function(){ openOppModal(parseInt(row.dataset.idx,10)); });
+  function renderTop3() {
+    $('top3-meta').textContent = top3.length+' actionable';
+    if (!top3.length) { $('top3-list').innerHTML = '<div class="empty">No top-3 recs in last 18h. Engine v3 runs weekdays at 5:30am ET.</div>'; return; }
+    $('top3-list').innerHTML = top3.map(function(o,i){ return renderOppRow(o, 'top3', i); }).join('');
+    wireRowClicks('top3-list', top3);
+  }
+
+  function renderMonitoring() {
+    $('mon-meta').textContent = monitoring.length+' watching';
+    if (!monitoring.length) { $('mon-list').innerHTML = '<div class="empty">Nothing in the monitoring queue. Engine populates this daily with the next 10 names after the top 3.</div>'; return; }
+    $('mon-list').innerHTML = monitoring.map(function(o,i){ return renderOppRow(o, 'mon', i); }).join('');
+    wireRowClicks('mon-list', monitoring);
+  }
+
+  function renderMyIdeas() {
+    const filtered = activeType ? myIdeas.filter(function(o){return o.opportunity_type === activeType;}) : myIdeas;
+    $('myideas-meta').textContent = filtered.length+' / '+myIdeas.length;
+    if (!filtered.length) { $('myideas-list').innerHTML = '<div class="empty">No manual ideas for this filter. Add one below.</div>'; return; }
+    $('myideas-list').innerHTML = filtered.map(function(o,i){ return renderOppRow(o, 'mine', i); }).join('');
+    wireRowClicks('myideas-list', filtered);
+  }
+
+  function renderSignals() {
+    $('sig-meta').textContent = signals.length+' signals · 90d';
+    $('sig-list').innerHTML = signals.map(function(o,i){ return renderOppRow(o, 'sig', i); }).join('');
+    wireRowClicks('sig-list', signals);
+  }
+
+  function renderOppRow(o, prefix, i) {
+    const volBadge = (o.vol && o.vol.vol_regime) ? '<span class="badge '+volBadgeCls(o.vol.vol_regime)+'">'+esc(o.vol.vol_regime.replace(/_/g,' '))+'</span>' : '';
+    const typeBadge = '<span class="badge '+oppTypeCls(o.opportunity_type)+'">'+esc((o.opportunity_type||'').replace(/_/g,' '))+'</span>';
+    const sourceBadge = o.source ? '<span class="badge src-'+esc(o.source)+'">'+(o.source==='ai'?'AI':o.source==='engine'?'Engine':o.source==='signal'?'13F':'Manual')+'</span>' : '';
+    const ivR = o.vol && o.vol.iv_rank_1y;
+    const metaParts = [];
+    if (ivR != null) metaParts.push('<span>IV rank '+Math.round(ivR)+'</span>');
+    if (o.vol && o.vol.spot != null) metaParts.push('<span>Spot $'+fmt2(o.vol.spot)+'</span>');
+    if (o.max_loss != null) metaParts.push('<span>Max loss '+fmt0(o.max_loss)+'</span>');
+    if (o.pct != null) metaParts.push('<span>'+(o.pct*100).toFixed(1)+'% of portfolio</span>');
+    if (o.size != null && o.size > 0) metaParts.push('<span>'+fmt0(o.size)+' position</span>');
+    return '<div class="opp-row" data-prefix="'+prefix+'" data-idx="'+i+'">'
+      + '<div class="opp-ticker">'+esc(o.ticker || '?')+'</div>'
+      + '<div><div class="opp-title">'+esc(o.title || '')+'</div>'
+      + '<div class="opp-meta">'+typeBadge+volBadge+sourceBadge+metaParts.join('')+'</div></div>'
+      + '<div class="opp-right">'
+      + '<div class="opp-score">'+(o.score!=null?'Score '+Math.round(o.score):'')+'</div>'
+      + '<div><button type="button" class="btn btn-sm btn-primary">Details</button></div>'
+      + '</div></div>';
+  }
+
+  function wireRowClicks(listId, arr) {
+    $(listId).querySelectorAll('.opp-row').forEach(function(row){
+      row.addEventListener('click', function(){ openOppModal(arr, parseInt(row.dataset.idx, 10)); });
     });
   }
 
@@ -467,23 +590,22 @@
     return 'neutral';
   }
   function oppTypeCls(t) {
-    const map = {
-      asymmetric_leap:'opp-leap', special_situation_arbitrage:'opp-arb',
+    const map = { asymmetric_leap:'opp-leap', special_situation_arbitrage:'opp-arb',
       pair_trade:'opp-pair', core_holding:'opp-core', core_holding_hy_etf:'opp-core',
-      short_thesis:'opp-short', earnings_play:'opp-earn', distressed_credit:'opp-distr'
-    };
+      short_thesis:'opp-short', earnings_play:'opp-earn', distressed_credit:'opp-distr' };
     return map[t] || 'neutral';
   }
 
-  async function openOppModal(idx) {
-    const filtered = activeType ? allOpps.filter(function(o){return o.opportunity_type === activeType;}) : allOpps;
-    const opp = filtered[idx];
-    if (!opp) return;
+  async function openOppModal(arr, idx) {
+    const opp = arr[idx];
+    if (!opp || !opp.ticker) return;
     $('modal-title').textContent = opp.ticker + ' · ' + (opp.title || '');
     $('modal-body').innerHTML = renderModalBody(opp);
     $('opp-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
     wireModalActions(opp);
+    // Fire bootstrap to refresh data while user reads
+    fireBootstrapForTicker(opp.ticker);
     await loadModalOptions(opp);
     await loadStrategyFit(opp);
   }
@@ -524,7 +646,7 @@
       + '<th style="text-align:right">Bid</th><th style="text-align:right">Ask</th><th style="text-align:right">Last</th>'
       + '<th style="text-align:right">IV</th><th style="text-align:right">Δ</th><th style="text-align:right">Γ</th><th style="text-align:right">Θ</th><th style="text-align:right">ν</th>'
       + '<th style="text-align:right">OI</th><th style="text-align:right">Vol</th>'
-      + '</tr></thead><tbody id="m-tbody"><tr><td colspan="13" class="empty">Loading chain…</td></tr></tbody></table></div>'
+      + '</tr></thead><tbody id="m-tbody"><tr><td colspan="13" class="empty">Loading chain… (bootstrap webhook fired — data populates within ~30s)</td></tr></tbody></table></div>'
       + '</div>'
       + '<div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">'
       + '<a class="btn btn-ghost" href="/research.html?ticker='+esc(o.ticker)+'" style="text-decoration:none">Open research →</a>'
@@ -532,7 +654,9 @@
       + (o.kind === 'ai_rec'
           ? '<button type="button" class="btn btn-success" data-modal-action="accept">Mark accepted</button>'
             + '<button type="button" class="btn btn-danger" data-modal-action="dismiss">Dismiss</button>'
-          : '<button type="button" class="btn btn-danger" data-modal-action="remove">Remove idea</button>')
+          : o.kind === 'trade_idea'
+          ? '<button type="button" class="btn btn-danger" data-modal-action="remove">Remove idea</button>'
+          : '')
       + '</div>';
   }
 
@@ -543,17 +667,17 @@
         if (action === 'accept') {
           const r = await sb.from('ai_recommendations').update({ accepted:true, accepted_at:new Date().toISOString() }).eq('id', o.id);
           if (r.error) flash('Accept failed: '+r.error.message,'error');
-          else { flash('Marked accepted','success'); closeModal(); loadOpportunities(); }
+          else { flash('Marked accepted','success'); closeModal(); loadTop3(); }
         } else if (action === 'dismiss') {
           const reason = prompt('Reason for dismissing (optional):') || '';
           const r = await sb.from('ai_recommendations').update({ dismissed:true, dismissed_at:new Date().toISOString(), dismissed_reason:reason }).eq('id', o.id);
           if (r.error) flash('Dismiss failed: '+r.error.message,'error');
-          else { flash('Dismissed','success'); closeModal(); loadOpportunities(); }
+          else { flash('Dismissed','success'); closeModal(); loadTop3(); }
         } else if (action === 'remove') {
           if (!confirm('Remove this trade idea?')) return;
           const r = await sb.from('trade_ideas').delete().eq('id', o.id);
           if (r.error) flash('Remove failed: '+r.error.message,'error');
-          else { flash('Removed','success'); closeModal(); loadOpportunities(); }
+          else { flash('Removed','success'); closeModal(); loadMyIdeas(); loadMonitoring(); }
         }
       });
     });
@@ -565,10 +689,9 @@
       .select('expiry, strike, side, bid, ask, last, volume, open_interest, iv, delta, gamma, theta, vega, underlying_price, as_of_date')
       .eq('ticker', o.ticker).gte('as_of_date', fiveDaysAgo)
       .order('expiry',{ascending:true}).order('strike',{ascending:true}).limit(2000);
-
     if (r.error || !r.data || !r.data.length) {
-      $('m-tbody').innerHTML = '<tr><td colspan="13" class="empty">No recent chain data. Open research and click "Refresh data" to backfill.</td></tr>';
-      $('opt-meta').textContent = r.error ? 'Error' : 'No data';
+      $('m-tbody').innerHTML = '<tr><td colspan="13" class="empty">No recent chain data yet. Bootstrap webhook was fired — refresh modal in ~30s.</td></tr>';
+      $('opt-meta').textContent = r.error ? 'Error' : 'No data — bootstrap firing';
       return;
     }
     const latestDate = r.data.reduce(function(m,rw){return rw.as_of_date>m?rw.as_of_date:m;},'');
@@ -593,10 +716,7 @@
         if (minOI > 0 && (rw.open_interest||0) < minOI) return false;
         return true;
       });
-      if (!rows.length) {
-        $('m-tbody').innerHTML = '<tr><td colspan="13" class="empty">No contracts match filters.</td></tr>';
-        return;
-      }
+      if (!rows.length) { $('m-tbody').innerHTML = '<tr><td colspan="13" class="empty">No contracts match filters.</td></tr>'; return; }
       const grouped = {};
       rows.forEach(function(rw){ (grouped[rw.expiry]=grouped[rw.expiry]||[]).push(rw); });
       const atmByExp = {};
@@ -607,9 +727,7 @@
       $('m-tbody').innerHTML = rows.map(function(rw){
         const isATM = spot && rw.strike === atmByExp[rw.expiry];
         return '<tr class="'+(isATM?'atm':'')+'">'
-          + '<td>'+esc(rw.expiry)+'</td>'
-          + '<td class="num">'+fmt2(rw.strike)+'</td>'
-          + '<td>'+esc(rw.side||'')+'</td>'
+          + '<td>'+esc(rw.expiry)+'</td><td class="num">'+fmt2(rw.strike)+'</td><td>'+esc(rw.side||'')+'</td>'
           + '<td class="num">'+(rw.bid!=null?fmt2(rw.bid):'—')+'</td>'
           + '<td class="num">'+(rw.ask!=null?fmt2(rw.ask):'—')+'</td>'
           + '<td class="num">'+(rw.last!=null?fmt2(rw.last):'—')+'</td>'
@@ -631,7 +749,6 @@
   }
 
   async function loadStrategyFit(o) {
-    // FIX: param name is p_ticker
     const r = await sb.rpc('get_option_strategies', { p_ticker: o.ticker });
     if (r.error || !r.data || !r.data.strategies || !r.data.strategies.length) return;
     const top = r.data.strategies[0];
@@ -646,22 +763,16 @@
 
   async function loadVolScanner() {
     const tbody = $('vol-tbody');
-    let tickers = [];
-    const tr = await sb.rpc('tracked_tickers', { p_user: currentUser.id });
-    if (!tr.error && tr.data) {
-      tickers = Array.from(new Set((tr.data||[]).map(function(r){return r.ticker;}).filter(Boolean)));
-    }
-    if (!tickers.length) {
-      const wl = await sb.from('ticker_watchlist').select('ticker').eq('user_id', currentUser.id).eq('is_active', true);
-      tickers = Array.from(new Set((wl.data||[]).map(function(r){return r.ticker;}).filter(Boolean)));
-    }
-    if (!tickers.length) {
-      tbody.innerHTML = '<tr><td colspan="12" class="empty">No tracked tickers. Add to watchlist to populate.</td></tr>';
-      return;
-    }
+    // Use daily scan pool RPC
+    const poolR = await sb.rpc('get_daily_scan_pool', { p_user_id: currentUser.id });
+    const pool = poolR.data || [];
+    if (!pool.length) { tbody.innerHTML = '<tr><td colspan="12" class="empty">Empty scan pool.</td></tr>'; return; }
+    const sourceBy = {};
+    pool.forEach(function(p){ sourceBy[p.ticker] = p.source; });
+    const tickers = pool.map(function(p){return p.ticker;});
     const vr = await sb.from('v_latest_vol_strategy').select('*').in('ticker', tickers);
     if (vr.error || !vr.data || !vr.data.length) {
-      tbody.innerHTML = '<tr><td colspan="12" class="empty">No vol data yet.'+(vr.error?' '+esc(vr.error.message):'')+'</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="12" class="empty">No vol data yet. Workflow 33 (Daily Vol Scan) runs weekdays at 5am ET.'+(vr.error?' Err: '+esc(vr.error.message):'')+'</td></tr>';
       return;
     }
     const sorted = vr.data.slice().sort(function(a,b){
@@ -669,13 +780,13 @@
       const br = b.iv_rank_1y == null ? 9999 : Number(b.iv_rank_1y);
       return ar - br;
     });
-    $('vol-meta').textContent = sorted.length+' tickers · low → high IV rank';
+    $('vol-meta').textContent = sorted.length+' tickers from scan pool · low → high IV rank';
     tbody.innerHTML = sorted.map(function(v){
       return '<tr><td><a href="/research.html?ticker='+esc(v.ticker)+'" style="color:var(--accent);text-decoration:none;font-weight:600">'+esc(v.ticker)+'</a></td>'
+        + '<td><span class="badge neutral">'+esc(sourceBy[v.ticker]||'?')+'</span></td>'
         + '<td class="num">'+(v.spot!=null?fmt2(v.spot):'—')+'</td>'
         + '<td class="num">'+(v.iv_30d!=null?fmtPct(v.iv_30d):'—')+'</td>'
         + '<td class="num">'+(v.iv_90d!=null?fmtPct(v.iv_90d):'—')+'</td>'
-        + '<td class="num">'+(v.iv_180d!=null?fmtPct(v.iv_180d):'—')+'</td>'
         + '<td class="num">'+(v.iv_365d!=null?fmtPct(v.iv_365d):'—')+'</td>'
         + '<td class="num">'+(v.hv_30d!=null?fmtPct(v.hv_30d):'—')+'</td>'
         + '<td class="num">'+(v.iv_rank_1y!=null?Math.round(v.iv_rank_1y):'—')+'</td>'
@@ -693,8 +804,7 @@
     const ticker = (fd.get('ticker')||'').trim().toUpperCase();
     if (!ticker) return;
     const idea = {
-      user_id: currentUser.id,
-      ticker: ticker,
+      user_id: currentUser.id, ticker: ticker,
       opportunity_type: fd.get('opportunity_type'),
       direction: fd.get('direction'),
       proposed_structure: fd.get('structure'),
@@ -703,12 +813,16 @@
       max_loss_dollars: fd.get('max_loss') ? Number(fd.get('max_loss')) : null,
       thesis: fd.get('thesis') || null,
       conviction: fd.get('conviction') ? Number(fd.get('conviction')) : 3,
-      status: 'idea',
-      source: 'strategy_page'
+      status: 'idea', source: 'strategy_page'
     };
     const r = await sb.from('trade_ideas').insert(idea);
     if (r.error) flash('Save failed: '+r.error.message,'error');
-    else { flash('Trade idea saved.','success'); e.target.reset(); loadOpportunities(); }
+    else {
+      flash('Idea saved for '+ticker+'. Firing research bootstrap…','success');
+      fireBootstrapForTicker(ticker);
+      e.target.reset();
+      loadMyIdeas();
+    }
   }
 
   async function sendChat() {
@@ -718,22 +832,16 @@
     appendChat('user', text);
     input.value = '';
     chatHistory.push({ role:'user', content:text });
-
     const typing = document.createElement('div');
-    typing.className = 'chat-typing';
-    typing.textContent = 'Ridge Run is thinking…';
-    typing.id = 'chat-typing';
+    typing.className = 'chat-typing'; typing.textContent = 'Ridge Run is thinking…'; typing.id = 'chat-typing';
     $('chat-log').appendChild(typing);
     $('chat-log').scrollTop = $('chat-log').scrollHeight;
-
     try {
       const resp = await fetch(N8N + '/webhook/dna/chat', {
-        method:'POST',
-        headers:{'content-type':'application/json'},
+        method:'POST', headers:{'content-type':'application/json'},
         body: JSON.stringify({ user_id: currentUser.id, message: text, surface:'strategy', history: chatHistory.slice(-10) })
       });
-      const t = document.getElementById('chat-typing');
-      if (t) t.remove();
+      const t = document.getElementById('chat-typing'); if (t) t.remove();
       if (!resp.ok) { appendChat('error','Chat error: HTTP '+resp.status); return; }
       let data = null;
       try { data = await resp.json(); } catch(e){ data=null; }
@@ -741,8 +849,7 @@
       appendChat('assistant', reply);
       chatHistory.push({ role:'assistant', content: reply });
     } catch(err) {
-      const t = document.getElementById('chat-typing');
-      if (t) t.remove();
+      const t = document.getElementById('chat-typing'); if (t) t.remove();
       appendChat('error', 'Chat failed: '+(err.message||'network error'));
     }
   }
