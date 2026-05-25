@@ -4,101 +4,108 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Investor DNA · Ridge Run</title>
+<script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/themes.css" />
 <style>
-  :root{--bg:#fff;--bg-tint:#f8fafc;--bg-blue:#eff6ff;--bg-blue-soft:#f0f7ff;--border:#e2e8f0;--border-blue:#bfdbfe;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;--accent:#2563eb;--accent-dark:#1e40af;--success:#059669;--success-bg:#d1fae5;--warning:#d97706;--warning-bg:#fed7aa;--danger:#dc2626;--danger-bg:#fee2e2;--serif:'Source Serif 4',Georgia,serif;--sans:'Inter',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace}
-  *{box-sizing:border-box} html,body{margin:0;padding:0}
-  body{background:var(--bg-tint);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh}
-  .hidden{display:none!important}
-  .loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim)}
-  .shell{max-width:1100px;margin:0 auto;padding:0 24px 80px}
-  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:8px;flex-wrap:wrap;gap:12px}
-  .brand{display:flex;align-items:center;gap:12px}
-  .brand-mark{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--accent);letter-spacing:-0.02em}
-  .brand-name{font-family:var(--mono);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted)}
-  .nav-tabs{display:flex;gap:4px;flex-wrap:wrap}
-  .nav-tabs a{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;padding:6px 10px;border-radius:3px;border:1px solid transparent}
-  .nav-tabs a:hover{color:var(--text);background:var(--bg)} .nav-tabs a.active{color:var(--accent);background:var(--bg-blue);border-color:var(--border-blue)}
-  .user-meta{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:11px;color:var(--text-muted)}
-  .signout{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;background:transparent;border:1px solid var(--border);padding:6px 10px;border-radius:3px}
-  .signout:hover{border-color:var(--text-dim);color:var(--text-muted)}
-  h1.page-title{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-0.02em;margin:24px 0 6px}
-  .page-sub{color:var(--text-muted);margin:0 0 28px}
-  .card{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:24px;margin-bottom:20px}
-  .card h2{font-family:var(--serif);font-size:19px;font-weight:500;letter-spacing:-0.015em;margin:0 0 4px}
-  .card .h2-sub{color:var(--text-muted);font-size:13px;margin:0 0 18px}
-  .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:10px 16px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500;transition:all .15s}
-  .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)} .btn-primary:disabled{opacity:.5;cursor:wait}
-  .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
-  .summary-prose{font-family:var(--serif);font-size:16px;line-height:1.65;color:var(--text)}
-  .summary-prose p{margin:0 0 12px}
-  .item-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
-  .item{padding:14px 16px;border-radius:4px;background:var(--bg-tint);border:1px solid var(--border)}
-  .item .t{font-weight:500;color:var(--text);margin-bottom:4px}
-  .item .e{font-size:13px;color:var(--text-muted);line-height:1.5}
-  .item.strength{border-left:3px solid var(--success);background:var(--success-bg)}
-  .item.weakness{border-left:3px solid var(--danger);background:var(--danger-bg)}
-  .item.pattern{border-left:3px solid var(--accent);background:var(--bg-blue)}
-  .item.rec{border-left:3px solid var(--warning);background:var(--warning-bg)}
-  .pill{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:3px;margin-left:6px;background:var(--bg);border:1px solid var(--border);color:var(--text-muted)}
-  .pill.high{background:#fee2e2;border-color:#fecaca;color:#991b1b}
-  .pill.medium{background:#fef3c7;border-color:#fde68a;color:#92400e}
-  .pill.low{background:var(--bg-tint);color:var(--text-muted)}
-  .policy{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  .policy .p{padding:12px;background:var(--bg-tint);border:1px solid var(--border);border-radius:4px}
-  .policy .p .l{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
-  .policy .p .v{font-family:var(--mono);font-size:18px;color:var(--text);font-weight:500}
-  .policy .p .v.list{font-size:12px;line-height:1.6}
-  .empty{padding:40px 20px;text-align:center;color:var(--text-muted)}
-  .empty .big{font-family:var(--serif);font-size:22px;font-weight:500;margin-bottom:10px;color:var(--text)}
-  .msg{padding:10px 14px;font-size:13px;border-radius:4px;line-height:1.5;margin:10px 0}
-  .msg-error{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
-  .msg-success{background:var(--success-bg);border:1px solid #a7f3d0;color:#065f46}
-  .msg-info{background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--accent-dark)}
-  @media (max-width:720px){.item-grid{grid-template-columns:1fr}.policy{grid-template-columns:1fr 1fr}}
+  .dna-section { margin-bottom: 18px; }
+  .dna-section h3 { font-family:var(--serif); font-size:16px; font-weight:600; margin:0 0 8px; color:var(--text); }
+  .tag-row { display:flex; gap:6px; flex-wrap:wrap; }
+  .tag { font-family:var(--mono); font-size:10px; letter-spacing:0.08em; padding:4px 10px; border-radius:3px; background:var(--bg-tint); border:1px solid var(--border); color:var(--text-muted); }
+  .tag.strength { background:var(--success-bg); color:#065f46; border-color:#a7f3d0; }
+  .tag.weakness { background:var(--warning-bg); color:#92400e; border-color:#fcd34d; }
+  .tag.warning { background:var(--danger-bg); color:#991b1b; border-color:#fecaca; }
+  .guardrail-row { padding:10px 12px; background:var(--bg-tint); border-left:3px solid var(--danger); border-radius:4px; margin-bottom:6px; font-size:12px; }
+  .guardrail-row.soft { border-left-color:var(--warning); }
 </style>
 </head>
 <body>
 
+<div id="rr-nav-container"></div>
+
 <div id="loading-screen" class="loading">Loading DNA…</div>
 
 <div id="app" class="shell hidden">
-  <div class="topbar">
-    <div class="brand"><span class="brand-mark">RR</span><span class="brand-name">Ridge Run</span></div>
-    <nav class="nav-tabs">
-      <a href="/dashboard.html">Dashboard</a>
-      <a href="/dna.html" class="active">Investor DNA</a>
-      <a href="/performance.html">Performance</a>
-      <a href="/watchlist.html">Watchlist</a><a href="/strategy.html">Strategy</a><a href="/research.html">Research</a><a href="/screener.html">Screener</a>
-      <a href="/ai.html">Ask AI</a>
-    </nav>
-    <div class="user-meta">
-      <span id="user-email"></span>
-      <button class="signout" id="signout-btn">Sign out</button>
-    </div>
-  </div>
 
-  <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-top:24px">
-    <div>
-      <h1 class="page-title" style="margin-top:0">Investor DNA</h1>
-      <p class="page-sub" style="margin:0">Synthesized from your onboarding answers and your actual trading history.</p>
-    </div>
-    <button class="btn btn-primary" id="regen-btn">Regenerate DNA</button>
-  </div>
+  <h1 class="page-title">Investor DNA</h1>
+  <p class="page-sub">Your edges, failure modes, and active guardrails. Drives every AI recommendation.</p>
 
   <div id="msg-area"></div>
 
-  <div id="dna-content"></div>
+  <div class="banner-card">
+    <div class="banner-head">
+      <h2>Profile summary</h2>
+      <span class="banner-meta" id="dna-version">--</span>
+    </div>
+    <div class="banner-body">
+      <div id="dna-summary" style="font-size:13px; line-height:1.65;"><div class="empty">No DNA generated yet.</div></div>
+    </div>
+  </div>
+
+  <div class="banner-card">
+    <div class="banner-head">
+      <h2>Strengths</h2>
+      <span class="banner-meta">Patterns that worked</span>
+    </div>
+    <div class="banner-body">
+      <div id="dna-strengths"><div class="empty">--</div></div>
+    </div>
+  </div>
+
+  <div class="banner-card">
+    <div class="banner-head">
+      <h2>Weaknesses & failure modes</h2>
+      <span class="banner-meta">Patterns that hurt</span>
+    </div>
+    <div class="banner-body">
+      <div id="dna-weaknesses"><div class="empty">--</div></div>
+    </div>
+  </div>
+
+  <div class="banner-card">
+    <div class="banner-head">
+      <h2>Behavioral warnings</h2>
+      <span class="banner-meta">Real-time triggers</span>
+    </div>
+    <div class="banner-body">
+      <div id="dna-warnings"><div class="empty">--</div></div>
+    </div>
+  </div>
+
+  <div class="banner-card">
+    <div class="banner-head">
+      <h2>Active guardrails</h2>
+      <span class="banner-meta">Hard + soft policy</span>
+    </div>
+    <div class="banner-body">
+      <p class="h2-sub">Hard limits block AI recommendations. Soft limits require approval. Editable via DNA chat or by re-running onboarding.</p>
+      <div id="dna-guardrails"><div class="empty">--</div></div>
+    </div>
+  </div>
+
+  <div class="banner-card">
+    <div class="banner-head">
+      <h2>Onboarding history</h2>
+      <span class="banner-meta">Question-by-question responses</span>
+    </div>
+    <div class="banner-body">
+      <p class="h2-sub">Want to re-take onboarding? <a href="/onboarding.html" style="color:var(--accent)">Start over →</a></p>
+      <div id="dna-responses"><div class="empty">--</div></div>
+    </div>
+  </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/config.js"></script>
+<script src="/nav.js"></script>
 <script>
 (() => {
-const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, N8N_GENERATE_DNA_URL } = window.RR_CONFIG;
+const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = window.RR_CONFIG;
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-let currentUser=null;
+let currentUser = null;
+
 const $ = id => document.getElementById(id);
 const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
 const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -107,79 +114,63 @@ const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>
   const { data:{ session } } = await sb.auth.getSession();
   if(!session?.user){ window.location.href='/index.html'; return; }
   currentUser = session.user;
-  $('user-email').textContent = currentUser.email || '';
-  show('loading-screen',false); show('app',true);
-  await load();
+  await window.RidgeRunNav.mount({ active: 'dna', supabase: sb });
+  show('loading-screen', false);
+  show('app', true);
+  await Promise.all([loadDNA(), loadGuardrails(), loadResponses()]);
 })();
 
-$('signout-btn').addEventListener('click', async()=>{ await sb.auth.signOut(); window.location.href='/index.html'; });
-$('regen-btn').addEventListener('click', regenerate);
-
-async function load(){
-  const [{ data: dna }, { data: guard }] = await Promise.all([
-    sb.from('investor_dna').select('*').eq('user_id',currentUser.id).eq('is_active',true).order('version',{ascending:false}).limit(1).maybeSingle(),
-    sb.from('guardrail_policies').select('*').eq('user_id',currentUser.id).eq('is_active',true).order('version',{ascending:false}).limit(1).maybeSingle()
-  ]);
-  const root = $('dna-content');
-  if(!dna){
-    root.innerHTML = `<div class="card empty"><div class="big">No DNA yet</div><p>Generate your investor DNA from your onboarding answers and trade history.</p><button class="btn btn-primary" onclick="document.getElementById('regen-btn').click()">Generate now</button></div>`;
-    return;
-  }
-  const policy = guard?.policy || {};
-  const rationale = Array.isArray(guard?.rationale) ? guard.rationale : [];
-
-  const sumHtml = `
-    <div class="card">
-      <h2>Summary</h2>
-      <p class="h2-sub">Generated ${new Date(dna.generated_at).toLocaleString()} · version ${dna.version}</p>
-      <div class="summary-prose">${(dna.summary||'').split('\n').filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('')}</div>
-    </div>`;
-
-  const renderList = (items, cls) => items.length ? `<div class="item-grid">${items.map(it=>`<div class="item ${cls}"><div class="t">${esc(it.title||'')}${it.priority?`<span class="pill ${esc(it.priority)}">${esc(it.priority)}</span>`:''}${it.category?`<span class="pill">${esc(it.category)}</span>`:''}</div><div class="e">${esc(it.evidence||it.detail||'')}</div></div>`).join('')}</div>` : '<div class="empty">None identified.</div>';
-
-  const strengthsHtml = `<div class="card"><h2>Strengths</h2><p class="h2-sub">What's working in your trading.</p>${renderList(dna.strengths||[],'strength')}</div>`;
-  const weakHtml      = `<div class="card"><h2>Weaknesses</h2><p class="h2-sub">Repeated mistakes the guardrails should prevent.</p>${renderList(dna.weaknesses||[],'weakness')}</div>`;
-  const patternsHtml  = `<div class="card"><h2>Patterns</h2><p class="h2-sub">Recurring behaviors found in your trade history.</p>${renderList(dna.patterns||[],'pattern')}</div>`;
-  const recsHtml      = `<div class="card"><h2>Recommendations</h2><p class="h2-sub">Personalized actions ranked by priority.</p>${renderList(dna.recommendations||[],'rec')}</div>`;
-
-  const policyItems = [
-    { l:'Max single name',     v: policy.max_single_name_pct!=null?policy.max_single_name_pct+'%':'—' },
-    { l:'Max options premium', v: policy.max_options_premium_pct!=null?policy.max_options_premium_pct+'%':'—' },
-    { l:'Max leverage',        v: policy.max_leverage!=null?policy.max_leverage+'x':'—' },
-    { l:'Do not trade',        v: (policy.do_not_trade||[]).join(', ')||'—', cls:'list' },
-    { l:'Require approval',    v: (policy.require_approval||[]).join(', ')||'—', cls:'list' },
-    { l:'Autonomous allowed',  v: (policy.autonomous_allowed||[]).join(', ')||'—', cls:'list' }
-  ];
-  const policyHtml = `
-    <div class="card">
-      <h2>Guardrail Policy</h2>
-      <p class="h2-sub">Hard rules derived from your DNA. These constrain what the system can do.</p>
-      <div class="policy">
-        ${policyItems.map(i=>`<div class="p"><div class="l">${esc(i.l)}</div><div class="v ${i.cls||''}">${esc(i.v)}</div></div>`).join('')}
-      </div>
-      ${(policy.alerts||[]).length?`<div style="margin-top:18px"><div style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Alert triggers</div>${(policy.alerts||[]).map(a=>`<div class="item pattern" style="margin-bottom:8px"><div class="t">${esc(a.trigger||'')}</div><div class="e">${esc(a.action||'')}</div></div>`).join('')}</div>`:''}
-      ${rationale.length?`<div style="margin-top:18px"><div style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Why these rules</div>${rationale.map(r=>`<div class="item" style="margin-bottom:6px"><div class="t">${esc(r.rule||'')}</div><div class="e">${esc(r.why||'')}</div></div>`).join('')}</div>`:''}
-    </div>`;
-
-  root.innerHTML = sumHtml + policyHtml + patternsHtml + strengthsHtml + weakHtml + recsHtml;
+async function loadDNA(){
+  const { data } = await sb.from('investor_dna').select('*').eq('user_id', currentUser.id).eq('is_active', true).order('generated_at',{ascending:false}).limit(1).maybeSingle();
+  if(!data){ $('dna-summary').innerHTML = '<div class="empty">No DNA generated. Complete onboarding first.</div>'; return; }
+  $('dna-version').textContent = 'v' + (data.version||1) + ' · ' + new Date(data.generated_at).toLocaleDateString();
+  $('dna-summary').innerHTML = esc(data.summary||'(no summary)').replace(/\n/g,'<br>');
+  renderTagList('dna-strengths', data.strengths, 'strength');
+  renderTagList('dna-weaknesses', data.weaknesses, 'weakness');
+  renderTagList('dna-warnings', data.behavioral_warnings, 'warning');
 }
 
-async function regenerate(){
-  if(!N8N_GENERATE_DNA_URL){ flash('Set N8N_GENERATE_DNA_URL in config.js to enable DNA generation.','error'); return; }
-  $('regen-btn').disabled=true; $('regen-btn').textContent='Generating…';
-  flash('Generating DNA. This typically takes 30–90 seconds.','info');
-  try{
-    const resp = await fetch(N8N_GENERATE_DNA_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ user_id: currentUser.id })});
-    if(!resp.ok) throw new Error('Webhook returned '+resp.status);
-    await resp.json().catch(()=>({}));
-    flash('DNA generated. Reloading…','success');
-    setTimeout(()=>window.location.reload(),900);
-  } catch(err){
-    flash('Generation failed: '+err.message,'error');
-    $('regen-btn').disabled=false; $('regen-btn').textContent='Regenerate DNA';
-  }
+function renderTagList(id, items, klass){
+  const out = $(id);
+  if(!items || !items.length){ out.innerHTML = '<div class="empty">--</div>'; return; }
+  // items can be array of strings or array of objects
+  const list = Array.isArray(items) ? items : [items];
+  const flat = list.map(x => typeof x === 'string' ? x : (x.label || x.text || x.name || JSON.stringify(x)));
+  out.innerHTML = '<div class="tag-row">' + flat.map(t => `<span class="tag ${klass}">${esc(t)}</span>`).join('') + '</div>';
 }
-function flash(text,kind){ $('msg-area').innerHTML = `<div class="msg msg-${kind}">${esc(text)}</div>`; }
+
+async function loadGuardrails(){
+  const { data } = await sb.from('guardrail_policies').select('*').eq('user_id', currentUser.id).eq('is_active', true).order('created_at',{ascending:false}).limit(1).maybeSingle();
+  if(!data){ $('dna-guardrails').innerHTML = '<div class="empty">No guardrails set.</div>'; return; }
+  const out = $('dna-guardrails');
+  let html = '';
+  const hard = data.hard_limits || data.policy?.hard_limits || [];
+  const soft = data.soft_limits || data.policy?.soft_limits || [];
+  if(Array.isArray(hard) && hard.length){
+    html += '<h3 class="h2-sub" style="font-family:var(--serif); font-size:14px; margin:0 0 8px; color:var(--danger)">Hard limits</h3>';
+    html += hard.map(h => `<div class="guardrail-row">${esc(typeof h === 'string' ? h : (h.rule || h.label || JSON.stringify(h)))}</div>`).join('');
+  }
+  if(Array.isArray(soft) && soft.length){
+    html += '<h3 class="h2-sub" style="font-family:var(--serif); font-size:14px; margin:14px 0 8px; color:var(--warning)">Soft limits</h3>';
+    html += soft.map(h => `<div class="guardrail-row soft">${esc(typeof h === 'string' ? h : (h.rule || h.label || JSON.stringify(h)))}</div>`).join('');
+  }
+  if(!html) html = '<div class="empty">No specific limits set.</div>';
+  out.innerHTML = html;
+}
+
+async function loadResponses(){
+  const { data } = await sb.from('onboarding_responses').select('*').eq('user_id', currentUser.id).order('answered_at',{ascending:false}).limit(40);
+  const out = $('dna-responses');
+  if(!data || !data.length){ out.innerHTML = '<div class="empty">No responses recorded yet.</div>'; return; }
+  out.innerHTML = data.map(r => {
+    const ans = typeof r.answer === 'string' ? r.answer : JSON.stringify(r.answer);
+    return `<div style="padding:8px 0; border-bottom:1px solid var(--border)">
+      <div style="font-family:var(--mono); font-size:10px; color:var(--text-muted); margin-bottom:2px;">${esc(r.question_id || '--')} · ${esc(r.section_id || '--')}</div>
+      <div style="font-size:13px; line-height:1.5;">${esc(ans.slice(0, 400))}</div>
+    </div>`;
+  }).join('');
+}
+
 })();
 </script>
 </body>
