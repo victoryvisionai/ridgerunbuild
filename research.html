@@ -311,7 +311,9 @@
     const profR = await sb.from('company_profile').select('*').eq('ticker',ticker).maybeSingle();
     const fundR = await sb.from('company_fundamentals').select('*').eq('ticker',ticker).order('as_of_date',{ascending:false}).limit(1).maybeSingle();
     const volR = await sb.from('v_latest_vol_strategy').select('*').eq('ticker',ticker).maybeSingle();
-    const prof = profR.data; const fund = fundR.data; const vol = volR.data;
+    const wlR = await sb.from('ticker_watchlist').select('id, is_active').eq('user_id',currentUser.id).eq('ticker',ticker).maybeSingle();
+    const prof = profR.data; const vol = volR.data;
+    const inWL = !!(wlR.data && wlR.data.is_active);
     if (vol && vol.spot) currentSpot = Number(vol.spot);
     const ivR = vol && vol.iv_rank_1y;
     const ivClass = ivR == null ? 'neutral' : (ivR < 25 ? 'cheap' : ivR > 75 ? 'rich' : 'neutral');
@@ -323,10 +325,16 @@
       prof && prof.next_earnings_date ? 'Next earnings '+esc(prof.next_earnings_date) : null
     ].filter(Boolean).join(' · ');
     const desc = (prof && prof.description) ? prof.description.slice(0,640)+((prof.description.length>640)?'…':'') : 'No description available.';
+    const wlBtn = inWL
+      ? '<span class="btn btn-sm" style="background:var(--success);color:#fff;cursor:default">✓ In watchlist</span>'
+      : '<button type="button" class="btn btn-sm btn-primary" id="add-wl-btn">＋ Add to watchlist</button>';
     $('sec-header').innerHTML = ''
       + '<div class="banner-card"><div class="banner-head">'
       + '<h2>'+esc(ticker)+(prof && prof.company_name ? ' · '+esc(prof.company_name) : '')+'</h2>'
+      + '<span style="display:flex;gap:10px;align-items:center">'
       + '<span class="banner-meta">'+(prof && prof.sector ? esc(prof.sector) : '')+(prof && prof.industry ? ' · '+esc(prof.industry) : '')+'</span>'
+      + wlBtn
+      + '</span>'
       + '</div><div class="banner-body">'
       + '<div class="header-grid"><div class="company-block">'
       + '<div class="sub">'+sub+'</div><p class="desc">'+esc(desc)+'</p>'
@@ -336,6 +344,29 @@
       + '<div class="metric-box"><div class="l">IV 30d</div><div class="v">'+(vol && vol.iv_30d!=null?fmtPct(vol.iv_30d):'—')+'</div><div class="sub">'+(vol && vol.hv_30d!=null?'HV30 '+fmtPct(vol.hv_30d):'')+'</div></div>'
       + '<div class="metric-box"><div class="l">25Δ Skew</div><div class="v">'+(vol && vol.skew_25d!=null?(vol.skew_25d*100).toFixed(1)+'pp':'—')+'</div><div class="sub">'+(vol && vol.skew_signal ? esc(vol.skew_signal) : '')+'</div></div>'
       + '</div></div></div></div>';
+
+    const addBtn = $('add-wl-btn');
+    if (addBtn) {
+      addBtn.addEventListener('click', async function(){
+        addBtn.disabled = true;
+        const company = prof && prof.company_name ? prof.company_name : ticker;
+        const ins = await sb.from('ticker_watchlist').insert({
+          user_id: currentUser.id, ticker: ticker, symbol: ticker,
+          company_name: company, is_active: true, added_at: new Date().toISOString()
+        });
+        if (ins.error) {
+          if (String(ins.error.code||'')==='23505' || String(ins.error.message||'').toLowerCase().indexOf('duplicate')>=0) {
+            await sb.from('ticker_watchlist').update({is_active:true}).eq('user_id',currentUser.id).eq('ticker',ticker);
+          } else {
+            flash('Add failed: '+ins.error.message,'error'); addBtn.disabled=false; return;
+          }
+        }
+        flash('Added '+ticker+' to watchlist. Bootstrap firing.','success');
+        fireBootstrap(ticker, false);
+        loadWatchlist();
+        loadHeader(ticker);
+      });
+    }
   }
 
   async function loadThesis(ticker) {
