@@ -123,7 +123,7 @@
         <div class="field-mini"><label>Max EV/EBITDA</label><input type="number" id="f-max-ev-ebitda" step="1" placeholder="any"></div>
         <div class="field-mini"><label>Max EV/Rev NTM</label><input type="number" id="f-max-ev-rev" step="0.5" placeholder="any"></div>
         <div class="field-mini"><label>Min FCF yield (%)</label><input type="number" id="f-min-fcf" step="0.5" placeholder="any"></div>
-        <div class="field-mini"><label>Min rev growth NTM (%)</label><input type="number" id="f-min-rev-gr" step="1" placeholder="any"></div>
+        <div class="field-mini"><label>Min earnings growth (%)</label><input type="number" id="f-min-earn-gr" step="1" placeholder="any"></div>
         <div class="field-mini"><label>Max ND/EBITDA</label><input type="number" id="f-max-nd" step="0.5" placeholder="any"></div>
         <div class="field-mini"><label>Min market cap ($M)</label><input type="number" id="f-min-mcap" step="100" placeholder="any"></div>
         <div class="field-mini"><label>Min asymmetry</label><input type="number" id="f-min-asym" step="0.1" placeholder="any"></div>
@@ -179,7 +179,8 @@
               <th data-sort="quality_score" style="text-align:right">Quality</th>
               <th data-sort="ev_ebitda_ntm" style="text-align:right">EV/EBITDA</th>
               <th data-sort="fcf_yield_ntm" style="text-align:right">FCF yld</th>
-              <th data-sort="rev_growth_ntm" style="text-align:right">Rev gr</th>
+              <th data-sort="earnings_growth_implied" style="text-align:right">Earn gr</th>
+              <th data-sort="peg_ratio" style="text-align:right">PEG</th>
               <th data-sort="net_debt_ebitda" style="text-align:right">ND/EBITDA</th>
               <th data-sort="iv_rank_1y" style="text-align:right">IV rank</th>
               <th data-sort="iv_30d" style="text-align:right">IV30</th>
@@ -193,7 +194,7 @@
             </tr>
           </thead>
           <tbody id="results-tbody">
-            <tr><td colspan="22" class="empty">Loading results…</td></tr>
+            <tr><td colspan="23" class="empty">Loading results…</td></tr>
           </tbody>
         </table>
       </div>
@@ -354,7 +355,7 @@
   async function runScan(opts) {
     opts = opts || {};
     $('result-count').textContent = 'Scanning…';
-    $('results-tbody').innerHTML = '<tr><td colspan="22" class="empty">Loading…</td></tr>';
+    $('results-tbody').innerHTML = '<tr><td colspan="23" class="empty">Loading…</td></tr>';
 
     const pct = id => { const v = $(id).value; return v === '' ? null : Number(v)/100; };
     const num = id => { const v = $(id).value; return v === '' ? null : Number(v); };
@@ -369,7 +370,7 @@
       p_max_ev_rev: num('f-max-ev-rev'),
       p_max_ev_ebitda: num('f-max-ev-ebitda'),
       p_min_fcf_yield: pct('f-min-fcf'),
-      p_min_rev_growth_ntm: pct('f-min-rev-gr'),
+      p_min_earnings_growth: pct('f-min-earn-gr'),
       p_max_net_debt_ebitda: num('f-max-nd'),
       p_min_insider_ownership: null,
       p_max_mkt_cap: null,
@@ -390,7 +391,7 @@
     const r = await sb.rpc('screen_companies', params);
     if (r.error) {
       $('result-count').textContent = '0';
-      $('results-tbody').innerHTML = '<tr><td colspan="22" class="empty">Scan failed: '+esc(r.error.message)+'</td></tr>';
+      $('results-tbody').innerHTML = '<tr><td colspan="23" class="empty">Scan failed: '+esc(r.error.message)+'</td></tr>';
       flash('screen_companies error: '+r.error.message, 'error');
       return;
     }
@@ -406,7 +407,7 @@
 
   function renderTable() {
     if (!rows.length) {
-      $('results-tbody').innerHTML = '<tr><td colspan="22" class="empty">No matches. Loosen filters or uncheck "Optionable only" / "Shortlist only".</td></tr>';
+      $('results-tbody').innerHTML = '<tr><td colspan="23" class="empty">No matches. Loosen filters or uncheck "Optionable only" / "Shortlist only".</td></tr>';
       return;
     }
     let sorted = rows.slice();
@@ -452,7 +453,8 @@
         + '<td class="num">'+(r.quality_score!=null?Math.round(r.quality_score):'—')+'</td>'
         + '<td class="num">'+fmt2(r.ev_ebitda_ntm)+'</td>'
         + '<td class="num">'+(r.fcf_yield_ntm!=null?fmtPct(r.fcf_yield_ntm):'—')+'</td>'
-        + '<td class="num">'+(r.rev_growth_ntm!=null?fmtPct(r.rev_growth_ntm):'—')+'</td>'
+        + '<td class="num">'+(r.earnings_growth_implied!=null?fmtPct(r.earnings_growth_implied):'—')+'</td>'
+        + '<td class="num">'+(r.peg_ratio!=null && r.peg_ratio>0?Number(r.peg_ratio).toFixed(2):'—')+'</td>'
         + '<td class="num">'+fmt2(r.net_debt_ebitda)+'</td>'
         + '<td class="num">'+(r.iv_rank_1y!=null?Math.round(r.iv_rank_1y):'—')+'</td>'
         + '<td class="num">'+(r.iv_30d!=null?fmtPct(r.iv_30d):'—')+'</td>'
