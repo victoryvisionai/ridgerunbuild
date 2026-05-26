@@ -264,7 +264,7 @@
         body: JSON.stringify({ user_id: currentUser.id, message: msg, history: conversation })
       });
       const json = await resp.json();
-      document.getElementById(thinkingId).textContent = json.reply || '(no reply)';
+      if (json.error) { document.getElementById(thinkingId).textContent = 'Server error: '+json.error+(json.detail?' — '+String(json.detail).slice(0,400):''); return; } document.getElementById(thinkingId).textContent = json.reply || '(no reply)';
       conversation.push({ role: 'assistant', content: json.reply || '' });
       renderPanes(json.slots || []);
     } catch (e) {
