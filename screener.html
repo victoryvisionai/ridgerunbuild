@@ -139,6 +139,7 @@
           </select>
         </div>
         <div class="field-mini"><label>Min div yield (%)</label><input type="number" id="f-min-div" step="0.5" placeholder="any"></div>
+        <div class="field-mini"><label>Max P/E</label><input type="number" id="f-max-pe" step="1" placeholder="any"></div>
         <div class="field-mini"><label>Sector (comma-sep)</label><input type="text" id="f-sectors" placeholder="Technology, Financial Services"></div>
         <div class="field-mini"><label>Limit</label><input type="number" id="f-limit" value="100" min="10" max="500"></div>
         <div class="field-mini"><label>Universe</label>
@@ -174,6 +175,7 @@
               <th data-sort="market_cap_tier">Tier</th>
               <th data-sort="price" style="text-align:right">Price</th>
               <th data-sort="dividend_yield" style="text-align:right">Div yld</th>
+              <th data-sort="pe" style="text-align:right">P/E</th>
               <th data-sort="quality_score" style="text-align:right">Quality</th>
               <th data-sort="ev_ebitda_ntm" style="text-align:right">EV/EBITDA</th>
               <th data-sort="fcf_yield_ntm" style="text-align:right">FCF yld</th>
@@ -191,7 +193,7 @@
             </tr>
           </thead>
           <tbody id="results-tbody">
-            <tr><td colspan="21" class="empty">Loading results…</td></tr>
+            <tr><td colspan="22" class="empty">Loading results…</td></tr>
           </tbody>
         </table>
       </div>
@@ -352,7 +354,7 @@
   async function runScan(opts) {
     opts = opts || {};
     $('result-count').textContent = 'Scanning…';
-    $('results-tbody').innerHTML = '<tr><td colspan="21" class="empty">Loading…</td></tr>';
+    $('results-tbody').innerHTML = '<tr><td colspan="22" class="empty">Loading…</td></tr>';
 
     const pct = id => { const v = $(id).value; return v === '' ? null : Number(v)/100; };
     const num = id => { const v = $(id).value; return v === '' ? null : Number(v); };
@@ -381,13 +383,14 @@
       p_limit: intVal('f-limit') || 100,
       p_shortlist_only: $('f-shortlist').checked,
       p_optionable_only: $('f-optionable').checked,
-      p_min_div_yield: pct('f-min-div')
+      p_min_div_yield: pct('f-min-div'),
+      p_max_pe: num('f-max-pe')
     };
 
     const r = await sb.rpc('screen_companies', params);
     if (r.error) {
       $('result-count').textContent = '0';
-      $('results-tbody').innerHTML = '<tr><td colspan="21" class="empty">Scan failed: '+esc(r.error.message)+'</td></tr>';
+      $('results-tbody').innerHTML = '<tr><td colspan="22" class="empty">Scan failed: '+esc(r.error.message)+'</td></tr>';
       flash('screen_companies error: '+r.error.message, 'error');
       return;
     }
@@ -403,7 +406,7 @@
 
   function renderTable() {
     if (!rows.length) {
-      $('results-tbody').innerHTML = '<tr><td colspan="21" class="empty">No matches. Loosen filters or uncheck "Optionable only" / "Shortlist only".</td></tr>';
+      $('results-tbody').innerHTML = '<tr><td colspan="22" class="empty">No matches. Loosen filters or uncheck "Optionable only" / "Shortlist only".</td></tr>';
       return;
     }
     let sorted = rows.slice();
@@ -445,6 +448,7 @@
         + '<td><span class="badge '+tierCls+'">'+esc(r.market_cap_tier||'—')+'</span></td>'
         + '<td class="num">'+(r.price!=null?'$'+fmt2(r.price):'—')+'</td>'
         + '<td class="num">'+(r.dividend_yield!=null?fmtPct(r.dividend_yield):'—')+'</td>'
+        + '<td class="num">'+(r.pe!=null && r.pe>0?Number(r.pe).toFixed(1):'—')+'</td>'
         + '<td class="num">'+(r.quality_score!=null?Math.round(r.quality_score):'—')+'</td>'
         + '<td class="num">'+fmt2(r.ev_ebitda_ntm)+'</td>'
         + '<td class="num">'+(r.fcf_yield_ntm!=null?fmtPct(r.fcf_yield_ntm):'—')+'</td>'
