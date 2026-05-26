@@ -14,30 +14,26 @@
   .page-title{font-family:var(--font-serif);font-size:30px;font-weight:400;letter-spacing:-0.02em;margin:0 0 4px 0}
   .page-sub{color:var(--text-muted);font-size:13px;margin:0 0 14px 0;max-width:760px}
   .layout{display:grid;grid-template-columns:minmax(360px, 460px) 1fr;gap:14px;align-items:start}
-  .col-card{background:var(--card);border:1px solid var(--border);border-radius:6px;display:flex;flex-direction:column;height:calc(100vh - 140px);overflow:hidden}
+  .col-card{background:var(--card);border:1px solid var(--border);border-radius:6px;display:flex;flex-direction:column;height:calc(100vh - 200px);overflow:hidden}
   .col-head{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
   .col-head h2{font-family:var(--font-serif);font-size:17px;font-weight:500;margin:0}
   .col-head .meta{font-family:var(--mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-muted)}
 
-  /* Chat */
   .chat-body{flex:1;overflow-y:auto;padding:14px 14px 8px;display:flex;flex-direction:column;gap:10px}
   .msg{max-width:92%;font-size:13px;line-height:1.55;border-radius:8px;padding:9px 12px;white-space:pre-wrap;word-wrap:break-word}
-  .msg-user{align-self:flex-end;background:var(--accent);color:#fff}
-  .msg-ai{align-self:flex-start;background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--text)}
-  .msg-sys{align-self:center;font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted)}
-  .typing{display:inline-block;width:14px}
+  .msg-user{align-self:flex-end;background:#2563eb;color:#fff}
+  .msg-ai{align-self:flex-start;background:#eff6ff;border:1px solid #bfdbfe;color:#0f172a}
   .chat-input-row{border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;align-items:flex-end;background:var(--card)}
   .chat-input-row textarea{flex:1;font-family:var(--font-sans);font-size:13px;border:1px solid var(--border);border-radius:6px;padding:9px 11px;resize:none;min-height:38px;max-height:140px;background:var(--bg);color:var(--text)}
-  .chat-input-row textarea:focus{outline:none;border-color:var(--accent)}
+  .chat-input-row textarea:focus{outline:none;border-color:#2563eb}
   .btn{font-family:var(--mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;padding:8px 14px;border-radius:4px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer}
-  .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn-primary{background:#2563eb;color:#fff;border-color:#2563eb}
   .btn-primary:disabled{opacity:0.45;cursor:not-allowed}
   .btn-danger{background:#fff;color:#991b1b;border-color:#fecaca}
   .suggestion-row{padding:6px 12px 10px;display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--border)}
   .chip{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;padding:5px 9px;border:1px solid var(--border);border-radius:999px;cursor:pointer;background:var(--card);color:var(--text-muted)}
-  .chip:hover{border-color:var(--accent);color:var(--accent)}
+  .chip:hover{border-color:#2563eb;color:#2563eb}
 
-  /* Right pane (panes) */
   .pane-stack{display:flex;flex-direction:column;gap:12px;padding:14px;overflow-y:auto;flex:1}
   .pane{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden}
   .pane-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--bg)}
@@ -46,7 +42,6 @@
   .pane-body{padding:14px}
   .pane-placeholder{font-family:var(--mono);font-size:11px;color:var(--text-muted);text-align:center;padding:24px 8px}
 
-  /* KPI grid */
   .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
   .kpi-tile{background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:10px}
   .kpi-label{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px}
@@ -54,22 +49,19 @@
   .kpi-delta{font-family:var(--mono);font-size:10px;margin-top:3px}
   .kpi-delta.up{color:#059669}
   .kpi-delta.down{color:#dc2626}
-  .kpi-delta.flat{color:var(--text-muted)}
 
-  /* Thesis card */
   .thesis-card{display:grid;gap:10px}
   .thesis-row{display:grid;grid-template-columns:140px 1fr;gap:10px;font-size:13px}
   .thesis-row .lbl{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted)}
   .conviction-dots{display:inline-flex;gap:3px}
-  .conviction-dots span{width:10px;height:10px;border-radius:50%;background:var(--border)}
-  .conviction-dots span.on{background:var(--accent)}
+  .conviction-dots span{width:10px;height:10px;border-radius:50%;background:#e2e8f0}
+  .conviction-dots span.on{background:#2563eb}
   .thesis-actions{display:flex;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
   .thesis-saved{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#059669}
 
-  /* Tables */
   table.simple{width:100%;border-collapse:collapse;font-size:13px}
   table.simple th{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)}
-  table.simple td{padding:6px 8px;border-bottom:1px solid var(--border-soft, #f1f5f9)}
+  table.simple td{padding:6px 8px;border-bottom:1px solid #f1f5f9}
   table.simple td.num{text-align:right;font-family:var(--mono);font-size:12px}
   .num.pos{color:#059669}
   .num.neg{color:#dc2626}
@@ -78,15 +70,14 @@
   .pill-increased{background:#dbeafe;color:#1e40af}
   .pill-reduced{background:#fef3c7;color:#92400e}
   .pill-unchanged{background:#f3f4f6;color:#6b7280}
+  .pill-sold{background:#fee2e2;color:#991b1b}
 
-  /* Investor section above chat */
   .investors-row{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px}
   .investor-pill{flex-shrink:0;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 12px;cursor:pointer;font-size:12px}
-  .investor-pill:hover{border-color:var(--accent);color:var(--accent)}
+  .investor-pill:hover{border-color:#2563eb;color:#2563eb}
   .investor-pill .ip-name{font-family:var(--font-serif);font-size:13px}
   .investor-pill .ip-meta{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:var(--text-muted);margin-top:2px}
 
-  /* Modal */
   .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:60}
   .modal{background:var(--card);border-radius:8px;width:min(900px,95vw);max-height:88vh;overflow-y:auto;border:1px solid var(--border)}
   .modal-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
@@ -116,9 +107,9 @@
     <div class="col-card">
       <div class="col-head"><h2>Ask Ridge Run</h2><span class="meta" id="ctx-status">—</span></div>
       <div id="chat-body" class="chat-body">
-        <div class="msg msg-ai" id="welcome-msg">Hi Andrew. I have your DNA, $2K portfolio, watchlist, top 100 universe with vol &amp; fundamentals, plus latest 13F moves. Ask about any idea or hit a chip below to get started.</div>
+        <div class="msg msg-ai">Hi Andrew. I have your DNA, $2K portfolio, watchlist, top 100 universe with vol &amp; fundamentals, plus latest 13F moves. Ask about any idea or hit a chip below to get started.</div>
       </div>
-      <div class="suggestion-row" id="suggestion-row">
+      <div class="suggestion-row">
         <span class="chip" data-q="What are the 3 best LEAP setups right now?">Top 3 LEAPs</span>
         <span class="chip" data-q="Find me a cheap-vol asymmetric setup in tech">Asymmetric tech</span>
         <span class="chip" data-q="Anything where elite investors are aligned?">Investor overlap</span>
@@ -144,551 +135,486 @@
 
 <div id="modal-root"></div>
 
-<script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '/assets/supabase-config.js';
-import { mount as mountNav } from '/nav.js';
+<script src="/nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/config.js"></script>
+<script>
+(function(){
+  const cfg = window.RR_CONFIG || {};
+  const SUPABASE_URL = cfg.SUPABASE_URL;
+  const SUPABASE_KEY = cfg.SUPABASE_PUBLISHABLE_KEY || cfg.SUPABASE_ANON_KEY;
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  let currentUser = null;
+  let conversation = [];
+  let investors = [];
 
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let currentUser = null;
-let conversation = []; // [{role:'user'|'assistant', content:string}]
-let investors = [];
+  const $ = id => document.getElementById(id);
+  const esc = s => s==null?'':String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtMoney = n => { if(n==null||isNaN(n))return'—'; const a=Math.abs(n); if(a>=1e9)return'$'+(n/1e9).toFixed(2)+'B'; if(a>=1e6)return'$'+(n/1e6).toFixed(1)+'M'; if(a>=1e3)return'$'+(n/1e3).toFixed(1)+'K'; return'$'+Number(n).toFixed(0); };
+  const fmtPct = n => (n==null||isNaN(n))?'—':(Number(n)*100).toFixed(1)+'%';
+  const fmtN = (n,d) => (n==null||isNaN(n))?'—':Number(n).toFixed(d==null?2:d);
+  const escMd = s => esc(s).replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>');
 
-function $(id){return document.getElementById(id);}
-function esc(s){if(s==null)return'';return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);}
-function fmtMoney(n){if(n==null||isNaN(n))return'—';const a=Math.abs(n);if(a>=1e9)return'$'+(n/1e9).toFixed(2)+'B';if(a>=1e6)return'$'+(n/1e6).toFixed(1)+'M';if(a>=1e3)return'$'+(n/1e3).toFixed(1)+'K';return'$'+Number(n).toFixed(0);}
-function fmtPct(n){if(n==null||isNaN(n))return'—';return (n*100).toFixed(1)+'%';}
-function fmtN(n,d){if(n==null||isNaN(n))return'—';return Number(n).toFixed(d??2);}
-
-async function main(){
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session) { window.location.href = '/login.html'; return; }
-  currentUser = session.user;
-  mountNav({ active: 'strategy', supabase: sb });
-  $('loading-screen').classList.add('hidden');
-  $('app').classList.remove('hidden');
-  await loadInvestors();
-  wireUI();
-  $('ctx-status').textContent = 'context loaded';
-}
-
-async function loadInvestors(){
-  const r = await sb.from('investors').select('*').eq('user_id', currentUser.id).order('latest_period', { ascending: false, nullsFirst: false });
-  investors = r.data || [];
-  renderInvestorsBar();
-}
-
-function renderInvestorsBar(){
-  if (!investors.length) { $('investors-bar').innerHTML = ''; return; }
-  $('investors-bar').innerHTML = '<div class="investors-row">' + investors.map(function(inv){
-    const period = inv.latest_period ? new Date(inv.latest_period).toLocaleDateString(undefined, { month:'short', year:'numeric' }) : 'no filing';
-    const nHoldings = Array.isArray(inv.current_holdings) ? inv.current_holdings.length : 0;
-    return '<div class="investor-pill" data-inv="'+esc(inv.cik)+'">'
-      + '<div class="ip-name">'+esc(inv.investor_name)+'</div>'
-      + '<div class="ip-meta">'+esc(period)+' · '+nHoldings+' holdings</div>'
-      + '</div>';
-  }).join('') + '</div>';
-  document.querySelectorAll('[data-inv]').forEach(function(el){
-    el.addEventListener('click', function(){ openInvestorModal(el.getAttribute('data-inv')); });
-  });
-}
-
-function openInvestorModal(cik){
-  const inv = investors.find(function(i){ return i.cik === cik; });
-  if (!inv) return;
-  const holdings = Array.isArray(inv.current_holdings) ? inv.current_holdings.slice() : [];
-  holdings.sort(function(a,b){ return (Number(b.pct)||0) - (Number(a.pct)||0); });
-  const changes = Array.isArray(inv.holdings_changes) ? inv.holdings_changes : [];
-  const changeByTicker = {};
-  changes.forEach(function(c){ if (c && c.ticker) changeByTicker[c.ticker] = c; });
-
-  const html = ''
-    + '<div class="modal-bg" id="inv-modal-bg">'
-    + '<div class="modal">'
-    + '<div class="modal-head"><h3>'+esc(inv.investor_name)+'</h3><button class="modal-close" id="inv-modal-close">×</button></div>'
-    + '<div class="modal-body">'
-    + '<div class="kpi-grid" style="margin-bottom:14px">'
-      + '<div class="kpi-tile"><div class="kpi-label">Period</div><div class="kpi-value" style="font-size:16px">'+esc(inv.latest_period||'—')+'</div></div>'
-      + '<div class="kpi-tile"><div class="kpi-label">Filed</div><div class="kpi-value" style="font-size:16px">'+esc(inv.latest_filing_date||'—')+'</div></div>'
-      + '<div class="kpi-tile"><div class="kpi-label">Total AUM (13F)</div><div class="kpi-value">'+fmtMoney(inv.total_value_usd)+'</div></div>'
-      + '<div class="kpi-tile"><div class="kpi-label">Positions</div><div class="kpi-value">'+holdings.length+'</div></div>'
-    + '</div>'
-    + (holdings.length ? (
-      '<table class="simple"><thead><tr>'
-      + '<th>Ticker</th><th>Issuer</th>'
-      + '<th style="text-align:right">% of port</th>'
-      + '<th style="text-align:right">Δ vs prior</th>'
-      + '<th>Change</th>'
-      + '<th style="text-align:right">$ size</th>'
-      + '</tr></thead><tbody>'
-      + holdings.map(function(h){
-          const c = changeByTicker[h.ticker] || {};
-          const ct = c.change_type || 'unchanged';
-          const dpp = c.pct_change_pp;
-          return '<tr>'
-            + '<td><strong>'+esc(h.ticker||'')+'</strong></td>'
-            + '<td>'+esc(h.name||h.name_of_issuer||'')+'</td>'
-            + '<td class="num">'+fmtPct(h.pct)+'</td>'
-            + '<td class="num '+(dpp>0?'pos':(dpp<0?'neg':''))+'">'+(dpp==null?'—':((dpp>0?'+':'')+(dpp*100).toFixed(2)+'pp'))+'</td>'
-            + '<td><span class="pill pill-'+ct+'">'+ct+'</span></td>'
-            + '<td class="num">'+fmtMoney(h.size_usd)+'</td>'
-            + '</tr>';
-        }).join('')
-      + '</tbody></table>'
-    ) : '<div class="pane-placeholder">No holdings yet. Workflow 35 (13F) needs to run for this investor.</div>')
-    + '</div></div></div>';
-  $('modal-root').innerHTML = html;
-  $('inv-modal-close').addEventListener('click', function(){ $('modal-root').innerHTML=''; });
-  $('inv-modal-bg').addEventListener('click', function(e){ if(e.target.id==='inv-modal-bg') $('modal-root').innerHTML=''; });
-}
-
-function wireUI(){
-  document.querySelectorAll('.chip').forEach(function(el){
-    el.addEventListener('click', function(){ $('chat-input').value = el.getAttribute('data-q'); send(); });
-  });
-  $('send-btn').addEventListener('click', send);
-  $('chat-input').addEventListener('keydown', function(e){
-    if ((e.metaKey||e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); send(); }
-  });
-}
-
-async function send(){
-  const ta = $('chat-input');
-  const msg = ta.value.trim();
-  if (!msg) return;
-  ta.value = '';
-  appendMsg('user', msg);
-  conversation.push({ role: 'user', content: msg });
-  setSending(true);
-  const thinkingId = appendMsg('ai', '…');
-  try {
+  async function main(){
     const { data: { session } } = await sb.auth.getSession();
-    const resp = await fetch(SUPABASE_URL + '/functions/v1/strategy-chat', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token, 'apikey': SUPABASE_ANON_KEY },
-      body: JSON.stringify({ user_id: currentUser.id, message: msg, history: conversation })
+    if (!session) { window.location.href = '/'; return; }
+    currentUser = session.user;
+    if (window.RidgeRunNav) window.RidgeRunNav.mount({ active: 'strategy', supabase: sb });
+    $('loading-screen').classList.add('hidden');
+    $('app').classList.remove('hidden');
+    await loadInvestors();
+    wireUI();
+    $('ctx-status').textContent = 'context loaded';
+  }
+
+  async function loadInvestors(){
+    const r = await sb.from('investors').select('*').eq('user_id', currentUser.id).order('latest_period', { ascending: false, nullsFirst: false });
+    investors = r.data || [];
+    renderInvestorsBar();
+  }
+
+  function renderInvestorsBar(){
+    if (!investors.length) { $('investors-bar').innerHTML = ''; return; }
+    $('investors-bar').innerHTML = '<div class="investors-row">' + investors.map(function(inv){
+      const period = inv.latest_period ? new Date(inv.latest_period).toLocaleDateString(undefined, { month:'short', year:'numeric' }) : 'no filing';
+      const nHoldings = Array.isArray(inv.current_holdings) ? inv.current_holdings.length : 0;
+      return '<div class="investor-pill" data-inv="'+esc(inv.cik)+'">'
+        + '<div class="ip-name">'+esc(inv.investor_name)+'</div>'
+        + '<div class="ip-meta">'+esc(period)+' · '+nHoldings+' holdings</div>'
+        + '</div>';
+    }).join('') + '</div>';
+    document.querySelectorAll('[data-inv]').forEach(function(el){
+      el.addEventListener('click', function(){ openInvestorModal(el.getAttribute('data-inv')); });
     });
-    const json = await resp.json();
-    document.getElementById(thinkingId).textContent = json.reply || '(no reply)';
-    conversation.push({ role: 'assistant', content: json.reply || '' });
-    renderPanes(json.slots || []);
-  } catch (e) {
-    document.getElementById(thinkingId).textContent = 'Error: '+(e && e.message || e);
-  } finally {
-    setSending(false);
   }
-}
 
-function setSending(b){ $('send-btn').disabled = b; }
+  function openInvestorModal(cik){
+    const inv = investors.find(function(i){ return i.cik === cik; });
+    if (!inv) return;
+    const holdings = Array.isArray(inv.current_holdings) ? inv.current_holdings.slice() : [];
+    holdings.sort(function(a,b){ return (Number(b.pct)||0) - (Number(a.pct)||0); });
+    const changes = Array.isArray(inv.holdings_changes) ? inv.holdings_changes : [];
+    const changeByTicker = {};
+    changes.forEach(function(c){ if (c && c.ticker) changeByTicker[c.ticker] = c; });
 
-function appendMsg(role, text){
-  const id = 'm'+Date.now()+'-'+Math.random().toString(36).slice(2,6);
-  const cls = role === 'user' ? 'msg msg-user' : 'msg msg-ai';
-  const div = document.createElement('div'); div.id = id; div.className = cls; div.textContent = text;
-  $('chat-body').appendChild(div); $('chat-body').scrollTop = $('chat-body').scrollHeight;
-  return id;
-}
+    const html = ''
+      + '<div class="modal-bg" id="inv-modal-bg">'
+      + '<div class="modal">'
+      + '<div class="modal-head"><h3>'+esc(inv.investor_name)+'</h3><button class="modal-close" id="inv-modal-close">×</button></div>'
+      + '<div class="modal-body">'
+      + '<div class="kpi-grid" style="margin-bottom:14px">'
+        + '<div class="kpi-tile"><div class="kpi-label">Period</div><div class="kpi-value" style="font-size:16px">'+esc(inv.latest_period||'—')+'</div></div>'
+        + '<div class="kpi-tile"><div class="kpi-label">Filed</div><div class="kpi-value" style="font-size:16px">'+esc(inv.latest_filing_date||'—')+'</div></div>'
+        + '<div class="kpi-tile"><div class="kpi-label">Total AUM (13F)</div><div class="kpi-value">'+fmtMoney(inv.total_value_usd)+'</div></div>'
+        + '<div class="kpi-tile"><div class="kpi-label">Positions</div><div class="kpi-value">'+holdings.length+'</div></div>'
+      + '</div>'
+      + (holdings.length ? (
+        '<table class="simple"><thead><tr>'
+        + '<th>Ticker</th><th>Issuer</th>'
+        + '<th style="text-align:right">% of port</th>'
+        + '<th style="text-align:right">Δ vs prior</th>'
+        + '<th>Change</th>'
+        + '<th style="text-align:right">$ size</th>'
+        + '</tr></thead><tbody>'
+        + holdings.map(function(h){
+            const c = changeByTicker[h.ticker] || {};
+            const ct = c.change_type || 'unchanged';
+            const dpp = c.pct_change_pp;
+            return '<tr>'
+              + '<td><strong>'+esc(h.ticker||'')+'</strong></td>'
+              + '<td>'+esc(h.name||h.name_of_issuer||'')+'</td>'
+              + '<td class="num">'+fmtPct(h.pct)+'</td>'
+              + '<td class="num '+(dpp>0?'pos':(dpp<0?'neg':''))+'">'+(dpp==null?'—':((dpp>0?'+':'')+(dpp*100).toFixed(2)+'pp'))+'</td>'
+              + '<td><span class="pill pill-'+ct+'">'+ct+'</span></td>'
+              + '<td class="num">'+fmtMoney(h.size_usd)+'</td>'
+              + '</tr>';
+          }).join('')
+        + '</tbody></table>'
+      ) : '<div class="pane-placeholder">No holdings yet. Workflow 35 (13F) needs to run for this investor + then call sync_investors_holdings.</div>')
+      + '</div></div></div>';
+    $('modal-root').innerHTML = html;
+    $('inv-modal-close').addEventListener('click', function(){ $('modal-root').innerHTML=''; });
+    $('inv-modal-bg').addEventListener('click', function(e){ if(e.target.id==='inv-modal-bg') $('modal-root').innerHTML=''; });
+  }
 
-// ---------- Pane renderers ----------
-function renderPanes(slots){
-  const stack = $('pane-stack');
-  if (!slots || !slots.length) { return; }
-  stack.innerHTML = '';
-  $('pane-count').textContent = slots.length+' pane'+(slots.length===1?'':'s');
-  slots.forEach(function(slot, i){
-    const pane = document.createElement('div'); pane.className = 'pane';
-    pane.innerHTML = ''
-      + '<div class="pane-head"><h3>'+esc(slot.title || prettyKind(slot.component))+'</h3><span class="pane-kind">'+esc(slot.component||'')+'</span></div>'
-      + '<div class="pane-body">'+renderComponent(slot, i)+'</div>';
-    stack.appendChild(pane);
-  });
-  // Wire save buttons inside thesis_cards
-  document.querySelectorAll('[data-save-rec]').forEach(function(btn){
-    btn.addEventListener('click', function(){ saveRec(JSON.parse(btn.getAttribute('data-save-rec')), btn.getAttribute('data-action'), btn); });
-  });
-}
+  function wireUI(){
+    document.querySelectorAll('.chip').forEach(function(el){
+      el.addEventListener('click', function(){ $('chat-input').value = el.getAttribute('data-q'); send(); });
+    });
+    $('send-btn').addEventListener('click', send);
+    $('chat-input').addEventListener('keydown', function(e){
+      if ((e.metaKey||e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); send(); }
+    });
+  }
 
-function prettyKind(k){return String(k||'').replace(/_/g,' ');}
-
-function renderComponent(slot, idx){
-  const c = slot.component, d = slot.data || {};
-  try {
-    switch (c) {
-      case 'kpi_grid': return renderKpiGrid(d);
-      case 'thesis_card': return renderThesisCard(d, idx);
-      case 'payoff_diagram': return renderPayoff(d);
-      case 'iv_term_chart': return renderIvTerm(d);
-      case 'fundamentals_5fy': return renderFund5fy(d);
-      case 'growth_x_multiple': return renderGrowthMultiple(d);
-      case 'peer_comparison': return renderPeers(d);
-      case 'position_sizing': return renderSizing(d);
-      case 'catalyst_timeline': return renderCatalysts(d);
-      case 'deal_arb': return renderDealArb(d);
-      case 'pair_correlation': return renderPair(d);
-      case 'credit_recovery': return renderCredit(d);
-      case 'short_thesis_card': return renderShortThesis(d);
-      case 'core_holding_card': return renderCoreHolding(d);
-      case 'ranked_list': return renderRankedList(d);
-      case 'bar_chart': return renderBar(d);
-      case 'line_chart': return renderLine(d);
-      case 'table_simple': return renderTable(d);
-      case 'investor_holdings_modal': return renderInvestorTable(d);
-      case 'markdown_text': return '<div>'+escMarkdown(d.markdown||'')+'</div>';
-      default: return '<div class="pane-placeholder">Unknown component: '+esc(c)+'</div>';
+  async function send(){
+    const ta = $('chat-input');
+    const msg = ta.value.trim();
+    if (!msg) return;
+    ta.value = '';
+    appendMsg('user', msg);
+    conversation.push({ role: 'user', content: msg });
+    setSending(true);
+    const thinkingId = appendMsg('ai', '…');
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const resp = await fetch(SUPABASE_URL + '/functions/v1/strategy-chat', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token, 'apikey': SUPABASE_KEY },
+        body: JSON.stringify({ user_id: currentUser.id, message: msg, history: conversation })
+      });
+      const json = await resp.json();
+      document.getElementById(thinkingId).textContent = json.reply || '(no reply)';
+      conversation.push({ role: 'assistant', content: json.reply || '' });
+      renderPanes(json.slots || []);
+    } catch (e) {
+      document.getElementById(thinkingId).textContent = 'Error: '+(e && e.message || e);
+    } finally {
+      setSending(false);
     }
-  } catch (e) {
-    console.error('render', c, e);
-    return '<div class="pane-placeholder">Render error: '+esc(e.message)+'</div>';
   }
-}
 
-function escMarkdown(s){return esc(s).replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>');}
+  function setSending(b){ $('send-btn').disabled = b; }
 
-function renderKpiGrid(d){
-  const tiles = d.tiles || [];
-  return '<div class="kpi-grid">'+tiles.map(function(t){
-    const dl = (typeof t.delta==='number') ? (t.delta>0?'up':(t.delta<0?'down':'flat')) : 'flat';
-    return '<div class="kpi-tile">'
-      + '<div class="kpi-label">'+esc(t.label||'')+'</div>'
-      + '<div class="kpi-value">'+esc(String(t.value==null?'—':t.value))+'</div>'
-      + (t.delta!=null?'<div class="kpi-delta '+dl+'">'+(t.delta>0?'↑ ':(t.delta<0?'↓ ':''))+esc(String(Math.abs(t.delta)))+'</div>':'')
+  function appendMsg(role, text){
+    const id = 'm'+Date.now()+'-'+Math.random().toString(36).slice(2,6);
+    const cls = role === 'user' ? 'msg msg-user' : 'msg msg-ai';
+    const div = document.createElement('div'); div.id = id; div.className = cls; div.textContent = text;
+    $('chat-body').appendChild(div); $('chat-body').scrollTop = $('chat-body').scrollHeight;
+    return id;
+  }
+
+  function renderPanes(slots){
+    const stack = $('pane-stack');
+    if (!slots || !slots.length) { return; }
+    stack.innerHTML = '';
+    $('pane-count').textContent = slots.length+' pane'+(slots.length===1?'':'s');
+    slots.forEach(function(slot, i){
+      const pane = document.createElement('div'); pane.className = 'pane';
+      pane.innerHTML = ''
+        + '<div class="pane-head"><h3>'+esc(slot.title || prettyKind(slot.component))+'</h3><span class="pane-kind">'+esc(slot.component||'')+'</span></div>'
+        + '<div class="pane-body">'+renderComponent(slot, i)+'</div>';
+      stack.appendChild(pane);
+    });
+    document.querySelectorAll('[data-save-rec]').forEach(function(btn){
+      btn.addEventListener('click', function(){ saveRec(JSON.parse(btn.getAttribute('data-save-rec')), btn.getAttribute('data-action'), btn); });
+    });
+  }
+
+  function prettyKind(k){return String(k||'').replace(/_/g,' ');}
+
+  function renderComponent(slot, idx){
+    const c = slot.component, d = slot.data || {};
+    try {
+      switch (c) {
+        case 'kpi_grid': return renderKpiGrid(d);
+        case 'thesis_card': return renderThesisCard(d, idx);
+        case 'payoff_diagram': return renderPayoff(d);
+        case 'iv_term_chart': return renderIvTerm(d);
+        case 'fundamentals_5fy': return renderFund5fy(d);
+        case 'growth_x_multiple': return renderGrowthMultiple(d);
+        case 'peer_comparison': return renderPeers(d);
+        case 'position_sizing': return renderSizing(d);
+        case 'catalyst_timeline': return renderCatalysts(d);
+        case 'deal_arb': return renderDealArb(d);
+        case 'pair_correlation': return renderPair(d);
+        case 'credit_recovery': return renderCredit(d);
+        case 'short_thesis_card': return renderShortThesis(d);
+        case 'core_holding_card': return renderCoreHolding(d);
+        case 'ranked_list': return renderRankedList(d);
+        case 'bar_chart': return renderBar(d);
+        case 'line_chart': return renderLine(d);
+        case 'table_simple': return renderTable(d);
+        case 'investor_holdings_modal': return renderInvestorTable(d);
+        case 'markdown_text': return '<div>'+escMd(d.markdown||'')+'</div>';
+        default: return '<div class="pane-placeholder">Unknown component: '+esc(c)+'</div>';
+      }
+    } catch (e) {
+      console.error('render', c, e);
+      return '<div class="pane-placeholder">Render error: '+esc(e.message)+'</div>';
+    }
+  }
+
+  function renderKpiGrid(d){
+    const tiles = d.tiles || [];
+    return '<div class="kpi-grid">'+tiles.map(function(t){
+      const dl = (typeof t.delta==='number') ? (t.delta>0?'up':(t.delta<0?'down':'')) : '';
+      return '<div class="kpi-tile">'
+        + '<div class="kpi-label">'+esc(t.label||'')+'</div>'
+        + '<div class="kpi-value">'+esc(String(t.value==null?'—':t.value))+'</div>'
+        + (t.delta!=null?'<div class="kpi-delta '+dl+'">'+(t.delta>0?'↑ ':(t.delta<0?'↓ ':''))+esc(String(Math.abs(t.delta)))+'</div>':'')
+        + '</div>';
+    }).join('')+'</div>';
+  }
+
+  function renderThesisCard(d, idx){
+    const dots = '<div class="conviction-dots">'+[1,2,3,4,5].map(function(i){return '<span class="'+(i<=(d.conviction||0)?'on':'')+'"></span>';}).join('')+'</div>';
+    const recPayload = JSON.stringify({
+      ticker: d.ticker, opportunity_type: d.opportunity_type, direction: d.direction,
+      structure: d.structure, thesis: d.thesis, conviction: d.conviction,
+      what_to_watch: d.what_to_watch, exit_criteria: d.exit_criteria,
+      expected_horizon_days: d.expected_horizon_days, expected_return_pct: d.expected_return_pct,
+      expected_max_loss_pct: d.expected_max_loss_pct, strike: d.strike, expiry: d.expiry, max_loss: d.max_loss
+    }).replace(/'/g,'&#39;');
+    const rows = [
+      ['Ticker', '<strong>'+esc(d.ticker||'')+'</strong>'],
+      ['Type', esc(d.opportunity_type||'—')],
+      ['Direction', esc(d.direction||'long')],
+      ['Structure', esc(d.structure||'—')],
+      ['Conviction', dots],
+      ['Thesis', escMd(d.thesis||'')],
+      ['What to watch', esc(d.what_to_watch||'—')],
+      ['Exit criteria', esc(d.exit_criteria||'—')],
+      ['Horizon', (d.expected_horizon_days!=null?d.expected_horizon_days+' days':'—')],
+      ['Expected return', fmtPct(d.expected_return_pct)],
+      ['Expected max loss', fmtPct(d.expected_max_loss_pct)]
+    ];
+    return '<div class="thesis-card">'
+      + rows.map(function(r){return '<div class="thesis-row"><div class="lbl">'+r[0]+'</div><div>'+r[1]+'</div></div>';}).join('')
+      + (d.save_button !== false ? '<div class="thesis-actions">'
+          + '<button class="btn btn-primary" data-save-rec=\''+recPayload+'\' data-action="accept">Accept &amp; save</button>'
+          + '<button class="btn" data-save-rec=\''+recPayload+'\' data-action="later">Later</button>'
+          + '<button class="btn btn-danger" data-save-rec=\''+recPayload+'\' data-action="dismiss">Dismiss</button>'
+        + '</div>' : '')
       + '</div>';
-  }).join('')+'</div>';
-}
+  }
 
-function renderThesisCard(d, idx){
-  const dots = '<div class="conviction-dots">'+[1,2,3,4,5].map(function(i){return '<span class="'+(i<=(d.conviction||0)?'on':'')+'"></span>';}).join('')+'</div>';
-  const recPayload = JSON.stringify({
-    ticker: d.ticker, opportunity_type: d.opportunity_type, direction: d.direction,
-    structure: d.structure, thesis: d.thesis, conviction: d.conviction,
-    what_to_watch: d.what_to_watch, exit_criteria: d.exit_criteria,
-    expected_horizon_days: d.expected_horizon_days, expected_return_pct: d.expected_return_pct,
-    expected_max_loss_pct: d.expected_max_loss_pct, strike: d.strike, expiry: d.expiry, max_loss: d.max_loss
-  }).replace(/'/g,'&#39;');
-  const rows = [
-    ['Ticker', '<strong>'+esc(d.ticker||'')+'</strong>'],
-    ['Type', esc(d.opportunity_type||'—')],
-    ['Direction', esc(d.direction||'long')],
-    ['Structure', esc(d.structure||'—')],
-    ['Conviction', dots],
-    ['Thesis', escMarkdown(d.thesis||'')],
-    ['What to watch', esc(d.what_to_watch||'—')],
-    ['Exit criteria', esc(d.exit_criteria||'—')],
-    ['Horizon', (d.expected_horizon_days!=null?d.expected_horizon_days+' days':'—')],
-    ['Expected return', fmtPct(d.expected_return_pct)],
-    ['Expected max loss', fmtPct(d.expected_max_loss_pct)]
-  ];
-  return '<div class="thesis-card">'
-    + rows.map(function(r){return '<div class="thesis-row"><div class="lbl">'+r[0]+'</div><div>'+r[1]+'</div></div>';}).join('')
-    + (d.save_button !== false ? '<div class="thesis-actions" id="ta-'+idx+'">'
-        + '<button class="btn btn-primary" data-save-rec=\''+recPayload+'\' data-action="accept">Accept &amp; save</button>'
-        + '<button class="btn" data-save-rec=\''+recPayload+'\' data-action="later">Later</button>'
-        + '<button class="btn btn-danger" data-save-rec=\''+recPayload+'\' data-action="dismiss">Dismiss</button>'
-      + '</div>' : '')
-    + '</div>';
-}
+  async function saveRec(rec, action, btnEl){
+    try {
+      const { data:{ session } } = await sb.auth.getSession();
+      const resp = await fetch(SUPABASE_URL+'/functions/v1/strategy-save-rec', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token, 'apikey': SUPABASE_KEY },
+        body: JSON.stringify({ user_id: currentUser.id, action: action, rec: rec })
+      });
+      const j = await resp.json();
+      if (j.ok) {
+        const parent = btnEl.parentElement;
+        parent.innerHTML = '<span class="thesis-saved">✓ '+action+'ed · saved to rec_evaluations'+(action==='accept'?' + trade_ideas':'')+'</span>';
+      } else { btnEl.textContent = 'Error'; }
+    } catch(e){ btnEl.textContent = 'Error'; }
+  }
 
-async function saveRec(rec, action, btnEl){
-  try {
-    const { data:{ session } } = await sb.auth.getSession();
-    const resp = await fetch(SUPABASE_URL+'/functions/v1/strategy-save-rec', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token, 'apikey': SUPABASE_ANON_KEY },
-      body: JSON.stringify({ user_id: currentUser.id, action: action, rec: rec })
-    });
-    const j = await resp.json();
-    if (j.ok) {
-      const parent = btnEl.parentElement;
-      parent.innerHTML = '<span class="thesis-saved">✓ '+action+'ed · saved to rec_evaluations'+(action==='accept'?' + trade_ideas':'')+'</span>';
-    } else {
-      btnEl.textContent = 'Error';
+  function renderPayoff(d){
+    const spot=Number(d.spot)||0, strike=Number(d.strike)||0, prem=Number(d.premium)||0, ml=Number(d.max_loss)||0;
+    const lo=spot*0.5, hi=spot*1.5, N=60;
+    const pts=[];
+    for (let i=0;i<=N;i++){
+      const px=lo+(hi-lo)*(i/N);
+      let pl=0;
+      const s=String(d.structure||'').toLowerCase();
+      if (s.indexOf('leap_call')>=0||s==='vertical_call') pl=Math.max(0,px-strike)-prem;
+      else if (s.indexOf('leap_put')>=0||s==='vertical_put') pl=Math.max(0,strike-px)-prem;
+      else if (s==='straddle') pl=Math.max(0,px-strike)+Math.max(0,strike-px)-prem;
+      else if (s==='iron_condor') pl=prem-Math.max(0,Math.abs(px-strike)-10);
+      else if (s==='csp') pl=prem-Math.max(0,strike-px);
+      else pl=px-spot;
+      pts.push({px,pl});
     }
-  } catch(e){ btnEl.textContent = 'Error'; }
-}
-
-function renderPayoff(d){
-  const spot = Number(d.spot)||0, strike = Number(d.strike)||0, prem = Number(d.premium)||0;
-  const ml = Number(d.max_loss)||0;
-  // Build sample points from 0.5*spot to 1.5*spot
-  const lo = spot*0.5, hi = spot*1.5;
-  const N = 60;
-  const pts = [];
-  for (let i=0;i<=N;i++){
-    const px = lo + (hi-lo)*(i/N);
-    let pl = 0;
-    const s = String(d.structure||'').toLowerCase();
-    if (s.indexOf('leap_call')>=0 || s==='vertical_call') pl = Math.max(0, px-strike) - prem;
-    else if (s.indexOf('leap_put')>=0 || s==='vertical_put') pl = Math.max(0, strike-px) - prem;
-    else if (s==='straddle') pl = Math.max(0, px-strike) + Math.max(0, strike-px) - prem;
-    else if (s==='iron_condor') pl = prem - Math.max(0, Math.abs(px-strike)-10);
-    else if (s==='csp') pl = prem - Math.max(0, strike-px);
-    else pl = px - spot;
-    pts.push({px, pl});
-  }
-  const w = 460, h = 200, m={top:14,right:14,bottom:24,left:48};
-  const iw = w-m.left-m.right, ih = h-m.top-m.bottom;
-  const xs = pts.map(p=>p.px); const ys = pts.map(p=>p.pl);
-  const xmin = Math.min.apply(null,xs), xmax = Math.max.apply(null,xs);
-  const ymin = Math.min.apply(null,ys.concat([-ml])), ymax = Math.max.apply(null,ys.concat([0]));
-  const xr = xmax-xmin || 1, yr = ymax-ymin || 1;
-  const X = px => m.left + ((px-xmin)/xr)*iw;
-  const Y = pl => m.top + ih - ((pl-ymin)/yr)*ih;
-  const zeroY = Y(0);
-  const polyline = pts.map(p=>X(p.px)+','+Y(p.pl)).join(' ');
-  const spotX = X(spot), strikeX = X(strike);
-  let svg = '<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:220px">';
-  // Grid
-  svg += '<line x1="'+m.left+'" y1="'+zeroY+'" x2="'+(m.left+iw)+'" y2="'+zeroY+'" stroke="#cbd5e1" stroke-dasharray="3,3"/>';
-  svg += '<line x1="'+spotX+'" y1="'+m.top+'" x2="'+spotX+'" y2="'+(m.top+ih)+'" stroke="#94a3b8" stroke-dasharray="2,2"/>';
-  svg += '<line x1="'+strikeX+'" y1="'+m.top+'" x2="'+strikeX+'" y2="'+(m.top+ih)+'" stroke="#fbbf24" stroke-dasharray="2,2"/>';
-  svg += '<polyline points="'+polyline+'" fill="none" stroke="#1d4ed8" stroke-width="2"/>';
-  // Axis labels
-  svg += '<text x="'+spotX+'" y="'+(h-6)+'" text-anchor="middle" font-size="10" fill="#475569">spot $'+fmtN(spot,0)+'</text>';
-  svg += '<text x="'+strikeX+'" y="'+(m.top-2)+'" text-anchor="middle" font-size="10" fill="#92400e">K $'+fmtN(strike,0)+'</text>';
-  svg += '<text x="'+(m.left-6)+'" y="'+zeroY+'" text-anchor="end" font-size="10" fill="#475569" dy="3">$0</text>';
-  if (d.breakeven) {
-    const beX = X(Number(d.breakeven));
-    svg += '<line x1="'+beX+'" y1="'+m.top+'" x2="'+beX+'" y2="'+(m.top+ih)+'" stroke="#059669" stroke-dasharray="2,2"/>';
-    svg += '<text x="'+beX+'" y="'+(m.top+10)+'" text-anchor="middle" font-size="10" fill="#059669">BE $'+fmtN(d.breakeven,0)+'</text>';
-  }
-  svg += '</svg>';
-  return svg
-    + '<div class="kpi-grid" style="margin-top:8px">'
+    const w=460,h=200,m={top:14,right:14,bottom:24,left:48};
+    const iw=w-m.left-m.right,ih=h-m.top-m.bottom;
+    const xs=pts.map(p=>p.px), ys=pts.map(p=>p.pl);
+    const xmin=Math.min.apply(null,xs), xmax=Math.max.apply(null,xs);
+    const ymin=Math.min.apply(null,ys.concat([-ml])), ymax=Math.max.apply(null,ys.concat([0]));
+    const xr=xmax-xmin||1, yr=ymax-ymin||1;
+    const X=px=>m.left+((px-xmin)/xr)*iw, Y=pl=>m.top+ih-((pl-ymin)/yr)*ih;
+    const zeroY=Y(0), polyline=pts.map(p=>X(p.px)+','+Y(p.pl)).join(' ');
+    const spotX=X(spot), strikeX=X(strike);
+    let svg='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:220px">';
+    svg+='<line x1="'+m.left+'" y1="'+zeroY+'" x2="'+(m.left+iw)+'" y2="'+zeroY+'" stroke="#cbd5e1" stroke-dasharray="3,3"/>';
+    svg+='<line x1="'+spotX+'" y1="'+m.top+'" x2="'+spotX+'" y2="'+(m.top+ih)+'" stroke="#94a3b8" stroke-dasharray="2,2"/>';
+    svg+='<line x1="'+strikeX+'" y1="'+m.top+'" x2="'+strikeX+'" y2="'+(m.top+ih)+'" stroke="#fbbf24" stroke-dasharray="2,2"/>';
+    svg+='<polyline points="'+polyline+'" fill="none" stroke="#1d4ed8" stroke-width="2"/>';
+    svg+='<text x="'+spotX+'" y="'+(h-6)+'" text-anchor="middle" font-size="10" fill="#475569">spot $'+fmtN(spot,0)+'</text>';
+    svg+='<text x="'+strikeX+'" y="'+(m.top-2)+'" text-anchor="middle" font-size="10" fill="#92400e">K $'+fmtN(strike,0)+'</text>';
+    if (d.breakeven!=null){
+      const beX=X(Number(d.breakeven));
+      svg+='<line x1="'+beX+'" y1="'+m.top+'" x2="'+beX+'" y2="'+(m.top+ih)+'" stroke="#059669" stroke-dasharray="2,2"/>';
+      svg+='<text x="'+beX+'" y="'+(m.top+10)+'" text-anchor="middle" font-size="10" fill="#059669">BE $'+fmtN(d.breakeven,0)+'</text>';
+    }
+    svg+='</svg>';
+    return svg+'<div class="kpi-grid" style="margin-top:8px">'
       + '<div class="kpi-tile"><div class="kpi-label">Max loss</div><div class="kpi-value">'+fmtMoney(d.max_loss)+'</div></div>'
       + '<div class="kpi-tile"><div class="kpi-label">Breakeven</div><div class="kpi-value">$'+fmtN(d.breakeven,2)+'</div></div>'
       + (d.max_gain!=null?'<div class="kpi-tile"><div class="kpi-label">Max gain</div><div class="kpi-value">'+fmtMoney(d.max_gain)+'</div></div>':'')
       + (d.premium!=null?'<div class="kpi-tile"><div class="kpi-label">Premium</div><div class="kpi-value">$'+fmtN(d.premium,2)+'</div></div>':'')
-    + '</div>';
-}
-
-function renderIvTerm(d){
-  const pts = (d.points||[]).slice().sort((a,b)=>(a.dte||0)-(b.dte||0));
-  if (pts.length<2) return '<div class="pane-placeholder">Need 2+ tenor points.</div>';
-  const w=460,h=200,m={top:14,right:14,bottom:30,left:42};
-  const iw=w-m.left-m.right,ih=h-m.top-m.bottom;
-  const xs=pts.map(p=>p.dte), ys=pts.map(p=>p.iv);
-  const xmin=Math.min.apply(null,xs), xmax=Math.max.apply(null,xs);
-  const ymin=Math.min.apply(null,ys.concat([0])), ymax=Math.max.apply(null,ys);
-  const xr=xmax-xmin||1, yr=ymax-ymin||1;
-  const X=v=>m.left+((v-xmin)/xr)*iw, Y=v=>m.top+ih-((v-ymin)/yr)*ih;
-  const poly = pts.map(p=>X(p.dte)+','+Y(p.iv)).join(' ');
-  let svg='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:200px">';
-  svg += '<polyline points="'+poly+'" fill="none" stroke="#1d4ed8" stroke-width="2"/>';
-  pts.forEach(p=>{ svg += '<circle cx="'+X(p.dte)+'" cy="'+Y(p.iv)+'" r="3" fill="#1d4ed8"/><text x="'+X(p.dte)+'" y="'+(h-12)+'" text-anchor="middle" font-size="10" fill="#475569">'+p.dte+'d</text>'; });
-  svg += '<text x="'+(m.left-6)+'" y="'+Y(ymin)+'" text-anchor="end" font-size="10" fill="#475569">'+fmtPct(ymin)+'</text>';
-  svg += '<text x="'+(m.left-6)+'" y="'+Y(ymax)+'" text-anchor="end" font-size="10" fill="#475569">'+fmtPct(ymax)+'</text>';
-  svg += '</svg>';
-  const meta = '<div class="kpi-grid" style="margin-top:8px">'
-    + (d.iv_rank!=null?'<div class="kpi-tile"><div class="kpi-label">IV rank</div><div class="kpi-value">'+fmtN(d.iv_rank,0)+'</div></div>':'')
-    + (d.regime?'<div class="kpi-tile"><div class="kpi-label">Regime</div><div class="kpi-value" style="font-size:14px">'+esc(d.regime)+'</div></div>':'')
-    + '</div>';
-  return svg+meta;
-}
-
-function renderFund5fy(d){
-  const yrs = d.years || [];
-  if (!yrs.length) return '<div class="pane-placeholder">No fundamentals.</div>';
-  return '<table class="simple"><thead><tr><th>Year</th>'
-    + ['Revenue','EBITDA','FCF','EPS'].map(c=>'<th style="text-align:right">'+c+'</th>').join('')
-    + '</tr></thead><tbody>'
-    + yrs.map(function(y){
-      return '<tr><td>'+esc(y.year||'')+'</td>'
-        + '<td class="num">'+fmtMoney(y.revenue)+'</td>'
-        + '<td class="num">'+fmtMoney(y.ebitda)+'</td>'
-        + '<td class="num">'+fmtMoney(y.fcf)+'</td>'
-        + '<td class="num">'+fmtN(y.eps,2)+'</td></tr>';
-    }).join('')
-    + '</tbody></table>';
-}
-
-function renderGrowthMultiple(d){
-  const sc = d.scenarios || [];
-  return '<table class="simple"><thead><tr>'
-    + '<th>Scenario</th><th style="text-align:right">Multiple</th><th style="text-align:right">Growth</th><th style="text-align:right">Implied price</th><th style="text-align:right">Return</th>'
-    + '</tr></thead><tbody>'
-    + sc.map(function(s){
-      const r=Number(s.return_pct);
-      return '<tr><td>'+esc(s.label||'')+'</td>'
-        + '<td class="num">'+fmtN(s.multiple,1)+'x</td>'
-        + '<td class="num">'+fmtPct(s.growth_pct)+'</td>'
-        + '<td class="num">$'+fmtN(s.implied_price,2)+'</td>'
-        + '<td class="num '+(r>0?'pos':(r<0?'neg':''))+'">'+fmtPct(s.return_pct)+'</td></tr>';
-    }).join('')
-    + '</tbody></table>';
-}
-
-function renderPeers(d){
-  const t = d.tickers || [];
-  return '<table class="simple"><thead><tr>'
-    + '<th>Ticker</th><th style="text-align:right">P/E</th><th style="text-align:right">EV/EBITDA</th><th style="text-align:right">FCF yld</th><th style="text-align:right">Rev gr</th><th style="text-align:right">1y return</th>'
-    + '</tr></thead><tbody>'
-    + t.map(function(p){
-      return '<tr><td><strong>'+esc(p.ticker||'')+'</strong></td>'
-        + '<td class="num">'+fmtN(p.pe,1)+'</td>'
-        + '<td class="num">'+fmtN(p.ev_ebitda,1)+'</td>'
-        + '<td class="num">'+fmtPct(p.fcf_yield)+'</td>'
-        + '<td class="num">'+fmtPct(p.rev_growth)+'</td>'
-        + '<td class="num '+((Number(p.return_1y)||0)>0?'pos':'neg')+'">'+fmtPct(p.return_1y)+'</td></tr>';
-    }).join('')
-    + '</tbody></table>';
-}
-
-function renderSizing(d){
-  return '<div class="kpi-grid">'
-    + '<div class="kpi-tile"><div class="kpi-label">Ticker</div><div class="kpi-value">'+esc(d.ticker||'')+'</div></div>'
-    + '<div class="kpi-tile"><div class="kpi-label">Structure</div><div class="kpi-value" style="font-size:14px">'+esc(d.structure||'—')+'</div></div>'
-    + '<div class="kpi-tile"><div class="kpi-label">Contracts</div><div class="kpi-value">'+esc(d.recommended_contracts||'1')+'</div></div>'
-    + '<div class="kpi-tile"><div class="kpi-label">Sizing $</div><div class="kpi-value">'+fmtMoney(d.sizing_dollars)+'</div></div>'
-    + '<div class="kpi-tile"><div class="kpi-label">Max loss</div><div class="kpi-value">'+fmtMoney(d.max_loss)+'</div></div>'
-    + '<div class="kpi-tile"><div class="kpi-label">% of NAV</div><div class="kpi-value">'+fmtPct(d.pct_of_nav)+'</div></div>'
-    + (d.breakeven_at_expiry!=null?'<div class="kpi-tile"><div class="kpi-label">BE at expiry</div><div class="kpi-value">$'+fmtN(d.breakeven_at_expiry,2)+'</div></div>':'')
-    + (d.days_to_expiry!=null?'<div class="kpi-tile"><div class="kpi-label">DTE</div><div class="kpi-value">'+d.days_to_expiry+'</div></div>':'')
-    + '</div>';
-}
-
-function renderCatalysts(d){
-  const cs = (d.catalysts||[]).slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||'')));
-  if (!cs.length) return '<div class="pane-placeholder">No catalysts.</div>';
-  return '<div style="display:flex;flex-direction:column;gap:8px">'
-    + cs.map(function(c){
-      const impact = c.impact||'medium';
-      const color = impact==='high'?'#dc2626':(impact==='medium'?'#d97706':'#6b7280');
-      return '<div style="display:grid;grid-template-columns:90px 1fr auto;gap:10px;align-items:center;padding:7px 10px;background:var(--bg);border-radius:5px">'
-        + '<div style="font-family:var(--mono);font-size:11px;color:#475569">'+esc(c.date||'—')+'</div>'
-        + '<div><strong>'+esc(c.label||'')+'</strong><div style="font-family:var(--mono);font-size:10px;color:#6b7280">'+esc(c.type||'')+'</div></div>'
-        + '<div style="font-family:var(--mono);font-size:9px;color:'+color+'">'+impact.toUpperCase()+'</div>'
-        + '</div>';
-    }).join('')
-    + '</div>';
-}
-
-function renderDealArb(d){
-  const r = Number(d.spread_pct);
-  return '<div class="kpi-grid">'
-    + '<div class="kpi-tile"><div class="kpi-label">Deal price</div><div class="kpi-value">$'+fmtN(d.deal_price,2)+'</div></div>'
-    + '<div class="kpi-tile"><div class="kpi-label">Current</div><div class="kpi-value">$'+fmtN(d.current_price,2)+'</div></div>'
-    + '<div class="kpi-tile"><div class="kpi-label">Spread</div><div class="kpi-value '+(r>0?'kpi-delta up':'kpi-delta down')+'">'+fmtPct(d.spread_pct)+'</div></div>'
-    + (d.prob_close!=null?'<div class="kpi-tile"><div class="kpi-label">Prob close</div><div class="kpi-value">'+fmtPct(d.prob_close)+'</div></div>':'')
-    + '<div class="kpi-tile"><div class="kpi-label">Days to close</div><div class="kpi-value">'+esc(d.days_to_close||'—')+'</div></div>'
-    + '<div class="kpi-tile"><div class="kpi-label">Break downside</div><div class="kpi-value">$'+fmtN(d.downside_break_price,2)+'</div></div>'
-    + '<div class="kpi-tile"><div class="kpi-label">Downside %</div><div class="kpi-value kpi-delta down">'+fmtPct(d.downside_pct)+'</div></div>'
-    + '</div>';
-}
-
-function renderPair(d){
-  let svg='';
-  if (Array.isArray(d.spread_history) && d.spread_history.length>1){
-    const w=460,h=160,m={top:12,right:12,bottom:24,left:38};
-    const iw=w-m.left-m.right,ih=h-m.top-m.bottom;
-    const ys=d.spread_history.map(p=>p.spread);
-    const ymin=Math.min.apply(null,ys), ymax=Math.max.apply(null,ys);
-    const yr=ymax-ymin||1;
-    const X=i=>m.left + (i/(ys.length-1))*iw, Y=v=>m.top+ih-((v-ymin)/yr)*ih;
-    svg='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:160px">'
-      + '<polyline points="'+d.spread_history.map((p,i)=>X(i)+','+Y(p.spread)).join(' ')+'" fill="none" stroke="#1d4ed8" stroke-width="1.5"/>'
-      + (d.mean_spread!=null?'<line x1="'+m.left+'" y1="'+Y(d.mean_spread)+'" x2="'+(m.left+iw)+'" y2="'+Y(d.mean_spread)+'" stroke="#94a3b8" stroke-dasharray="3,3"/>':'')
-      + '</svg>';
+      + '</div>';
   }
-  return svg + '<div class="kpi-grid" style="margin-top:8px">'
-    + '<div class="kpi-tile"><div class="kpi-label">Long</div><div class="kpi-value">'+esc(d.long_ticker||'')+'</div></div>'
-    + '<div class="kpi-tile"><div class="kpi-label">Short</div><div class="kpi-value">'+esc(d.short_ticker||'')+'</div></div>'
-    + '<div class="kpi-tile"><div class="kpi-label">Correlation</div><div class="kpi-value">'+fmtN(d.correlation,2)+'</div></div>'
-    + '<div class="kpi-tile"><div class="kpi-label">Beta</div><div class="kpi-value">'+fmtN(d.beta,2)+'</div></div>'
-    + (d.current_spread!=null?'<div class="kpi-tile"><div class="kpi-label">Current</div><div class="kpi-value">'+fmtN(d.current_spread,3)+'</div></div>':'')
-    + (d.mean_spread!=null?'<div class="kpi-tile"><div class="kpi-label">Mean</div><div class="kpi-value">'+fmtN(d.mean_spread,3)+'</div></div>':'')
-    + (d.sigma!=null?'<div class="kpi-tile"><div class="kpi-label">σ</div><div class="kpi-value">'+fmtN(d.sigma,3)+'</div></div>':'')
-    + '</div>';
-}
 
-function renderCredit(d){
-  const sc = d.recovery_scenarios||[];
-  return '<div class="kpi-grid" style="margin-bottom:10px">'
-    + '<div class="kpi-tile"><div class="kpi-label">Bond price</div><div class="kpi-value">$'+fmtN(d.bond_price,2)+'</div></div>'
-    + (d.ytm!=null?'<div class="kpi-tile"><div class="kpi-label">YTM</div><div class="kpi-value">'+fmtPct(d.ytm)+'</div></div>':'')
-    + '</div>'
-    + '<table class="simple"><thead><tr><th>Scenario</th><th style="text-align:right">Recovery</th><th style="text-align:right">EV value</th></tr></thead><tbody>'
-    + sc.map(function(s){return '<tr><td>'+esc(s.scenario||'')+'</td><td class="num">'+fmtPct(s.recovery_pct)+'</td><td class="num">$'+fmtN(s.ev_value,2)+'</td></tr>';}).join('')
-    + '</tbody></table>';
-}
+  function renderIvTerm(d){
+    const pts=(d.points||[]).slice().sort((a,b)=>(a.dte||0)-(b.dte||0));
+    if (pts.length<2) return '<div class="pane-placeholder">Need 2+ tenor points.</div>';
+    const w=460,h=200,m={top:14,right:14,bottom:30,left:42};
+    const iw=w-m.left-m.right,ih=h-m.top-m.bottom;
+    const xs=pts.map(p=>p.dte), ys=pts.map(p=>p.iv);
+    const xmin=Math.min.apply(null,xs), xmax=Math.max.apply(null,xs);
+    const ymin=Math.min.apply(null,ys.concat([0])), ymax=Math.max.apply(null,ys);
+    const xr=xmax-xmin||1, yr=ymax-ymin||1;
+    const X=v=>m.left+((v-xmin)/xr)*iw, Y=v=>m.top+ih-((v-ymin)/yr)*ih;
+    const poly=pts.map(p=>X(p.dte)+','+Y(p.iv)).join(' ');
+    let svg='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:200px"><polyline points="'+poly+'" fill="none" stroke="#1d4ed8" stroke-width="2"/>';
+    pts.forEach(p=>{ svg+='<circle cx="'+X(p.dte)+'" cy="'+Y(p.iv)+'" r="3" fill="#1d4ed8"/><text x="'+X(p.dte)+'" y="'+(h-12)+'" text-anchor="middle" font-size="10" fill="#475569">'+p.dte+'d</text>'; });
+    svg+='</svg>';
+    return svg+'<div class="kpi-grid" style="margin-top:8px">'
+      + (d.iv_rank!=null?'<div class="kpi-tile"><div class="kpi-label">IV rank</div><div class="kpi-value">'+fmtN(d.iv_rank,0)+'</div></div>':'')
+      + (d.regime?'<div class="kpi-tile"><div class="kpi-label">Regime</div><div class="kpi-value" style="font-size:14px">'+esc(d.regime)+'</div></div>':'')
+      + '</div>';
+  }
 
-function renderShortThesis(d){
-  return '<div class="kpi-grid">'
-    + '<div class="kpi-tile"><div class="kpi-label">Short int %</div><div class="kpi-value">'+fmtPct(d.short_interest_pct)+'</div></div>'
-    + '<div class="kpi-tile"><div class="kpi-label">Days to cover</div><div class="kpi-value">'+fmtN(d.days_to_cover,1)+'</div></div>'
-    + '<div class="kpi-tile"><div class="kpi-label">Borrow cost</div><div class="kpi-value">'+fmtPct(d.borrow_cost_pct)+'</div></div>'
-    + (d.upside_protection_strike?'<div class="kpi-tile"><div class="kpi-label">Hedge K</div><div class="kpi-value">$'+fmtN(d.upside_protection_strike,2)+'</div></div>':'')
-    + '</div>'
-    + '<div style="margin-top:10px;padding:10px;background:var(--bg);border-radius:5px"><div class="lbl" style="font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px">Downside catalyst</div>'+esc(d.downside_catalyst||'')+'</div>';
-}
+  function renderFund5fy(d){
+    const yrs=d.years||[];
+    if (!yrs.length) return '<div class="pane-placeholder">No fundamentals.</div>';
+    return '<table class="simple"><thead><tr><th>Year</th>'+['Revenue','EBITDA','FCF','EPS'].map(c=>'<th style="text-align:right">'+c+'</th>').join('')+'</tr></thead><tbody>'
+      + yrs.map(y=>'<tr><td>'+esc(y.year||'')+'</td><td class="num">'+fmtMoney(y.revenue)+'</td><td class="num">'+fmtMoney(y.ebitda)+'</td><td class="num">'+fmtMoney(y.fcf)+'</td><td class="num">'+fmtN(y.eps,2)+'</td></tr>').join('')
+      + '</tbody></table>';
+  }
 
-function renderCoreHolding(d){
-  return '<div class="kpi-grid">'
-    + '<div class="kpi-tile"><div class="kpi-label">Yield</div><div class="kpi-value">'+fmtPct(d.yield)+'</div></div>'
-    + (d.expense_ratio!=null?'<div class="kpi-tile"><div class="kpi-label">Expense</div><div class="kpi-value">'+fmtPct(d.expense_ratio)+'</div></div>':'')
-    + (d.duration!=null?'<div class="kpi-tile"><div class="kpi-label">Duration</div><div class="kpi-value">'+fmtN(d.duration,1)+'</div></div>':'')
-    + (d.credit_quality?'<div class="kpi-tile"><div class="kpi-label">Credit</div><div class="kpi-value" style="font-size:14px">'+esc(d.credit_quality)+'</div></div>':'')
-    + '<div class="kpi-tile"><div class="kpi-label">% of NAV</div><div class="kpi-value">'+fmtPct(d.sizing_pct_of_nav)+'</div></div>'
-    + '</div>';
-}
+  function renderGrowthMultiple(d){
+    const sc=d.scenarios||[];
+    return '<table class="simple"><thead><tr><th>Scenario</th><th style="text-align:right">Multiple</th><th style="text-align:right">Growth</th><th style="text-align:right">Implied price</th><th style="text-align:right">Return</th></tr></thead><tbody>'
+      + sc.map(s=>{const r=Number(s.return_pct);return '<tr><td>'+esc(s.label||'')+'</td><td class="num">'+fmtN(s.multiple,1)+'x</td><td class="num">'+fmtPct(s.growth_pct)+'</td><td class="num">$'+fmtN(s.implied_price,2)+'</td><td class="num '+(r>0?'pos':(r<0?'neg':''))+'">'+fmtPct(s.return_pct)+'</td></tr>';}).join('')
+      + '</tbody></table>';
+  }
 
-function renderRankedList(d){
-  const items = d.items||[];
-  return '<div style="display:flex;flex-direction:column;gap:6px">'
-    + items.map(function(it,i){
-      return '<div style="display:grid;grid-template-columns:32px 80px 60px 1fr;gap:10px;padding:8px 10px;background:var(--bg);border-radius:5px;align-items:center">'
-        + '<div style="font-family:var(--mono);font-size:13px;color:#6b7280">#'+(i+1)+'</div>'
-        + '<div><strong>'+esc(it.ticker||'')+'</strong></div>'
-        + '<div class="num" style="font-family:var(--mono);font-size:12px">'+fmtN(it.score,1)+'</div>'
-        + '<div style="font-size:12.5px;color:#475569">'+esc(it.reason||'')+'</div>'
-        + '</div>';
-    }).join('')
-    + '</div>';
-}
+  function renderPeers(d){
+    const t=d.tickers||[];
+    return '<table class="simple"><thead><tr><th>Ticker</th><th style="text-align:right">P/E</th><th style="text-align:right">EV/EBITDA</th><th style="text-align:right">FCF yld</th><th style="text-align:right">Rev gr</th><th style="text-align:right">1y return</th></tr></thead><tbody>'
+      + t.map(p=>'<tr><td><strong>'+esc(p.ticker||'')+'</strong></td><td class="num">'+fmtN(p.pe,1)+'</td><td class="num">'+fmtN(p.ev_ebitda,1)+'</td><td class="num">'+fmtPct(p.fcf_yield)+'</td><td class="num">'+fmtPct(p.rev_growth)+'</td><td class="num '+((Number(p.return_1y)||0)>0?'pos':'neg')+'">'+fmtPct(p.return_1y)+'</td></tr>').join('')
+      + '</tbody></table>';
+  }
 
-function renderBar(d){
-  const labels=d.labels||[], values=d.values||[];
-  if (!labels.length) return '<div class="pane-placeholder">No data.</div>';
-  const max=Math.max.apply(null,values.concat([1]));
-  const h=Math.max(160,labels.length*28);
-  let svg='<svg viewBox="0 0 460 '+h+'" style="width:100%;height:auto"><defs></defs>';
-  labels.forEach((l,i)=>{const v=values[i]||0; const w=(max>0?(280*v/max):0); const y=i*28+8;
-    svg+='<text x="98" y="'+(y+14)+'" text-anchor="end" font-size="11" fill="#475569">'+esc(l)+'</text>'
-      +'<rect x="108" y="'+y+'" width="'+w+'" height="18" rx="3" fill="#1d4ed8"/>'
-      +'<text x="'+(108+w+6)+'" y="'+(y+14)+'" font-size="11" fill="#0f172a">'+(v>=1000?fmtMoney(v):fmtN(v,2))+'</text>';});
-  svg+='</svg>'; return svg;
-}
+  function renderSizing(d){
+    return '<div class="kpi-grid">'
+      + '<div class="kpi-tile"><div class="kpi-label">Ticker</div><div class="kpi-value">'+esc(d.ticker||'')+'</div></div>'
+      + '<div class="kpi-tile"><div class="kpi-label">Structure</div><div class="kpi-value" style="font-size:14px">'+esc(d.structure||'—')+'</div></div>'
+      + '<div class="kpi-tile"><div class="kpi-label">Contracts</div><div class="kpi-value">'+esc(d.recommended_contracts||'1')+'</div></div>'
+      + '<div class="kpi-tile"><div class="kpi-label">Sizing $</div><div class="kpi-value">'+fmtMoney(d.sizing_dollars)+'</div></div>'
+      + '<div class="kpi-tile"><div class="kpi-label">Max loss</div><div class="kpi-value">'+fmtMoney(d.max_loss)+'</div></div>'
+      + '<div class="kpi-tile"><div class="kpi-label">% of NAV</div><div class="kpi-value">'+fmtPct(d.pct_of_nav)+'</div></div>'
+      + (d.breakeven_at_expiry!=null?'<div class="kpi-tile"><div class="kpi-label">BE at expiry</div><div class="kpi-value">$'+fmtN(d.breakeven_at_expiry,2)+'</div></div>':'')
+      + (d.days_to_expiry!=null?'<div class="kpi-tile"><div class="kpi-label">DTE</div><div class="kpi-value">'+d.days_to_expiry+'</div></div>':'')
+      + '</div>';
+  }
 
-function renderLine(d){
-  const l=d.labels||[],v=d.values||[];
-  if (v.length<2) return '<div class="pane-placeholder">Need 2+ points.</div>';
-  const w=460,h=180,m={top:12,right:12,bottom:24,left:42};
-  const iw=w-m.left-m.right,ih=h-m.top-m.bottom;
-  const max=Math.max.apply(null,v),min=Math.min.apply(null,v),r=max-min||1;
-  const xs=iw/(v.length-1);
-  const pts=v.map((y,i)=>(m.left+i*xs)+','+(m.top+ih-((y-min)/r)*ih)).join(' ');
-  let svg='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:180px">'
-    +'<polyline points="'+pts+'" fill="none" stroke="#1d4ed8" stroke-width="2"/>'
-    +'<text x="'+m.left+'" y="'+(h-6)+'" font-size="10" fill="#6b7280">'+esc(l[0]||'')+'</text>'
-    +'<text x="'+(m.left+iw)+'" y="'+(h-6)+'" text-anchor="end" font-size="10" fill="#6b7280">'+esc(l[l.length-1]||'')+'</text>'
-    +'</svg>'; return svg;
-}
+  function renderCatalysts(d){
+    const cs=(d.catalysts||[]).slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||'')));
+    if (!cs.length) return '<div class="pane-placeholder">No catalysts.</div>';
+    return '<div style="display:flex;flex-direction:column;gap:8px">'
+      + cs.map(c=>{const i=c.impact||'medium';const col=i==='high'?'#dc2626':(i==='medium'?'#d97706':'#6b7280');return '<div style="display:grid;grid-template-columns:90px 1fr auto;gap:10px;align-items:center;padding:7px 10px;background:var(--bg);border-radius:5px"><div style="font-family:var(--mono);font-size:11px;color:#475569">'+esc(c.date||'—')+'</div><div><strong>'+esc(c.label||'')+'</strong><div style="font-family:var(--mono);font-size:10px;color:#6b7280">'+esc(c.type||'')+'</div></div><div style="font-family:var(--mono);font-size:9px;color:'+col+'">'+i.toUpperCase()+'</div></div>';}).join('')
+      + '</div>';
+  }
 
-function renderTable(d){
-  const cols=d.columns||[],rows=d.rows||[];
-  return '<table class="simple"><thead><tr>'+cols.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'
-    + rows.map(r=>'<tr>'+r.map((cell,i)=>'<td'+(typeof cell==='number'?' class="num"':'')+'>'+esc(typeof cell==='number'?fmtN(cell,2):cell)+'</td>').join('')+'</tr>').join('')
-    + '</tbody></table>';
-}
+  function renderDealArb(d){
+    const r=Number(d.spread_pct);
+    return '<div class="kpi-grid">'
+      + '<div class="kpi-tile"><div class="kpi-label">Deal price</div><div class="kpi-value">$'+fmtN(d.deal_price,2)+'</div></div>'
+      + '<div class="kpi-tile"><div class="kpi-label">Current</div><div class="kpi-value">$'+fmtN(d.current_price,2)+'</div></div>'
+      + '<div class="kpi-tile"><div class="kpi-label">Spread</div><div class="kpi-value '+(r>0?'kpi-delta up':'kpi-delta down')+'">'+fmtPct(d.spread_pct)+'</div></div>'
+      + (d.prob_close!=null?'<div class="kpi-tile"><div class="kpi-label">Prob close</div><div class="kpi-value">'+fmtPct(d.prob_close)+'</div></div>':'')
+      + '<div class="kpi-tile"><div class="kpi-label">Days to close</div><div class="kpi-value">'+esc(d.days_to_close||'—')+'</div></div>'
+      + '<div class="kpi-tile"><div class="kpi-label">Break downside</div><div class="kpi-value">$'+fmtN(d.downside_break_price,2)+'</div></div>'
+      + '<div class="kpi-tile"><div class="kpi-label">Downside %</div><div class="kpi-value kpi-delta down">'+fmtPct(d.downside_pct)+'</div></div>'
+      + '</div>';
+  }
 
-function renderInvestorTable(d){
-  const h = d.holdings||[];
-  return '<div style="margin-bottom:10px"><strong>'+esc(d.investor_name||'')+'</strong> · '+esc(d.period||'')+' · '+fmtMoney(d.total_value_usd)+'</div>'
-    + '<table class="simple"><thead><tr><th>Ticker</th><th>Name</th><th style="text-align:right">% port</th><th style="text-align:right">Prior</th><th>Change</th><th style="text-align:right">$ size</th></tr></thead><tbody>'
-    + h.map(function(x){return '<tr><td><strong>'+esc(x.ticker||'')+'</strong></td><td>'+esc(x.name||'')+'</td><td class="num">'+fmtPct(x.pct)+'</td><td class="num">'+fmtPct(x.prior_pct)+'</td><td><span class="pill pill-'+(x.change_type||'unchanged')+'">'+esc(x.change_type||'unchanged')+'</span></td><td class="num">'+fmtMoney(x.size_usd)+'</td></tr>';}).join('')
-    + '</tbody></table>';
-}
+  function renderPair(d){
+    let svg='';
+    if (Array.isArray(d.spread_history) && d.spread_history.length>1){
+      const w=460,h=160,m={top:12,right:12,bottom:24,left:38};
+      const iw=w-m.left-m.right,ih=h-m.top-m.bottom;
+      const ys=d.spread_history.map(p=>p.spread);
+      const ymin=Math.min.apply(null,ys), ymax=Math.max.apply(null,ys);
+      const yr=ymax-ymin||1;
+      const X=i=>m.left+(i/(ys.length-1))*iw, Y=v=>m.top+ih-((v-ymin)/yr)*ih;
+      svg='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:160px"><polyline points="'+d.spread_history.map((p,i)=>X(i)+','+Y(p.spread)).join(' ')+'" fill="none" stroke="#1d4ed8" stroke-width="1.5"/>'+(d.mean_spread!=null?'<line x1="'+m.left+'" y1="'+Y(d.mean_spread)+'" x2="'+(m.left+iw)+'" y2="'+Y(d.mean_spread)+'" stroke="#94a3b8" stroke-dasharray="3,3"/>':'')+'</svg>';
+    }
+    return svg+'<div class="kpi-grid" style="margin-top:8px">'
+      + '<div class="kpi-tile"><div class="kpi-label">Long</div><div class="kpi-value">'+esc(d.long_ticker||'')+'</div></div>'
+      + '<div class="kpi-tile"><div class="kpi-label">Short</div><div class="kpi-value">'+esc(d.short_ticker||'')+'</div></div>'
+      + '<div class="kpi-tile"><div class="kpi-label">Correlation</div><div class="kpi-value">'+fmtN(d.correlation,2)+'</div></div>'
+      + '<div class="kpi-tile"><div class="kpi-label">Beta</div><div class="kpi-value">'+fmtN(d.beta,2)+'</div></div>'
+      + (d.current_spread!=null?'<div class="kpi-tile"><div class="kpi-label">Current</div><div class="kpi-value">'+fmtN(d.current_spread,3)+'</div></div>':'')
+      + (d.mean_spread!=null?'<div class="kpi-tile"><div class="kpi-label">Mean</div><div class="kpi-value">'+fmtN(d.mean_spread,3)+'</div></div>':'')
+      + (d.sigma!=null?'<div class="kpi-tile"><div class="kpi-label">σ</div><div class="kpi-value">'+fmtN(d.sigma,3)+'</div></div>':'')
+      + '</div>';
+  }
 
-main();
+  function renderCredit(d){
+    const sc=d.recovery_scenarios||[];
+    return '<div class="kpi-grid" style="margin-bottom:10px">'
+      + '<div class="kpi-tile"><div class="kpi-label">Bond price</div><div class="kpi-value">$'+fmtN(d.bond_price,2)+'</div></div>'
+      + (d.ytm!=null?'<div class="kpi-tile"><div class="kpi-label">YTM</div><div class="kpi-value">'+fmtPct(d.ytm)+'</div></div>':'')
+      + '</div>'
+      + '<table class="simple"><thead><tr><th>Scenario</th><th style="text-align:right">Recovery</th><th style="text-align:right">EV value</th></tr></thead><tbody>'
+      + sc.map(s=>'<tr><td>'+esc(s.scenario||'')+'</td><td class="num">'+fmtPct(s.recovery_pct)+'</td><td class="num">$'+fmtN(s.ev_value,2)+'</td></tr>').join('')
+      + '</tbody></table>';
+  }
+
+  function renderShortThesis(d){
+    return '<div class="kpi-grid">'
+      + '<div class="kpi-tile"><div class="kpi-label">Short int %</div><div class="kpi-value">'+fmtPct(d.short_interest_pct)+'</div></div>'
+      + '<div class="kpi-tile"><div class="kpi-label">Days to cover</div><div class="kpi-value">'+fmtN(d.days_to_cover,1)+'</div></div>'
+      + '<div class="kpi-tile"><div class="kpi-label">Borrow cost</div><div class="kpi-value">'+fmtPct(d.borrow_cost_pct)+'</div></div>'
+      + (d.upside_protection_strike?'<div class="kpi-tile"><div class="kpi-label">Hedge K</div><div class="kpi-value">$'+fmtN(d.upside_protection_strike,2)+'</div></div>':'')
+      + '</div>'
+      + '<div style="margin-top:10px;padding:10px;background:var(--bg);border-radius:5px"><div style="font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px">Downside catalyst</div>'+esc(d.downside_catalyst||'')+'</div>';
+  }
+
+  function renderCoreHolding(d){
+    return '<div class="kpi-grid">'
+      + '<div class="kpi-tile"><div class="kpi-label">Yield</div><div class="kpi-value">'+fmtPct(d.yield)+'</div></div>'
+      + (d.expense_ratio!=null?'<div class="kpi-tile"><div class="kpi-label">Expense</div><div class="kpi-value">'+fmtPct(d.expense_ratio)+'</div></div>':'')
+      + (d.duration!=null?'<div class="kpi-tile"><div class="kpi-label">Duration</div><div class="kpi-value">'+fmtN(d.duration,1)+'</div></div>':'')
+      + (d.credit_quality?'<div class="kpi-tile"><div class="kpi-label">Credit</div><div class="kpi-value" style="font-size:14px">'+esc(d.credit_quality)+'</div></div>':'')
+      + '<div class="kpi-tile"><div class="kpi-label">% of NAV</div><div class="kpi-value">'+fmtPct(d.sizing_pct_of_nav)+'</div></div>'
+      + '</div>';
+  }
+
+  function renderRankedList(d){
+    const items=d.items||[];
+    return '<div style="display:flex;flex-direction:column;gap:6px">'
+      + items.map((it,i)=>'<div style="display:grid;grid-template-columns:32px 80px 60px 1fr;gap:10px;padding:8px 10px;background:var(--bg);border-radius:5px;align-items:center"><div style="font-family:var(--mono);font-size:13px;color:#6b7280">#'+(i+1)+'</div><div><strong>'+esc(it.ticker||'')+'</strong></div><div class="num" style="font-family:var(--mono);font-size:12px">'+fmtN(it.score,1)+'</div><div style="font-size:12.5px;color:#475569">'+esc(it.reason||'')+'</div></div>').join('')
+      + '</div>';
+  }
+
+  function renderBar(d){
+    const labels=d.labels||[], values=d.values||[];
+    if (!labels.length) return '<div class="pane-placeholder">No data.</div>';
+    const max=Math.max.apply(null,values.concat([1]));
+    const h=Math.max(160,labels.length*28);
+    let svg='<svg viewBox="0 0 460 '+h+'" style="width:100%;height:auto">';
+    labels.forEach((l,i)=>{const v=values[i]||0; const w=(max>0?(280*v/max):0); const y=i*28+8;svg+='<text x="98" y="'+(y+14)+'" text-anchor="end" font-size="11" fill="#475569">'+esc(l)+'</text><rect x="108" y="'+y+'" width="'+w+'" height="18" rx="3" fill="#1d4ed8"/><text x="'+(108+w+6)+'" y="'+(y+14)+'" font-size="11" fill="#0f172a">'+(v>=1000?fmtMoney(v):fmtN(v,2))+'</text>';});
+    svg+='</svg>'; return svg;
+  }
+
+  function renderLine(d){
+    const l=d.labels||[],v=d.values||[];
+    if (v.length<2) return '<div class="pane-placeholder">Need 2+ points.</div>';
+    const w=460,h=180,m={top:12,right:12,bottom:24,left:42};
+    const iw=w-m.left-m.right,ih=h-m.top-m.bottom;
+    const max=Math.max.apply(null,v),min=Math.min.apply(null,v),r=max-min||1;
+    const xs=iw/(v.length-1);
+    const pts=v.map((y,i)=>(m.left+i*xs)+','+(m.top+ih-((y-min)/r)*ih)).join(' ');
+    return '<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:180px"><polyline points="'+pts+'" fill="none" stroke="#1d4ed8" stroke-width="2"/><text x="'+m.left+'" y="'+(h-6)+'" font-size="10" fill="#6b7280">'+esc(l[0]||'')+'</text><text x="'+(m.left+iw)+'" y="'+(h-6)+'" text-anchor="end" font-size="10" fill="#6b7280">'+esc(l[l.length-1]||'')+'</text></svg>';
+  }
+
+  function renderTable(d){
+    const cols=d.columns||[],rows=d.rows||[];
+    return '<table class="simple"><thead><tr>'+cols.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'
+      + rows.map(r=>'<tr>'+r.map(cell=>'<td'+(typeof cell==='number'?' class="num"':'')+'>'+esc(typeof cell==='number'?fmtN(cell,2):cell)+'</td>').join('')+'</tr>').join('')
+      + '</tbody></table>';
+  }
+
+  function renderInvestorTable(d){
+    const h=d.holdings||[];
+    return '<div style="margin-bottom:10px"><strong>'+esc(d.investor_name||'')+'</strong> · '+esc(d.period||'')+' · '+fmtMoney(d.total_value_usd)+'</div>'
+      + '<table class="simple"><thead><tr><th>Ticker</th><th>Name</th><th style="text-align:right">% port</th><th style="text-align:right">Prior</th><th>Change</th><th style="text-align:right">$ size</th></tr></thead><tbody>'
+      + h.map(x=>'<tr><td><strong>'+esc(x.ticker||'')+'</strong></td><td>'+esc(x.name||'')+'</td><td class="num">'+fmtPct(x.pct)+'</td><td class="num">'+fmtPct(x.prior_pct)+'</td><td><span class="pill pill-'+(x.change_type||'unchanged')+'">'+esc(x.change_type||'unchanged')+'</span></td><td class="num">'+fmtMoney(x.size_usd)+'</td></tr>').join('')
+      + '</tbody></table>';
+  }
+
+  main();
+})();
 </script>
 </body>
 </html>
