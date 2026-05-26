@@ -13,7 +13,7 @@
     --bg:#fff;--bg-tint:#f8fafc;--bg-blue:#eff6ff;--border:#e2e8f0;--border-blue:#bfdbfe;
     --text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
     --accent:#2563eb;--accent-dark:#1e40af;
-    --success:#059669;--success-bg:#d1fae5;--warning:#d97706;--warning-bg:#fed7aa;
+    --success:#059669;--success-bg:#d1fae5;--warning:#d97706;
     --danger:#dc2626;--danger-bg:#fee2e2;
     --serif:'Source Serif 4',Georgia,serif;--sans:'Inter',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace;
   }
@@ -21,14 +21,15 @@
   body{background:var(--bg-tint);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh}
   .hidden{display:none!important}
   .loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim)}
-  .shell{max-width:1480px;margin:0 auto;padding:0 24px 80px}
+  .shell{max-width:1600px;margin:0 auto;padding:0 24px 80px}
 
   h1.page-title{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-0.02em;margin:24px 0 4px}
   .page-sub{color:var(--text-muted);margin:0 0 22px;font-size:14px}
 
-  .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:9px 14px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:9px 14px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500;transition:all .12s}
   .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)} .btn-primary:disabled{opacity:.5;cursor:wait}
   .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
+  .btn-success{background:var(--success);color:#fff;border-color:var(--success)} .btn-success:hover{background:#047857}
   .btn-sm{font-size:10px;padding:5px 9px}
 
   .banner-card{background:var(--bg);border:1px solid var(--border);border-radius:6px;margin-bottom:18px;overflow:hidden}
@@ -51,7 +52,7 @@
   .preset-chips button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 
   .results-wrap{overflow-x:auto}
-  table{width:100%;border-collapse:collapse;font-size:12px;min-width:1400px}
+  table{width:100%;border-collapse:collapse;font-size:12px;min-width:1500px}
   th{text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);padding:8px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;background:var(--bg-tint);position:sticky;top:0;z-index:2;white-space:nowrap}
   th:hover{color:var(--accent)}
   th.sorted-asc::after{content:' ↑';color:var(--accent)}
@@ -61,6 +62,7 @@
   td a{color:var(--accent);text-decoration:none;font-weight:600}
   td a:hover{text-decoration:underline}
   tr:hover td{background:var(--bg-blue)}
+  tr.in-wl td{background:rgba(37,99,235,0.04)}
 
   .badge{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:3px;border:1px solid var(--border);background:var(--bg-tint);color:var(--text-muted)}
   .badge.cheap{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
@@ -70,11 +72,21 @@
   .badge.neutral{background:#f1f5f9;border-color:#cbd5e1;color:#334155}
   .badge.no-data{background:var(--bg-tint);border-color:var(--border);color:var(--text-dim);font-style:italic}
   .badge.has-model{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
+  .badge.shortlist{background:#fef3c7;border-color:#fcd34d;color:#92400e}
+  .badge.tier-large{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+  .badge.tier-mid{background:#f1f5f9;border-color:#cbd5e1;color:#334155}
+  .badge.tier-small{background:var(--bg-tint);border-color:var(--border);color:var(--text-dim)}
 
   .empty{padding:32px 20px;text-align:center;color:var(--text-muted);font-size:13px;font-style:italic}
   .msg{padding:10px 14px;font-size:13px;border-radius:4px;line-height:1.5;margin:10px 0}
   .msg-error{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
   .msg-info{background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--accent-dark)}
+  .msg-success{background:var(--success-bg);border:1px solid #a7f3d0;color:#065f46}
+
+  .wl-icon{font-size:13px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;border:1px solid transparent}
+  .wl-icon.add{color:var(--text-dim);border-color:var(--border)}
+  .wl-icon.add:hover{background:var(--bg-blue);color:var(--accent);border-color:var(--accent)}
+  .wl-icon.in{background:var(--accent);color:#fff;border-color:var(--accent);cursor:default}
 
   @media (max-width:980px){ .filter-grid{grid-template-columns:repeat(2,1fr)} }
 </style>
@@ -87,7 +99,7 @@
   <div id="rr-nav-container"></div>
 
   <h1 class="page-title">Screener</h1>
-  <p class="page-sub">Multi-ticker scan combining valuation, growth, thesis model, and vol regime. Presets surface the highest-conviction setups.</p>
+  <p class="page-sub">Universe of <span id="universe-size">—</span> US-listed companies. Filter, sort, and add candidates to your watchlist. Watchlist tickers auto-bootstrap full data (fundamentals, options, vol, insider, analyst).</p>
 
   <div id="msg-area"></div>
 
@@ -98,6 +110,7 @@
     </div>
     <div class="banner-body">
       <div class="preset-chips" id="presets">
+        <button type="button" data-preset="shortlist">Top 100 shortlist</button>
         <button type="button" data-preset="leap_candidates">LEAP candidates</button>
         <button type="button" data-preset="sell_premium">Sell premium</button>
         <button type="button" data-preset="quality_compounders">Quality compounders</button>
@@ -127,10 +140,10 @@
         </div>
         <div class="field-mini"><label>Sector (comma-sep)</label><input type="text" id="f-sectors" placeholder="Technology, Financial Services"></div>
         <div class="field-mini"><label>Limit</label><input type="number" id="f-limit" value="100" min="10" max="500"></div>
-        <div class="field-mini"><label>Toggles</label>
+        <div class="field-mini"><label>Universe</label>
           <div class="check-row" style="padding-top:6px">
-            <label><input type="checkbox" id="f-leaps"> LEAPS</label>
-            <label><input type="checkbox" id="f-warrants"> Warrants</label>
+            <label><input type="checkbox" id="f-optionable" checked> Optionable only</label>
+            <label><input type="checkbox" id="f-shortlist"> Shortlist only</label>
           </div>
         </div>
       </div>
@@ -146,16 +159,19 @@
   <div class="banner-card">
     <div class="banner-head">
       <h2>Results</h2>
-      <span class="banner-meta">Click ticker to research</span>
+      <span class="banner-meta">Click ticker for research · click ＋ to watchlist</span>
     </div>
     <div class="banner-body">
       <div class="results-wrap">
         <table>
           <thead>
             <tr>
+              <th style="width:34px"></th>
               <th data-sort="ticker">Ticker</th>
               <th data-sort="sector">Sector</th>
               <th data-sort="market_cap" style="text-align:right">Mkt cap</th>
+              <th data-sort="market_cap_tier">Tier</th>
+              <th data-sort="quality_score" style="text-align:right">Quality</th>
               <th data-sort="ev_ebitda_ntm" style="text-align:right">EV/EBITDA</th>
               <th data-sort="fcf_yield_ntm" style="text-align:right">FCF yld</th>
               <th data-sort="rev_growth_ntm" style="text-align:right">Rev gr</th>
@@ -163,13 +179,10 @@
               <th data-sort="iv_rank_1y" style="text-align:right">IV rank</th>
               <th data-sort="iv_30d" style="text-align:right">IV30</th>
               <th data-sort="vol_regime">Vol regime</th>
-              <th data-sort="term_structure">Term</th>
               <th data-sort="top_strategy">Top strategy</th>
               <th data-sort="has_active_model">Model</th>
-              <th data-sort="model_implied_price_yr5" style="text-align:right">5y Px</th>
               <th data-sort="model_annualized_return" style="text-align:right">Ann ret</th>
               <th data-sort="asymmetry" style="text-align:right">Asym</th>
-              <th data-sort="margin_of_safety" style="text-align:right">MoS</th>
               <th data-sort="vol_adj_rr" style="text-align:right">Vol-adj R/R</th>
               <th>Actions</th>
             </tr>
@@ -188,11 +201,12 @@
 <script src="/config.js"></script>
 <script>
 (() => {
+  const N8N = 'https://victoryvision.app.n8n.cloud';
   const cfg = window.RR_CONFIG || {};
   const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY);
   let currentUser = null;
   let rows = [];
-  let sortCol = 'model_annualized_return';
+  let sortCol = null;
   let sortDir = 'desc';
 
   const $ = id => document.getElementById(id);
@@ -213,16 +227,54 @@
     if (kind !== 'error') setTimeout(function(){ $('msg-area').innerHTML=''; }, 6000);
   };
 
+  function fireBootstrapForTicker(ticker) {
+    fetch(N8N+'/webhook/research/bootstrap', {
+      method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ ticker: ticker })
+    }).then(function(r){
+      if (!r.ok && r.status === 404) {
+        ['historical/backfill','insider/sync','analyst/sync','options/snap','vol/backfill'].forEach(function(p){
+          fetch(N8N+'/webhook/'+p, {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ticker:ticker})}).catch(function(){});
+        });
+      }
+    }).catch(function(){
+      ['historical/backfill','insider/sync','analyst/sync','options/snap','vol/backfill'].forEach(function(p){
+        fetch(N8N+'/webhook/'+p, {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ticker:ticker})}).catch(function(){});
+      });
+    });
+  }
+
+  async function addToWatchlist(ticker, company_name) {
+    const r = await sb.from('ticker_watchlist').insert({
+      user_id: currentUser.id, ticker: ticker, symbol: ticker,
+      company_name: company_name || null, is_active: true, added_at: new Date().toISOString()
+    });
+    if (r.error) {
+      // If unique violation, just re-activate
+      if (String(r.error.message||'').toLowerCase().indexOf('duplicate') >= 0 || String(r.error.code||'') === '23505') {
+        await sb.from('ticker_watchlist').update({is_active:true}).eq('user_id',currentUser.id).eq('ticker',ticker);
+      } else {
+        flash('Add failed: '+r.error.message,'error');
+        return false;
+      }
+    }
+    flash('Added '+ticker+' to watchlist. Firing research bootstrap.','success');
+    fireBootstrapForTicker(ticker);
+    return true;
+  }
+
   function wireEvents() {
-    $('run-btn').addEventListener('click', function(){ runScan({}); });
+    $('run-btn').addEventListener('click', function(){ runScan(); });
     $('clear-btn').addEventListener('click', function(){
       document.querySelectorAll('.filter-grid input, .filter-grid select').forEach(function(el){
-        if (el.type === 'checkbox') el.checked = false;
-        else if (el.id === 'f-limit') el.value = '100';
+        if (el.type === 'checkbox') {
+          if (el.id === 'f-optionable') el.checked = true;
+          else el.checked = false;
+        } else if (el.id === 'f-limit') el.value = '100';
         else el.value = '';
       });
       document.querySelectorAll('.preset-chips button').forEach(function(b){ b.classList.remove('active'); });
-      runScan({});
+      runScan();
     });
     $('presets').addEventListener('click', function(e){
       const b = e.target.closest('button');
@@ -249,31 +301,40 @@
     show('loading-screen', false);
     show('app', true);
     try { if (window.RidgeRunNav) await window.RidgeRunNav.mount({active:'screener', supabase:sb}); } catch(e){}
+
+    // Populate universe size
+    const cR = await sb.from('companies').select('primary_ticker',{count:'exact',head:true}).eq('is_active',true);
+    $('universe-size').textContent = cR.count != null ? cR.count.toLocaleString() : '?';
+
     wireEvents();
-    runScan({});
+    runScan();
   })();
 
   function applyPreset(name) {
     document.querySelectorAll('.filter-grid input, .filter-grid select').forEach(function(el){
-      if (el.type === 'checkbox') el.checked = false;
-      else if (el.id === 'f-limit') el.value = '100';
+      if (el.type === 'checkbox') {
+        if (el.id === 'f-optionable') el.checked = true;
+        else el.checked = false;
+      } else if (el.id === 'f-limit') el.value = '100';
       else el.value = '';
     });
     switch (name) {
+      case 'shortlist':
+        $('f-shortlist').checked = true; break;
       case 'leap_candidates':
+        $('f-shortlist').checked = true;
         $('f-vol-regime').value = 'cheap_vol_buy';
-        $('f-min-asym').value = '1.5';
         break;
       case 'sell_premium':
         $('f-vol-regime').value = 'rich_vol_sell';
         break;
       case 'quality_compounders':
-        $('f-min-ann').value = '12';
+        $('f-shortlist').checked = true;
         $('f-max-nd').value = '3';
         break;
       case 'asymmetric_upside':
+        $('f-shortlist').checked = true;
         $('f-min-asym').value = '2';
-        $('f-min-ann').value = '15';
         break;
       case 'watchlist':
         runScan({ watchlistOnly: true });
@@ -282,7 +343,7 @@
       default:
         break;
     }
-    runScan({});
+    runScan();
   }
 
   async function runScan(opts) {
@@ -290,22 +351,10 @@
     $('result-count').textContent = 'Scanning…';
     $('results-tbody').innerHTML = '<tr><td colspan="19" class="empty">Loading…</td></tr>';
 
-    const pct = id => {
-      const v = $(id).value;
-      return v === '' || v == null ? null : Number(v)/100;
-    };
-    const num = id => {
-      const v = $(id).value;
-      return v === '' || v == null ? null : Number(v);
-    };
-    const intVal = id => {
-      const v = $(id).value;
-      return v === '' || v == null ? null : parseInt(v, 10);
-    };
-    const txt = id => {
-      const v = $(id).value;
-      return v === '' || v == null ? null : v;
-    };
+    const pct = id => { const v = $(id).value; return v === '' ? null : Number(v)/100; };
+    const num = id => { const v = $(id).value; return v === '' ? null : Number(v); };
+    const intVal = id => { const v = $(id).value; return v === '' ? null : parseInt(v, 10); };
+    const txt = id => { const v = $(id).value; return v === '' ? null : v; };
 
     const sectors = txt('f-sectors');
     const sectorArr = sectors ? sectors.split(',').map(function(s){return s.trim();}).filter(Boolean) : null;
@@ -320,13 +369,15 @@
       p_min_insider_ownership: null,
       p_max_mkt_cap: null,
       p_min_mkt_cap: num('f-min-mcap') != null ? num('f-min-mcap') * 1e6 : null,
-      p_has_leaps: $('f-leaps').checked ? true : null,
-      p_has_warrants: $('f-warrants').checked ? true : null,
+      p_has_leaps: null,
+      p_has_warrants: null,
       p_sectors: sectorArr,
       p_min_asymmetry: num('f-min-asym'),
       p_min_implied_return: pct('f-min-ann'),
       p_vol_regime: txt('f-vol-regime'),
-      p_limit: intVal('f-limit') || 100
+      p_limit: intVal('f-limit') || 100,
+      p_shortlist_only: $('f-shortlist').checked,
+      p_optionable_only: $('f-optionable').checked
     };
 
     const r = await sb.rpc('screen_companies', params);
@@ -338,12 +389,7 @@
     }
 
     let resultRows = r.data || [];
-    if (opts.watchlistOnly) {
-      const wl = await sb.from('ticker_watchlist').select('ticker').eq('user_id', currentUser.id).eq('is_active', true);
-      const set = {};
-      (wl.data||[]).forEach(function(rw){ set[rw.ticker]=1; });
-      resultRows = resultRows.filter(function(rw){ return set[rw.ticker]; });
-    }
+    if (opts.watchlistOnly) resultRows = resultRows.filter(function(rw){ return rw.in_watchlist; });
 
     rows = resultRows;
     $('result-count').textContent = rows.length + ' result' + (rows.length===1?'':'s');
@@ -353,7 +399,7 @@
 
   function renderTable() {
     if (!rows.length) {
-      $('results-tbody').innerHTML = '<tr><td colspan="19" class="empty">No matches. Loosen filters.</td></tr>';
+      $('results-tbody').innerHTML = '<tr><td colspan="19" class="empty">No matches. Loosen filters or uncheck "Optionable only" / "Shortlist only".</td></tr>';
       return;
     }
     let sorted = rows.slice();
@@ -381,29 +427,46 @@
       const termCls = r.term_structure === 'contango' ? 'lean-buy' : r.term_structure === 'backwardation' ? 'lean-sell' : 'neutral';
       const stratLabel = (r.top_strategy||'').replace(/_/g,' ');
       const ar = r.model_annualized_return == null ? null : Number(r.model_annualized_return);
-      return '<tr>'
-        + '<td><a href="/research.html?ticker='+esc(r.ticker)+'">'+esc(r.ticker)+'</a></td>'
+      const wlBtn = r.in_watchlist
+        ? '<span class="wl-icon in" title="Already in watchlist">✓</span>'
+        : '<button type="button" class="wl-icon add" data-add-wl="'+esc(r.ticker)+'" data-name="'+esc(r.company_name||'')+'" title="Add '+esc(r.ticker)+' to watchlist">＋</button>';
+      const tierCls = r.market_cap_tier ? 'tier-'+r.market_cap_tier : 'no-data';
+      return '<tr class="'+(r.in_watchlist?'in-wl':'')+'">'
+        + '<td>'+wlBtn+'</td>'
+        + '<td><a href="/research.html?ticker='+esc(r.ticker)+'">'+esc(r.ticker)+'</a>'
+          + (r.monthly_shortlist?' <span class="badge shortlist" title="Top 100 monthly shortlist">★</span>':'')
+          + '</td>'
         + '<td>'+esc(r.sector||'')+'</td>'
         + '<td class="num">'+fmtBigUSD(r.market_cap)+'</td>'
+        + '<td><span class="badge '+tierCls+'">'+esc(r.market_cap_tier||'—')+'</span></td>'
+        + '<td class="num">'+(r.quality_score!=null?Math.round(r.quality_score):'—')+'</td>'
         + '<td class="num">'+fmt2(r.ev_ebitda_ntm)+'</td>'
         + '<td class="num">'+(r.fcf_yield_ntm!=null?fmtPct(r.fcf_yield_ntm):'—')+'</td>'
         + '<td class="num">'+(r.rev_growth_ntm!=null?fmtPct(r.rev_growth_ntm):'—')+'</td>'
         + '<td class="num">'+fmt2(r.net_debt_ebitda)+'</td>'
         + '<td class="num">'+(r.iv_rank_1y!=null?Math.round(r.iv_rank_1y):'—')+'</td>'
         + '<td class="num">'+(r.iv_30d!=null?fmtPct(r.iv_30d):'—')+'</td>'
-        + '<td><span class="badge '+volCls+'">'+esc((r.vol_regime||'').replace(/_/g,' '))+'</span></td>'
-        + '<td><span class="badge '+termCls+'">'+esc(r.term_structure||'—')+'</span></td>'
+        + '<td><span class="badge '+volCls+'">'+esc((r.vol_regime||'no data').replace(/_/g,' '))+'</span></td>'
         + '<td><span class="badge '+stratCls(r.top_strategy)+'">'+esc(stratLabel||'—')+'</span></td>'
         + '<td>'+(r.has_active_model ? '<span class="badge has-model">model</span>' : '<span class="badge no-data">—</span>')+'</td>'
-        + '<td class="num">'+(r.model_implied_price_yr5!=null?'$'+fmt2(r.model_implied_price_yr5):'—')+'</td>'
         + '<td class="num '+(ar>0?'pos':ar<0?'neg':'')+'">'+(ar!=null?fmtPct(ar):'—')+'</td>'
         + '<td class="num">'+(r.asymmetry!=null?Number(r.asymmetry).toFixed(2)+'×':'—')+'</td>'
-        + '<td class="num">'+(r.margin_of_safety!=null?fmtPct(r.margin_of_safety):'—')+'</td>'
         + '<td class="num">'+(r.vol_adj_rr!=null?Number(r.vol_adj_rr).toFixed(2):'—')+'</td>'
-        + '<td><a href="/research.html?ticker='+esc(r.ticker)+'" class="btn btn-sm btn-ghost" style="text-decoration:none">Research</a> '
-        + '<a href="/model.html?ticker='+esc(r.ticker)+'" class="btn btn-sm btn-ghost" style="text-decoration:none">Model</a></td>'
+        + '<td><a href="/research.html?ticker='+esc(r.ticker)+'" class="btn btn-sm btn-ghost" style="text-decoration:none">Research</a></td>'
         + '</tr>';
     }).join('');
+
+    $('results-tbody').querySelectorAll('button[data-add-wl]').forEach(function(b){
+      b.addEventListener('click', async function(){
+        const t = b.dataset.addWl;
+        const ok = await addToWatchlist(t, b.dataset.name);
+        if (ok) {
+          // mark this ticker in-watchlist locally and re-render
+          rows.forEach(function(rw){ if (rw.ticker === t) rw.in_watchlist = true; });
+          renderTable();
+        }
+      });
+    });
   }
 
   function volBadgeCls(v) {
