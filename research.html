@@ -481,67 +481,74 @@
     const r = await sb.from('options_chain_snapshots')
       .select('expiry, strike, side, bid, ask, last, volume, open_interest, iv, delta, gamma, theta, vega, underlying_price, as_of_date')
       .eq('ticker', ticker).gte('as_of_date', fiveDaysAgo)
-      .order('expiry',{ascending:true}).order('strike',{ascending:true}).limit(2000);
+      .order('expiry',{ascending:true}).order('strike',{ascending:true}).limit(5000);
     const data = r.data; const error = r.error;
     if (error || !data || !data.length) {
-      $('sec-chain').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>Options chain</h2><span class="banner-meta">Multi-strike · multi-expiry · bid/ask/IV/greeks/OI</span></div>'
+      $('sec-chain').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>Options expirations</h2><span class="banner-meta">Click an expiry to see all strikes</span></div>'
         + '<div class="banner-body"><div class="empty">No recent options chain for '+esc(ticker)+'. Click "Refresh data" above to fire backfill.'+(error?' Error: '+esc(error.message):'')+'</div></div></div>';
       return;
     }
     const latestDate = data.reduce((m,row) => row.as_of_date > m ? row.as_of_date : m, '');
     const fresh = data.filter(row => row.as_of_date === latestDate);
     const spot = (fresh[0] && fresh[0].underlying_price) || currentSpot;
-    const expiries = Array.from(new Set(fresh.map(row => row.expiry))).sort();
+
+    // Group by expiry — compute summary stats per expiry
+    const byExp = {};
+    fresh.forEach(rw => {
+      if (!byExp[rw.expiry]) byExp[rw.expiry] = { calls:0, puts:0, total_oi:0, total_vol:0, ivs:[], strikes:new Set(), rows:[] };
+      const g = byExp[rw.expiry];
+      g.rows.push(rw);
+      if (rw.side === 'call') g.calls++; else if (rw.side === 'put') g.puts++;
+      if (rw.open_interest!=null) g.total_oi += Number(rw.open_interest)||0;
+      if (rw.volume!=null) g.total_vol += Number(rw.volume)||0;
+      if (rw.iv!=null && spot && Math.abs(rw.strike-spot)/spot < 0.05) g.ivs.push(Number(rw.iv));
+      g.strikes.add(rw.strike);
+    });
+    const today = new Date();
+    const expRows = Object.keys(byExp).sort().map(exp => {
+      const g = byExp[exp];
+      const dte = Math.round((new Date(exp+'T00:00:00Z').getTime() - today.getTime()) / 86400000);
+      const atmIv = g.ivs.length ? (g.ivs.reduce((a,b)=>a+b,0)/g.ivs.length) : null;
+      return { expiry: exp, dte: dte, atm_iv: atmIv, strikes: g.strikes.size, calls: g.calls, puts: g.puts, total_oi: g.total_oi, total_vol: g.total_vol, rows: g.rows };
+    });
 
     $('sec-chain').innerHTML = ''
-      + '<div class="banner-card"><div class="banner-head"><h2>Options chain</h2>'
-      + '<span class="banner-meta">As of '+esc(latestDate)+' · Spot $'+fmt2(spot)+' · '+fresh.length+' contracts · '+expiries.length+' expirations</span>'
+      + '<div class="banner-card"><div class="banner-head"><h2>Options expirations</h2>'
+      + '<span class="banner-meta">As of '+esc(latestDate)+' · Spot $'+fmt2(spot)+' · '+expRows.length+' expirations · '+fresh.length+' contracts</span>'
       + '</div><div class="banner-body">'
-      + '<div class="chain-controls">'
-      + '<label>Expiry <select id="chain-expiry"><option value="">All ('+expiries.length+')</option>'+expiries.map(e=>'<option value="'+esc(e)+'">'+esc(e)+'</option>').join('')+'</select></label>'
-      + '<label>Side <select id="chain-side"><option value="">Both</option><option value="call">Calls only</option><option value="put">Puts only</option></select></label>'
-      + '<label>Strike window <select id="chain-pct"><option value="0.20" selected>±20%</option><option value="0.10">±10%</option><option value="0.30">±30%</option><option value="1.0">All</option></select></label>'
-      + '<label>Min OI <input type="number" id="chain-min-oi" min="0" value="0" style="width:80px"></label>'
-      + '</div>'
-      + '<div class="chain-wrap"><table><thead><tr>'
-      + '<th>Expiry</th><th>Strike</th><th>Side</th>'
-      + '<th style="text-align:right">Bid</th><th style="text-align:right">Ask</th><th style="text-align:right">Last</th>'
+      + '<table style="cursor:pointer"><thead><tr>'
+      + '<th>Expiry</th><th style="text-align:right">DTE</th>'
+      + '<th style="text-align:right">ATM IV</th>'
+      + '<th style="text-align:right">Strikes</th>'
+      + '<th style="text-align:right">Calls</th><th style="text-align:right">Puts</th>'
+      + '<th style="text-align:right">Total OI</th><th style="text-align:right">Total vol</th>'
+      + '</tr></thead><tbody id="exp-tbody"></tbody></table>'
+      + '</div></div>'
+      + '<div id="strikes-modal-root"></div>';
+    $('exp-tbody').innerHTML = expRows.map((e,i) => '<tr data-exp-idx="'+i+'" style="cursor:pointer"><td><strong>'+esc(e.expiry)+'</strong></td><td class="num">'+e.dte+'</td><td class="num">'+(e.atm_iv!=null?(e.atm_iv*100).toFixed(1)+'%':'—')+'</td><td class="num">'+e.strikes+'</td><td class="num">'+e.calls+'</td><td class="num">'+e.puts+'</td><td class="num">'+Number(e.total_oi).toLocaleString()+'</td><td class="num">'+Number(e.total_vol).toLocaleString()+'</td></tr>').join('');
+    document.querySelectorAll('[data-exp-idx]').forEach(tr => {
+      tr.addEventListener('click', () => openStrikesModal(expRows[parseInt(tr.dataset.expIdx,10)], spot, ticker));
+    });
+  }
+
+  function openStrikesModal(exp, spot, ticker) {
+    const rows = exp.rows.slice().sort((a,b) => a.strike - b.strike || (a.side > b.side ? 1 : -1));
+    const html = ''
+      + '<div class="modal-bg" id="sm-bg" style="position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:60">'
+      + '<div class="modal-card" style="background:var(--card);border:1px solid var(--border);border-radius:8px;width:min(1100px,95vw);max-height:88vh;overflow-y:auto">'
+      + '<div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">'
+      + '<h3 style="margin:0;font-family:var(--font-serif)">'+esc(ticker)+' · '+esc(exp.expiry)+' ('+exp.dte+' DTE) · Spot $'+fmt2(spot)+'</h3>'
+      + '<button id="sm-close" style="background:none;border:none;font-size:22px;cursor:pointer">×</button></div>'
+      + '<div style="padding:12px 18px"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>'
+      + '<th>Strike</th><th>Side</th><th style="text-align:right">Bid</th><th style="text-align:right">Ask</th><th style="text-align:right">Last</th>'
       + '<th style="text-align:right">IV</th><th style="text-align:right">Δ</th><th style="text-align:right">Γ</th><th style="text-align:right">Θ</th><th style="text-align:right">ν</th>'
       + '<th style="text-align:right">OI</th><th style="text-align:right">Vol</th>'
-      + '</tr></thead><tbody id="chain-tbody"></tbody></table></div>'
-      + '</div></div>';
-
-    const render = () => {
-      const exp = $('chain-expiry').value;
-      const side = $('chain-side').value;
-      const pct = parseFloat($('chain-pct').value);
-      const minOI = parseInt($('chain-min-oi').value||'0', 10);
-      const lo = spot ? spot*(1-pct) : 0;
-      const hi = spot ? spot*(1+pct) : Infinity;
-      const rows = fresh.filter(rw => {
-        if (exp && rw.expiry !== exp) return false;
-        if (side && rw.side !== side) return false;
-        if (pct < 1 && spot && (rw.strike < lo || rw.strike > hi)) return false;
-        if (minOI > 0 && (rw.open_interest||0) < minOI) return false;
-        return true;
-      });
-      if (!rows.length) {
-        $('chain-tbody').innerHTML = '<tr><td colspan="13" class="empty">No contracts match filters.</td></tr>';
-        return;
-      }
-      const grouped = {};
-      rows.forEach(rw => { (grouped[rw.expiry] = grouped[rw.expiry]||[]).push(rw); });
-      const atmByExp = {};
-      Object.keys(grouped).forEach(e => {
-        const strikes = Array.from(new Set(grouped[e].map(rw=>rw.strike)));
-        if (spot && strikes.length) atmByExp[e] = strikes.reduce((a,b)=>Math.abs(b-spot)<Math.abs(a-spot)?b:a);
-      });
-      $('chain-tbody').innerHTML = rows.map(rw => {
-        const isATM = spot && rw.strike === atmByExp[rw.expiry];
+      + '</tr></thead><tbody>'
+      + rows.map(rw => {
+        const isATM = spot && Math.abs(rw.strike-spot)/spot < 0.025;
         const itm = (rw.side==='call' && spot && rw.strike<spot) || (rw.side==='put' && spot && rw.strike>spot);
-        return '<tr class="'+(isATM?'atm':'')+'">'
-          + '<td>'+esc(rw.expiry)+'</td>'
-          + '<td class="num '+(itm?'itm':'')+'"><b>'+fmt2(rw.strike)+'</b></td>'
+        return '<tr'+(isATM?' style="background:#fef3c7"':'')+'>'
+          + '<td class="'+(itm?'itm':'')+'"><b>$'+fmt2(rw.strike)+'</b></td>'
           + '<td>'+esc(rw.side||'')+'</td>'
           + '<td class="num">'+(rw.bid!=null?fmt2(rw.bid):'—')+'</td>'
           + '<td class="num">'+(rw.ask!=null?fmt2(rw.ask):'—')+'</td>'
@@ -554,34 +561,79 @@
           + '<td class="num">'+(rw.open_interest!=null?Number(rw.open_interest).toLocaleString():'—')+'</td>'
           + '<td class="num">'+(rw.volume!=null?Number(rw.volume).toLocaleString():'—')+'</td>'
           + '</tr>';
-      }).join('');
-    };
-    $('chain-expiry').addEventListener('change', render);
-    $('chain-side').addEventListener('change', render);
-    $('chain-pct').addEventListener('change', render);
-    $('chain-min-oi').addEventListener('input', render);
-    render();
+      }).join('')
+      + '</tbody></table></div></div></div>';
+    $('strikes-modal-root').innerHTML = html;
+    document.getElementById('sm-close').addEventListener('click', () => $('strikes-modal-root').innerHTML='');
+    document.getElementById('sm-bg').addEventListener('click', e => { if (e.target.id==='sm-bg') $('strikes-modal-root').innerHTML=''; });
   }
 
   async function loadTermStructure(ticker) {
-    const r = await sb.from('v_latest_vol_strategy').select('*').eq('ticker',ticker).maybeSingle();
-    const data = r.data;
-    if (!data) { $('sec-term').innerHTML=''; return; }
-    const pts = [
-      { l:'30d', v:data.iv_30d },
-      { l:'90d', v:data.iv_90d },
-      { l:'180d', v:data.iv_180d },
-      { l:'365d', v:data.iv_365d }
-    ].filter(p => p.v != null);
-    if (!pts.length) { $('sec-term').innerHTML=''; return; }
-    const max = Math.max.apply(null, pts.map(p=>p.v));
-    const slope = (data.iv_365d != null && data.iv_30d != null) ? ((data.iv_365d-data.iv_30d)/data.iv_30d) : null;
+    // Current IVs
+    const cur = await sb.from('v_latest_vol_strategy').select('*').eq('ticker',ticker).maybeSingle();
+    const curData = cur.data;
+    if (!curData) { $('sec-term').innerHTML=''; return; }
+    // Historical 90d of vol_snapshots for averages
+    const since = new Date(Date.now()-90*86400000).toISOString().slice(0,10);
+    const hist = await sb.from('vol_snapshots').select('as_of_date,iv_30d,iv_90d,iv_180d,iv_365d')
+      .eq('ticker',ticker).gte('as_of_date',since).order('as_of_date',{ascending:true});
+    const histRows = (hist.data || []);
+    function avg(field) {
+      const vals = histRows.map(r=>Number(r[field])).filter(v=>isFinite(v));
+      return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+    }
+    const tenors = [
+      { label: '30d',  cur: Number(curData.iv_30d),  avg: avg('iv_30d') },
+      { label: '90d',  cur: Number(curData.iv_90d),  avg: avg('iv_90d') },
+      { label: '180d', cur: Number(curData.iv_180d), avg: avg('iv_180d') },
+      { label: '365d', cur: Number(curData.iv_365d), avg: avg('iv_365d') }
+    ].filter(t => isFinite(t.cur));
+    if (!tenors.length) { $('sec-term').innerHTML=''; return; }
+    const maxIV = Math.max.apply(null, tenors.flatMap(t => [t.cur, t.avg].filter(v=>v!=null)));
+    const histDays = histRows.length;
+    const slope = (curData.iv_365d != null && curData.iv_30d != null) ? ((curData.iv_365d-curData.iv_30d)/curData.iv_30d) : null;
     const slopeLabel = slope == null ? '' : (slope > 0.05 ? 'Contango' : slope < -0.05 ? 'Backwardation' : 'Flat term');
-    $('sec-term').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>IV term structure</h2>'
-      + '<span class="banner-meta">'+esc(slopeLabel)+(slope!=null?' · slope '+(slope*100).toFixed(1)+'%':'')+'</span>'
-      + '</div><div class="banner-body"><div class="term-sparkline">'
-      + pts.map(p => '<div class="term-bar"><div class="v">'+fmtPct(p.v)+'</div><div class="b" style="height:'+(p.v/max*72).toFixed(1)+'px"></div><div class="l">'+p.l+'</div></div>').join('')
-      + '</div></div></div>';
+
+    const w = 720, h = 240, m = {top:18,right:24,bottom:36,left:48};
+    const iw = w-m.left-m.right, ih = h-m.top-m.bottom;
+    const barW = iw / tenors.length;
+    let svg = '<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:240px">';
+    // y-axis labels
+    for (let i=0;i<=4;i++){
+      const v = maxIV * (i/4);
+      const y = m.top + ih - (i/4)*ih;
+      svg += '<line x1="'+m.left+'" y1="'+y+'" x2="'+(m.left+iw)+'" y2="'+y+'" stroke="#e2e8f0" stroke-dasharray="2,3"/>';
+      svg += '<text x="'+(m.left-6)+'" y="'+(y+3)+'" text-anchor="end" font-size="10" fill="#64748b">'+(v*100).toFixed(0)+'%</text>';
+    }
+    tenors.forEach((t, i) => {
+      const cx = m.left + barW*i + barW*0.5;
+      const wB = barW*0.32;
+      const curBarH = (t.cur/maxIV)*ih;
+      const avgBarH = t.avg != null ? (t.avg/maxIV)*ih : 0;
+      // current (blue, left)
+      svg += '<rect x="'+(cx - wB - 4)+'" y="'+(m.top+ih-curBarH)+'" width="'+wB+'" height="'+curBarH+'" rx="3" fill="#1d4ed8"/>';
+      svg += '<text x="'+(cx - wB/2 - 4)+'" y="'+(m.top+ih-curBarH-4)+'" text-anchor="middle" font-size="10" fill="#1d4ed8" font-weight="600">'+(t.cur*100).toFixed(1)+'%</text>';
+      // historical avg (gray, right)
+      if (t.avg != null) {
+        svg += '<rect x="'+(cx + 4)+'" y="'+(m.top+ih-avgBarH)+'" width="'+wB+'" height="'+avgBarH+'" rx="3" fill="#94a3b8"/>';
+        svg += '<text x="'+(cx + wB/2 + 4)+'" y="'+(m.top+ih-avgBarH-4)+'" text-anchor="middle" font-size="10" fill="#64748b">'+(t.avg*100).toFixed(1)+'%</text>';
+        // delta vs avg
+        const dpct = (t.cur - t.avg) / t.avg;
+        const dCol = Math.abs(dpct) < 0.05 ? '#64748b' : (dpct > 0 ? '#dc2626' : '#059669');
+        svg += '<text x="'+cx+'" y="'+(m.top+ih+24)+'" text-anchor="middle" font-size="10" fill="'+dCol+'" font-weight="600">'+(dpct>0?'+':'')+(dpct*100).toFixed(0)+'% vs 90d avg</text>';
+      }
+      svg += '<text x="'+cx+'" y="'+(m.top+ih+14)+'" text-anchor="middle" font-size="11" fill="#0f172a" font-weight="600">'+t.label+'</text>';
+    });
+    // Legend
+    svg += '<g transform="translate('+(m.left)+','+(h-8)+')">'
+      + '<rect x="0" y="-9" width="10" height="10" fill="#1d4ed8"/><text x="14" y="0" font-size="10" fill="#0f172a">Current</text>'
+      + '<rect x="80" y="-9" width="10" height="10" fill="#94a3b8"/><text x="94" y="0" font-size="10" fill="#0f172a">90d avg</text>'
+      + '</g>';
+    svg += '</svg>';
+
+    $('sec-term').innerHTML = '<div class="banner-card"><div class="banner-head"><h2>IV term: current vs historical avg</h2>'
+      + '<span class="banner-meta">'+esc(slopeLabel)+(slope!=null?' · slope '+(slope*100).toFixed(1)+'%':'')+' · '+histDays+' days of history</span>'
+      + '</div><div class="banner-body">'+svg+'</div></div>';
   }
 
   async function loadInsider(ticker) {
