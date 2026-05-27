@@ -123,11 +123,14 @@
         <div class="field-mini"><label>Max EV/EBITDA</label><input type="number" id="f-max-ev-ebitda" step="1" placeholder="any"></div>
         <div class="field-mini"><label>Max EV/Rev NTM</label><input type="number" id="f-max-ev-rev" step="0.5" placeholder="any"></div>
         <div class="field-mini"><label>Min FCF yield (%)</label><input type="number" id="f-min-fcf" step="0.5" placeholder="any"></div>
-        <div class="field-mini"><label>Min earnings growth (%)</label><input type="number" id="f-min-earn-gr" step="1" placeholder="any"></div>
+        <div class="field-mini"><label>Min 1y hist rev growth (%)</label><input type="number" id="f-min-rg-1y" step="1" placeholder="any"></div>
+        <div class="field-mini"><label>Min 3y hist rev growth (%)</label><input type="number" id="f-min-rg-3y-hist" step="1" placeholder="any"></div>
+        <div class="field-mini"><label>Min 3y fwd rev growth (%)</label><input type="number" id="f-min-rg-3y-fwd" step="1" placeholder="any"></div>
+        <div class="field-mini"><label>Min fwd/hist growth ratio</label><input type="number" id="f-min-rg-ratio" step="0.1" placeholder="e.g. 1.0"></div>
         <div class="field-mini"><label>Max ND/EBITDA</label><input type="number" id="f-max-nd" step="0.5" placeholder="any"></div>
-        <div class="field-mini"><label>Min market cap ($M)</label><input type="number" id="f-min-mcap" step="100" placeholder="any"></div>
-        <div class="field-mini"><label>Min asymmetry</label><input type="number" id="f-min-asym" step="0.1" placeholder="any"></div>
-        <div class="field-mini"><label>Min annualized return (%)</label><input type="number" id="f-min-ann" step="1" placeholder="any"></div>
+        <div class="field-mini"><label>Min market cap ($M)</label><input type="number" id="f-min-mcap" step="100" placeholder="1000"></div>
+        <div class="field-mini"><label>Max % from 52w low</label><input type="number" id="f-max-from-low" step="5" placeholder="any"></div>
+        <div class="field-mini"><label>Min % from 52w high</label><input type="number" id="f-min-from-high" step="5" placeholder="any (neg = below)"></div>
         <div class="field-mini"><label>Vol regime</label>
           <select id="f-vol-regime">
             <option value="">Any</option>
@@ -144,7 +147,7 @@
         <div class="field-mini"><label>Limit</label><input type="number" id="f-limit" value="100" min="10" max="500"></div>
         <div class="field-mini"><label>Universe</label>
           <div class="check-row" style="padding-top:6px">
-            <label><input type="checkbox" id="f-optionable" checked> Optionable only</label>
+            <label><input type="checkbox" id="f-optionable" checked> Has options only</label>
             <label><input type="checkbox" id="f-shortlist"> Shortlist only</label>
           </div>
         </div>
@@ -173,28 +176,26 @@
               <th data-sort="sector">Sector</th>
               <th data-sort="market_cap" style="text-align:right">Mkt cap</th>
               <th data-sort="market_cap_tier">Tier</th>
-              <th data-sort="price" style="text-align:right">Price</th>
               <th data-sort="dividend_yield" style="text-align:right">Div yld</th>
               <th data-sort="pe" style="text-align:right">P/E</th>
-              <th data-sort="quality_score" style="text-align:right">Quality</th>
               <th data-sort="ev_ebitda_ntm" style="text-align:right">EV/EBITDA</th>
               <th data-sort="fcf_yield_ntm" style="text-align:right">FCF yld</th>
-              <th data-sort="earnings_growth_implied" style="text-align:right">Earn gr</th>
-              <th data-sort="peg_ratio" style="text-align:right">PEG</th>
+              <th data-sort="rev_growth_1y_hist" style="text-align:right">1y hist gr</th>
+              <th data-sort="rev_growth_3y_hist" style="text-align:right">3y hist gr</th>
+              <th data-sort="rev_growth_3y_fwd" style="text-align:right">3y fwd gr</th>
+              <th data-sort="rev_growth_ratio_fwd_over_hist" style="text-align:right">Fwd/Hist</th>
               <th data-sort="net_debt_ebitda" style="text-align:right">ND/EBITDA</th>
+              <th data-sort="pct_from_high" style="text-align:right">% from hi</th>
+              <th data-sort="pct_from_low" style="text-align:right">% from lo</th>
               <th data-sort="iv_rank_1y" style="text-align:right">IV rank</th>
               <th data-sort="iv_30d" style="text-align:right">IV30</th>
               <th data-sort="vol_regime">Vol regime</th>
               <th data-sort="top_strategy">Top strategy</th>
-              <th data-sort="has_active_model">Model</th>
-              <th data-sort="model_annualized_return" style="text-align:right">Ann ret</th>
-              <th data-sort="asymmetry" style="text-align:right">Asym</th>
-              <th data-sort="vol_adj_rr" style="text-align:right">Vol-adj R/R</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="results-tbody">
-            <tr><td colspan="23" class="empty">Loading results…</td></tr>
+            <tr><td colspan="20" class="empty">Loading results…</td></tr>
           </tbody>
         </table>
       </div>
@@ -355,7 +356,7 @@
   async function runScan(opts) {
     opts = opts || {};
     $('result-count').textContent = 'Scanning…';
-    $('results-tbody').innerHTML = '<tr><td colspan="23" class="empty">Loading…</td></tr>';
+    $('results-tbody').innerHTML = '<tr><td colspan="20" class="empty">Loading…</td></tr>';
 
     const pct = id => { const v = $(id).value; return v === '' ? null : Number(v)/100; };
     const num = id => { const v = $(id).value; return v === '' ? null : Number(v); };
@@ -370,28 +371,30 @@
       p_max_ev_rev: num('f-max-ev-rev'),
       p_max_ev_ebitda: num('f-max-ev-ebitda'),
       p_min_fcf_yield: pct('f-min-fcf'),
-      p_min_earnings_growth: pct('f-min-earn-gr'),
+      p_min_rev_growth_1y_hist: pct('f-min-rg-1y'),
+      p_min_rev_growth_3y_hist: pct('f-min-rg-3y-hist'),
+      p_min_rev_growth_3y_fwd: pct('f-min-rg-3y-fwd'),
+      p_min_rev_growth_ratio_fwd: num('f-min-rg-ratio'),
       p_max_net_debt_ebitda: num('f-max-nd'),
-      p_min_insider_ownership: null,
       p_max_mkt_cap: null,
       p_min_mkt_cap: num('f-min-mcap') != null ? num('f-min-mcap') * 1e6 : null,
-      p_has_leaps: null,
-      p_has_warrants: null,
+      p_has_options: $('f-optionable').checked ? true : null,
       p_sectors: sectorArr,
-      p_min_asymmetry: num('f-min-asym'),
-      p_min_implied_return: pct('f-min-ann'),
-      p_vol_regime: txt('f-vol-regime'),
+      p_min_div_yield: pct('f-min-div'),
+      p_max_pe: num('f-max-pe'),
+      p_min_pe: null,
+      p_max_pct_from_low: pct('f-max-from-low'),
+      p_min_pct_from_high: pct('f-min-from-high'),
       p_limit: intVal('f-limit') || 100,
       p_shortlist_only: $('f-shortlist').checked,
-      p_optionable_only: $('f-optionable').checked,
-      p_min_div_yield: pct('f-min-div'),
-      p_max_pe: num('f-max-pe')
+      p_watchlist_only: false,
+      p_order_by: 'fcf_yield_desc'
     };
 
     const r = await sb.rpc('screen_companies', params);
     if (r.error) {
       $('result-count').textContent = '0';
-      $('results-tbody').innerHTML = '<tr><td colspan="23" class="empty">Scan failed: '+esc(r.error.message)+'</td></tr>';
+      $('results-tbody').innerHTML = '<tr><td colspan="20" class="empty">Scan failed: '+esc(r.error.message)+'</td></tr>';
       flash('screen_companies error: '+r.error.message, 'error');
       return;
     }
@@ -407,7 +410,7 @@
 
   function renderTable() {
     if (!rows.length) {
-      $('results-tbody').innerHTML = '<tr><td colspan="23" class="empty">No matches. Loosen filters or uncheck "Optionable only" / "Shortlist only".</td></tr>';
+      $('results-tbody').innerHTML = '<tr><td colspan="20" class="empty">No matches. Loosen filters or uncheck "Optionable only" / "Shortlist only".</td></tr>';
       return;
     }
     let sorted = rows.slice();
@@ -447,23 +450,21 @@
         + '<td>'+esc(r.sector||'')+'</td>'
         + '<td class="num">'+fmtBigUSD(r.market_cap)+'</td>'
         + '<td><span class="badge '+tierCls+'">'+esc(r.market_cap_tier||'—')+'</span></td>'
-        + '<td class="num">'+(r.price!=null?'$'+fmt2(r.price):'—')+'</td>'
         + '<td class="num">'+(r.dividend_yield!=null?fmtPct(r.dividend_yield):'—')+'</td>'
         + '<td class="num">'+(r.pe!=null && r.pe>0?Number(r.pe).toFixed(1):'—')+'</td>'
-        + '<td class="num">'+(r.quality_score!=null?Math.round(r.quality_score):'—')+'</td>'
         + '<td class="num">'+fmt2(r.ev_ebitda_ntm)+'</td>'
         + '<td class="num">'+(r.fcf_yield_ntm!=null?fmtPct(r.fcf_yield_ntm):'—')+'</td>'
-        + '<td class="num">'+(r.earnings_growth_implied!=null?fmtPct(r.earnings_growth_implied):'—')+'</td>'
-        + '<td class="num">'+(r.peg_ratio!=null && r.peg_ratio>0?Number(r.peg_ratio).toFixed(2):'—')+'</td>'
+        + '<td class="num">'+(r.rev_growth_1y_hist!=null?fmtPct(r.rev_growth_1y_hist):'—')+'</td>'
+        + '<td class="num">'+(r.rev_growth_3y_hist!=null?fmtPct(r.rev_growth_3y_hist):'—')+'</td>'
+        + '<td class="num">'+(r.rev_growth_3y_fwd!=null?fmtPct(r.rev_growth_3y_fwd):'—')+'</td>'
+        + '<td class="num">'+(r.rev_growth_ratio_fwd_over_hist!=null?Number(r.rev_growth_ratio_fwd_over_hist).toFixed(2)+'×':'—')+'</td>'
         + '<td class="num">'+fmt2(r.net_debt_ebitda)+'</td>'
+        + '<td class="num '+(r.pct_from_high!=null && r.pct_from_high<0?'neg':'')+'">'+(r.pct_from_high!=null?fmtPct(r.pct_from_high):'—')+'</td>'
+        + '<td class="num '+(r.pct_from_low!=null && r.pct_from_low>0?'pos':'')+'">'+(r.pct_from_low!=null?fmtPct(r.pct_from_low):'—')+'</td>'
         + '<td class="num">'+(r.iv_rank_1y!=null?Math.round(r.iv_rank_1y):'—')+'</td>'
         + '<td class="num">'+(r.iv_30d!=null?fmtPct(r.iv_30d):'—')+'</td>'
         + '<td><span class="badge '+volCls+'">'+esc((r.vol_regime||'no data').replace(/_/g,' '))+'</span></td>'
         + '<td><span class="badge '+stratCls(r.top_strategy)+'">'+esc(stratLabel||'—')+'</span></td>'
-        + '<td>'+(r.has_active_model ? '<span class="badge has-model">model</span>' : '<span class="badge no-data">—</span>')+'</td>'
-        + '<td class="num '+(ar>0?'pos':ar<0?'neg':'')+'">'+(ar!=null?fmtPct(ar):'—')+'</td>'
-        + '<td class="num">'+(r.asymmetry!=null?Number(r.asymmetry).toFixed(2)+'×':'—')+'</td>'
-        + '<td class="num">'+(r.vol_adj_rr!=null?Number(r.vol_adj_rr).toFixed(2):'—')+'</td>'
         + '<td><a href="/research.html?ticker='+esc(r.ticker)+'" class="btn btn-sm btn-ghost" style="text-decoration:none">Research</a></td>'
         + '</tr>';
     }).join('');
