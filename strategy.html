@@ -85,9 +85,34 @@
   .modal-body{padding:14px 18px}
   .modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-muted)}
 
+  .recs-section{margin-bottom:14px}
+  .recs-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .recs-head h2{font-family:var(--font-serif);font-size:20px;font-weight:500;margin:0}
+  .recs-head .meta{font-family:var(--mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-muted)}
+  .recs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:12px}
+  .rec-card{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
+  .rec-card.collapsed .rec-extra{display:none}
+  .rec-top{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .rec-tkr{font-family:var(--font-serif);font-size:20px;font-weight:500}
+  .rec-sub{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);margin-top:2px}
+  .rec-score{font-family:var(--mono);font-size:11px;font-weight:700;color:#1d4ed8;background:#eff6ff;border:1px solid #bfdbfe;border-radius:999px;padding:3px 9px;white-space:nowrap}
+  .rec-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+  .rec-reason{font-size:13px;line-height:1.55;color:var(--text)}
+  .rec-meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px}
+  .rec-meta-tile{background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:7px 8px}
+  .rec-meta-tile .l{font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted)}
+  .rec-meta-tile .v{font-family:var(--font-serif);font-size:15px;margin-top:2px}
+  .rec-note{width:100%;box-sizing:border-box;font-family:var(--font-sans);font-size:12.5px;border:1px solid var(--border);border-radius:6px;padding:8px 10px;resize:vertical;min-height:46px;background:var(--bg);color:var(--text)}
+  .rec-note:focus{outline:none;border-color:#2563eb}
+  .rec-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .rec-actions .btn{flex:1;min-width:90px;text-align:center}
+  .rec-saved{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#059669;padding:6px 0}
+  .rec-empty{font-family:var(--mono);font-size:11px;color:var(--text-muted);padding:18px;text-align:center;border:1px dashed var(--border);border-radius:8px}
+  .rec-spreads-btn{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#1d4ed8;background:none;border:none;cursor:pointer;padding:0}
   @media (max-width:1024px){
     .layout{grid-template-columns:1fr}
     .col-card{height:auto;max-height:560px}
+    .recs-grid{grid-template-columns:1fr}
   }
 </style>
 </head>
@@ -102,6 +127,14 @@
   <p class="page-sub">Ask Ridge Run anything about the universe, your portfolio, or specific tickers. It has your DNA, watchlist, top 100 quality screen with vol &amp; fundamentals, recent investor moves, and past rec outcomes — it picks the right charts for each idea.</p>
 
   <div id="investors-bar" style="margin-bottom:10px"></div>
+
+  <div class="recs-section">
+    <div class="recs-head">
+      <h2>Today's scout</h2>
+      <span class="meta" id="recs-meta">loading…</span>
+    </div>
+    <div id="recs-grid" class="recs-grid"></div>
+  </div>
 
   <div class="layout">
     <div class="col-card">
@@ -163,6 +196,8 @@
     $('loading-screen').classList.add('hidden');
     $('app').classList.remove('hidden');
     await loadInvestors();
+    await loadTodaysRecs();
+    await loadChatHistory();
     wireUI();
     $('ctx-status').textContent = 'context loaded';
   }
@@ -235,6 +270,152 @@
     $('modal-root').innerHTML = html;
     $('inv-modal-close').addEventListener('click', function(){ $('modal-root').innerHTML=''; });
     $('inv-modal-bg').addEventListener('click', function(e){ if(e.target.id==='inv-modal-bg') $('modal-root').innerHTML=''; });
+  }
+
+  async function loadTodaysRecs(){
+    let recs = [];
+    try {
+      const r = await sb.rpc('get_todays_recs', { p_user: currentUser.id });
+      recs = Array.isArray(r.data) ? r.data : (r.data || []);
+    } catch(e){ recs = []; }
+    const grid = $('recs-grid');
+    if (!recs.length){
+      $('recs-meta').textContent = '0 open';
+      grid.innerHTML = '<div class="rec-empty">No open recommendations. Run the daily-recs scout (POST /functions/v1/daily-recs) or ask Ridge Run a question below.</div>';
+      return;
+    }
+    $('recs-meta').textContent = recs.length+' open · last 7d';
+    grid.innerHTML = recs.map(renderRecCard).join('');
+    wireRecCards(recs);
+  }
+
+  function renderRecCard(rec){
+    const rid = esc(rec.id||'');
+    const meta = [];
+    if (rec.expected_return_pct!=null) meta.push(['Exp. return', fmtPct(rec.expected_return_pct)]);
+    if (rec.expected_horizon_days!=null) meta.push(['Horizon', rec.expected_horizon_days+'d']);
+    if (rec.sizing_dollars!=null) meta.push(['Size', fmtMoney(rec.sizing_dollars)]);
+    if (rec.max_loss!=null) meta.push(['Max loss', fmtMoney(rec.max_loss)]);
+    const watch = rec.what_to_watch ? '<div class="rec-meta-tile" style="grid-column:1/-1"><div class="l">What to watch</div><div style="font-size:12.5px;margin-top:3px">'+esc(rec.what_to_watch)+'</div></div>' : '';
+    const exit = rec.exit_criteria ? '<div class="rec-meta-tile" style="grid-column:1/-1"><div class="l">Exit</div><div style="font-size:12.5px;margin-top:3px">'+esc(rec.exit_criteria)+'</div></div>' : '';
+    const tiles = meta.map(function(m){
+      return '<div class="rec-meta-tile"><div class="l">'+m[0]+'</div><div class="v">'+esc(String(m[1]))+'</div></div>';
+    }).join('') + watch + exit;
+    const metaHtml = tiles ? '<div class="rec-meta-grid">'+tiles+'</div>' : '';
+    return '<div class="rec-card" data-rid="'+rid+'">'
+      + '<div class="rec-top"><div>'
+        + '<div class="rec-tkr">'+esc(rec.ticker||'')+'</div>'
+        + '<div class="rec-sub">'+esc(rec.opportunity_type||'')+(rec.structure?' · '+esc(rec.structure):'')+(rec.direction?' · '+esc(rec.direction):'')+'</div>'
+        + '</div><span class="rec-score">'+esc(String(rec.composite_score==null?'—':rec.composite_score))+'</span></div>'
+      + '<div class="rec-body">'
+        + '<div class="rec-reason">'+escMd(rec.reasoning||'')+'</div>'
+        + metaHtml
+        + '<button class="rec-spreads-btn" data-spreads="'+esc(rec.ticker||'')+'">▸ Show spread candidates</button>'
+        + '<textarea class="rec-note" id="note-'+rid+'" placeholder="Your reasoning / notes (saved to your DNA + ticker notes)…"></textarea>'
+        + '<div class="rec-actions">'
+          + '<button class="btn btn-primary" data-rec-act="accept" data-rid="'+rid+'">Accept &amp; save</button>'
+          + '<button class="btn" data-rec-act="later" data-rid="'+rid+'">Later</button>'
+          + '<button class="btn btn-danger" data-rec-act="dismiss" data-rid="'+rid+'">Dismiss</button>'
+        + '</div>'
+      + '</div></div>';
+  }
+
+  function wireRecCards(recs){
+    const byId = {};
+    recs.forEach(function(r){ byId[String(r.id)] = r; });
+    document.querySelectorAll('[data-rec-act]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        const rid = btn.getAttribute('data-rid');
+        const action = btn.getAttribute('data-rec-act');
+        const rec = byId[rid] || {};
+        const noteEl = document.getElementById('note-'+rid);
+        saveRecCard(rec, action, btn, noteEl ? noteEl.value.trim() : '');
+      });
+    });
+    document.querySelectorAll('[data-spreads]').forEach(function(btn){
+      btn.addEventListener('click', function(){ openSpreadsModal(btn.getAttribute('data-spreads')); });
+    });
+  }
+
+  async function saveRecCard(rec, action, btnEl, userReason){
+    const card = btnEl.closest('.rec-card');
+    const actionsRow = btnEl.parentElement;
+    actionsRow.innerHTML = '<span class="rec-saved">saving…</span>';
+    try {
+      const { data:{ session } } = await sb.auth.getSession();
+      const payload = {
+        ticker: rec.ticker, opportunity_type: rec.opportunity_type, direction: rec.direction,
+        structure: rec.structure, thesis: rec.reasoning, conviction: rec.composite_score,
+        what_to_watch: rec.what_to_watch, exit_criteria: rec.exit_criteria,
+        expected_horizon_days: rec.expected_horizon_days, expected_return_pct: rec.expected_return_pct,
+        sizing_dollars: rec.sizing_dollars, max_loss: rec.max_loss,
+        ai_recommendation_id: rec.id, user_reason: userReason || null
+      };
+      const resp = await fetch(SUPABASE_URL+'/functions/v1/strategy-save-rec', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':SUPABASE_KEY },
+        body: JSON.stringify({ user_id: currentUser.id, action: action, rec: payload, ai_recommendation_id: rec.id, user_reason: userReason || null })
+      });
+      const j = await resp.json();
+      if (j.ok){
+        const noteEl = card.querySelector('.rec-note'); if (noteEl) noteEl.style.display='none';
+        actionsRow.innerHTML = '<span class="rec-saved">✓ '+action+'ed'+(action==='accept'?' · saved to trade ideas':'')+'</span>';
+        if (action==='dismiss'){ setTimeout(function(){ card.style.opacity='0.5'; }, 200); }
+      } else {
+        actionsRow.innerHTML = '<span class="rec-saved" style="color:#dc2626">error: '+esc(j.error||'save failed')+'</span>';
+      }
+    } catch(e){
+      actionsRow.innerHTML = '<span class="rec-saved" style="color:#dc2626">error: '+esc(e.message||String(e))+'</span>';
+    }
+  }
+
+  async function openSpreadsModal(ticker){
+    $('modal-root').innerHTML = '<div class="modal-bg" id="sp-modal-bg"><div class="modal"><div class="modal-head"><h3>'+esc(ticker)+' · spread candidates</h3><button class="modal-close" id="sp-close">×</button></div><div class="modal-body" id="sp-body"><div class="pane-placeholder">Scanning chain…</div></div></div></div>';
+    $('sp-close').addEventListener('click', function(){ $('modal-root').innerHTML=''; });
+    $('sp-modal-bg').addEventListener('click', function(e){ if(e.target.id==='sp-modal-bg') $('modal-root').innerHTML=''; });
+    let d = {};
+    try { const r = await sb.rpc('get_spread_candidates', { p_ticker: ticker }); d = r.data || {}; }
+    catch(e){ $('sp-body').innerHTML = '<div class="pane-placeholder">Error: '+esc(e.message||String(e))+'</div>'; return; }
+    if (d.error){ $('sp-body').innerHTML = '<div class="pane-placeholder">No chain data for '+esc(ticker)+' yet (run WF33 for this name).</div>'; return; }
+    const v=d.verticals||[], c=d.calendars||[], g=d.diagonals||[];
+    let html = '<div style="font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-bottom:10px">spot $'+fmtN(d.spot,2)+' · as of '+esc(d.as_of_date||'—')+(d.note?' · '+esc(d.note):'')+'</div>';
+    html += '<div style="font-family:var(--font-serif);font-size:15px;margin:6px 0">Debit verticals ('+v.length+')</div>';
+    if (v.length){
+      html += '<table class="simple"><thead><tr><th>Exp</th><th>Long K</th><th>Short K</th><th style="text-align:right">Debit</th><th style="text-align:right">Max profit</th><th style="text-align:right">R/R</th><th style="text-align:right">IV skew</th><th style="text-align:right">Lng Δ</th><th style="text-align:right">DTE</th></tr></thead><tbody>'
+        + v.map(function(x){ return '<tr><td>'+esc(x.expiry||'')+'</td><td class="num">'+fmtN(x.long_strike,1)+'</td><td class="num">'+fmtN(x.short_strike,1)+'</td><td class="num">$'+fmtN(x.net_debit,2)+'</td><td class="num pos">$'+fmtN(x.max_profit,2)+'</td><td class="num">'+fmtN(x.reward_risk,1)+'x</td><td class="num '+((Number(x.iv_skew)||0)<0?'neg':'pos')+'">'+fmtN(x.iv_skew,3)+'</td><td class="num">'+fmtN(x.long_delta,2)+'</td><td class="num">'+esc(x.dte)+'</td></tr>'; }).join('')
+        + '</tbody></table>';
+    } else html += '<div class="pane-placeholder">None passing filters.</div>';
+    html += '<div style="font-family:var(--font-serif);font-size:15px;margin:14px 0 6px">Calendars ('+c.length+')</div>';
+    if (c.length){
+      html += '<table class="simple"><thead><tr><th>K</th><th>Near</th><th>Far</th><th style="text-align:right">Debit</th><th style="text-align:right">IV term prem</th></tr></thead><tbody>'
+        + c.map(function(x){ return '<tr><td class="num">'+fmtN(x.strike,1)+'</td><td>'+esc(x.near_expiry)+'</td><td>'+esc(x.far_expiry)+'</td><td class="num">$'+fmtN(x.net_debit,2)+'</td><td class="num pos">'+fmtN(x.iv_term_premium,3)+'</td></tr>'; }).join('')
+        + '</tbody></table>';
+    } else html += '<div class="pane-placeholder">None — needs longer-dated (LEAP) expiries in chain.</div>';
+    html += '<div style="font-family:var(--font-serif);font-size:15px;margin:14px 0 6px">Diagonals ('+g.length+')</div>';
+    if (g.length){
+      html += '<table class="simple"><thead><tr><th>Short K</th><th>Long K</th><th>Near</th><th>Far</th><th style="text-align:right">Debit</th><th style="text-align:right">IV edge</th></tr></thead><tbody>'
+        + g.map(function(x){ return '<tr><td class="num">'+fmtN(x.short_strike,1)+'</td><td class="num">'+fmtN(x.long_strike,1)+'</td><td>'+esc(x.near_expiry)+'</td><td>'+esc(x.far_expiry)+'</td><td class="num">$'+fmtN(x.net_debit,2)+'</td><td class="num pos">'+fmtN(x.iv_edge,3)+'</td></tr>'; }).join('')
+        + '</tbody></table>';
+    } else html += '<div class="pane-placeholder">None — needs longer-dated (LEAP) expiries in chain.</div>';
+    $('sp-body').innerHTML = html;
+  }
+
+  async function loadChatHistory(){
+    let rows = [];
+    try {
+      const r = await sb.from('strategy_chat_log').select('role,content,slots,created_at').eq('user_id', currentUser.id).order('created_at', { ascending:false }).limit(20);
+      rows = (r.data||[]).reverse();
+    } catch(e){ rows = []; }
+    if (!rows.length) return;
+    const body = $('chat-body');
+    const intro = body.querySelector('.msg-ai'); if (intro) intro.remove();
+    let lastSlots = null;
+    rows.forEach(function(row){
+      appendMsg(row.role==='user'?'user':'ai', row.content||'');
+      conversation.push({ role: row.role==='user'?'user':'assistant', content: row.content||'' });
+      if (Array.isArray(row.slots) && row.slots.length) lastSlots = row.slots;
+    });
+    if (lastSlots) renderPanes(lastSlots);
   }
 
   function wireUI(){
