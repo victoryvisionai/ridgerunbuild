@@ -78,6 +78,49 @@
   .investor-pill .ip-name{font-family:var(--font-serif);font-size:13px}
   .investor-pill .ip-meta{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:var(--text-muted);margin-top:2px}
 
+  /* ---------------- Flywheel dashboard ---------------- */
+  .flywheel-wrap{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin-bottom:14px}
+  .flywheel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:14px;flex-wrap:wrap}
+  .flywheel-head h2{font-family:var(--font-serif);font-size:22px;font-weight:500;margin:0}
+  .flywheel-edge{font-size:12.5px;color:var(--text-muted);max-width:720px;line-height:1.55}
+  .cycle-ribbon{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+  .cycle-tile{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;position:relative}
+  .cycle-tile .ct-label{font-family:var(--mono);font-size:8.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-muted)}
+  .cycle-tile .ct-value{font-family:var(--font-serif);font-size:21px;font-weight:500;margin-top:2px}
+  .cycle-tile .ct-sub{font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-top:2px}
+  .cycle-tile.highlight{background:#eff6ff;border-color:#bfdbfe}
+  .pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .pillar{background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden;display:flex;flex-direction:column;min-height:260px}
+  .pillar-head{padding:9px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  .pillar-head .ph-title{font-family:var(--font-serif);font-size:14px;font-weight:500}
+  .pillar-head .ph-count{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted)}
+  .pillar-body{padding:8px 4px;overflow-y:auto;flex:1;max-height:340px}
+  .pillar-row{display:grid;grid-template-columns:1fr auto;gap:6px;padding:7px 10px;border-bottom:1px solid #f1f5f9;font-size:12.5px;cursor:pointer;line-height:1.35}
+  .pillar-row:hover{background:#f8fafc}
+  .pillar-row .pr-tk{font-family:var(--font-serif);font-size:14px;font-weight:500}
+  .pillar-row .pr-sub{font-family:var(--mono);font-size:9.5px;color:var(--text-muted);margin-top:2px}
+  .pillar-row .pr-val{font-family:var(--mono);font-size:11px;text-align:right}
+  .pillar-row .pr-val .pv-num{font-family:var(--font-serif);font-size:14px}
+  .pillar-tag{display:inline-block;font-family:var(--mono);font-size:8.5px;letter-spacing:0.12em;text-transform:uppercase;padding:1.5px 6px;border-radius:999px;margin-left:5px;vertical-align:middle}
+  .pillar-tag.compound{background:#dcfce7;color:#166534}
+  .pillar-tag.income{background:#dbeafe;color:#1e40af}
+  .pillar-tag.leap{background:#ede9fe;color:#6b21a8}
+  .pillar-tag.specsit{background:#fef3c7;color:#92400e}
+  .pillar-tag.crosshit{background:#fce7f3;color:#9d174d}
+  .crosshits-strip{margin-top:14px;background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;padding:10px 14px}
+  .crosshits-strip h4{font-family:var(--font-serif);font-size:14px;font-weight:500;margin:0 0 4px 0}
+  .crosshits-strip .ch-sub{font-family:var(--mono);font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:#92400e;margin-bottom:8px}
+  .crosshits-strip .ch-grid{display:flex;gap:6px;flex-wrap:wrap}
+  .crosshits-strip .ch-tile{background:#fff;border:1px solid #fcd34d;border-radius:5px;padding:6px 10px;font-size:12px;cursor:pointer}
+  .crosshits-strip .ch-tile:hover{border-color:#b45309}
+  .crosshits-strip .ch-tile .cht-tk{font-family:var(--font-serif);font-size:13px;font-weight:600}
+  .crosshits-strip .ch-tile .cht-flags{font-family:var(--mono);font-size:8.5px;color:#78350f;margin-top:2px;letter-spacing:0.08em}
+
+  @media (max-width:1200px){
+    .cycle-ribbon{grid-template-columns:repeat(2,1fr)}
+    .pillars{grid-template-columns:repeat(2,1fr)}
+  }
+
   .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:60}
   .modal{background:var(--card);border-radius:8px;width:min(900px,95vw);max-height:88vh;overflow-y:auto;border:1px solid var(--border)}
   .modal-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
@@ -127,6 +170,18 @@
   <p class="page-sub">Ask Ridge Run anything about the universe, your portfolio, or specific tickers. It has your DNA, watchlist, top 100 quality screen with vol &amp; fundamentals, recent investor moves, and past rec outcomes — it picks the right charts for each idea.</p>
 
   <div id="investors-bar" style="margin-bottom:10px"></div>
+
+  <div id="flywheel" class="flywheel-wrap" style="display:none">
+    <div class="flywheel-head">
+      <div>
+        <h2>Capital flywheel</h2>
+        <div class="flywheel-edge" id="fw-edge"></div>
+      </div>
+    </div>
+    <div class="cycle-ribbon" id="fw-cycle"></div>
+    <div class="pillars" id="fw-pillars"></div>
+    <div id="fw-crosshits"></div>
+  </div>
 
   <div class="recs-section">
     <div class="recs-head">
@@ -196,6 +251,7 @@
     $('loading-screen').classList.add('hidden');
     $('app').classList.remove('hidden');
     await loadInvestors();
+    await loadFlywheel();
     await loadTodaysRecs();
     await loadChatHistory();
     wireUI();
@@ -270,6 +326,94 @@
     $('modal-root').innerHTML = html;
     $('inv-modal-close').addEventListener('click', function(){ $('modal-root').innerHTML=''; });
     $('inv-modal-bg').addEventListener('click', function(e){ if(e.target.id==='inv-modal-bg') $('modal-root').innerHTML=''; });
+  }
+
+  async function loadFlywheel(){
+    let d = null;
+    try {
+      const r = await sb.rpc('get_flywheel_dashboard', { p_user: currentUser.id, p_nav: 2000 });
+      d = r.data;
+    } catch(e){ return; }
+    if (!d) return;
+    document.getElementById('flywheel').style.display = 'block';
+    $('fw-edge').textContent = d.edge || '';
+    const cc = d.capital_cycle || {};
+    $('fw-cycle').innerHTML = [
+      ['NAV', fmtMoney(cc.nav), 'total'],
+      ['Free cash', fmtMoney(cc.free_cash), 'available to deploy', 'highlight'],
+      ['Collateral locked', fmtMoney(cc.collateral_locked), (cc.open_count||0)+' short-premium pos'],
+      ['LEAPs deployed', fmtMoney(cc.leap_capital_deployed), 'asymmetric upside'],
+      ['Realized 90d', fmtMoney(cc.realized_90d), 'premium + closed P&L']
+    ].map(function(t){
+      return '<div class="cycle-tile '+(t[3]||'')+'">'
+        + '<div class="ct-label">'+t[0]+'</div>'
+        + '<div class="ct-value">'+t[1]+'</div>'
+        + '<div class="ct-sub">'+t[2]+'</div>'
+        + '</div>';
+    }).join('');
+
+    const pillars = [
+      { key:'pillar_1_cash_compounders', title:'1. Cash compounders', tag:'compound', kind:'equity', sub:'div + FCF yield', count_label:'long-list',
+        row: function(x){ return ['<div><div class="pr-tk">'+esc(x.ticker)+'<span class="pillar-tag compound">equity</span></div><div class="pr-sub">'+esc((x.name||'').slice(0,28))+' · '+esc(x.sector||'')+'</div></div>',
+          '<div class="pr-val"><div class="pv-num">'+fmtPct(Math.max(x.dividend_yield||0, x.fcf_yield_ltm||0))+'</div><div>'+(x.dividend_yield>0?'div '+fmtPct(x.dividend_yield):'')+(x.fcf_yield_ltm>0?' fcf '+fmtPct(x.fcf_yield_ltm):'')+'</div></div>']; }
+      },
+      { key:'pillar_2_income_theta', title:'2. Income (weekly theta)', tag:'income', kind:'credit spreads', sub:'sell mispriced theta',
+        row: function(x){ return ['<div><div class="pr-tk">'+esc(x.ticker)+'<span class="pillar-tag income">credit</span></div><div class="pr-sub">'+esc(x.short_strike)+'/'+esc(x.long_strike)+'p · '+esc(x.dte)+'d · '+fmtPct(Number(x.assign_prob)||0)+' assign</div></div>',
+          '<div class="pr-val"><div class="pv-num">$'+fmtN(x.net_credit*100,0)+'</div><div>risk $'+fmtN(x.max_loss_dollars,0)+'</div></div>']; }
+      },
+      { key:'pillar_3_leaps', title:'3. LEAPs (asymmetric)', tag:'leap', kind:'long call LEAPs', sub:'cheap-vol upside',
+        row: function(x){ return ['<div><div class="pr-tk">'+esc(x.ticker)+'<span class="pillar-tag leap">leap</span></div><div class="pr-sub">'+esc(x.strike)+'c · '+esc(x.dte)+'d · '+fmtPct(x.otm_pct)+' OTM</div></div>',
+          '<div class="pr-val"><div class="pv-num">$'+fmtN(x.cost_dollars,0)+'</div><div>Δ '+fmtN(x.delta,2)+'</div></div>']; }
+      },
+      { key:'pillar_4_special_sits', title:'4. Special situations', tag:'specsit', kind:'spinoff / warrant / recap', sub:'Greenblatt setups',
+        row: function(x){
+          return ['<div><div class="pr-tk">'+esc(x.ticker||'—')+'<span class="pillar-tag specsit">'+esc((x.type||'').replace(/_/g,' '))+'</span></div><div class="pr-sub">'+esc((x.company||'').slice(0,28))+' · '+esc(x.form||'')+'</div></div>',
+            '<div class="pr-val"><div class="pv-num">'+esc(x.score||'')+'</div><div>'+esc(x.date||'')+'</div></div>']; }
+      }
+    ];
+
+    $('fw-pillars').innerHTML = pillars.map(function(p){
+      const items = d[p.key] || [];
+      const body = items.length ? items.slice(0,12).map(function(it){
+        const cells = p.row(it);
+        const tk = it.ticker||'';
+        const url = it.url||'';
+        return '<div class="pillar-row" data-tk="'+esc(tk)+'" data-url="'+esc(url)+'">'+cells[0]+cells[1]+'</div>';
+      }).join('') : '<div class="pane-placeholder">No candidates today.</div>';
+      return '<div class="pillar">'
+        + '<div class="pillar-head"><div><div class="ph-title">'+p.title+'</div><div class="ph-count">'+p.sub+'</div></div><div class="ph-count">'+items.length+' ideas</div></div>'
+        + '<div class="pillar-body">'+body+'</div></div>';
+    }).join('');
+
+    const ch = (d.crosshits||[]).filter(function(x){ return (x.in_compounders||x.in_specsit||x.investor_holders>0); }).slice(0,18);
+    if (ch.length){
+      $('fw-crosshits').innerHTML = '<div class="crosshits-strip">'
+        + '<h4>Cross-pillar hits</h4>'
+        + '<div class="ch-sub">names showing up in multiple buckets — highest-conviction overlap</div>'
+        + '<div class="ch-grid">'
+        + ch.map(function(x){
+            const flags = [];
+            if (x.in_compounders) flags.push('compounder');
+            if (x.in_specsit) flags.push('specsit');
+            if (x.investor_holders>0) flags.push(x.investor_holders+' investor'+(x.investor_holders>1?'s':''));
+            if (x.in_watchlist) flags.push('★watch');
+            if (x.in_positions) flags.push('●owned');
+            return '<div class="ch-tile" data-tk="'+esc(x.ticker)+'"><div class="cht-tk">'+esc(x.ticker)+'</div><div class="cht-flags">'+flags.join(' · ')+'</div></div>';
+          }).join('')
+        + '</div></div>';
+    } else {
+      $('fw-crosshits').innerHTML = '';
+    }
+
+    // wire ticker click: SEC url for specsit rows, deepdive for ticker rows
+    document.querySelectorAll('.pillar-row, .ch-tile[data-tk]').forEach(function(el){
+      el.addEventListener('click', function(){
+        const url = el.getAttribute('data-url');
+        const tk = el.getAttribute('data-tk');
+        if (url) { window.open(url, '_blank'); return; }
+        if (tk && typeof openDeepdive === 'function') openDeepdive(tk);
+      });
+    });
   }
 
   async function loadTodaysRecs(){
