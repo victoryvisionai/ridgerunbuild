@@ -107,6 +107,10 @@
   .pillar-tag.leap{background:#ede9fe;color:#6b21a8}
   .pillar-tag.specsit{background:#fef3c7;color:#92400e}
   .pillar-tag.crosshit{background:#fce7f3;color:#9d174d}
+  .inv-flag{display:inline-block;font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;padding:1.5px 5px;border-radius:3px;margin-left:4px;vertical-align:middle}
+  .inv-flag.held{background:#dcfce7;color:#166534}
+  .inv-flag.new{background:#dbeafe;color:#1e40af}
+  .inv-flag.caution{background:#fef3c7;color:#92400e}
   .crosshits-strip{margin-top:14px;background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;padding:10px 14px}
   .crosshits-strip h4{font-family:var(--font-serif);font-size:14px;font-weight:500;margin:0 0 4px 0}
   .crosshits-strip .ch-sub{font-family:var(--mono);font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:#92400e;margin-bottom:8px}
@@ -122,7 +126,10 @@
   }
 
   .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:60}
-  .modal{background:var(--card);border-radius:8px;width:min(900px,95vw);max-height:88vh;overflow-y:auto;border:1px solid var(--border)}
+  .modal{background:var(--card);border-radius:8px;width:min(1100px,96vw);max-height:90vh;overflow-y:auto;border:1px solid var(--border);font-size:13px}
+  .modal .simple{font-size:13px}
+  .modal .simple td, .modal .simple th{padding:8px 12px}
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:2000}
   .modal-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
   .modal-head h3{font-family:var(--font-serif);font-size:20px;margin:0}
   .modal-body{padding:14px 18px}
@@ -352,17 +359,24 @@
         + '</div>';
     }).join('');
 
+    const invBadge = function(sig){
+      if (!sig || !sig.holders || !sig.holders.length) return '';
+      const flag = sig.flag || 'held';
+      const short = sig.holders.map(function(s){ return String(s).replace(/\s*\(.*\)/,'').replace(/\s+LP$/,'').slice(0,12); }).join(',');
+      return '<span class="inv-flag '+flag+'" title="'+esc(sig.holders.join(' / '))+'">'+esc(short)+'</span>';
+    };
+
     const pillars = [
-      { key:'pillar_1_cash_compounders', title:'1. Cash compounders', tag:'compound', kind:'equity', sub:'div + FCF yield', count_label:'long-list',
-        row: function(x){ return ['<div><div class="pr-tk">'+esc(x.ticker)+'<span class="pillar-tag compound">equity</span></div><div class="pr-sub">'+esc((x.name||'').slice(0,28))+' · '+esc(x.sector||'')+'</div></div>',
+      { key:'pillar_1_cash_compounders', title:'1. Cash compounders', tag:'compound', kind:'equity', sub:'div + FCF yield',
+        row: function(x){ return ['<div><div class="pr-tk">'+esc(x.ticker)+'<span class="pillar-tag compound">equity</span>'+invBadge(x.investor_signal)+'</div><div class="pr-sub">'+esc((x.name||'').slice(0,28))+' · '+esc(x.sector||'')+'</div></div>',
           '<div class="pr-val"><div class="pv-num">'+fmtPct(Math.max(x.dividend_yield||0, x.fcf_yield_ltm||0))+'</div><div>'+(x.dividend_yield>0?'div '+fmtPct(x.dividend_yield):'')+(x.fcf_yield_ltm>0?' fcf '+fmtPct(x.fcf_yield_ltm):'')+'</div></div>']; }
       },
       { key:'pillar_2_income_theta', title:'2. Income (weekly theta)', tag:'income', kind:'credit spreads', sub:'sell mispriced theta',
-        row: function(x){ return ['<div><div class="pr-tk">'+esc(x.ticker)+'<span class="pillar-tag income">credit</span></div><div class="pr-sub">'+esc(x.short_strike)+'/'+esc(x.long_strike)+'p · '+esc(x.dte)+'d · '+fmtPct(Number(x.assign_prob)||0)+' assign</div></div>',
+        row: function(x){ return ['<div><div class="pr-tk">'+esc(x.ticker)+'<span class="pillar-tag income">credit</span>'+invBadge(x.investor_signal)+'</div><div class="pr-sub">'+esc(x.short_strike)+'/'+esc(x.long_strike)+'p · '+esc(x.dte)+'d · '+fmtPct(Number(x.assign_prob)||0)+' assign</div></div>',
           '<div class="pr-val"><div class="pv-num">$'+fmtN(x.net_credit*100,0)+'</div><div>risk $'+fmtN(x.max_loss_dollars,0)+'</div></div>']; }
       },
       { key:'pillar_3_leaps', title:'3. LEAPs (asymmetric)', tag:'leap', kind:'long call LEAPs', sub:'cheap-vol upside',
-        row: function(x){ return ['<div><div class="pr-tk">'+esc(x.ticker)+'<span class="pillar-tag leap">leap</span></div><div class="pr-sub">'+esc(x.strike)+'c · '+esc(x.dte)+'d · '+fmtPct(x.otm_pct)+' OTM</div></div>',
+        row: function(x){ return ['<div><div class="pr-tk">'+esc(x.ticker)+'<span class="pillar-tag leap">leap</span>'+invBadge(x.investor_signal)+'</div><div class="pr-sub">'+esc(x.strike)+'c · '+esc(x.dte)+'d · '+fmtPct(x.otm_pct)+' OTM</div></div>',
           '<div class="pr-val"><div class="pv-num">$'+fmtN(x.cost_dollars,0)+'</div><div>Δ '+fmtN(x.delta,2)+'</div></div>']; }
       },
       { key:'pillar_4_special_sits', title:'4. Special situations', tag:'specsit', kind:'spinoff / warrant / recap', sub:'Greenblatt setups',
