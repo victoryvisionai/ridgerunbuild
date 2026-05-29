@@ -99,7 +99,7 @@
   <div id="rr-nav-container"></div>
 
   <h1 class="page-title">Screener</h1>
-  <p class="page-sub">Universe of <span id="universe-size">—</span> US-listed companies. Filter, sort, and add candidates to your watchlist. Watchlist tickers auto-bootstrap full data (fundamentals, options, vol, insider, analyst).</p>
+  <p class="page-sub">Universe of <span id="universe-size">—</span> US-listed companies. Filter, sort, and add candidates to your watchlist. <strong>Top 250 focus</strong> = score-ranked operating businesses, excluding Financials / REITs / Energy. Data is end-of-day (EOD); options bid/ask not live — use broker for execution.</p>
 
   <div id="msg-area"></div>
 
@@ -110,7 +110,7 @@
     </div>
     <div class="banner-body">
       <div class="preset-chips" id="presets">
-        <button type="button" data-preset="shortlist">Top 100 shortlist</button>
+        <button type="button" data-preset="shortlist">Top 250 focus</button>
         <button type="button" data-preset="leap_candidates">LEAP candidates</button>
         <button type="button" data-preset="sell_premium">Sell premium</button>
         <button type="button" data-preset="quality_compounders">Quality compounders</button>
@@ -143,7 +143,9 @@
         </div>
         <div class="field-mini"><label>Min div yield (%)</label><input type="number" id="f-min-div" step="0.5" placeholder="any"></div>
         <div class="field-mini"><label>Max P/E</label><input type="number" id="f-max-pe" step="1" placeholder="any"></div>
-        <div class="field-mini"><label>Sector (comma-sep)</label><input type="text" id="f-sectors" placeholder="Technology, Financial Services"></div>
+        <div class="field-mini"><label>Sector (comma-sep, include)</label><input type="text" id="f-sectors" placeholder="Technology, Healthcare"></div>
+        <div class="field-mini"><label>Exclude sectors (comma-sep)</label><input type="text" id="f-exclude-sectors" placeholder="Financial Services, Real Estate, Energy"></div>
+        <div class="field-mini"><label>Min quality score (0-100)</label><input type="number" id="f-min-quality" step="5" placeholder="any"></div>
         <div class="field-mini"><label>Limit</label><input type="number" id="f-limit" value="100" min="10" max="500"></div>
         <div class="field-mini"><label>Universe</label>
           <div class="check-row" style="padding-top:6px">
@@ -327,21 +329,33 @@
     });
     switch (name) {
       case 'shortlist':
-        $('f-shortlist').checked = true; break;
+        // top 250 scored focus pool (no financials/REIT/energy already excluded by scorer)
+        $('f-shortlist').checked = true;
+        $('f-limit').value = '250';
+        break;
       case 'leap_candidates':
+        // cheap vol on quality focus names — for buying premium / LEAPs
         $('f-shortlist').checked = true;
         $('f-vol-regime').value = 'cheap_vol_buy';
+        $('f-min-quality').value = '60';
         break;
       case 'sell_premium':
+        // rich vol on quality names — for credit spreads
+        $('f-shortlist').checked = true;
         $('f-vol-regime').value = 'rich_vol_sell';
+        $('f-min-quality').value = '60';
         break;
       case 'quality_compounders':
+        // high quality, low debt, FCF-throwing operating businesses
         $('f-shortlist').checked = true;
-        $('f-max-nd').value = '3';
+        $('f-min-quality').value = '70';
+        $('f-min-fcf').value = '5';
+        $('f-exclude-sectors').value = 'Financial Services, Real Estate, Energy';
         break;
       case 'asymmetric_upside':
         $('f-shortlist').checked = true;
-        $('f-min-asym').value = '2';
+        $('f-min-quality').value = '65';
+        $('f-vol-regime').value = 'cheap_vol_buy';
         break;
       case 'watchlist':
         runScan({ watchlistOnly: true });
@@ -365,6 +379,9 @@
 
     const sectors = txt('f-sectors');
     const sectorArr = sectors ? sectors.split(',').map(function(s){return s.trim();}).filter(Boolean) : null;
+    const exclSectors = txt('f-exclude-sectors');
+    const exclSectorArr = exclSectors ? exclSectors.split(',').map(function(s){return s.trim();}).filter(Boolean) : null;
+    const volRegime = txt('f-vol-regime');
 
     const params = {
       p_user_id: currentUser.id,
@@ -380,11 +397,14 @@
       p_min_mkt_cap: num('f-min-mcap') != null ? num('f-min-mcap') * 1e6 : null,
       p_has_options: $('f-optionable').checked ? true : null,
       p_sectors: sectorArr,
+      p_exclude_sectors: exclSectorArr,
       p_min_div_yield: pct('f-min-div'),
       p_max_pe: num('f-max-pe'),
       p_min_pe: null,
       p_max_pct_from_low: pct('f-max-from-low'),
       p_min_pct_from_high: pct('f-min-from-high'),
+      p_vol_regime: volRegime,
+      p_min_quality_score: num('f-min-quality'),
       p_limit: intVal('f-limit') || 100,
       p_shortlist_only: $('f-shortlist').checked,
       p_watchlist_only: false,
