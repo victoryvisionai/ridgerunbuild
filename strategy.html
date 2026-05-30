@@ -89,7 +89,7 @@
   .cycle-tile .ct-value{font-family:var(--font-serif);font-size:21px;font-weight:500;margin-top:2px}
   .cycle-tile .ct-sub{font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-top:2px}
   .cycle-tile.highlight{background:#eff6ff;border-color:#bfdbfe}
-  .pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .pillars{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
   .pillar{background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden;display:flex;flex-direction:column;min-height:260px}
   .pillar-head{padding:9px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
   .pillar-head .ph-title{font-family:var(--font-serif);font-size:14px;font-weight:500}
@@ -107,6 +107,9 @@
   .pillar-tag.leap{background:#ede9fe;color:#6b21a8}
   .pillar-tag.specsit{background:#fef3c7;color:#92400e}
   .pillar-tag.crosshit{background:#fce7f3;color:#9d174d}
+  .pillar-tag.breakout{background:#fee2e2;color:#991b1b}
+  .conviction-bar{display:inline-block;width:24px;height:5px;background:#e5e7eb;border-radius:2px;margin-left:5px;vertical-align:middle;position:relative}
+  .conviction-bar::after{content:'';position:absolute;left:0;top:0;height:100%;border-radius:2px;background:#dc2626}
   .inv-flag{display:inline-block;font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;padding:1.5px 5px;border-radius:3px;margin-left:4px;vertical-align:middle}
   .inv-flag.held{background:#dcfce7;color:#166534}
   .inv-flag.new{background:#dbeafe;color:#1e40af}
@@ -120,13 +123,19 @@
   .crosshits-strip .ch-tile .cht-tk{font-family:var(--font-serif);font-size:13px;font-weight:600}
   .crosshits-strip .ch-tile .cht-flags{font-family:var(--mono);font-size:8.5px;color:#78350f;margin-top:2px;letter-spacing:0.08em}
 
+  @media (max-width:1400px){
+    .pillars{grid-template-columns:repeat(3,1fr)}
+  }
   @media (max-width:1200px){
     .cycle-ribbon{grid-template-columns:repeat(2,1fr)}
     .pillars{grid-template-columns:repeat(2,1fr)}
   }
 
   .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:60}
-  .modal{background:var(--card);border-radius:8px;width:min(1100px,96vw);max-height:90vh;overflow-y:auto;border:1px solid var(--border);font-size:13px}
+  .modal{background:#ffffff;border-radius:8px;width:min(1100px,96vw);max-height:90vh;overflow-y:auto;border:1px solid var(--border);font-size:13px;color:#0f172a;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+  .modal h3, .modal h4, .modal td, .modal th, .modal p, .modal div, .modal span{color:#0f172a}
+  .modal .simple th{background:#f8fafc;border-bottom:1px solid #e2e8f0}
+  .modal .simple tr:hover{background:#f8fafc}
   .modal .simple{font-size:13px}
   .modal .simple td, .modal .simple th{padding:8px 12px}
   .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:2000}
@@ -383,6 +392,14 @@
         row: function(x){
           return ['<div><div class="pr-tk">'+esc(x.ticker||'—')+'<span class="pillar-tag specsit">'+esc((x.type||'').replace(/_/g,' '))+'</span></div><div class="pr-sub">'+esc((x.company||'').slice(0,28))+' · '+esc(x.form||'')+'</div></div>',
             '<div class="pr-val"><div class="pv-num">'+esc(x.score||'')+'</div><div>'+esc(x.date||'')+'</div></div>']; }
+      },
+      { key:'pillar_5_breakouts', title:'5. Breakouts (live news)', tag:'breakout', kind:'catalyst-driven', sub:'AI-reviewed last 48h',
+        row: function(x){
+          const conv = Number(x.conviction||0);
+          const verdict = x.verdict || '';
+          const verdictColor = verdict==='high' ? '#166534' : verdict==='low' ? '#991b1b' : '#92400e';
+          return ['<div><div class="pr-tk">'+esc(x.ticker||'—')+'<span class="pillar-tag breakout">'+esc((x.catalyst||'').slice(0,16))+'</span>'+(verdict?'<span class="inv-flag" style="background:#f1f5f9;color:'+verdictColor+'">'+esc(verdict)+'</span>':'')+'</div><div class="pr-sub">'+esc((x.thesis||'').slice(0,80))+(x.thesis && x.thesis.length>80?'…':'')+'</div></div>',
+            '<div class="pr-val"><div class="pv-num">'+esc(conv)+'</div><div>'+esc(x.sources||0)+' src</div></div>']; }
       }
     ];
 
