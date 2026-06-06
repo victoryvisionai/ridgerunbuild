@@ -1,524 +1,304 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Screener · Ridge Run</title>
-<script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/assets/themes.css" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Screener — Ridge Run</title>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  :root{
-    --bg:#fff;--bg-tint:#f8fafc;--bg-blue:#eff6ff;--border:#e2e8f0;--border-blue:#bfdbfe;
-    --text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
-    --accent:#2563eb;--accent-dark:#1e40af;
-    --success:#059669;--success-bg:#d1fae5;--warning:#d97706;
-    --danger:#dc2626;--danger-bg:#fee2e2;
-    --serif:'Source Serif 4',Georgia,serif;--sans:'Inter',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace;
-  }
-  *{box-sizing:border-box} html,body{margin:0;padding:0}
-  body{background:var(--bg-tint);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh}
-  .hidden{display:none!important}
-  .loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim)}
-  .shell{max-width:1600px;margin:0 auto;padding:0 24px 80px}
-
-  h1.page-title{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-0.02em;margin:24px 0 4px}
-  .page-sub{color:var(--text-muted);margin:0 0 22px;font-size:14px}
-
-  .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:9px 14px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500;transition:all .12s}
-  .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)} .btn-primary:disabled{opacity:.5;cursor:wait}
-  .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
-  .btn-success{background:var(--success);color:#fff;border-color:var(--success)} .btn-success:hover{background:#047857}
-  .btn-sm{font-size:10px;padding:5px 9px}
-
-  .banner-card{background:var(--bg);border:1px solid var(--border);border-radius:6px;margin-bottom:18px;overflow:hidden}
-  .banner-head{background:#0f172a;color:#f1f5f9;padding:13px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
-  .banner-head h2{font-family:var(--serif);font-size:17px;font-weight:500;margin:0;color:#f1f5f9}
-  .banner-meta{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8}
-  .banner-body{padding:20px 22px}
-
-  .filter-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
-  .field-mini label{display:block;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text);margin-bottom:6px}
-  .field-mini input, .field-mini select{width:100%;background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-family:var(--mono);font-size:12px;color:var(--text);border-radius:3px}
-  .field-mini input:focus, .field-mini select:focus{outline:none;border-color:var(--accent)}
-  .filter-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
-  .check-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--text-muted)}
-  .check-row label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
-
-  .preset-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-  .preset-chips button{font-family:var(--mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;background:var(--bg-tint);border:1px solid var(--border);color:var(--text-muted);padding:6px 12px;border-radius:14px;cursor:pointer}
-  .preset-chips button:hover{border-color:var(--accent);color:var(--accent)}
-  .preset-chips button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-
-  .results-wrap{overflow-x:auto}
-  table{width:100%;border-collapse:collapse;font-size:12px;min-width:1500px}
-  th{text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);padding:8px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;background:var(--bg-tint);position:sticky;top:0;z-index:2;white-space:nowrap}
-  th:hover{color:var(--accent)}
-  th.sorted-asc::after{content:' ↑';color:var(--accent)}
-  th.sorted-desc::after{content:' ↓';color:var(--accent)}
-  td{padding:8px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11.5px;white-space:nowrap}
-  td.num{text-align:right} td.pos{color:var(--success)} td.neg{color:var(--danger)}
-  td a{color:var(--accent);text-decoration:none;font-weight:600}
-  td a:hover{text-decoration:underline}
-  tr:hover td{background:var(--bg-blue)}
-  tr.in-wl td{background:rgba(37,99,235,0.04)}
-
-  .badge{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:3px;border:1px solid var(--border);background:var(--bg-tint);color:var(--text-muted)}
-  .badge.cheap{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
-  .badge.rich{background:#fffbeb;border-color:#fcd34d;color:#92400e}
-  .badge.lean-buy{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
-  .badge.lean-sell{background:#fef3c7;border-color:#fcd34d;color:#92400e}
-  .badge.neutral{background:#f1f5f9;border-color:#cbd5e1;color:#334155}
-  .badge.no-data{background:var(--bg-tint);border-color:var(--border);color:var(--text-dim);font-style:italic}
-  .badge.has-model{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
-  .badge.shortlist{background:#fef3c7;border-color:#fcd34d;color:#92400e}
-  .badge.tier-large{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
-  .badge.tier-mid{background:#f1f5f9;border-color:#cbd5e1;color:#334155}
-  .badge.tier-small{background:var(--bg-tint);border-color:var(--border);color:var(--text-dim)}
-
-  .empty{padding:32px 20px;text-align:center;color:var(--text-muted);font-size:13px;font-style:italic}
-  .msg{padding:10px 14px;font-size:13px;border-radius:4px;line-height:1.5;margin:10px 0}
-  .msg-error{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
-  .msg-info{background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--accent-dark)}
-  .msg-success{background:var(--success-bg);border:1px solid #a7f3d0;color:#065f46}
-
-  .wl-icon{font-size:13px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;border:1px solid transparent}
-  .wl-icon.add{color:var(--text-dim);border-color:var(--border)}
-  .wl-icon.add:hover{background:var(--bg-blue);color:var(--accent);border-color:var(--accent)}
-  .wl-icon.in{background:var(--accent);color:#fff;border-color:var(--accent);cursor:default}
-
-  @media (max-width:980px){ .filter-grid{grid-template-columns:repeat(2,1fr)} }
+  :root{--bg:#fff;--ink:#0f172a;--ink2:#475569;--muted:#94a3b8;--line:#e2e8f0;--brand:#2563eb;--brand2:#1d4ed8;--ok:#16a34a;--warn:#d97706;--bad:#dc2626;--chip:#f1f5f9}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif}
+  a{color:var(--brand);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{padding:14px;max-width:1800px;margin:0 auto}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:12px}
+  .h1{font-size:18px;font-weight:700;margin:0 0 8px}
+  .h2{font-size:13px;font-weight:700;color:var(--ink2);margin:8px 0 6px;text-transform:uppercase;letter-spacing:.04em}
+  .muted{color:var(--muted)}
+  .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px 12px}
+  .field-mini{display:flex;flex-direction:column;gap:2px}
+  .field-mini label{font-size:11px;font-weight:700;color:var(--ink);letter-spacing:.02em}
+  .field-mini input, .field-mini select{padding:5px 7px;border:1px solid var(--line);border-radius:6px;font:inherit;background:#fff}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px;align-items:center}
+  .btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
+  .btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .btn.ghost{background:transparent}
+  .btn:hover{filter:brightness(.98)}
+  .toggles{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12px}
+  .toggles label{display:flex;gap:6px;align-items:center;font-weight:600;color:var(--ink2)}
+  .scroller{overflow:auto;max-height:78vh;border:1px solid var(--line);border-radius:8px}
+  table.grid{border-collapse:collapse;width:100%;font-size:12px}
+  table.grid th,table.grid td{border-bottom:1px solid var(--line);padding:5px 7px;text-align:right;white-space:nowrap}
+  table.grid th:first-child,table.grid td:first-child{text-align:left}
+  table.grid th{position:sticky;top:0;background:#f8fafc;color:var(--ink2);font-weight:600;cursor:pointer;user-select:none;z-index:1}
+  table.grid th:hover{background:#eef2ff}
+  table.grid tr:hover td{background:#fafbff}
+  .ticker-link{font-weight:700;color:var(--brand);cursor:pointer}
+  .ticker-link:hover{text-decoration:underline}
+  .ok-txt{color:var(--ok);font-weight:600}
+  .bad-txt{color:var(--bad);font-weight:600}
+  .pill{display:inline-block;padding:1px 6px;border-radius:999px;font-size:10px;font-weight:600;background:var(--chip)}
+  .pill.cheap{background:#dcfce7;color:#166534}
+  .pill.rich{background:#fee2e2;color:#991b1b}
+  .pill.warn{background:#fef3c7;color:#92400e}
+  .pill.brand{background:var(--brand);color:#fff}
+  .empty{color:var(--muted);padding:24px;text-align:center;font-size:13px}
+  .meta{display:flex;gap:14px;font-size:11px;color:var(--ink2);margin:6px 0;flex-wrap:wrap}
+  .add-btn{background:transparent;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:10px;cursor:pointer;color:var(--brand)}
+  .add-btn:hover{background:#eef2ff}
+  .hint{background:#fef3c7;border:1px solid #fde68a;color:#92400e;padding:8px 12px;border-radius:8px;margin:8px 0;font-size:12px}
 </style>
 </head>
 <body>
+<div id="nav"></div>
+<script src="/nav.js"></script>
 
-<div id="loading-screen" class="loading">Loading screener…</div>
+<div class="wrap">
+  <section class="panel">
+    <div class="h1">Screener</div>
+    <div class="muted" style="font-size:12px;margin-bottom:8px">Universe: ~2,978 active companies. Optionable: ~1,640. Default min market cap $200M.</div>
 
-<div id="app" class="shell hidden">
-  <div id="rr-nav-container"></div>
-
-  <h1 class="page-title">Screener</h1>
-  <p class="page-sub">Universe of <span id="universe-size">—</span> US-listed companies. Filter, sort, and add candidates to your watchlist. <strong>Top 250 focus</strong> = score-ranked operating businesses, excluding Financials / REITs / Energy. Data is end-of-day (EOD); options bid/ask not live — use broker for execution.</p>
-
-  <div id="msg-area"></div>
-
-  <div class="banner-card">
-    <div class="banner-head">
-      <h2>Filters</h2>
-      <span class="banner-meta" id="result-count">—</span>
-    </div>
-    <div class="banner-body">
-      <div class="preset-chips" id="presets">
-        <button type="button" data-preset="shortlist">Top 250 focus</button>
-        <button type="button" data-preset="leap_candidates">LEAP candidates</button>
-        <button type="button" data-preset="sell_premium">Sell premium</button>
-        <button type="button" data-preset="quality_compounders">Quality compounders</button>
-        <button type="button" data-preset="asymmetric_upside">Asymmetric upside</button>
-        <button type="button" data-preset="watchlist">My watchlist</button>
-        <button type="button" data-preset="reset">Reset</button>
+    <div class="filters">
+      <div class="field-mini"><label>Min mkt cap ($M)</label><input id="f_min_mkt_cap" type="number" value="200" min="0"/></div>
+      <div class="field-mini"><label>Max mkt cap ($M)</label><input id="f_max_mkt_cap" type="number"/></div>
+      <div class="field-mini"><label>Max EV/Rev</label><input id="f_max_ev_rev" type="number" step="0.1"/></div>
+      <div class="field-mini"><label>Max EV/EBITDA</label><input id="f_max_ev_ebitda" type="number" step="0.1"/></div>
+      <div class="field-mini"><label>Min FCF yield</label><input id="f_min_fcf_yield" type="number" step="0.01" placeholder="0.05"/></div>
+      <div class="field-mini"><label>Min rev g 1y hist</label><input id="f_min_rev_growth_1y_hist" type="number" step="0.01"/></div>
+      <div class="field-mini"><label>Min rev g 3y hist</label><input id="f_min_rev_growth_3y_hist" type="number" step="0.01"/></div>
+      <div class="field-mini"><label>Min rev g 3y fwd</label><input id="f_min_rev_growth_3y_fwd" type="number" step="0.01"/></div>
+      <div class="field-mini"><label>Min fwd/hist ratio</label><input id="f_min_rev_growth_ratio_fwd" type="number" step="0.1"/></div>
+      <div class="field-mini"><label>Max ND/EBITDA</label><input id="f_max_net_debt_ebitda" type="number" step="0.1"/></div>
+      <div class="field-mini"><label>Max P/E</label><input id="f_max_pe" type="number" step="1"/></div>
+      <div class="field-mini"><label>Min P/E</label><input id="f_min_pe" type="number" step="1"/></div>
+      <div class="field-mini"><label>Min div yield</label><input id="f_min_div_yield" type="number" step="0.001"/></div>
+      <div class="field-mini"><label>Min % from high</label><input id="f_min_pct_from_high" type="number" step="0.01" placeholder="e.g. -0.30"/></div>
+      <div class="field-mini"><label>Max % from low</label><input id="f_max_pct_from_low" type="number" step="0.01"/></div>
+      <div class="field-mini"><label>Vol regime</label>
+        <select id="f_vol_regime"><option value="">Any</option><option value="cheap">Cheap (IV rank &lt;25)</option><option value="neutral">Neutral</option><option value="rich">Rich (&gt;75)</option></select>
       </div>
-
-      <div class="filter-grid">
-        <div class="field-mini"><label>Max EV/EBITDA</label><input type="number" id="f-max-ev-ebitda" step="1" placeholder="any"></div>
-        <div class="field-mini"><label>Max EV/Rev NTM</label><input type="number" id="f-max-ev-rev" step="0.5" placeholder="any"></div>
-        <div class="field-mini"><label>Min FCF yield (%)</label><input type="number" id="f-min-fcf" step="0.5" placeholder="any"></div>
-        <div class="field-mini"><label>Min 1y hist rev growth (%)</label><input type="number" id="f-min-rg-1y" step="1" placeholder="any"></div>
-        <div class="field-mini"><label>Min 3y hist rev growth (%)</label><input type="number" id="f-min-rg-3y-hist" step="1" placeholder="any"></div>
-        <div class="field-mini"><label>Min 3y fwd rev growth (%)</label><input type="number" id="f-min-rg-3y-fwd" step="1" placeholder="any"></div>
-        <div class="field-mini"><label>Min fwd/hist growth ratio</label><input type="number" id="f-min-rg-ratio" step="0.1" placeholder="e.g. 1.0"></div>
-        <div class="field-mini"><label>Max ND/EBITDA</label><input type="number" id="f-max-nd" step="0.5" placeholder="any"></div>
-        <div class="field-mini"><label>Min market cap ($M)</label><input type="number" id="f-min-mcap" step="100" placeholder="1000"></div>
-        <div class="field-mini"><label>Max % from 52w low</label><input type="number" id="f-max-from-low" step="5" placeholder="any"></div>
-        <div class="field-mini"><label>Min % from 52w high</label><input type="number" id="f-min-from-high" step="5" placeholder="any (neg = below)"></div>
-        <div class="field-mini"><label>Vol regime</label>
-          <select id="f-vol-regime">
-            <option value="">Any</option>
-            <option value="cheap_vol_buy">Cheap vol — buy premium</option>
-            <option value="lean_buy">Lean buy</option>
-            <option value="neutral">Neutral</option>
-            <option value="lean_sell">Lean sell</option>
-            <option value="rich_vol_sell">Rich vol — sell premium</option>
-          </select>
-        </div>
-        <div class="field-mini"><label>Min div yield (%)</label><input type="number" id="f-min-div" step="0.5" placeholder="any"></div>
-        <div class="field-mini"><label>Max P/E</label><input type="number" id="f-max-pe" step="1" placeholder="any"></div>
-        <div class="field-mini"><label>Sector (comma-sep, include)</label><input type="text" id="f-sectors" placeholder="Technology, Healthcare"></div>
-        <div class="field-mini"><label>Exclude sectors (comma-sep)</label><input type="text" id="f-exclude-sectors" placeholder="Financial Services, Real Estate, Energy"></div>
-        <div class="field-mini"><label>Min quality score (0-100)</label><input type="number" id="f-min-quality" step="5" placeholder="any"></div>
-        <div class="field-mini"><label>Limit</label><input type="number" id="f-limit" value="100" min="10" max="500"></div>
-        <div class="field-mini"><label>Universe</label>
-          <div class="check-row" style="padding-top:6px">
-            <label><input type="checkbox" id="f-optionable" checked> Has options only</label>
-            <label><input type="checkbox" id="f-shortlist"> Shortlist only</label>
-          </div>
-        </div>
+      <div class="field-mini"><label>Order by</label>
+        <select id="f_order_by">
+          <option value="market_cap_desc">Market cap ↓</option>
+          <option value="fcf_yield_desc">FCF yield ↓</option>
+          <option value="rev_growth_3y_fwd_desc">Rev growth fwd ↓</option>
+          <option value="quality_desc">Quality score ↓</option>
+          <option value="div_yield_desc">Div yield ↓</option>
+        </select>
       </div>
+      <div class="field-mini"><label>Limit</label><input id="f_limit" type="number" value="500" min="1" max="3000"/></div>
+    </div>
 
-      <div class="filter-row">
-        <button type="button" class="btn btn-primary" id="run-btn">Run scan</button>
-        <button type="button" class="btn btn-ghost" id="clear-btn">Clear filters</button>
-        <span class="banner-meta" id="last-run"></span>
-      </div>
+    <div class="toggles">
+      <label><input id="f_has_options" type="checkbox" checked/> Optionable only</label>
+      <label><input id="f_shortlist_only" type="checkbox"/> Shortlist only</label>
+      <label><input id="f_watchlist_only" type="checkbox"/> Watchlist only</label>
     </div>
-  </div>
 
-  <div class="banner-card">
-    <div class="banner-head">
-      <h2>Results</h2>
-      <span class="banner-meta">Click ticker for research · click ＋ to watchlist</span>
+    <div class="actions">
+      <button class="btn primary" id="runBtn">Run screen</button>
+      <button class="btn" id="universeBtn">Whole universe (clear filters)</button>
+      <button class="btn ghost" id="resetBtn">Reset defaults</button>
+      <button class="btn ghost" id="exportBtn">Export CSV</button>
+      <div class="meta" id="meta"></div>
     </div>
-    <div class="banner-body">
-      <div class="results-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th style="width:34px"></th>
-              <th data-sort="ticker">Ticker</th>
-              <th data-sort="sector">Sector</th>
-              <th data-sort="market_cap" style="text-align:right">Mkt cap</th>
-              <th data-sort="market_cap_tier">Tier</th>
-              <th data-sort="dividend_yield" style="text-align:right">Div yld</th>
-              <th data-sort="pe" style="text-align:right">P/E</th>
-              <th data-sort="ev_ebitda_ntm" style="text-align:right">EV/EBITDA</th>
-              <th data-sort="fcf_yield_ntm" style="text-align:right">FCF yld</th>
-              <th data-sort="rev_growth_1y_hist" style="text-align:right">1y hist gr</th>
-              <th data-sort="rev_growth_3y_hist" style="text-align:right">3y hist gr</th>
-              <th data-sort="rev_growth_3y_fwd" style="text-align:right">3y fwd gr</th>
-              <th data-sort="rev_growth_ratio_fwd_over_hist" style="text-align:right">Fwd/Hist</th>
-              <th data-sort="net_debt_ebitda" style="text-align:right">ND/EBITDA</th>
-              <th data-sort="pct_from_high" style="text-align:right">% from hi</th>
-              <th data-sort="pct_from_low" style="text-align:right">% from lo</th>
-              <th data-sort="iv_rank_1y" style="text-align:right">IV rank</th>
-              <th data-sort="iv_30d" style="text-align:right">IV30</th>
-              <th data-sort="vol_regime">Vol regime</th>
-              <th data-sort="top_strategy">Top strategy</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="results-tbody">
-            <tr><td colspan="20" class="empty">Loading results…</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <div id="hint"></div>
+  </section>
+
+  <section class="panel" style="padding:0">
+    <div class="scroller" id="scroller">
+      <div class="empty">Click "Run screen" to fetch results.</div>
     </div>
-  </div>
+  </section>
 </div>
 
-<script src="/nav.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/config.js"></script>
 <script>
-(() => {
-  const N8N = 'https://victoryvision.app.n8n.cloud';
-  const cfg = window.RR_CONFIG || {};
-  const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY);
-  let currentUser = null;
-  let rows = [];
-  let sortCol = null;
-  let sortDir = 'desc';
+(function(){
+  if(!window.RR_CONFIG){alert("Missing RR_CONFIG (load /config.js first)");return;}
+  const sb = window.supabase = supabase.createClient(window.RR_CONFIG.SUPABASE_URL, window.RR_CONFIG.SUPABASE_ANON_KEY);
+  const USER_ID = window.RR_CONFIG.USER_ID || 'e048e890-8554-429e-883e-d9c5d03a3510';
 
-  const $ = id => document.getElementById(id);
-  const show = (id, on) => $(id).classList.toggle('hidden', !(on!==false));
-  const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const fmt2 = n => (n==null||isNaN(n))?'—':Number(n).toFixed(2);
-  const fmtPct = (n,d) => (n==null||isNaN(n))?'—':(Number(n)*100).toFixed(d==null?1:d)+'%';
-  const fmtBigUSD = n => {
-    if (n == null || isNaN(n)) return '—';
-    const x = Number(n);
-    if (x >= 1e12) return '$'+(x/1e12).toFixed(2)+'T';
-    if (x >= 1e9) return '$'+(x/1e9).toFixed(2)+'B';
-    if (x >= 1e6) return '$'+(x/1e6).toFixed(1)+'M';
-    return '$'+Math.round(x);
-  };
-  const flash = (text, kind) => {
-    $('msg-area').innerHTML = '<div class="msg msg-'+esc(kind||'info')+'">'+esc(text)+'</div>';
-    if (kind !== 'error') setTimeout(function(){ $('msg-area').innerHTML=''; }, 6000);
-  };
+  const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+  function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+  function fmt(x,d=2){return (x==null||isNaN(x))?'—':Number(x).toFixed(d)}
+  function fmtPct(x,d=1){return (x==null||isNaN(x))?'—':((x>=0?'+':'')+(x*100).toFixed(d)+'%')}
+  function fmtMcap(x){if(x==null)return'—';if(x>=1e12)return '$'+(x/1e12).toFixed(2)+'T';if(x>=1e9)return '$'+(x/1e9).toFixed(1)+'B';if(x>=1e6)return '$'+(x/1e6).toFixed(0)+'M';return '$'+x}
+  function perfColor(x){if(x==null||isNaN(x))return'';return x>=0?'ok-txt':'bad-txt'}
+  function num(x){const n=parseFloat(x);return isFinite(n)?n:null}
 
-  function fireBootstrapForTicker(ticker) {
-    fetch(N8N+'/webhook/research/bootstrap', {
-      method:'POST', headers:{'content-type':'application/json'},
-      body: JSON.stringify({ ticker: ticker })
-    }).then(function(r){
-      if (!r.ok && r.status === 404) {
-        ['historical/backfill','insider/sync','analyst/sync','options/snap','vol/backfill'].forEach(function(p){
-          fetch(N8N+'/webhook/'+p, {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ticker:ticker})}).catch(function(){});
-        });
-      }
-    }).catch(function(){
-      ['historical/backfill','insider/sync','analyst/sync','options/snap','vol/backfill'].forEach(function(p){
-        fetch(N8N+'/webhook/'+p, {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ticker:ticker})}).catch(function(){});
-      });
-    });
-  }
+  const COLS = [
+    {k:'ticker', l:'Ticker', f:(r)=>`<span class="ticker-link" onclick="window.location.href='/research.html?ticker=${esc(r.ticker)}'">${esc(r.ticker)}</span>${r.in_watchlist?' <span class="pill brand">W</span>':''}`},
+    {k:'company_name', l:'Name', f:(r)=>`<span class="muted">${esc(r.company_name||'')}</span>`},
+    {k:'sector', l:'Sector', f:(r)=>esc(r.sector||'')},
+    {k:'market_cap', l:'Mcap', f:(r)=>fmtMcap(r.market_cap), n:true},
+    {k:'price', l:'Px', f:(r)=>fmt(r.price), n:true},
+    {k:'pe', l:'PE', f:(r)=>fmt(r.pe,1), n:true},
+    {k:'ev_ebitda_ntm', l:'EV/EBITDA', f:(r)=>fmt(r.ev_ebitda_ntm,1), n:true},
+    {k:'fcf_yield_ntm', l:'FCF Yld', f:(r)=>fmtPct(r.fcf_yield_ntm), n:true},
+    {k:'rev_growth_1y_hist', l:'g 1y h', f:(r)=>fmtPct(r.rev_growth_1y_hist), n:true},
+    {k:'rev_growth_3y_hist', l:'g 3y h', f:(r)=>fmtPct(r.rev_growth_3y_hist), n:true},
+    {k:'rev_growth_3y_fwd', l:'g 3y f', f:(r)=>fmtPct(r.rev_growth_3y_fwd), n:true},
+    {k:'rev_growth_ratio_fwd_over_hist', l:'f/h', f:(r)=>fmt(r.rev_growth_ratio_fwd_over_hist,2), n:true},
+    {k:'net_debt_ebitda', l:'ND/EB', f:(r)=>fmt(r.net_debt_ebitda,1), n:true},
+    {k:'dividend_yield', l:'Div', f:(r)=>fmtPct(r.dividend_yield), n:true},
+    {k:'pct_from_high', l:'%↓52H', f:(r)=>`<span class="${perfColor(r.pct_from_high)}">${fmtPct(r.pct_from_high)}</span>`, n:true},
+    {k:'pct_from_low', l:'%↑52L', f:(r)=>`<span class="${perfColor(r.pct_from_low)}">${fmtPct(r.pct_from_low)}</span>`, n:true},
+    {k:'iv_30d', l:'IV30', f:(r)=>fmtPct(r.iv_30d), n:true},
+    {k:'iv_rank_1y', l:'IV rank', f:(r)=>r.iv_rank_1y==null?'—':`${fmt(r.iv_rank_1y,0)} ${r.vol_regime?`<span class="pill ${r.vol_regime}">${esc(r.vol_regime)}</span>`:''}`, n:true},
+    {k:'top_strategy', l:'Strat', f:(r)=>esc(r.top_strategy||'')},
+    {k:'asymmetry', l:'Asym', f:(r)=>fmt(r.asymmetry,2), n:true},
+    {k:'_add', l:'', f:(r)=>r.in_watchlist?'':`<button class="add-btn" onclick="addWatch('${esc(r.ticker)}',this)">+W</button>`}
+  ];
 
-  async function addToWatchlist(ticker, company_name) {
-    const r = await sb.from('ticker_watchlist').insert({
-      user_id: currentUser.id, ticker: ticker, symbol: ticker,
-      company_name: company_name || null, is_active: true, added_at: new Date().toISOString()
-    });
-    if (r.error) {
-      // If unique violation, just re-activate
-      if (String(r.error.message||'').toLowerCase().indexOf('duplicate') >= 0 || String(r.error.code||'') === '23505') {
-        await sb.from('ticker_watchlist').update({is_active:true}).eq('user_id',currentUser.id).eq('ticker',ticker);
-      } else {
-        flash('Add failed: '+r.error.message,'error');
-        return false;
-      }
-    }
-    flash('Added '+ticker+' to watchlist. Firing research bootstrap.','success');
-    fireBootstrapForTicker(ticker);
-    return true;
-  }
-
-  function wireEvents() {
-    $('run-btn').addEventListener('click', function(){ runScan(); });
-    $('clear-btn').addEventListener('click', function(){
-      document.querySelectorAll('.filter-grid input, .filter-grid select').forEach(function(el){
-        if (el.type === 'checkbox') {
-          if (el.id === 'f-optionable') el.checked = true;
-          else el.checked = false;
-        } else if (el.id === 'f-limit') el.value = '100';
-        else el.value = '';
-      });
-      document.querySelectorAll('.preset-chips button').forEach(function(b){ b.classList.remove('active'); });
-      runScan();
-    });
-    $('presets').addEventListener('click', function(e){
-      const b = e.target.closest('button');
-      if (!b) return;
-      document.querySelectorAll('.preset-chips button').forEach(function(x){ x.classList.remove('active'); });
-      b.classList.add('active');
-      applyPreset(b.dataset.preset);
-    });
-    document.querySelectorAll('th[data-sort]').forEach(function(th){
-      th.addEventListener('click', function(){
-        const col = th.dataset.sort;
-        if (sortCol === col) sortDir = sortDir === 'desc' ? 'asc' : 'desc';
-        else { sortCol = col; sortDir = 'desc'; }
-        renderTable();
-      });
-    });
-  }
-
-  (async () => {
-    const r = await sb.auth.getSession();
-    const session = r && r.data && r.data.session;
-    if (!session || !session.user) { window.location.href='/index.html'; return; }
-    currentUser = session.user;
-    show('loading-screen', false);
-    show('app', true);
-    try { if (window.RidgeRunNav) await window.RidgeRunNav.mount({active:'screener', supabase:sb}); } catch(e){}
-
-    // Populate universe size
-    const cR = await sb.from('companies').select('primary_ticker',{count:'exact',head:true}).eq('is_active',true);
-    $('universe-size').textContent = cR.count != null ? cR.count.toLocaleString() : '?';
-
-    wireEvents();
-    runScan();
-  })();
-
-  function applyPreset(name) {
-    document.querySelectorAll('.filter-grid input, .filter-grid select').forEach(function(el){
-      if (el.type === 'checkbox') {
-        if (el.id === 'f-optionable') el.checked = true;
-        else el.checked = false;
-      } else if (el.id === 'f-limit') el.value = '100';
-      else el.value = '';
-    });
-    switch (name) {
-      case 'shortlist':
-        // top 250 scored focus pool (no financials/REIT/energy already excluded by scorer)
-        $('f-shortlist').checked = true;
-        $('f-limit').value = '250';
-        break;
-      case 'leap_candidates':
-        // cheap vol on quality focus names — for buying premium / LEAPs
-        $('f-shortlist').checked = true;
-        $('f-vol-regime').value = 'cheap_vol_buy';
-        $('f-min-quality').value = '60';
-        break;
-      case 'sell_premium':
-        // rich vol on quality names — for credit spreads
-        $('f-shortlist').checked = true;
-        $('f-vol-regime').value = 'rich_vol_sell';
-        $('f-min-quality').value = '60';
-        break;
-      case 'quality_compounders':
-        // high quality, low debt, FCF-throwing operating businesses
-        $('f-shortlist').checked = true;
-        $('f-min-quality').value = '70';
-        $('f-min-fcf').value = '5';
-        $('f-exclude-sectors').value = 'Financial Services, Real Estate, Energy';
-        break;
-      case 'asymmetric_upside':
-        $('f-shortlist').checked = true;
-        $('f-min-quality').value = '65';
-        $('f-vol-regime').value = 'cheap_vol_buy';
-        break;
-      case 'watchlist':
-        runScan({ watchlistOnly: true });
-        return;
-      case 'reset':
-      default:
-        break;
-    }
-    runScan();
-  }
-
-  async function runScan(opts) {
-    opts = opts || {};
-    $('result-count').textContent = 'Scanning…';
-    $('results-tbody').innerHTML = '<tr><td colspan="20" class="empty">Loading…</td></tr>';
-
-    const pct = id => { const v = $(id).value; return v === '' ? null : Number(v)/100; };
-    const num = id => { const v = $(id).value; return v === '' ? null : Number(v); };
-    const intVal = id => { const v = $(id).value; return v === '' ? null : parseInt(v, 10); };
-    const txt = id => { const v = $(id).value; return v === '' ? null : v; };
-
-    const sectors = txt('f-sectors');
-    const sectorArr = sectors ? sectors.split(',').map(function(s){return s.trim();}).filter(Boolean) : null;
-    const exclSectors = txt('f-exclude-sectors');
-    const exclSectorArr = exclSectors ? exclSectors.split(',').map(function(s){return s.trim();}).filter(Boolean) : null;
-    const volRegime = txt('f-vol-regime');
-
-    const params = {
-      p_user_id: currentUser.id,
-      p_max_ev_rev: num('f-max-ev-rev'),
-      p_max_ev_ebitda: num('f-max-ev-ebitda'),
-      p_min_fcf_yield: pct('f-min-fcf'),
-      p_min_rev_growth_1y_hist: pct('f-min-rg-1y'),
-      p_min_rev_growth_3y_hist: pct('f-min-rg-3y-hist'),
-      p_min_rev_growth_3y_fwd: pct('f-min-rg-3y-fwd'),
-      p_min_rev_growth_ratio_fwd: num('f-min-rg-ratio'),
-      p_max_net_debt_ebitda: num('f-max-nd'),
-      p_max_mkt_cap: null,
-      p_min_mkt_cap: num('f-min-mcap') != null ? num('f-min-mcap') * 1e6 : null,
-      p_has_options: $('f-optionable').checked ? true : null,
-      p_sectors: sectorArr,
-      p_exclude_sectors: exclSectorArr,
-      p_min_div_yield: pct('f-min-div'),
-      p_max_pe: num('f-max-pe'),
-      p_min_pe: null,
-      p_max_pct_from_low: pct('f-max-from-low'),
-      p_min_pct_from_high: pct('f-min-from-high'),
-      p_vol_regime: volRegime,
-      p_min_quality_score: num('f-min-quality'),
-      p_limit: intVal('f-limit') || 100,
-      p_shortlist_only: $('f-shortlist').checked,
-      p_watchlist_only: false,
-      p_order_by: 'fcf_yield_desc'
+  function defaults(){
+    return {
+      p_min_mkt_cap: 200_000_000,
+      p_limit: 500,
+      p_order_by: 'market_cap_desc',
+      p_has_options: true,
+      p_shortlist_only: false,
+      p_watchlist_only: false
     };
+  }
 
-    const r = await sb.rpc('screen_companies', params);
-    if (r.error) {
-      $('result-count').textContent = '0';
-      $('results-tbody').innerHTML = '<tr><td colspan="20" class="empty">Scan failed: '+esc(r.error.message)+'</td></tr>';
-      flash('screen_companies error: '+r.error.message, 'error');
+  function readFilters(){
+    const f = defaults();
+    const v = id => $(id).value;
+    const mk = num(v('#f_min_mkt_cap')); if(mk!=null) f.p_min_mkt_cap = mk * 1_000_000;
+    const mkx = num(v('#f_max_mkt_cap')); if(mkx!=null) f.p_max_mkt_cap = mkx * 1_000_000;
+    [['#f_max_ev_rev','p_max_ev_rev'],['#f_max_ev_ebitda','p_max_ev_ebitda'],['#f_min_fcf_yield','p_min_fcf_yield'],
+     ['#f_min_rev_growth_1y_hist','p_min_rev_growth_1y_hist'],['#f_min_rev_growth_3y_hist','p_min_rev_growth_3y_hist'],
+     ['#f_min_rev_growth_3y_fwd','p_min_rev_growth_3y_fwd'],['#f_min_rev_growth_ratio_fwd','p_min_rev_growth_ratio_fwd'],
+     ['#f_max_net_debt_ebitda','p_max_net_debt_ebitda'],['#f_max_pe','p_max_pe'],['#f_min_pe','p_min_pe'],
+     ['#f_min_div_yield','p_min_div_yield'],['#f_max_pct_from_low','p_max_pct_from_low'],['#f_min_pct_from_high','p_min_pct_from_high']]
+     .forEach(([id,k])=>{const n=num(v(id));if(n!=null) f[k]=n});
+    const reg = v('#f_vol_regime'); if(reg) f.p_vol_regime = reg;
+    const ord = v('#f_order_by'); if(ord) f.p_order_by = ord;
+    const lim = parseInt(v('#f_limit'),10); if(lim) f.p_limit = lim;
+    f.p_has_options = $('#f_has_options').checked || null;
+    f.p_shortlist_only = $('#f_shortlist_only').checked || false;
+    f.p_watchlist_only = $('#f_watchlist_only').checked || false;
+    f.p_user_id = USER_ID;
+    return f;
+  }
+
+  function clearFilters(){
+    $$('.filters input').forEach(el=>el.value='');
+    $$('.filters select').forEach(el=>el.selectedIndex=0);
+    $('#f_min_mkt_cap').value = '';
+    $('#f_limit').value = '500';
+    $('#f_has_options').checked = false;
+    $('#f_shortlist_only').checked = false;
+    $('#f_watchlist_only').checked = false;
+  }
+
+  function setDefaults(){
+    clearFilters();
+    $('#f_min_mkt_cap').value = '200';
+    $('#f_has_options').checked = true;
+    $('#f_order_by').value = 'market_cap_desc';
+    $('#f_limit').value = '500';
+  }
+
+  let lastRows = [];
+  let sortKey = null, sortDir = 1;
+
+  function renderTable(rows){
+    if(!rows.length){
+      $('#scroller').innerHTML = '<div class="empty">No matches.</div>';
+      if($('#f_shortlist_only').checked){
+        $('#hint').innerHTML = '<div class="hint">No shortlist matches. Try unchecking "Shortlist only" or running WF34 to populate monthly_shortlist.</div>';
+      }else if($('#f_watchlist_only').checked){
+        $('#hint').innerHTML = '<div class="hint">No watchlist matches your filters. Loosen filters or uncheck "Watchlist only".</div>';
+      }else{
+        $('#hint').innerHTML = '<div class="hint">Filters returned nothing. Try widening min mkt cap or removing growth/EV filters.</div>';
+      }
       return;
     }
-
-    let resultRows = r.data || [];
-    if (opts.watchlistOnly) resultRows = resultRows.filter(function(rw){ return rw.in_watchlist; });
-
-    rows = resultRows;
-    $('result-count').textContent = rows.length + ' result' + (rows.length===1?'':'s');
-    $('last-run').textContent = 'Last run ' + new Date().toLocaleTimeString();
-    renderTable();
-  }
-
-  function renderTable() {
-    if (!rows.length) {
-      $('results-tbody').innerHTML = '<tr><td colspan="20" class="empty">No matches. Loosen filters or uncheck "Optionable only" / "Shortlist only".</td></tr>';
-      return;
-    }
-    let sorted = rows.slice();
-    if (sortCol) {
-      sorted.sort(function(a,b){
-        const av = a[sortCol], bv = b[sortCol];
-        if (av == null && bv == null) return 0;
-        if (av == null) return 1;
-        if (bv == null) return -1;
-        const an = typeof av === 'number' ? av : parseFloat(av);
-        const bn = typeof bv === 'number' ? bv : parseFloat(bv);
-        if (!isNaN(an) && !isNaN(bn)) return sortDir === 'desc' ? bn - an : an - bn;
-        if (typeof av === 'boolean' && typeof bv === 'boolean') return sortDir === 'desc' ? (bv?1:0)-(av?1:0) : (av?1:0)-(bv?1:0);
-        const as = String(av), bs = String(bv);
-        return sortDir === 'desc' ? bs.localeCompare(as) : as.localeCompare(bs);
+    $('#hint').innerHTML = '';
+    const head = `<tr>${COLS.map(c=>`<th data-k="${c.k}">${esc(c.l)}${sortKey===c.k?(sortDir>0?' ▲':' ▼'):''}</th>`).join('')}</tr>`;
+    const body = rows.map(r=>`<tr>${COLS.map(c=>`<td>${c.f(r)}</td>`).join('')}</tr>`).join('');
+    $('#scroller').innerHTML = `<table class="grid"><thead>${head}</thead><tbody>${body}</tbody></table>`;
+    $$('table.grid th').forEach(th=>th.addEventListener('click',()=>{
+      const k = th.dataset.k; if(!k||k==='_add') return;
+      if(sortKey===k) sortDir=-sortDir; else {sortKey=k; sortDir=1}
+      const sorted = lastRows.slice().sort((a,b)=>{
+        const x=a[k], y=b[k];
+        if(x==null) return 1; if(y==null) return -1;
+        if(typeof x==='number') return (x-y)*sortDir;
+        return String(x).localeCompare(String(y))*sortDir;
       });
+      renderTable(sorted);
+    }));
+  }
+
+  async function runScreen(){
+    $('#scroller').innerHTML = '<div class="empty">Running…</div>';
+    $('#hint').innerHTML = '';
+    const t0 = Date.now();
+    try{
+      const params = readFilters();
+      const {data, error} = await sb.rpc('screen_companies', params);
+      if(error) throw error;
+      const rows = Array.isArray(data)?data:[];
+      lastRows = rows;
+      const elapsed = ((Date.now()-t0)/1000).toFixed(1);
+      $('#meta').innerHTML = `<span><b>${rows.length}</b> results · ${elapsed}s</span><span class="muted">filters: ${describeFilters(params)}</span>`;
+      renderTable(rows);
+    }catch(e){
+      console.error(e);
+      $('#scroller').innerHTML = `<div class="empty">Failed: ${esc(e.message||e)}</div>`;
     }
-    document.querySelectorAll('th[data-sort]').forEach(function(th){
-      th.classList.remove('sorted-asc','sorted-desc');
-      if (th.dataset.sort === sortCol) th.classList.add(sortDir === 'desc' ? 'sorted-desc' : 'sorted-asc');
-    });
-
-    $('results-tbody').innerHTML = sorted.map(function(r){
-      const volCls = volBadgeCls(r.vol_regime);
-      const termCls = r.term_structure === 'contango' ? 'lean-buy' : r.term_structure === 'backwardation' ? 'lean-sell' : 'neutral';
-      const stratLabel = (r.top_strategy||'').replace(/_/g,' ');
-      const ar = r.model_annualized_return == null ? null : Number(r.model_annualized_return);
-      const wlBtn = r.in_watchlist
-        ? '<span class="wl-icon in" title="Already in watchlist">✓</span>'
-        : '<button type="button" class="wl-icon add" data-add-wl="'+esc(r.ticker)+'" data-name="'+esc(r.company_name||'')+'" title="Add '+esc(r.ticker)+' to watchlist">＋</button>';
-      const tierCls = r.market_cap_tier ? 'tier-'+r.market_cap_tier : 'no-data';
-      return '<tr class="'+(r.in_watchlist?'in-wl':'')+'">'
-        + '<td>'+wlBtn+'</td>'
-        + '<td><a href="/research.html?ticker='+esc(r.ticker)+'">'+esc(r.ticker)+'</a>'
-          + (r.monthly_shortlist?' <span class="badge shortlist" title="Top 100 monthly shortlist">★</span>':'')
-          + '</td>'
-        + '<td>'+esc(r.sector||'')+'</td>'
-        + '<td class="num">'+fmtBigUSD(r.market_cap)+'</td>'
-        + '<td><span class="badge '+tierCls+'">'+esc(r.market_cap_tier||'—')+'</span></td>'
-        + '<td class="num">'+(r.dividend_yield!=null?fmtPct(r.dividend_yield):'—')+'</td>'
-        + '<td class="num">'+(r.pe!=null && r.pe>0?Number(r.pe).toFixed(1):'—')+'</td>'
-        + '<td class="num">'+fmt2(r.ev_ebitda_ntm)+'</td>'
-        + '<td class="num">'+(r.fcf_yield_ntm!=null?fmtPct(r.fcf_yield_ntm):'—')+'</td>'
-        + '<td class="num">'+(r.rev_growth_1y_hist!=null?fmtPct(r.rev_growth_1y_hist):'—')+'</td>'
-        + '<td class="num">'+(r.rev_growth_3y_hist!=null?fmtPct(r.rev_growth_3y_hist):'—')+'</td>'
-        + '<td class="num">'+(r.rev_growth_3y_fwd!=null?fmtPct(r.rev_growth_3y_fwd):'—')+'</td>'
-        + '<td class="num">'+(r.rev_growth_ratio_fwd_over_hist!=null?Number(r.rev_growth_ratio_fwd_over_hist).toFixed(2)+'×':'—')+'</td>'
-        + '<td class="num">'+fmt2(r.net_debt_ebitda)+'</td>'
-        + '<td class="num '+(r.pct_from_high!=null && r.pct_from_high<0?'neg':'')+'">'+(r.pct_from_high!=null?fmtPct(r.pct_from_high):'—')+'</td>'
-        + '<td class="num '+(r.pct_from_low!=null && r.pct_from_low>0?'pos':'')+'">'+(r.pct_from_low!=null?fmtPct(r.pct_from_low):'—')+'</td>'
-        + '<td class="num">'+(r.iv_rank_1y!=null?Math.round(r.iv_rank_1y):'—')+'</td>'
-        + '<td class="num">'+(r.iv_30d!=null?fmtPct(r.iv_30d):'—')+'</td>'
-        + '<td><span class="badge '+volCls+'">'+esc((r.vol_regime||'no data').replace(/_/g,' '))+'</span></td>'
-        + '<td><span class="badge '+stratCls(r.top_strategy)+'">'+esc(stratLabel||'—')+'</span></td>'
-        + '<td><a href="/research.html?ticker='+esc(r.ticker)+'" class="btn btn-sm btn-ghost" style="text-decoration:none">Research</a></td>'
-        + '</tr>';
-    }).join('');
-
-    $('results-tbody').querySelectorAll('button[data-add-wl]').forEach(function(b){
-      b.addEventListener('click', async function(){
-        const t = b.dataset.addWl;
-        const ok = await addToWatchlist(t, b.dataset.name);
-        if (ok) {
-          // mark this ticker in-watchlist locally and re-render
-          rows.forEach(function(rw){ if (rw.ticker === t) rw.in_watchlist = true; });
-          renderTable();
-        }
-      });
-    });
   }
 
-  function volBadgeCls(v) {
-    if (!v) return 'no-data';
-    if (v === 'cheap_vol_buy') return 'cheap';
-    if (v === 'rich_vol_sell') return 'rich';
-    if (v === 'lean_buy') return 'lean-buy';
-    if (v === 'lean_sell') return 'lean-sell';
-    if (v === 'no_data') return 'no-data';
-    return 'neutral';
+  function describeFilters(p){
+    const parts=[];
+    if(p.p_min_mkt_cap) parts.push(`mcap≥${fmtMcap(p.p_min_mkt_cap)}`);
+    if(p.p_max_mkt_cap) parts.push(`mcap≤${fmtMcap(p.p_max_mkt_cap)}`);
+    if(p.p_max_ev_ebitda) parts.push(`EV/EBITDA≤${p.p_max_ev_ebitda}`);
+    if(p.p_min_fcf_yield) parts.push(`FCF≥${fmtPct(p.p_min_fcf_yield)}`);
+    if(p.p_min_rev_growth_3y_fwd) parts.push(`g3yf≥${fmtPct(p.p_min_rev_growth_3y_fwd)}`);
+    if(p.p_max_net_debt_ebitda!=null) parts.push(`ND/EB≤${p.p_max_net_debt_ebitda}`);
+    if(p.p_vol_regime) parts.push(`vol=${p.p_vol_regime}`);
+    if(p.p_has_options) parts.push('optionable');
+    if(p.p_shortlist_only) parts.push('shortlist');
+    if(p.p_watchlist_only) parts.push('watchlist');
+    return parts.join(' · ');
   }
-  function stratCls(s) {
-    if (!s) return 'no-data';
-    if (s.indexOf('LEAP')>=0 || s.indexOf('cheap_vol')>=0) return 'cheap';
-    if (s.indexOf('iron_condor')>=0 || s.indexOf('csp')>=0 || s.indexOf('sell_vol')>=0) return 'rich';
-    if (s.indexOf('vertical')>=0) return 'lean-buy';
-    if (s === 'wait' || s === 'no_vol_data') return 'no-data';
-    return 'neutral';
+
+  function exportCsv(){
+    if(!lastRows.length) return alert('Run a screen first.');
+    const cols = COLS.filter(c=>c.k!=='_add');
+    const head = cols.map(c=>c.l).join(',');
+    const body = lastRows.map(r=>cols.map(c=>{
+      const v = r[c.k]; if(v==null) return ''; return JSON.stringify(v).replace(/^"|"$/g,'');
+    }).join(',')).join('\n');
+    const blob = new Blob([head+'\n'+body],{type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download=`screener-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+    URL.revokeObjectURL(url);
   }
+
+  async function addWatch(ticker, btn){
+    btn.disabled=true; btn.textContent='…';
+    try{
+      const {error} = await sb.from('ticker_watchlist').insert({user_id:USER_ID, ticker, symbol:ticker, is_active:true});
+      if(error) throw error;
+      btn.textContent='✓'; btn.style.color='#16a34a';
+      const row = lastRows.find(r=>r.ticker===ticker); if(row) row.in_watchlist = true;
+    }catch(e){btn.disabled=false; btn.textContent='+W'; alert('Failed: '+e.message)}
+  }
+  window.addWatch = addWatch;
+
+  $('#runBtn').addEventListener('click', runScreen);
+  $('#universeBtn').addEventListener('click', ()=>{clearFilters(); $('#f_limit').value='1000'; runScreen()});
+  $('#resetBtn').addEventListener('click', setDefaults);
+  $('#exportBtn').addEventListener('click', exportCsv);
+
+  setDefaults();
+  runScreen();
 })();
 </script>
 </body>
