@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <script src="config.js"></script>
 <style>
-  :root { --b:#e5e7eb; --bg:#fafafa; --txt:#111827; --mut:#6b7280; --accent:#2563eb; --green:#059669; --red:#dc2626; }
+  :root { --b:#e5e7eb; --bg:#fafafa; --txt:#111827; --mut:#6b7280; --accent:#2563eb; --green:#059669; --red:#dc2626; --amber:#d97706; }
   * { box-sizing: border-box; }
   body { margin:0; font:14px/1.5 -apple-system,Segoe UI,Roboto,sans-serif; color:var(--txt); background:#fff; }
   nav { display:flex; gap:8px; padding:10px 20px; border-bottom:1px solid var(--b); background:var(--bg); align-items:center; position:sticky; top:0; z-index:50; }
@@ -16,52 +16,49 @@
   main { padding:20px 24px; max-width:1600px; margin:0 auto; }
   h1 { margin:0 0 4px; font-size:22px; }
   .sub { color:var(--mut); margin-bottom:16px; font-size:13px; }
-  /* Investor cards row */
   .investor-row { display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; margin-bottom:20px; }
   .investor-card { flex:0 0 220px; border:1px solid var(--b); border-radius:10px; padding:12px 14px; background:#fff; cursor:pointer; transition: border-color .15s; }
   .investor-card:hover { border-color:#111; }
   .investor-card .name { font-weight:600; font-size:13px; line-height:1.3; margin-bottom:6px; min-height:34px; }
   .investor-card .meta { color:var(--mut); font-size:11px; display:flex; justify-content:space-between; }
   .investor-card .aum { color:var(--accent); font-weight:600; font-size:12px; margin-top:4px; }
-  /* Two-column main */
-  .grid { display:grid; grid-template-columns: 380px 1fr; gap:20px; }
+  .grid { display:grid; grid-template-columns: 420px 1fr; gap:20px; }
   .panel { border:1px solid var(--b); border-radius:10px; background:#fff; }
   .panel-h { padding:12px 14px; border-bottom:1px solid var(--b); display:flex; justify-content:space-between; align-items:center; }
   .panel-h h2 { margin:0; font-size:14px; font-weight:600; }
   .panel-h button { padding:5px 10px; border:1px solid var(--b); background:#fff; border-radius:6px; cursor:pointer; font-size:12px; }
   .panel-h button:hover { background:#f3f4f6; }
   .panel-body { padding:12px 14px; max-height:75vh; overflow-y:auto; }
-  /* Rec card */
   .rec { border:1px solid var(--b); border-radius:8px; padding:12px; margin-bottom:10px; }
-  .rec-h { display:flex; justify-content:space-between; align-items:start; margin-bottom:6px; }
+  .rec-h { display:flex; justify-content:space-between; align-items:start; margin-bottom:6px; gap:8px; }
   .rec-ticker { font-weight:700; font-size:15px; color:var(--accent); }
   .rec-type { font-size:11px; color:var(--mut); text-transform:uppercase; }
   .rec-score { font-size:11px; background:#eef2ff; color:#3730a3; padding:2px 6px; border-radius:4px; }
+  .rec-structure { font-weight:600; font-size:12px; color:#111; margin-bottom:4px; }
   .rec-reasoning { color:#374151; font-size:12px; margin:6px 0; line-height:1.4; }
   .rec-meta { display:flex; gap:12px; font-size:11px; color:var(--mut); flex-wrap:wrap; }
-  .rec-actions { margin-top:8px; display:flex; gap:6px; }
+  .rec-actions { margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; }
   .rec-actions button { padding:5px 10px; border:1px solid var(--b); background:#fff; border-radius:5px; cursor:pointer; font-size:11px; }
-  .rec-actions button.accept { background:#059669; color:#fff; border-color:#059669; }
-  .rec-actions button.dismiss { background:#fff; color:#dc2626; border-color:#dc2626; }
-  /* Chat */
+  .rec-actions button.execute { background:var(--green); color:#fff; border-color:var(--green); font-weight:600; }
+  .rec-actions button.execute:hover { background:#047857; }
+  .rec-actions button.dismiss { color:var(--red); }
   .chat-log { padding:12px 14px; max-height:60vh; overflow-y:auto; min-height:200px; }
-  .chat-msg { margin-bottom:12px; padding:10px 12px; border-radius:8px; font-size:13px; line-height:1.5; }
+  .chat-msg { margin-bottom:12px; padding:10px 12px; border-radius:8px; font-size:13px; line-height:1.5; white-space: pre-wrap; }
   .chat-msg.user { background:#eef2ff; }
   .chat-msg.assistant { background:#f9fafb; }
   .chat-input { display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(--b); }
   .chat-input textarea { flex:1; padding:8px 10px; border:1px solid var(--b); border-radius:6px; font:inherit; resize:none; min-height:36px; max-height:120px; }
   .chat-input button { padding:8px 16px; background:var(--accent); color:#fff; border:0; border-radius:6px; cursor:pointer; font-weight:600; }
-  /* Modal */
   .modal { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:100; }
   .modal.open { display:flex; }
-  .modal-card { background:#fff; border-radius:12px; max-width:900px; width:90%; max-height:85vh; overflow:hidden; display:flex; flex-direction:column; }
+  .modal-card { background:#fff; border-radius:12px; max-width:720px; width:90%; max-height:90vh; overflow:hidden; display:flex; flex-direction:column; }
   .modal-h { padding:16px 20px; border-bottom:1px solid var(--b); display:flex; justify-content:space-between; align-items:center; }
   .modal-h h3 { margin:0; font-size:16px; }
   .modal-h button { background:none; border:0; font-size:24px; cursor:pointer; color:var(--mut); padding:0; line-height:1; }
   .modal-body { padding:16px 20px; overflow-y:auto; }
   .holdings-grid { display:grid; grid-template-columns: 60px 1fr 100px 100px 100px 80px; gap:8px 16px; align-items:center; font-size:12px; }
   .holdings-grid > div { padding:6px 0; border-bottom:1px solid #f3f4f6; }
-  .holdings-grid .hdr { font-weight:600; color:var(--mut); text-transform:uppercase; font-size:10px; background:#f9fafb; }
+  .holdings-grid .hdr { font-weight:600; color:var(--mut); text-transform:uppercase; font-size:10px; }
   .holdings-grid .num { text-align:right; }
   .pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600; }
   .pill.up { background:#d1fae5; color:#065f46; }
@@ -69,7 +66,33 @@
   .pill.same { background:#f3f4f6; color:#6b7280; }
   .pill.new { background:#dbeafe; color:#1e40af; }
   .empty { text-align:center; color:var(--mut); padding:30px; font-size:13px; }
-  .err { color:var(--red); padding:10px; background:#fef2f2; border-radius:6px; }
+  .err { color:var(--red); padding:10px; background:#fef2f2; border-radius:6px; font-size:12px; }
+  /* Execute trade modal */
+  .leg { display:grid; grid-template-columns: 90px 60px 60px 60px 1fr; gap:8px; padding:8px 0; border-bottom:1px solid #f3f4f6; font-size:12px; align-items:center; }
+  .leg.sell .leg-action { color:var(--green); font-weight:600; }
+  .leg.buy .leg-action { color:var(--red); font-weight:600; }
+  .limit-options { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:14px 0 8px; }
+  .limit-opt { border:2px solid var(--b); border-radius:8px; padding:10px; cursor:pointer; text-align:center; }
+  .limit-opt:hover { border-color:#9ca3af; }
+  .limit-opt.selected { border-color:var(--accent); background:#eef2ff; }
+  .limit-opt .label { font-size:10px; color:var(--mut); text-transform:uppercase; font-weight:600; }
+  .limit-opt .price { font-size:18px; font-weight:700; color:#111; margin:4px 0; }
+  .limit-opt .desc { font-size:10px; color:var(--mut); }
+  .form-row { display:flex; gap:12px; align-items:center; margin:8px 0; }
+  .form-row label { font-size:12px; color:var(--mut); min-width:90px; }
+  .form-row input { padding:6px 10px; border:1px solid var(--b); border-radius:5px; font:inherit; width:100px; }
+  .summary-box { background:#f9fafb; border-radius:8px; padding:12px; margin:12px 0; font-size:12px; }
+  .summary-box .row { display:flex; justify-content:space-between; margin-bottom:4px; }
+  .summary-box .row strong { color:#111; }
+  .modal-actions { display:flex; gap:8px; margin-top:14px; }
+  .modal-actions button { flex:1; padding:10px; border-radius:6px; font-weight:600; cursor:pointer; font-size:13px; border:1px solid var(--b); }
+  .modal-actions .cancel { background:#fff; }
+  .modal-actions .preview { background:#fff; color:var(--accent); border-color:var(--accent); }
+  .modal-actions .submit { background:var(--green); color:#fff; border-color:var(--green); }
+  .modal-actions .submit:disabled { opacity:0.5; cursor:not-allowed; }
+  .preview-result { margin-top:12px; padding:10px; border-radius:6px; font-size:12px; font-family: ui-monospace, monospace; white-space:pre-wrap; max-height:200px; overflow-y:auto; }
+  .preview-result.ok { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
+  .preview-result.err { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
 </style>
 </head>
 <body>
@@ -87,14 +110,12 @@
 
 <main>
   <h1>Strategy</h1>
-  <div class="sub">Today's scout + 13F overlay. Click an investor to inspect holdings. Chat for deep-dives and custom analysis.</div>
+  <div class="sub">Today's scout + 13F overlay. Bias: weekly put credit spreads on quality. Click a rec's <strong>Execute</strong> to fire the order.</div>
 
-  <!-- 13F INVESTOR CARDS -->
   <div class="investor-row" id="investorRow">
     <div class="empty" style="flex:1">Loading investors…</div>
   </div>
 
-  <!-- TWO-COL: SCOUT + CHAT -->
   <div class="grid">
     <div class="panel">
       <div class="panel-h">
@@ -109,10 +130,10 @@
     <div class="panel">
       <div class="panel-h">
         <h2>Chat with Ridge Run AI</h2>
-        <span style="font-size:11px; color:var(--mut)">150 candidates + chains + spreads in context</span>
+        <span style="font-size:11px; color:var(--mut)">150 candidates + chains + 13Fs in context</span>
       </div>
       <div class="chat-log" id="chatLog">
-        <div class="chat-msg assistant">Hi Andrew. I have your DNA, $2K portfolio, watchlist, top 150 universe with vol & fundamentals, latest 13F moves, and real Tastytrade chain quotes. Ask anything: "best 3 short-theta ideas in semis," "deep dive PYPL," "is the VEON LEAP cheap vs realized?", or hit refresh on the Scout panel.</div>
+        <div class="chat-msg assistant">Hi Andrew. Universe (150 candidates), real chain quotes, fundamentals, IV regime, and latest 13F moves are loaded. Ask: "best weekly put spreads in semis," "deep dive CRWV," "is the TSM LEAP cheap vs realized?" Or just hit ⟳ Refresh to run the scout.</div>
       </div>
       <div class="chat-input">
         <textarea id="chatBox" placeholder="Ask Ridge Run…"></textarea>
@@ -122,7 +143,6 @@
   </div>
 </main>
 
-<!-- HOLDINGS MODAL -->
 <div class="modal" id="modal">
   <div class="modal-card">
     <div class="modal-h">
@@ -138,7 +158,22 @@ const C = window.RR_CONFIG || {};
 const URL_ = C.SUPABASE_URL;
 const KEY = C.SUPABASE_PUBLISHABLE_KEY || C.SUPABASE_ANON_KEY;
 const USER = C.USER_ID;
-const H = { apikey: KEY, Authorization: 'Bearer '+KEY, 'Content-Type':'application/json' };
+const PROJECT_REF = 'nrbffnsheenmewijeapb';
+
+// === AUTH HELPER (handles multiple session-storage formats) ===
+function getAuthToken() {
+  try {
+    const raw = localStorage.getItem('sb-'+PROJECT_REF+'-auth-token');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed[0]; // some versions store [accessToken, refreshToken,...]
+      if (parsed.access_token) return parsed.access_token;
+      if (parsed.currentSession?.access_token) return parsed.currentSession.access_token;
+    }
+  } catch(_){}
+  return KEY; // fallback to anon key
+}
+function H(){ const t = getAuthToken(); return { apikey: KEY, Authorization: 'Bearer '+t, 'Content-Type':'application/json' }; }
 
 const fmtUSD = (v) => {
   if (v == null || isNaN(v)) return '—';
@@ -150,24 +185,30 @@ const fmtUSD = (v) => {
 };
 const fmtPct = (v, dec=1) => v == null ? '—' : (v*100).toFixed(dec)+'%';
 
-// === LOAD INVESTORS ===
+// === LOAD INVESTORS via RPC (bypasses RLS issue) ===
 let investorsCache = [];
 async function loadInvestors() {
   try {
-    const r = await fetch(URL_+'/rest/v1/investors?user_id=eq.'+USER+'&select=*&order=total_value_usd.desc.nullslast', { headers: H });
-    if (!r.ok) throw new Error('fetch failed '+r.status);
+    const r = await fetch(URL_+'/rest/v1/rpc/get_investors_summary', { 
+      method:'POST', headers: H(), body: JSON.stringify({ p_user: USER })
+    });
+    if (!r.ok) throw new Error(r.status+' '+(await r.text()).slice(0,200));
     investorsCache = await r.json();
+    if (!Array.isArray(investorsCache)) investorsCache = [];
     renderInvestors();
   } catch(e) {
-    document.getElementById('investorRow').innerHTML = '<div class="err">Failed to load investors: '+e.message+'</div>';
+    document.getElementById('investorRow').innerHTML = '<div class="err">Investors load failed: '+e.message+'</div>';
   }
 }
 function renderInvestors() {
   const row = document.getElementById('investorRow');
-  if (!investorsCache.length) { row.innerHTML = '<div class="empty" style="flex:1">No investors loaded. Run WF35 to seed 13F data.</div>'; return; }
+  if (!investorsCache.length) { 
+    row.innerHTML = '<div class="empty" style="flex:1">No investors loaded. Run WF35 in n8n to seed 13F data.</div>'; 
+    return; 
+  }
   row.innerHTML = investorsCache.map((inv, i) => {
     const period = inv.latest_period || '—';
-    const n = Array.isArray(inv.current_holdings) ? inv.current_holdings.length : 0;
+    const n = inv.n_positions || 0;
     const aum = inv.total_value_usd ? fmtUSD(inv.total_value_usd) : '—';
     return `<div class="investor-card" onclick="openInvestor(${i})">
       <div class="name">${inv.investor_name}</div>
@@ -180,14 +221,15 @@ function renderInvestors() {
 function openInvestor(idx) {
   const inv = investorsCache[idx];
   document.getElementById('modalTitle').textContent = inv.investor_name + ' — ' + (inv.latest_period || '');
-  const holdings = Array.isArray(inv.current_holdings) ? inv.current_holdings : [];
-  const changes = inv.holdings_changes || {};
-  // Sort by size desc
+  let holdings = Array.isArray(inv.current_holdings) ? inv.current_holdings.slice() : [];
+  const changes = Array.isArray(inv.holdings_changes) ? inv.holdings_changes : [];
+  const changeByKey = {};
+  for (const c of changes) { if (c.ticker) changeByKey[c.ticker] = c; }
   holdings.sort((a,b)=>(b.size_usd||0)-(a.size_usd||0));
+  
   let html = `<div style="margin-bottom:12px; font-size:13px; color:var(--mut)">
     Total: <strong style="color:#111">${fmtUSD(inv.total_value_usd)}</strong> · 
-    ${holdings.length} positions · 
-    Filed: ${inv.latest_filing_date || '—'}
+    ${holdings.length} positions · Filed: ${inv.latest_filing_date || '—'}
   </div>`;
   html += `<div class="holdings-grid">
     <div class="hdr">#</div>
@@ -197,13 +239,13 @@ function openInvestor(idx) {
     <div class="hdr num">Size</div>
     <div class="hdr num">Change</div>`;
   holdings.slice(0,50).forEach((h, i) => {
-    const ch = (changes && changes[h.cusip]) || null;
+    const ch = changeByKey[h.ticker];
     let pill = '<span class="pill same">UNCHG</span>';
     if (ch) {
-      if (ch.action === 'NEW') pill = '<span class="pill new">NEW</span>';
-      else if (ch.action === 'EXIT') pill = '<span class="pill down">EXIT</span>';
-      else if (ch.action === 'ADD') pill = '<span class="pill up">+'+ (ch.pct_change ? (ch.pct_change*100).toFixed(0)+'%' : 'ADD')+'</span>';
-      else if (ch.action === 'TRIM') pill = '<span class="pill down">-'+ (ch.pct_change ? Math.abs(ch.pct_change*100).toFixed(0)+'%' : 'TRIM')+'</span>';
+      if (ch.change_type === 'new') pill = '<span class="pill new">NEW</span>';
+      else if (ch.change_type === 'sold') pill = '<span class="pill down">EXIT</span>';
+      else if (ch.change_type === 'increased') pill = '<span class="pill up">+ADD</span>';
+      else if (ch.change_type === 'reduced') pill = '<span class="pill down">-TRIM</span>';
     }
     html += `<div>${i+1}</div>
       <div>${h.name||'—'}</div>
@@ -221,53 +263,56 @@ function closeModal() { document.getElementById('modal').classList.remove('open'
 document.getElementById('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
 
 // === LOAD RECS ===
+let recsCache = [];
 async function loadRecs() {
   document.getElementById('recsBody').innerHTML = '<div class="empty">Loading…</div>';
   try {
-    const r = await fetch(URL_+'/rest/v1/rpc/get_todays_recs', { method:'POST', headers:H, body: JSON.stringify({ p_user: USER }) });
-    const recs = await r.json();
-    document.getElementById('recsCount').textContent = recs.length ? '· '+recs.length+' ideas' : '';
-    if (!recs.length) {
-      document.getElementById('recsBody').innerHTML = '<div class="empty">No active recommendations.<br><br>Click <strong>⟳ Refresh</strong> to run the overnight scout now.</div>';
+    const r = await fetch(URL_+'/rest/v1/rpc/get_todays_recs', { method:'POST', headers: H(), body: JSON.stringify({ p_user: USER }) });
+    recsCache = await r.json();
+    if (!Array.isArray(recsCache)) recsCache = [];
+    document.getElementById('recsCount').textContent = recsCache.length ? '· '+recsCache.length+' ideas' : '';
+    if (!recsCache.length) {
+      document.getElementById('recsBody').innerHTML = '<div class="empty">No active recs.<br><br>Click <strong>⟳ Refresh</strong> to run the scout.</div>';
       return;
     }
-    document.getElementById('recsBody').innerHTML = recs.map(rec => renderRec(rec)).join('');
+    document.getElementById('recsBody').innerHTML = recsCache.map((rec,i) => renderRec(rec, i)).join('');
   } catch(e) {
     document.getElementById('recsBody').innerHTML = '<div class="err">Failed: '+e.message+'</div>';
   }
 }
-function renderRec(rec) {
+function renderRec(rec, idx) {
+  const slot = Array.isArray(rec.slots) ? rec.slots.find(s => s?.data?.legs) : null;
+  const executable = slot && Array.isArray(slot.data?.legs) && slot.data.legs.length >= 1;
   return `<div class="rec">
     <div class="rec-h">
-      <div><span class="rec-ticker">${rec.ticker}</span> <span class="rec-type">${rec.opportunity_type || rec.structure || ''}</span></div>
+      <div>
+        <div><span class="rec-ticker">${rec.ticker}</span> <span class="rec-type">${rec.opportunity_type || ''}</span></div>
+        ${rec.structure ? '<div class="rec-structure">'+rec.structure+'</div>' : ''}
+      </div>
       <div class="rec-score">${Math.round(rec.composite_score||0)}</div>
     </div>
-    <div class="rec-reasoning">${rec.reasoning || ''}</div>
+    <div class="rec-reasoning">${(rec.reasoning||'').replace(/</g,'&lt;')}</div>
     <div class="rec-meta">
       ${rec.expected_return_pct ? '<span>RET '+(rec.expected_return_pct*100).toFixed(0)+'%</span>' : ''}
       ${rec.expected_horizon_days ? '<span>'+rec.expected_horizon_days+'d</span>' : ''}
       ${rec.sizing_dollars ? '<span>Size $'+rec.sizing_dollars+'</span>' : ''}
       ${rec.max_loss ? '<span>Max -$'+rec.max_loss+'</span>' : ''}
     </div>
-    ${rec.what_to_watch ? '<div style="font-size:11px; color:var(--mut); margin-top:6px"><strong>Watch:</strong> '+rec.what_to_watch+'</div>' : ''}
-    ${rec.exit_criteria ? '<div style="font-size:11px; color:var(--mut)"><strong>Exit:</strong> '+rec.exit_criteria+'</div>' : ''}
+    ${rec.exit_criteria ? '<div style="font-size:11px; color:var(--mut); margin-top:6px"><strong>Exit:</strong> '+rec.exit_criteria+'</div>' : ''}
     <div class="rec-actions">
-      <button class="accept" onclick="actRec('${rec.id}','accept')">Accept</button>
-      <button onclick="actRec('${rec.id}','later')">Later</button>
-      <button class="dismiss" onclick="actRec('${rec.id}','dismiss')">Dismiss</button>
-      <button onclick="openResearch('${rec.ticker}')">Research →</button>
+      ${executable ? '<button class="execute" onclick="openExecute('+idx+')">⚡ Execute</button>' : '<button disabled title="No structured trade payload">⚡ Execute</button>'}
+      <button onclick="openResearch(\''+rec.ticker+'\')">Research →</button>
+      <button onclick="actRec(\''+rec.id+'\',\'later\')">Later</button>
+      <button class="dismiss" onclick="actRec(\''+rec.id+'\',\'dismiss\')">Dismiss</button>
     </div>
   </div>`;
 }
 async function actRec(id, action) {
-  try {
-    await fetch(URL_+'/functions/v1/strategy-save-rec', { method:'POST', headers:H, body: JSON.stringify({ rec_id:id, action, user_id:USER }) });
-    loadRecs();
-  } catch(e) { alert('Failed: '+e.message); }
+  try { await fetch(URL_+'/functions/v1/strategy-save-rec', { method:'POST', headers:H(), body: JSON.stringify({ rec_id:id, action, user_id:USER }) }); loadRecs(); } 
+  catch(e) { alert('Failed: '+e.message); }
 }
 function openResearch(t) { window.location.href = '/research.html?ticker='+t; }
 
-// === REFRESH SCOUT (fires daily-recs) ===
 document.getElementById('refreshScout').addEventListener('click', async () => {
   const btn = document.getElementById('refreshScout');
   btn.disabled = true; btn.textContent = 'Generating… ~90s';
@@ -279,6 +324,178 @@ document.getElementById('refreshScout').addEventListener('click', async () => {
   } catch(e) { btn.disabled = false; btn.textContent = '⟳ Refresh'; alert('Failed: '+e.message); }
 });
 
+// === EXECUTE TRADE MODAL ===
+function occSymbol(underlying, expiry, side, strike) {
+  const u = String(underlying).toUpperCase().padEnd(6, ' ');
+  const d = String(expiry).replaceAll('-','').slice(2);
+  const cp = (side||'').toLowerCase()==='put' ? 'P' : 'C';
+  const k = String(Math.round(Number(strike) * 1000)).padStart(8, '0');
+  return u + d + cp + k;
+}
+function round05(v) { return Math.max(0.01, Math.round(Number(v) * 20) / 20); }
+
+function computeLimits(legs) {
+  // For a credit spread, net premium = sum(sell prices) - sum(buy prices)
+  // Aggressive = sell at bid, buy at ask (lowest credit, highest fill prob)
+  // Patient = halfway between bid-ask and mid
+  // Optimistic = at mid (highest credit, may not fill)
+  const acc = (sellFn, buyFn) => {
+    let net = 0;
+    for (const l of legs) {
+      const isSell = String(l.action||'').toLowerCase().includes('sell');
+      const p = isSell ? sellFn(l) : buyFn(l);
+      net += isSell ? p : -p;
+    }
+    return round05(net);
+  };
+  return {
+    aggressive: acc(l=>Number(l.bid)||0, l=>Number(l.ask)||0),
+    patient: acc(l=>(Number(l.bid)+Number(l.mid||((l.bid+l.ask)/2)))/2, l=>(Number(l.mid||((l.bid+l.ask)/2))+Number(l.ask))/2),
+    optimistic: acc(l=>Number(l.mid||((l.bid+l.ask)/2))||0, l=>Number(l.mid||((l.bid+l.ask)/2))||0)
+  };
+}
+
+let currentTrade = null;
+function openExecute(idx) {
+  const rec = recsCache[idx];
+  const slot = rec.slots.find(s => s?.data?.legs);
+  const d = slot.data;
+  currentTrade = { rec, data: d, qty: d.contracts_suggested || 1 };
+  
+  document.getElementById('modalTitle').textContent = '⚡ Execute: ' + (rec.structure || rec.ticker);
+  const limits = computeLimits(d.legs);
+  const isCredit = d.legs.filter(l=>String(l.action||'').toLowerCase().includes('sell')).length > 0 && 
+                   d.legs.filter(l=>String(l.action||'').toLowerCase().includes('sell'))
+                         .reduce((a,l)=>a+(Number(l.mid)||Number(l.bid)||0),0) >
+                   d.legs.filter(l=>String(l.action||'').toLowerCase().includes('buy'))
+                         .reduce((a,l)=>a+(Number(l.mid)||Number(l.ask)||0),0);
+
+  let html = '<div class="summary-box">';
+  html += `<div class="row"><span>Underlying</span><strong>${d.underlying} @ —</strong></div>`;
+  html += `<div class="row"><span>Expiry</span><strong>${d.expiry} (${d.dte}d)</strong></div>`;
+  html += `<div class="row"><span>Width</span><strong>$${d.width || '—'}</strong></div>`;
+  if (d.break_even) html += `<div class="row"><span>Breakeven</span><strong>$${d.break_even}</strong></div>`;
+  if (d.prob_otm) html += `<div class="row"><span>Prob OTM (est)</span><strong>${(d.prob_otm*100).toFixed(0)}%</strong></div>`;
+  html += '</div>';
+
+  html += '<div style="font-weight:600; font-size:12px; margin:14px 0 6px; color:var(--mut); text-transform:uppercase">Legs</div>';
+  d.legs.forEach(l => {
+    const isSell = String(l.action||'').toLowerCase().includes('sell');
+    html += `<div class="leg ${isSell?'sell':'buy'}">
+      <div class="leg-action">${l.action}</div>
+      <div>${l.side} ${l.strike}</div>
+      <div>bid ${l.bid}</div>
+      <div>ask ${l.ask}</div>
+      <div style="color:var(--mut)">IV ${(l.iv*100||0).toFixed(0)}% · Δ ${l.delta}</div>
+    </div>`;
+  });
+
+  html += '<div style="font-weight:600; font-size:12px; margin:14px 0 6px; color:var(--mut); text-transform:uppercase">Limit price (net '+(isCredit?'credit':'debit')+')</div>';
+  html += '<div class="limit-options">';
+  html += `<div class="limit-opt" data-price="${limits.aggressive}" onclick="selectLimit(this)">
+    <div class="label">Aggressive</div><div class="price">$${limits.aggressive.toFixed(2)}</div><div class="desc">~85% fill</div></div>`;
+  html += `<div class="limit-opt selected" data-price="${limits.patient}" onclick="selectLimit(this)">
+    <div class="label">Patient</div><div class="price">$${limits.patient.toFixed(2)}</div><div class="desc">~50% fill</div></div>`;
+  html += `<div class="limit-opt" data-price="${limits.optimistic}" onclick="selectLimit(this)">
+    <div class="label">Optimistic</div><div class="price">$${limits.optimistic.toFixed(2)}</div><div class="desc">may not fill</div></div>`;
+  html += '</div>';
+
+  html += `<div class="form-row">
+    <label>Custom limit</label>
+    <input type="number" step="0.05" id="customLimit" value="${limits.patient.toFixed(2)}" onchange="document.querySelectorAll('.limit-opt').forEach(el=>el.classList.remove('selected'))">
+    <label>Contracts</label>
+    <input type="number" step="1" min="1" id="qty" value="${currentTrade.qty}">
+    <label>TIF</label>
+    <select id="tif" style="padding:6px 10px; border:1px solid var(--b); border-radius:5px"><option value="Day" selected>Day</option><option value="GTC">GTC</option></select>
+  </div>`;
+
+  html += '<div id="previewResult"></div>';
+  html += `<div class="modal-actions">
+    <button class="cancel" onclick="closeModal()">Cancel</button>
+    <button class="preview" onclick="doPreview()">Preview</button>
+    <button class="submit" id="submitBtn" onclick="doSubmit()" disabled>Submit Order</button>
+  </div>`;
+
+  html += '<div style="margin-top:10px; font-size:10px; color:var(--mut)">Preview validates with Tastytrade (no execution). Submit places the live order.</div>';
+
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modal').classList.add('open');
+}
+
+function selectLimit(el) {
+  document.querySelectorAll('.limit-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('customLimit').value = Number(el.dataset.price).toFixed(2);
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('previewResult').innerHTML = '';
+}
+
+function buildOrderPayload(actionType) {
+  const d = currentTrade.data;
+  const limit = Number(document.getElementById('customLimit').value).toFixed(2);
+  const qty = Number(document.getElementById('qty').value) || 1;
+  const tif = document.getElementById('tif').value;
+  
+  const sellLegs = d.legs.filter(l => String(l.action||'').toLowerCase().includes('sell'));
+  const buyLegs = d.legs.filter(l => String(l.action||'').toLowerCase().includes('buy'));
+  const sellMid = sellLegs.reduce((a,l)=>a+(Number(l.mid)||Number(l.bid)||0),0);
+  const buyMid = buyLegs.reduce((a,l)=>a+(Number(l.mid)||Number(l.ask)||0),0);
+  const isCredit = sellMid >= buyMid;
+
+  return {
+    action: actionType,
+    account_number: '5WI80114',
+    order: {
+      'time-in-force': tif,
+      'order-type': 'Limit',
+      'price': limit,
+      'price-effect': isCredit ? 'Credit' : 'Debit',
+      'legs': d.legs.map(l => ({
+        'instrument-type': 'Equity Option',
+        'symbol': occSymbol(d.underlying, d.expiry, l.side, l.strike),
+        'quantity': qty,
+        'action': l.action
+      }))
+    }
+  };
+}
+
+async function doPreview() {
+  const out = document.getElementById('previewResult');
+  out.className = 'preview-result'; out.innerHTML = 'Previewing…';
+  try {
+    const r = await fetch(URL_+'/functions/v1/tastytrade-order', { method:'POST', headers: H(), body: JSON.stringify(buildOrderPayload('preview')) });
+    const j = await r.json();
+    const ok = r.ok && !j.error && j.response;
+    out.className = 'preview-result ' + (ok?'ok':'err');
+    out.textContent = JSON.stringify(j, null, 2);
+    document.getElementById('submitBtn').disabled = !ok;
+  } catch(e) {
+    out.className = 'preview-result err';
+    out.textContent = 'Network error: '+e.message;
+  }
+}
+
+async function doSubmit() {
+  if (!confirm('Submit live order to Tastytrade?')) return;
+  const out = document.getElementById('previewResult');
+  out.className = 'preview-result'; out.innerHTML = 'Submitting…';
+  document.getElementById('submitBtn').disabled = true;
+  try {
+    const r = await fetch(URL_+'/functions/v1/tastytrade-order', { method:'POST', headers: H(), body: JSON.stringify(buildOrderPayload('submit')) });
+    const j = await r.json();
+    const ok = r.ok && !j.error;
+    out.className = 'preview-result ' + (ok?'ok':'err');
+    out.textContent = JSON.stringify(j, null, 2);
+    if (ok) {
+      // Auto-sync positions after 4s
+      setTimeout(async () => {
+        try { await fetch(URL_+'/functions/v1/tastytrade-sync', { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' }); } catch(_){}
+      }, 4000);
+    }
+  } catch(e) { out.className='preview-result err'; out.textContent='Network error: '+e.message; }
+}
+
 // === CHAT ===
 async function sendChat() {
   const box = document.getElementById('chatBox');
@@ -288,16 +505,15 @@ async function sendChat() {
   box.value = '';
   const wait = document.createElement('div'); wait.className='chat-msg assistant'; wait.textContent='Thinking…'; log.appendChild(wait); log.scrollTop=log.scrollHeight;
   try {
-    const r = await fetch(URL_+'/functions/v1/strategy-chat', { method:'POST', headers:H, body: JSON.stringify({ user_id:USER, message: msg }) });
+    const r = await fetch(URL_+'/functions/v1/strategy-chat', { method:'POST', headers:H(), body: JSON.stringify({ user_id:USER, message: msg }) });
     const j = await r.json();
-    wait.innerHTML = (j.text || j.error || 'No response').replace(/</g,'&lt;').replace(/\n/g,'<br>');
+    wait.textContent = j.text || j.error || 'No response';
     log.scrollTop = log.scrollHeight;
   } catch(e) { wait.textContent = 'Error: '+e.message; }
 }
 document.getElementById('chatSend').addEventListener('click', sendChat);
 document.getElementById('chatBox').addEventListener('keydown', e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
 
-// === INIT ===
 loadInvestors();
 loadRecs();
 </script>
