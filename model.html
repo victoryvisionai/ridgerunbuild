@@ -1,324 +1,1151 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Model — Ridge Run</title>
-<script src="/config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Model · Ridge Run</title>
+<script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/themes.css" />
 <style>
-  :root{--bg:#fff;--ink:#0f172a;--ink2:#475569;--muted:#94a3b8;--line:#e2e8f0;--brand:#2563eb;--brand2:#1d4ed8;--ok:#16a34a;--warn:#d97706;--bad:#dc2626;--chip:#f1f5f9}
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif}
-  a{color:var(--brand);text-decoration:none}a:hover{text-decoration:underline}
-  .wrap{padding:14px;max-width:1400px;margin:0 auto}
-  .panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
-  .h1{font-size:18px;font-weight:700;margin:0 0 8px}
-  .h2{font-size:13px;font-weight:700;color:var(--ink2);margin:10px 0 6px;text-transform:uppercase;letter-spacing:.04em}
-  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .muted{color:var(--muted)}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  @media(max-width:900px){.grid2{grid-template-columns:1fr}}
-  .lookup{display:flex;gap:6px}
-  .lookup input{flex:1;padding:7px 10px;border:1px solid var(--line);border-radius:6px;font:inherit;text-transform:uppercase;font-weight:600}
-  .btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
-  .btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
-  .btn.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
-  .btn:hover{filter:brightness(.98)}
-  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px}
-  .kpi{border:1px solid var(--line);border-radius:8px;padding:6px 8px}
-  .kpi .l{font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.05em}
-  .kpi .v{font-size:14px;font-weight:700}
-  table.tbl{border-collapse:collapse;width:100%;font-size:12px}
-  table.tbl th,table.tbl td{border-bottom:1px solid var(--line);padding:5px 7px;text-align:right;white-space:nowrap}
-  table.tbl th:first-child,table.tbl td:first-child{text-align:left}
-  table.tbl th{background:#f8fafc;color:var(--ink2);font-weight:600}
-  table.tbl input{width:80px;padding:3px 5px;border:1px solid var(--line);border-radius:4px;font:inherit;text-align:right}
-  .ok-txt{color:var(--ok);font-weight:600}
-  .bad-txt{color:var(--bad);font-weight:600}
-  .scenario{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:8px}
-  .scenario.bear{border-left:4px solid var(--bad)}
-  .scenario.base{border-left:4px solid var(--brand)}
-  .scenario.bull{border-left:4px solid var(--ok)}
-  .scen-head{display:flex;justify-content:space-between;align-items:center;font-weight:700;margin-bottom:6px}
-  .assump-grid{display:grid;grid-template-columns:1fr 90px;gap:4px 8px;font-size:12px;align-items:center}
-  .assump-grid label{color:var(--ink2);font-weight:600}
-  .assump-grid input{padding:3px 5px;border:1px solid var(--line);border-radius:4px;font:inherit;text-align:right}
-  .pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;background:var(--chip)}
-  .pill.warn{background:#fef3c7;color:#92400e}
-  .pill.brand{background:var(--brand);color:#fff}
-  .empty{color:var(--muted);padding:24px;text-align:center;font-size:13px}
-  .notes{width:100%;min-height:54px;padding:8px;border:1px solid var(--line);border-radius:6px;font:inherit;resize:vertical}
-  .ticker-link{font-weight:700;color:var(--brand);cursor:pointer}
-  .mode-banner{background:#fef3c7;border:1px solid #fde68a;color:#92400e;padding:8px 12px;border-radius:8px;margin:8px 0;font-size:12px}
+  .ticker-select-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .ticker-select-wrap select, .ticker-select-wrap input {
+    font-family: var(--mono); font-size: 13px; padding: 6px 10px;
+    border: 1px solid var(--border-strong); border-radius: 4px;
+    background: var(--bg); color: var(--text);
+  }
+  .model-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+  .model-table th, .model-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: right; }
+  .model-table th:first-child, .model-table td:first-child { text-align: left; }
+  .model-table thead th {
+    background: var(--bg-tint); color: var(--text-muted);
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 8px;
+  }
+  .model-table .row-label { font-family: var(--sans); font-weight: 600; color: var(--text); font-size: 12px; }
+  .model-table .bold-row td { font-weight: 600; background: var(--bg-blue-soft); }
+  .model-table td.pos { color: var(--success); }
+  .model-table td.neg { color: var(--danger); }
+  .model-table input.assumption {
+    width: 70px; font-family: var(--mono); font-size: 12px;
+    padding: 4px 6px; border: 1px solid var(--border-strong);
+    border-radius: 3px; background: var(--bg); color: var(--text); text-align: right;
+  }
+  .model-table input.assumption:focus { outline: none; border-color: var(--accent); }
+  .term-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 14px 0; }
+  .sens-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 11px; }
+  .sens-table th, .sens-table td { padding: 8px 6px; text-align: center; border: 1px solid var(--border); }
+  .sens-table thead th { background: var(--bg-tint); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .sens-table td.axis { background: var(--bg-tint); font-weight: 600; color: var(--text); }
+  .sens-cell { cursor: default; }
+  .summary-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 8px 0 14px; }
+  .summary-tile { padding: 14px; background: var(--bg-tint); border: 1px solid var(--border); border-radius: 4px; }
+  .summary-tile .l { font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .summary-tile .v { font-family: var(--serif); font-size: 22px; font-weight: 500; }
+  .summary-tile .v.pos { color: var(--success); }
+  .summary-tile .v.neg { color: var(--danger); }
+  .scenarios-list { display: flex; flex-direction: column; gap: 8px; }
+  .scenario-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-tint); border: 1px solid var(--border); border-radius: 4px; }
+  .scenario-row.active { border-left: 3px solid var(--accent); background: var(--bg-blue-soft); }
+  .scenario-row .info { font-family: var(--mono); font-size: 12px; }
+  .scenario-row .info b { font-family: var(--serif); font-size: 14px; }
 </style>
 </head>
 <body>
-<div id="nav"></div>
-<script src="/nav.js"></script>
 
-<div class="wrap">
-  <section class="panel">
-    <div class="h1">Valuation Model</div>
-    <div class="lookup" style="margin-bottom:8px">
-      <input id="tickerInput" placeholder="TICKER (e.g. AAPL, CORZ, TSM)" maxlength="10"/>
-      <button class="btn primary" id="loadBtn">Load</button>
-      <button class="btn" id="saveBtn">Save thesis</button>
+<div id="rr-nav-container"></div>
+
+<div id="loading-screen" class="loading">Loading model…</div>
+
+<div id="app" class="shell-wide hidden">
+
+  <h1 class="page-title">Model</h1>
+  <p class="page-sub">Bottoms-up valuation with cap-structure flow-through. Changes to growth and margins ripple through cash, debt, shares, and implied price.</p>
+
+  <div id="msg-area"></div>
+
+  <div class="banner-card">
+    <div class="banner-head">
+      <h2>Ticker</h2>
+      <span class="banner-meta">Select a tracked ticker</span>
     </div>
-    <div id="header"></div>
-    <div id="modeBanner"></div>
-  </section>
-
-  <section class="panel">
-    <div class="h2">Annual history</div>
-    <div id="historyTbl"><div class="empty">Load a ticker.</div></div>
-  </section>
-
-  <div class="grid2">
-    <section class="panel">
-      <div class="h2">Scenarios</div>
-      <div id="scenarios"></div>
-    </section>
-
-    <section class="panel">
-      <div class="h2">Output</div>
-      <div id="output"><div class="empty">Adjust assumptions → live recompute.</div></div>
-      <div class="h2" style="margin-top:14px">Notes</div>
-      <textarea id="notes" class="notes" placeholder="Thesis notes, what would change your mind, exit triggers…"></textarea>
-    </section>
+    <div class="banner-body">
+      <div class="ticker-select-wrap">
+        <label class="field-hint">Ticker:</label>
+        <select id="ticker-select"><option value="">— pick one —</option></select>
+        <a id="research-link" href="#" style="font-family:var(--mono); font-size:11px; color:var(--accent);">→ View research page</a>
+      </div>
+      <div id="company-block" style="color:var(--text-muted); font-size:13px;">Pick a ticker to begin.</div>
+    </div>
   </div>
+
+  <div id="model-area" class="hidden">
+
+    <div class="banner-card">
+      <div class="banner-head">
+        <h2>Current FY anchor</h2>
+        <span class="banner-meta" id="base-year-meta">—</span>
+      </div>
+      <div class="banner-body">
+        <p class="h2-sub">Fiscal-year basis throughout. Base anchor = latest fiscal year (typically current FY estimates for revenue/EBITDA; latest filing for cash/debt/shares). Edit any value if the snapshot is stale or off-FY.</p>
+        <div class="form-grid" id="base-grid"></div>
+      </div>
+    </div>
+
+    <div class="banner-card">
+      <div class="banner-head">
+        <h2>Forward assumptions</h2>
+        <span class="banner-meta">4 fiscal years · edit any cell</span>
+      </div>
+      <div class="banner-body">
+        <p class="h2-sub">Enter as percentages (12 means 12%). Changes recompute the flow-through instantly.</p>
+        <table class="model-table" id="assumptions-table"></table>
+        <div class="term-controls">
+          <div class="field">
+            <label>Terminal multiple</label>
+            <input type="number" id="term-multiple" step="0.5" value="14">
+          </div>
+          <div class="field">
+            <label>Multiple type</label>
+            <select id="term-multiple-type">
+              <option value="ev_ebitda">EV / EBITDA</option>
+              <option value="pe">P/E</option>
+              <option value="ev_revenue">EV / Revenue</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Scenario label</label>
+            <input type="text" id="scenario-label" value="base" placeholder="base / bull / bear">
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:14px;">
+          <button class="btn btn-primary" id="save-btn">Save scenario</button>
+          <button class="btn btn-ghost" id="reset-btn">Reset to defaults</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="banner-card">
+      <div class="banner-head">
+        <h2>Flow-through</h2>
+        <span class="banner-meta">Year-by-year cap structure</span>
+      </div>
+      <div class="banner-body">
+        <p class="h2-sub">Revenue × growth → Revenue. Revenue × EBITDA margin → EBITDA. EBITDA × FCF conversion → FCF. FCF allocated to buybacks / dividends / debt paydown; remainder builds cash. Net debt = total debt − cash carries to next year.</p>
+        <table class="model-table" id="flowthrough-table"></table>
+      </div>
+    </div>
+
+    <div class="banner-card">
+      <div class="banner-head">
+        <h2>Cap structure & valuation</h2>
+        <span class="banner-meta">Historic | implied forward · valuation cells editable</span>
+      </div>
+      <div class="banner-body">
+        <p class="h2-sub">Historical years populated from fundamentals snapshots (read-only). Forward years computed from your assumptions. Editing P/E, EV/EBITDA, or FCF yield in a forward year recomputes implied share price for THAT year and every year after (multiple expansion compounds).</p>
+        <table class="model-table" id="capstruct-table"></table>
+      </div>
+    </div>
+
+    <div class="banner-card">
+      <div class="banner-head">
+        <h2>Summary</h2>
+        <span class="banner-meta">From terminal year</span>
+      </div>
+      <div class="banner-body">
+        <div class="summary-tiles" id="summary-tiles"></div>
+      </div>
+    </div>
+
+    <div class="banner-card">
+      <div class="banner-head">
+        <h2>Sensitivity matrix</h2>
+        <span class="banner-meta" id="sens-meta">Cumulative return % at target year</span>
+      </div>
+      <div class="banner-body">
+        <p class="h2-sub">Multiple type (columns) × revenue growth shift (rows). Each cell = cum return % from base price to implied price at the target year.</p>
+        <div style="display:flex; gap:14px; align-items:center; margin-bottom:14px; flex-wrap:wrap;">
+          <div class="field" style="margin:0">
+            <label>Multiple type</label>
+            <select id="sens-mtype" onchange="window._rerenderSens()">
+              <option value="ev_ebitda">EV / EBITDA</option>
+              <option value="pe">P/E</option>
+              <option value="ev_revenue">EV / Revenue</option>
+              <option value="fcf_yield">FCF Yield</option>
+            </select>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Target year</label>
+            <select id="sens-year" onchange="window._rerenderSens()"></select>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Center value (override)</label>
+            <input id="sens-center" type="number" step="0.5" placeholder="auto" style="width:100px" oninput="window._rerenderSens()">
+          </div>
+          <div class="field-hint" style="margin:0">Multiple expansion + revenue growth combinations at this target year.</div>
+        </div>
+        <table class="sens-table" id="sens-table"></table>
+      </div>
+    </div>
+
+    <div class="banner-card">
+      <div class="banner-head">
+        <h2>Saved scenarios for this ticker</h2>
+        <span class="banner-meta" id="scn-meta">—</span>
+      </div>
+      <div class="banner-body">
+        <div class="scenarios-list" id="scenarios-list">
+          <div class="empty">No saved scenarios yet.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/config.js"></script>
+<script src="/nav.js"></script>
 <script>
-(function(){
-  if(!window.RR_CONFIG){alert("Missing RR_CONFIG");return;}
-  const sb = window.supabase = supabase.createClient(window.RR_CONFIG.SUPABASE_URL, window.RR_CONFIG.SUPABASE_PUBLISHABLE_KEY||window.RR_CONFIG.SUPABASE_ANON_KEY);
-  const USER_ID = window.RR_CONFIG.USER_ID || 'e048e890-8554-429e-883e-d9c5d03a3510';
+(() => {
+const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = window.RR_CONFIG;
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+let currentUser = null;
+let currentTicker = null;
+let baseAnchor = null;
+let assumptions = null;
+let computed = null;
+let historicalCap = [];     // array of {year, revenue, ebitda, fcf, shares, price, market_cap, debt, cash, ev, net_debt, pe, ev_ebitda, fcf_yield}
+let forwardMultiples = null;  // {pe:[5], ev_ebitda:[5], fcf_yield:[5]} - user overrides; null entries fall back to terminal_multiple
 
-  const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
-  function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
-  function fmt(x,d=2){return (x==null||isNaN(x))?'—':Number(x).toFixed(d)}
-  function fmtPct(x,d=1){return (x==null||isNaN(x))?'—':((x>=0?'+':'')+(x*100).toFixed(d)+'%')}
-  function fmtMoney(x){if(x==null||isNaN(x))return'—';const n=Number(x);if(Math.abs(n)>=1e9)return '$'+(n/1e9).toFixed(2)+'B';if(Math.abs(n)>=1e6)return '$'+(n/1e6).toFixed(0)+'M';if(Math.abs(n)>=1e3)return '$'+(n/1e3).toFixed(0)+'K';return '$'+n.toFixed(0)}
-  function fmtMcap(x){if(x==null)return'—';if(x>=1e12)return '$'+(x/1e12).toFixed(2)+'T';if(x>=1e9)return '$'+(x/1e9).toFixed(1)+'B';if(x>=1e6)return '$'+(x/1e6).toFixed(0)+'M';return '$'+x}
-  function num(x){const n=parseFloat(x);return isFinite(n)?n:null}
+const $ = id => document.getElementById(id);
+const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtM = n => (n==null||isNaN(n))?'—': '$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:0})+'M';
+const fmtPx = n => (n==null||isNaN(n))?'—': '$'+Number(n).toFixed(2);
+const fmtPct = (n,d=1) => (n==null||isNaN(n))?'—':(Number(n)*100).toFixed(d)+'%';
+const fmtNum = (n,d=2) => (n==null||isNaN(n))?'—':Number(n).toFixed(d);
 
-  let state = { ticker:null, spot:null, history:[], fund:null, mode:null, scenarios:null, assumptions:{} };
-
-  async function loadTicker(t){
-    if(!t) return;
-    t = String(t).toUpperCase().trim();
-    state.ticker = t;
-    const url = new URL(window.location.href); url.searchParams.set('ticker',t); window.history.replaceState(null,'',url.toString());
-    $('#header').innerHTML = `<div class="muted">Loading ${esc(t)}…</div>`;
-    try{
-      const {data, error} = await sb.rpc('get_ticker_deepdive', {p_user:USER_ID, p_ticker:t});
-      if(error) throw error;
-      const co = (data&&data.company)||{};
-      const f = (data&&data.fundamentals_latest)||{};
-      const annual = (data&&data.annual_history)||[];
-      const thesis = (data&&data.thesis_model)||null;
-
-      state.spot = co.price || null;
-      state.history = annual;
-      state.fund = f;
-
-      const yrs = annual.filter(r=>r.revenue!=null).length;
-      const isNewlyPublic = yrs < 3 || annual[0]?.year < (new Date().getFullYear() - 1);
-      state.mode = (yrs >= 3) ? 'established' : 'forward_only';
-
-      renderHeader(t, co, f);
-      renderHistory(annual);
-      renderModeBanner(state.mode, yrs);
-      buildScenarios(thesis);
-      recompute();
-
-      if(thesis && thesis.notes) $('#notes').value = thesis.notes;
-    }catch(e){console.error(e); $('#header').innerHTML = `<div class="empty">Failed: ${esc(e.message||e)}</div>`}
+(async () => {
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session?.user){ window.location.href='/index.html'; return; }
+  currentUser = session.user;
+  await window.RidgeRunNav.mount({ active: 'model', supabase: sb });
+  show('loading-screen', false);
+  show('app', true);
+  await initTickerSelect();
+  // pre-select via ?ticker= query
+  const params = new URLSearchParams(window.location.search);
+  const t = params.get('ticker');
+  if(t){
+    $('ticker-select').value = t.toUpperCase();
+    await onTickerChange();
   }
-  window.loadTicker = loadTicker;
+})();
 
-  function renderHeader(t, co, f){
-    $('#header').innerHTML = `
-      <div class="row" style="justify-content:space-between">
-        <div>
-          <div class="h1" style="margin:0">${esc(t)} <span class="muted" style="font-weight:400;font-size:14px">${esc(co.name||'')}</span></div>
-          <div class="muted" style="font-size:12px">${esc(co.sector||'')} · ${fmtMcap(co.market_cap)}</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:24px;font-weight:700">$${fmt(co.price)}</div>
-          <div class="muted" style="font-size:11px">52w: $${fmt(co.year_low)} – $${fmt(co.year_high)}</div>
-        </div>
+$('ticker-select').addEventListener('change', onTickerChange);
+$('save-btn').addEventListener('click', saveScenario);
+$('reset-btn').addEventListener('click', resetDefaults);
+$('term-multiple').addEventListener('input', debouncedRecompute);
+$('term-multiple-type').addEventListener('change', recompute);
+
+async function initTickerSelect(){
+  const { data } = await sb.rpc('tracked_tickers', { p_user: currentUser.id });
+  const tickers = [...new Set((data||[]).map(r=>r.ticker).filter(Boolean))].sort();
+  $('ticker-select').innerHTML = '<option value="">— pick one —</option>' + tickers.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');
+}
+
+async function onTickerChange(){
+  const t = $('ticker-select').value;
+  if(!t){ show('model-area', false); return; }
+  currentTicker = t;
+  $('research-link').href = `/research.html?ticker=${encodeURIComponent(t)}`;
+
+  // load company profile
+  const { data: prof } = await sb.from('company_profile').select('*').eq('ticker',t).maybeSingle();
+  if(prof){
+    $('company-block').innerHTML = `<b>${esc(prof.company_name || t)}</b> — ${esc(prof.sector||'')} · ${esc(prof.industry||'')} <br><span style="color:var(--text-dim); font-size:12px;">${esc((prof.description||'').slice(0, 240))}${(prof.description||'').length>240?'…':''}</span>`;
+  } else {
+    $('company-block').innerHTML = `<b>${esc(t)}</b> <span style="color:var(--text-dim);">No company profile data yet.</span>`;
+  }
+
+  // load all fundamentals history (for historical cap structure)
+  let { data: histRows } = await sb.from('company_fundamentals').select('*').eq('ticker',t).order('as_of_date',{ascending:true});
+  let allFund = histRows || [];
+
+  // Auto-backfill: if we have <3 prior-year rows, fire the historical backfill webhook and poll
+  const currentYear = new Date().getFullYear();
+  const priorYears = new Set();
+  for(const row of allFund){
+    const yr = new Date(row.as_of_date).getFullYear();
+    if(yr < currentYear) priorYears.add(yr);
+  }
+  if(priorYears.size < 3){
+    flash(`Loading 4-year history for ${t} from FMP… (one-time, ~5 sec)`, 'info');
+    try {
+      await fetch('https://victoryvision.app.n8n.cloud/webhook/historical/backfill', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ticker: t, limit: 4 })
+      });
+      // Poll for new rows (up to 10 sec)
+      let attempts = 0;
+      while(attempts < 10){
+        await new Promise(r => setTimeout(r, 1000));
+        const { data: newRows } = await sb.from('company_fundamentals')
+          .select('*').eq('ticker', t).order('as_of_date',{ascending:true});
+        const newPriorYears = new Set();
+        for(const row of (newRows||[])){
+          const yr = new Date(row.as_of_date).getFullYear();
+          if(yr < currentYear) newPriorYears.add(yr);
+        }
+        if(newPriorYears.size >= 3){
+          allFund = newRows;
+          flash(`Historical data loaded.`, 'success');
+          break;
+        }
+        attempts++;
+      }
+      if(attempts >= 10){
+        flash(`Backfill triggered but historical rows not visible yet — check back in a moment, or FMP may not have data for this ticker.`, 'warning');
+      }
+    } catch(e){
+      flash(`Could not auto-backfill history: ${e.message}. Forward model still works; historic columns will be empty.`, 'warning');
+    }
+  }
+
+  // Reduce to one row per calendar year (most recent in that year)
+  const byYear = {};
+  for(const row of allFund){
+    const yr = new Date(row.as_of_date).getFullYear();
+    byYear[yr] = row;
+  }
+  const histYears = Object.keys(byYear).map(Number).sort();
+  // Keep ALL historic rows so we can compute YoY growth for the oldest displayed year too.
+  // Then slice display to last 3 in render functions if needed.
+  const histYearsBase = histYears.filter(y => y < currentYear);
+  historicalCap = histYearsBase.map(yr => buildHistoricalRow(yr, byYear[yr]));
+  // Display window: last 3 years
+  if(historicalCap.length > 3){
+    // Keep all in memory, but flag the visible window. Build a separate _visible array.
+    historicalCap._displayStart = historicalCap.length - 3;
+  } else {
+    historicalCap._displayStart = 0;
+  }
+  // Pick best base-anchor row: prefer FY estimate or daily snapshot, else most recent FY actual
+  let f = null;
+  // Look for current-FY estimate row first (synthetic or analyst)
+  for(const row of allFund){
+    if(row.data_source === 'fmp_analyst_estimate' || row.data_source === 'synthetic_current_fy' || row.data_source === 'fmp_estimate_current_fy'){ f = row; break; }
+  }
+  // Then look for any row dated within last 30 days (daily snapshot)
+  if(!f){
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
+    const cutoffStr = cutoff.toISOString().slice(0,10);
+    for(let idx = allFund.length - 1; idx >= 0; idx--){
+      if(allFund[idx].as_of_date > cutoffStr){ f = allFund[idx]; break; }
+    }
+  }
+  // Fall back to most recent row
+  if(!f) f = allFund[allFund.length-1];
+
+  // load active model if exists
+  const { data: existingActive } = await sb.from('thesis_models').select('*').eq('user_id', currentUser.id).eq('ticker',t).eq('is_active',true).order('updated_at',{ascending:false}).limit(1);
+  const active = (existingActive||[])[0];
+
+  if(active){
+    baseAnchor = {
+      base_year: active.base_year,
+      base_revenue: active.base_revenue,
+      base_ebitda: active.base_ebitda,
+      base_shares: active.base_shares,
+      base_cash: active.base_cash,
+      base_debt: active.base_debt,
+      base_price: active.base_price
+    };
+    assumptions = active.assumptions;
+    $('term-multiple').value = assumptions.terminal_multiple ?? 14;
+    $('term-multiple-type').value = assumptions.terminal_multiple_type ?? 'ev_ebitda';
+    $('scenario-label').value = active.scenario_label || 'base';
+    forwardMultiples = active.assumptions?.forward_multiples || { pe:[null,null,null,null], ev_ebitda:[null,null,null,null], fcf_yield:[null,null,null,null] };
+  } else {
+    // build defaults from fundamentals
+    const yr = new Date().getFullYear();
+    const rev = (f?.raw_data?.revenue_ltm) || (f?.market_cap && f?.ev_revenue_ltm ? f.market_cap / f.ev_revenue_ltm : null);
+    const ebitda = (f?.raw_data?.ebitda_ltm) || (rev && f?.ebitda_margin ? rev * f.ebitda_margin : null);
+    baseAnchor = {
+      base_year: yr,
+      base_revenue: rev ? Math.round(rev/1e6) : 10000,
+      base_ebitda:  ebitda ? Math.round(ebitda/1e6) : 3000,
+      base_shares:  f?.raw_data?.shares_outstanding ? Math.round(f.raw_data.shares_outstanding/1e6) : 1000,
+      base_cash:    f?.cash ? Math.round(f.cash/1e6) : 1000,
+      base_debt:    f?.total_debt ? Math.round(f.total_debt/1e6) : 1000,
+      base_price:   (f?.raw_data?.price ? Number(f.raw_data.price) : null)
+                  ?? (f?.market_cap && f?.raw_data?.shares_outstanding ? Number(f.market_cap) / Number(f.raw_data.shares_outstanding) : null)
+                  ?? 100
+    };
+    assumptions = defaultAssumptions(f);
+    $('term-multiple').value = assumptions.terminal_multiple;
+    $('term-multiple-type').value = assumptions.terminal_multiple_type;
+    $('scenario-label').value = 'base';
+    forwardMultiples = { pe:[null,null,null,null], ev_ebitda:[null,null,null,null], fcf_yield:[null,null,null,null] };
+  }
+
+  renderBaseGrid();
+  renderAssumptionsTable();
+  recompute();
+  loadScenariosList();
+  show('model-area', true);
+}
+
+function defaultAssumptions(f){
+  const ntm = f?.rev_growth_ntm ?? 0.10;
+  const m2 = f?.rev_growth_2y_fwd ?? Math.max(0.05, ntm - 0.01);
+  const m3 = f?.rev_growth_3y_fwd ?? Math.max(0.05, ntm - 0.02);
+  const ebm = f?.ebitda_margin ?? 0.25;
+  return {
+    years: [1,2,3,4].map(i=>baseAnchor.base_year + i),
+    rev_growth: [ntm, m2, m3, Math.max(0.04, m3-0.02)],
+    ebitda_margin: [ebm, ebm+0.005, ebm+0.01, ebm+0.015],
+    fcf_conversion: [0.85, 0.85, 0.85, 0.85],
+    buyback_pct_of_fcf: [0.40, 0.40, 0.40, 0.40],
+    dividend_pct_of_fcf: [0.0, 0.0, 0.0, 0.0],
+    debt_paydown_pct_of_fcf: [0.10, 0.10, 0.10, 0.10],
+    terminal_multiple: 14,
+    terminal_multiple_type: 'ev_ebitda'
+  };
+}
+
+function renderBaseGrid(){
+  const fields = [
+    { k:'base_year', l:'Base fiscal year (FY)', step:1 },
+    { k:'base_revenue', l:'Revenue ($M)', step:100 },
+    { k:'base_ebitda',  l:'EBITDA ($M)', step:50 },
+    { k:'base_shares',  l:'Shares out ($M)', step:1 },
+    { k:'base_cash',    l:'Cash ($M)', step:100 },
+    { k:'base_debt',    l:'Total debt ($M)', step:100 },
+    { k:'base_price',   l:'Price ($)', step:0.5 }
+  ];
+  $('base-grid').innerHTML = fields.map(f=>`
+    <div class="field">
+      <label>${esc(f.l)}</label>
+      <input type="number" data-bk="${f.k}" step="${f.step}" value="${baseAnchor[f.k] ?? 0}">
+    </div>
+  `).join('');
+  $('base-year-meta').textContent = `FY${baseAnchor.base_year} (current)`;
+  document.querySelectorAll('[data-bk]').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      baseAnchor[e.target.dataset.bk] = Number(e.target.value);
+      debouncedRecompute();
+    });
+  });
+}
+
+function renderAssumptionsTable(){
+  const yrs = assumptions.years;
+  // Compute historic values from historicalCap rows
+  // Need rev_growth (y/y), ebitda_margin, fcf_margin (as proxy for fcf conv)
+  const hist = historicalCap.slice(historicalCap._displayStart || 0);  // last 3 visible
+  function histRev(i){
+    const fullI = (historicalCap._displayStart || 0) + i;
+    const curr = historicalCap[fullI];
+    const prev = historicalCap[fullI - 1];
+    if(curr && prev && curr.revenue && prev.revenue) return curr.revenue / prev.revenue - 1;
+    return null;
+  }
+  function histEM(i){ return hist[i]?.ebitda_margin ?? null; }
+  function histFM(i){ return hist[i]?.fcf_margin ?? null; }   // FCF / Revenue (not /EBITDA, but close enough as display)
+  function histFCFconv(i){ return (hist[i]?.fcf && hist[i]?.ebitda && hist[i].ebitda > 0) ? hist[i].fcf / hist[i].ebitda : null; }
+
+  const rows = [
+    { k:'rev_growth',              l:'Revenue growth %',    histFn: histRev },
+    { k:'ebitda_margin',           l:'EBITDA margin %',     histFn: histEM },
+    { k:'fcf_conversion',          l:'FCF / EBITDA %',      histFn: histFCFconv },
+    { k:'buyback_pct_of_fcf',      l:'Buyback % of FCF',    histFn: null },
+    { k:'dividend_pct_of_fcf',     l:'Dividend % of FCF',   histFn: null },
+    { k:'debt_paydown_pct_of_fcf', l:'Debt paydown % of FCF', histFn: null }
+  ];
+  const fmtPctH = v => (v==null||isNaN(v))?'—':(Number(v)*100).toFixed(1)+'%';
+  // Build base-year-equivalent value for each driver (read-only display)
+  // For rev_growth/ebitda_margin/fcf_conversion we can derive from baseAnchor; capital allocation we don't know historically/at-base so dash.
+  function baseVal(rowKey){
+    if(rowKey === 'rev_growth'){
+      // YoY from last historic year
+      const lastHist = hist[hist.length-1];
+      if(lastHist?.revenue && baseAnchor.base_revenue) return (baseAnchor.base_revenue / lastHist.revenue) - 1;
+      return null;
+    }
+    if(rowKey === 'ebitda_margin') return baseAnchor.base_ebitda && baseAnchor.base_revenue ? baseAnchor.base_ebitda / baseAnchor.base_revenue : null;
+    if(rowKey === 'fcf_conversion') return 0.85;  // shown as implied default
+    return null;
+  }
+  const html = `
+    <thead><tr><th>Driver</th>${hist.map(h=>`<th style="color:var(--text-muted)">FY${h.year} (h)</th>`).join('')}<th style="background:var(--bg-blue-soft)">FY${baseAnchor.base_year}</th>${yrs.map(y=>`<th>FY${y}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(r=>`
+      <tr>
+        <td class="row-label">${esc(r.l)}</td>
+        ${hist.map((h,i)=>`<td style="color:var(--text-muted)">${r.histFn ? fmtPctH(r.histFn(i)) : '—'}</td>`).join('')}
+        <td style="background:var(--bg-blue-soft); color:var(--text-muted)">${fmtPctH(baseVal(r.k))}</td>
+        ${assumptions[r.k].map((v,i)=>`<td><input class="assumption" data-row="${r.k}" data-idx="${i}" type="number" step="0.5" value="${(Number(v)*100).toFixed(1)}"></td>`).join('')}
+      </tr>
+    `).join('')}</tbody>
+  `;
+  $('assumptions-table').innerHTML = html;
+  document.querySelectorAll('.assumption').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const row = e.target.dataset.row;
+      const idx = Number(e.target.dataset.idx);
+      assumptions[row][idx] = Number(e.target.value) / 100;
+      debouncedRecompute();
+    });
+  });
+}
+
+let debounceTimer = null;
+function debouncedRecompute(){
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(recompute, 300);
+}
+
+function recompute(){
+  if(!baseAnchor) return;
+  const tm = Number($('term-multiple').value);
+  const tmt = $('term-multiple-type').value;
+  assumptions.terminal_multiple = tm;
+  assumptions.terminal_multiple_type = tmt;
+
+  computed = runFlowThrough(baseAnchor, assumptions);
+  // also compute bear and bull at terminal_multiple * 0.7 and * 1.3
+  const bear = runFlowThrough(baseAnchor, { ...assumptions, terminal_multiple: tm * 0.7 });
+  const bull = runFlowThrough(baseAnchor, { ...assumptions, terminal_multiple: tm * 1.3 });
+  computed.bear_implied_price = bear.implied_price[bear.implied_price.length-1];
+  computed.bull_implied_price = bull.implied_price[bull.implied_price.length-1];
+  computed.implied_price_terminal = computed.implied_price[computed.implied_price.length-1];
+  computed.cumulative_return_pct = (computed.implied_price_terminal / baseAnchor.base_price) - 1;
+  computed.annualized_return = Math.pow(computed.implied_price_terminal / baseAnchor.base_price, 1/4) - 1;
+
+  populateSensYear();
+  renderFlowthrough(computed);
+  renderSummaryTiles(computed);
+  renderCapStruct();
+  renderSensitivity();
+}
+
+function runFlowThrough(base, asm){
+  const N = asm.years.length;
+  const out = {
+    years: asm.years.slice(),
+    revenue: [], ebitda: [], fcf: [],
+    buybacks: [], dividends: [], debt_paid: [], cash_added: [],
+    cash: [], debt: [], net_debt: [], shares: [],
+    implied_ev: [], implied_equity: [], implied_price: [],
+    cum_return: []
+  };
+  let prev_rev = base.base_revenue;
+  let prev_cash = base.base_cash;
+  let prev_debt = base.base_debt;
+  let prev_shares = base.base_shares;
+  let prev_price = base.base_price;
+
+  for(let i=0; i<N; i++){
+    const rev = prev_rev * (1 + asm.rev_growth[i]);
+    const ebitda = rev * asm.ebitda_margin[i];
+    const fcf = ebitda * asm.fcf_conversion[i];
+    const buyback = fcf * asm.buyback_pct_of_fcf[i];
+    const dividend = fcf * asm.dividend_pct_of_fcf[i];
+    const debt_pay = fcf * asm.debt_paydown_pct_of_fcf[i];
+    const cash_add = fcf - buyback - dividend - debt_pay;
+    const debt_new = Math.max(0, prev_debt - debt_pay);
+    const cash_new = prev_cash + cash_add;
+    const net_debt = debt_new - cash_new;
+    // shares retired = buyback / avg_price_during_year. Use prev_price as proxy.
+    const shares_retired = prev_price > 0 ? buyback / prev_price : 0;
+    const shares_new = Math.max(0.1, prev_shares - shares_retired);
+    // implied price at this year using terminal multiple
+    let implied_ev, implied_equity, implied_price;
+    if(asm.terminal_multiple_type === 'ev_ebitda'){
+      implied_ev = ebitda * asm.terminal_multiple;
+      implied_equity = implied_ev - net_debt;
+      implied_price = implied_equity / shares_new;
+    } else if(asm.terminal_multiple_type === 'pe'){
+      const ni = ebitda * (1 - 0.21); // 21% rough tax/D&A adj
+      implied_price = (ni * asm.terminal_multiple) / shares_new;
+      implied_ev = null;
+      implied_equity = ni * asm.terminal_multiple;
+    } else if(asm.terminal_multiple_type === 'ev_revenue'){
+      implied_ev = rev * asm.terminal_multiple;
+      implied_equity = implied_ev - net_debt;
+      implied_price = implied_equity / shares_new;
+    } else if(asm.terminal_multiple_type === 'fcf_yield'){
+      // Multiple is fcf yield (e.g. 0.05 = 5%). Market cap = FCF / yield.
+      // Multiple input field stores it as a number like 5.0 (5%); we treat the value as percent if >1, else decimal.
+      const yieldPct = asm.terminal_multiple > 1 ? asm.terminal_multiple / 100 : asm.terminal_multiple;
+      const mc = yieldPct > 0 ? fcf / yieldPct : 0;
+      implied_equity = mc;
+      implied_ev = mc + net_debt;
+      implied_price = mc / shares_new;
+    } else {
+      implied_ev = rev * asm.terminal_multiple;
+      implied_equity = implied_ev - net_debt;
+      implied_price = implied_equity / shares_new;
+    }
+
+    out.revenue.push(rev);
+    out.ebitda.push(ebitda);
+    out.fcf.push(fcf);
+    out.buybacks.push(buyback);
+    out.dividends.push(dividend);
+    out.debt_paid.push(debt_pay);
+    out.cash_added.push(cash_add);
+    out.cash.push(cash_new);
+    out.debt.push(debt_new);
+    out.net_debt.push(net_debt);
+    out.shares.push(shares_new);
+    out.implied_ev.push(implied_ev);
+    out.implied_equity.push(implied_equity);
+    out.implied_price.push(implied_price);
+    out.cum_return.push((implied_price / base.base_price) - 1);
+
+    prev_rev = rev;
+    prev_cash = cash_new;
+    prev_debt = debt_new;
+    prev_shares = shares_new;
+    prev_price = implied_price;
+  }
+  return out;
+}
+
+
+function buildHistoricalRow(year, row){
+  // FMP returns raw dollars; we display in $M consistently. Divide by 1e6.
+  const toM = v => (v==null || isNaN(v)) ? null : Number(v) / 1e6;
+  const rev = toM(row?.raw_data?.revenue_ltm);
+  const ebitda = toM(row?.raw_data?.ebitda_ltm) ?? ((rev != null && row?.ebitda_margin != null) ? rev * row.ebitda_margin : null);
+  const fcfRaw = row?.raw_data?.fcf_ltm;
+  const fcf = fcfRaw != null ? Number(fcfRaw) / 1e6 : ((rev != null && row?.fcf_margin != null) ? rev * row.fcf_margin : null);
+  const shares = toM(row?.raw_data?.shares_outstanding);  // also in millions for consistency
+  const price = row?.raw_data?.price ?? null;
+  const debt = toM(row?.total_debt);
+  const cash = toM(row?.cash);
+  const mc = toM(row?.market_cap) ?? ((shares != null && price != null) ? shares * price : null);
+  const ev = toM(row?.enterprise_value) ?? ((mc != null && debt != null && cash != null) ? mc + debt - cash : null);
+  const net_debt = (debt != null && cash != null) ? debt - cash
+                   : (toM(row?.net_debt));
+  const cps = (cash != null && shares) ? (cash * 1e6) / (shares * 1e6) * (1) : null;  // $M / Mshares = $/share
+  // simpler: cps in $ = (cash $M * 1e6) / (shares M * 1e6) = cash/shares
+  const cashPerShare = (cash != null && shares) ? (cash / shares) : null;
+  // FCF margin from CFFO-based FCF if available
+  const fcf_margin_calc = (fcf != null && rev) ? fcf / rev : null;
+  // EBITDA margin from underlying values
+  const ebitda_margin_calc = (ebitda != null && rev) ? ebitda / rev : row?.ebitda_margin;
+  const cffo = row?.raw_data?.cffo;
+  const capex = row?.raw_data?.capex;
+  return {
+    year, revenue: rev, ebitda, fcf,
+    cffo: cffo != null ? Number(cffo)/1e6 : null,
+    capex: capex != null ? Number(capex)/1e6 : null,
+    fcf_per_share: (fcf != null && shares) ? fcf / shares : null,
+    shares,
+    price,
+    market_cap: mc, debt, cash, ev, net_debt,
+    net_debt_ebitda: (net_debt != null && ebitda && ebitda > 0) ? net_debt / ebitda : row?.net_debt_ebitda,
+    cash_per_share: cashPerShare,
+    ebitda_margin: ebitda_margin_calc,
+    fcf_margin: fcf_margin_calc,
+    pe: row?.pe_ltm ?? null,
+    ev_ebitda: (row?.ev_ebitda_ltm != null && Math.abs(row.ev_ebitda_ltm) < 200) ? row.ev_ebitda_ltm : null,
+    fcf_yield: row?.fcf_yield_ltm ?? null,
+    is_historic: true
+  };
+}
+
+function renderCapStruct(){
+  if(!computed || !baseAnchor) return;
+  // Build full year list: historical years + base + forward years
+  const histRows = historicalCap.slice(historicalCap._displayStart || 0);
+  // Add base year as bridge
+  // For base year FCF: use avg FCF/EBITDA conversion ratio from historic rows
+  const histFcfConv = historicalCap.map(h => (h.fcf && h.ebitda && h.ebitda > 0) ? h.fcf / h.ebitda : null)
+                                    .filter(v => v != null && v > 0 && v < 2);
+  const avgFcfConv = histFcfConv.length ? histFcfConv.reduce((a,b)=>a+b,0)/histFcfConv.length : 0.85;
+  const baseFCF = baseAnchor.base_ebitda * avgFcfConv;
+  const baseMC = baseAnchor.base_shares * baseAnchor.base_price;
+  const baseEV = baseMC + baseAnchor.base_debt - baseAnchor.base_cash;
+  const baseNI = baseAnchor.base_ebitda * (1 - 0.21);
+  const baseRow = {
+    year: baseAnchor.base_year,
+    revenue: baseAnchor.base_revenue, ebitda: baseAnchor.base_ebitda,
+    fcf: baseFCF,
+    shares: baseAnchor.base_shares, price: baseAnchor.base_price,
+    market_cap: baseMC,
+    debt: baseAnchor.base_debt, cash: baseAnchor.base_cash,
+    ev: baseEV,
+    net_debt: baseAnchor.base_debt - baseAnchor.base_cash,
+    net_debt_ebitda: baseAnchor.base_ebitda ? (baseAnchor.base_debt - baseAnchor.base_cash) / baseAnchor.base_ebitda : null,
+    cash_per_share: baseAnchor.base_shares ? baseAnchor.base_cash / baseAnchor.base_shares : null,
+    pe: (baseMC > 0 && baseNI > 0) ? baseMC / baseNI : null,
+    ev_ebitda: (baseEV > 0 && baseAnchor.base_ebitda > 0) ? baseEV / baseAnchor.base_ebitda : null,
+    fcf_yield: (baseFCF != null && baseMC > 0) ? baseFCF / baseMC : null,
+    is_historic: true,
+    is_base: true
+  };
+  // Forward rows from computed
+  const fwdRows = computed.years.map((yr, i) => {
+    // Determine implied price by chosen multiple. If user has overridden a per-year multiple, use that.
+    const pe_ovr   = forwardMultiples.pe[i];
+    const eve_ovr  = forwardMultiples.ev_ebitda[i];
+    const fcfy_ovr = forwardMultiples.fcf_yield[i];
+    let implied_price = computed.implied_price[i];   // default from runFlowThrough using terminal_multiple
+    let pe_eff, eve_eff, fcfy_eff;
+    if(eve_ovr != null && computed.ebitda[i] && computed.shares[i]){
+      const ev = computed.ebitda[i] * eve_ovr;
+      const eq = ev - computed.net_debt[i];
+      implied_price = eq / computed.shares[i];
+    } else if(pe_ovr != null && computed.ebitda[i] && computed.shares[i]){
+      const ni = computed.ebitda[i] * (1 - 0.21);
+      implied_price = (ni * pe_ovr) / computed.shares[i];
+    } else if(fcfy_ovr != null && computed.fcf[i] && computed.shares[i]){
+      // FCF yield = FCF / Market Cap → Market Cap = FCF / yield → Price = MC / shares
+      const mc = computed.fcf[i] / fcfy_ovr;
+      implied_price = mc / computed.shares[i];
+    }
+    const market_cap = implied_price * computed.shares[i];
+    const ev = market_cap + computed.debt[i] - computed.cash[i];
+    eve_eff = (computed.ebitda[i]) ? ev / computed.ebitda[i] : null;
+    pe_eff  = (computed.ebitda[i]) ? (market_cap) / (computed.ebitda[i] * (1 - 0.21)) : null;
+    fcfy_eff = (computed.fcf[i] && market_cap) ? computed.fcf[i] / market_cap : null;
+    return {
+      year: yr,
+      revenue: computed.revenue[i], ebitda: computed.ebitda[i], fcf: computed.fcf[i],
+      shares: computed.shares[i], price: implied_price,
+      market_cap, debt: computed.debt[i], cash: computed.cash[i], ev,
+      net_debt: computed.net_debt[i],
+      net_debt_ebitda: computed.ebitda[i] ? computed.net_debt[i] / computed.ebitda[i] : null,
+      cash_per_share: computed.shares[i] ? computed.cash[i] / computed.shares[i] : null,
+      pe: pe_eff, ev_ebitda: eve_eff, fcf_yield: fcfy_eff,
+      pe_user: pe_ovr, ev_ebitda_user: eve_ovr, fcf_yield_user: fcfy_ovr,
+      is_historic: false,
+      idx: i
+    };
+  });
+
+  const allRows = [...histRows, baseRow, ...fwdRows];
+  const lineDefs = [
+    { k:'price', l:'Price per share', fmt:fmtPx, bold:true },
+    { k:'shares', l:'Adj. shares out ($M)', fmt: v=>v==null?'—':Number(v).toFixed(0) },
+    { k:'market_cap', l:'Market Cap ($M)', fmt:fmtM },
+    { k:'debt', l:'+ Debt & Preferred ($M)', fmt:fmtM },
+    { k:'cash', l:'− Cash ($M)', fmt:fmtM },
+    { k:'ev', l:'Enterprise value ($M)', fmt:fmtM, bold:true },
+    { k:'net_debt_ebitda', l:'Net Debt / EBITDA', fmt: v=>v==null?'—':Number(v).toFixed(2)+'x' },
+    { k:'cash_per_share', l:'Cash per share', fmt:fmtPx },
+    { k:'pe', l:'P/E', editable:true, fmt: v=>v==null?'—':Number(v).toFixed(1)+'x' },
+    { k:'ev_ebitda', l:'EV / EBITDA', editable:true, fmt: v=>v==null?'—':Number(v).toFixed(1)+'x' },
+    { k:'fcf_yield', l:'FCF Yield', editable:true, fmt: v=>v==null?'—':(Number(v)*100).toFixed(1)+'%' }
+  ];
+
+  let html = '<thead><tr><th>Line</th>';
+  for(const r of allRows){
+    const cls = r.is_historic ? (r.is_base ? 'style="background:var(--bg-blue-soft)"' : 'style="color:var(--text-muted)"') : '';
+    html += `<th ${cls}>FY${r.year}${r.is_historic && !r.is_base?' (h)':''}</th>`;
+  }
+  html += '</tr></thead><tbody>';
+
+  for(const def of lineDefs){
+    html += `<tr class="${def.bold?'bold-row':''}"><td class="row-label">${esc(def.l)}</td>`;
+    for(const r of allRows){
+      const v = r[def.k];
+      const formatted = def.fmt ? def.fmt(v) : (v==null?'—':v);
+      if(def.editable && !r.is_historic && !r.is_base){
+        // editable forward valuation
+        const userKey = def.k + '_user';
+        const userVal = r[userKey];
+        const displayVal = userVal != null
+          ? (def.k === 'fcf_yield' ? (Number(userVal)*100).toFixed(2) : Number(userVal).toFixed(2))
+          : (v != null ? (def.k === 'fcf_yield' ? (Number(v)*100).toFixed(2) : Number(v).toFixed(2)) : '');
+        const placeholder = v != null ? (def.k === 'fcf_yield' ? (Number(v)*100).toFixed(2) : Number(v).toFixed(2)) : '';
+        const hl = userVal != null ? 'background:var(--bg-blue-soft)' : '';
+        html += `<td><input class="assumption capmult" data-mult="${def.k}" data-idx="${r.idx}" type="number" step="0.5" placeholder="${placeholder}" value="${userVal != null ? displayVal : ''}" style="width:60px;${hl}"></td>`;
+      } else {
+        html += `<td>${formatted}</td>`;
+      }
+    }
+    html += '</tr>';
+  }
+  html += '</tbody>';
+  document.getElementById('capstruct-table').innerHTML = html;
+
+  // Wire the editable cells
+  document.querySelectorAll('.capmult').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const mult = e.target.dataset.mult;
+      const idx = Number(e.target.dataset.idx);
+      const raw = e.target.value;
+      if(raw === ''){
+        forwardMultiples[mult][idx] = null;
+      } else {
+        const num = Number(raw);
+        forwardMultiples[mult][idx] = (mult === 'fcf_yield') ? num / 100 : num;
+      }
+      // Propagation: a multiple change in year N affects price for year N and every year after.
+      // Because runFlowThrough uses prev_price to compute shares retired next year,
+      // we need to re-run flow-through with the multiple overrides folded in.
+      // Approach: re-run computed using a modified terminal logic per-year.
+      // Simpler: just re-render cap struct — implied_price in fwdRows is computed
+      // independently per year above (uses computed.ebitda[i] etc from the standard runFlowThrough).
+      // To make multiple changes flow into NEXT year's share count (buybacks → fewer shares),
+      // we need to re-run the cap-aware flow.
+      recomputeWithCapOverrides();
+    });
+  });
+}
+
+function recomputeWithCapOverrides(){
+  // Re-run flow-through, but inside the loop use forwardMultiples[i] if set
+  // to override the implied_price calc, which then drives shares retired NEXT year.
+  if(!baseAnchor || !assumptions) return;
+  const asm = assumptions;
+  const N = asm.years.length;
+  const out = {
+    years: asm.years.slice(),
+    revenue: [], ebitda: [], fcf: [],
+    buybacks: [], dividends: [], debt_paid: [], cash_added: [],
+    cash: [], debt: [], net_debt: [], shares: [],
+    implied_ev: [], implied_equity: [], implied_price: [],
+    cum_return: []
+  };
+  let prev_rev = baseAnchor.base_revenue;
+  let prev_cash = baseAnchor.base_cash;
+  let prev_debt = baseAnchor.base_debt;
+  let prev_shares = baseAnchor.base_shares;
+  let prev_price = baseAnchor.base_price;
+  for(let i=0; i<N; i++){
+    const rev = prev_rev * (1 + asm.rev_growth[i]);
+    const ebitda = rev * asm.ebitda_margin[i];
+    const fcf = ebitda * asm.fcf_conversion[i];
+    const buyback = fcf * asm.buyback_pct_of_fcf[i];
+    const dividend = fcf * asm.dividend_pct_of_fcf[i];
+    const debt_pay = fcf * asm.debt_paydown_pct_of_fcf[i];
+    const cash_add = fcf - buyback - dividend - debt_pay;
+    const debt_new = Math.max(0, prev_debt - debt_pay);
+    const cash_new = prev_cash + cash_add;
+    const net_debt = debt_new - cash_new;
+    const shares_retired = prev_price > 0 ? buyback / prev_price : 0;
+    const shares_new = Math.max(0.1, prev_shares - shares_retired);
+
+    // Per-year multiple override
+    const pe_ovr = forwardMultiples.pe[i];
+    const eve_ovr = forwardMultiples.ev_ebitda[i];
+    const fcfy_ovr = forwardMultiples.fcf_yield[i];
+    let implied_ev, implied_equity, implied_price;
+    if(eve_ovr != null){
+      implied_ev = ebitda * eve_ovr;
+      implied_equity = implied_ev - net_debt;
+      implied_price = implied_equity / shares_new;
+    } else if(pe_ovr != null){
+      const ni = ebitda * (1 - 0.21);
+      implied_price = (ni * pe_ovr) / shares_new;
+      implied_ev = null;
+      implied_equity = ni * pe_ovr;
+    } else if(fcfy_ovr != null){
+      const mc = fcf / fcfy_ovr;
+      implied_price = mc / shares_new;
+      implied_equity = mc;
+      implied_ev = mc + debt_new - cash_new;
+    } else if(asm.terminal_multiple_type === 'ev_ebitda'){
+      implied_ev = ebitda * asm.terminal_multiple;
+      implied_equity = implied_ev - net_debt;
+      implied_price = implied_equity / shares_new;
+    } else if(asm.terminal_multiple_type === 'pe'){
+      const ni = ebitda * (1 - 0.21);
+      implied_price = (ni * asm.terminal_multiple) / shares_new;
+      implied_ev = null;
+      implied_equity = ni * asm.terminal_multiple;
+    } else if(asm.terminal_multiple_type === 'fcf_yield'){
+      const yieldPct = asm.terminal_multiple > 1 ? asm.terminal_multiple / 100 : asm.terminal_multiple;
+      const mc = yieldPct > 0 ? fcf / yieldPct : 0;
+      implied_equity = mc;
+      implied_ev = mc + net_debt;
+      implied_price = mc / shares_new;
+    } else {
+      implied_ev = rev * asm.terminal_multiple;
+      implied_equity = implied_ev - net_debt;
+      implied_price = implied_equity / shares_new;
+    }
+
+    out.revenue.push(rev); out.ebitda.push(ebitda); out.fcf.push(fcf);
+    out.buybacks.push(buyback); out.dividends.push(dividend);
+    out.debt_paid.push(debt_pay); out.cash_added.push(cash_add);
+    out.cash.push(cash_new); out.debt.push(debt_new); out.net_debt.push(net_debt);
+    out.shares.push(shares_new);
+    out.implied_ev.push(implied_ev); out.implied_equity.push(implied_equity);
+    out.implied_price.push(implied_price);
+    out.cum_return.push((implied_price / baseAnchor.base_price) - 1);
+
+    prev_rev = rev; prev_cash = cash_new; prev_debt = debt_new;
+    prev_shares = shares_new; prev_price = implied_price;
+  }
+  computed = out;
+  // bear / bull from raw assumptions w/ multiple shock
+  const tm = asm.terminal_multiple;
+  const bear = runFlowThrough(baseAnchor, { ...asm, terminal_multiple: tm * 0.7 });
+  const bull = runFlowThrough(baseAnchor, { ...asm, terminal_multiple: tm * 1.3 });
+  computed.bear_implied_price = bear.implied_price[bear.implied_price.length-1];
+  computed.bull_implied_price = bull.implied_price[bull.implied_price.length-1];
+  computed.implied_price_terminal = computed.implied_price[computed.implied_price.length-1];
+  computed.cumulative_return_pct = (computed.implied_price_terminal / baseAnchor.base_price) - 1;
+  computed.annualized_return = Math.pow(computed.implied_price_terminal / baseAnchor.base_price, 1/4) - 1;
+
+  populateSensYear();
+  renderFlowthrough(computed);
+  renderSummaryTiles(computed);
+  renderCapStruct();
+  renderSensitivity();
+}
+
+function renderFlowthrough(c){
+  const yrs = c.years;
+  const hist = historicalCap.slice(historicalCap._displayStart || 0);
+  const histYrs = hist.map(h => h.year);
+  const baseY = baseAnchor.base_year;
+  const cols = [...histYrs, baseY, ...yrs];
+  // Compute base-year Implied EV / Equity from current price × shares + net debt
+  const baseImpliedEquity = (baseAnchor.base_shares && baseAnchor.base_price) ? baseAnchor.base_shares * baseAnchor.base_price : null;
+  const baseImpliedEV = (baseImpliedEquity != null && baseAnchor.base_debt != null && baseAnchor.base_cash != null) ? baseImpliedEquity + baseAnchor.base_debt - baseAnchor.base_cash : null;
+  // Base FCF: ebitda × avg historic FCF/EBITDA conversion
+  const histFcfConvFlow = historicalCap.map(h => (h.fcf && h.ebitda && h.ebitda > 0) ? h.fcf / h.ebitda : null)
+                                       .filter(v => v != null && v > 0 && v < 2);
+  const avgFcfConvFlow = histFcfConvFlow.length ? histFcfConvFlow.reduce((a,b)=>a+b,0)/histFcfConvFlow.length : 0.85;
+  const baseFCFflow = (baseAnchor.base_ebitda != null) ? baseAnchor.base_ebitda * avgFcfConvFlow : null;
+
+  // Build a per-row value array spanning historic + base + forward
+  function row(label, fmt, histKey, baseVal, fwdArr, opts) {
+    opts = opts || {};
+    const histVals = hist.map(h => h[histKey] ?? null);
+    return { l: label, fmt, vals: [...histVals, baseVal, ...fwdArr], ...opts };
+  }
+  const baseNetDebt = baseAnchor.base_debt - baseAnchor.base_cash;
+
+  const rows = [
+    row('Revenue ($M)',     fmtM, 'revenue', baseAnchor.base_revenue, c.revenue),
+    row('EBITDA ($M)',      fmtM, 'ebitda',  baseAnchor.base_ebitda,  c.ebitda),
+    row('FCF ($M)',         fmtM, 'fcf',     baseFCFflow,             c.fcf),
+    { l:'Buybacks ($M)',    fmt: fmtM, vals: [...hist.map((h,i)=>{
+      const fullI = (historicalCap._displayStart || 0) + i;
+      const prev = historicalCap[fullI - 1];
+      if(prev && prev.shares && h.shares && prev.price && h.shares < prev.shares){
+        const sharesRetired = prev.shares - h.shares;
+        return sharesRetired * prev.price;  // approximation: shares retired × prior price
+      }
+      return null;
+    }), null, ...c.buybacks] },
+    row('Cash ($M)',        fmtM, 'cash',    baseAnchor.base_cash,    c.cash),
+    row('Total debt ($M)',  fmtM, 'debt',    baseAnchor.base_debt,    c.debt),
+    row('Net debt ($M)',    fmtM, 'net_debt',baseNetDebt,             c.net_debt),
+    { l:'Shares out (M)',   fmt: v=>(v==null)?'—':Number(v).toFixed(0)+'M', vals: [...hist.map(h=>h.shares), baseAnchor.base_shares, ...c.shares] },
+    { l:'Implied EV ($M)',  fmt: fmtM, vals: [...hist.map(h=>h.ev), baseImpliedEV, ...c.implied_ev] },
+    { l:'Implied equity ($M)', fmt: fmtM, vals: [...hist.map(h=>h.market_cap), baseImpliedEquity, ...c.implied_equity] },
+    { l:'Price',            fmt: fmtPx, vals: [...hist.map(h=>h.price), baseAnchor.base_price, ...c.implied_price], bold: true },
+    { l:'Cum return %',     fmt: fmtPct, vals: [...hist.map(()=>null), 0, ...c.cum_return], bold: true, color: true }
+  ];
+
+  const html = `
+    <thead><tr><th>Line</th>${cols.map((y,i)=>{
+      const isHist = i < hist.length;
+      const isBase = i === hist.length;
+      const cls = isHist ? 'style="color:var(--text-muted)"' : (isBase ? 'style="background:var(--bg-blue-soft)"' : '');
+      return `<th ${cls}>FY${y}${isHist?' (h)':''}</th>`;
+    }).join('')}</tr></thead>
+    <tbody>${rows.map(r=>`
+      <tr class="${r.bold ? 'bold-row' : ''}">
+        <td class="row-label">${esc(r.l)}</td>
+        ${r.vals.map((v,i)=>{
+          const isHist = i < hist.length;
+          const cls = (r.color && v!=null) ? (Number(v)>0?'pos':Number(v)<0?'neg':'') : '';
+          const muted = isHist ? 'color:var(--text-muted)' : '';
+          return `<td class="${cls}" style="${muted}">${v==null ? '—' : r.fmt(v)}</td>`;
+        }).join('')}
+      </tr>
+    `).join('')}</tbody>
+  `;
+  $('flowthrough-table').innerHTML = html;
+}
+
+function renderSummaryTiles(c){
+  const cr = c.cumulative_return_pct;
+  const ar = c.annualized_return;
+  const gap = (c.implied_price_terminal - baseAnchor.base_price) / baseAnchor.base_price;
+  const mos = baseAnchor.base_price > 0 ? (baseAnchor.base_price - c.bear_implied_price) / baseAnchor.base_price : null;
+  const asymmetry = (c.bull_implied_price - baseAnchor.base_price) / Math.max(0.01, baseAnchor.base_price - c.bear_implied_price);
+
+  $('summary-tiles').innerHTML = `
+    <div class="summary-tile"><div class="l">Implied price (FY+4)</div><div class="v">${fmtPx(c.implied_price_terminal)}</div></div>
+    <div class="summary-tile"><div class="l">Cum return</div><div class="v ${cr>0?'pos':'neg'}">${fmtPct(cr)}</div></div>
+    <div class="summary-tile"><div class="l">Annualized</div><div class="v ${ar>0?'pos':'neg'}">${fmtPct(ar)}</div></div>
+    <div class="summary-tile" title="Bull case = terminal multiple × 1.3; Bear case = terminal multiple × 0.7. Asymmetry = (bull implied price − current price) / (current price − bear implied price). A value of 2.0x means upside is twice the downside."><div class="l">Asymmetry (bull/bear)</div><div class="v">${fmtNum(asymmetry,2)}x</div><div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:4px">upside / downside ratio</div></div>
+  `;
+}
+
+
+window._rerenderSens = function(){
+  if(!computed) return;
+  renderSensitivity();
+};
+function populateSensYear(){
+  const sel = document.getElementById('sens-year');
+  if(!sel || !assumptions) return;
+  const yrs = assumptions.years;
+  sel.innerHTML = yrs.map((y,i) => `<option value="${y}" ${i===2?'selected':''}>${y} (y+${i+1})</option>`).join('');
+  const mt = document.getElementById('sens-mtype');
+  if(mt && assumptions) mt.value = assumptions.terminal_multiple_type;
+}
+
+function getHistoricAvg(metric){
+  // metric: 'pe' | 'ev_ebitda' | 'fcf_yield' | 'ev_revenue'
+  const vals = historicalCap.map(h => h[metric]).filter(v => v != null && !isNaN(v) && isFinite(v));
+  // For multiples, drop outliers (negative, or > 100x for P/E and EV/EBITDA)
+  const cleaned = vals.filter(v => {
+    if(metric === 'fcf_yield') return v > 0 && v < 0.30;  // 0-30% yield range reasonable
+    return v > 0 && v < 100;
+  });
+  if(!cleaned.length) return null;
+  return cleaned.reduce((s,v) => s+v, 0) / cleaned.length;
+}
+
+function renderSensitivity(){
+  if(!assumptions || !computed) return;
+  const sensMTInpEarly = document.getElementById('sens-mtype');
+  const sensMTEarly = sensMTInpEarly ? sensMTInpEarly.value : assumptions.terminal_multiple_type;
+  // Anchor: user override if set, else historic avg, else terminal_multiple input
+  const userMult = Number($('term-multiple').value);
+  const histAvg = getHistoricAvg(sensMTEarly);
+  const sensCenterInp = document.getElementById('sens-center');
+  const sensCenterRaw = sensCenterInp ? sensCenterInp.value : '';
+  const userCenter = sensCenterRaw !== '' ? Number(sensCenterRaw) : null;
+  let mults;
+  let anchor;
+  let anchorSource;
+  if(sensMTEarly === 'fcf_yield'){
+    // FCF Yield: user enters as percent (e.g. 5 means 5%)
+    if(userCenter != null){ anchor = userCenter / 100; anchorSource = 'user'; }
+    else if(histAvg != null){ anchor = histAvg; anchorSource = 'historic_avg'; }
+    else { anchor = 0.05; anchorSource = 'default'; }
+    const anchorPct = anchor * 100;
+    mults = [anchorPct*0.6, anchorPct*0.8, anchorPct, anchorPct*1.2, anchorPct*1.4];
+  } else {
+    if(userCenter != null){ anchor = userCenter; anchorSource = 'user'; }
+    else if(histAvg != null){ anchor = histAvg; anchorSource = 'historic_avg'; }
+    else { anchor = userMult; anchorSource = 'terminal_input'; }
+    mults = [anchor*0.7, anchor*0.85, anchor, anchor*1.15, anchor*1.3];
+  }
+  const baseMult = userMult;
+  // Stash anchor info for the meta line
+  window._sensAnchor = { type: sensMTEarly, value: anchor, source: anchorSource };
+  const growthDeltas = [-0.02, -0.01, 0, 0.01, 0.02];
+  // Determine sensitivity target year (default: 3rd forward year, e.g. 2029 if base=2026)
+  const sensYrInp = document.getElementById('sens-year');
+  const sensYr = sensYrInp ? Number(sensYrInp.value) : assumptions.years[2];
+  const sensIdx = assumptions.years.indexOf(sensYr);
+  const targetIdx = sensIdx >= 0 ? sensIdx : assumptions.years.length - 1;
+  const unitSuffix = sensMTEarly === 'fcf_yield' ? '%' : 'x';
+  let html = `<thead><tr><th>Δ growth → / multiple ↓</th>${mults.map(m=>`<th>${m.toFixed(1)}${unitSuffix}</th>`).join('')}</tr></thead><tbody>`;
+  for(const dg of growthDeltas){
+    html += `<tr><td class="axis">${dg>0?'+':''}${(dg*100).toFixed(0)}pp</td>`;
+    for(const m of mults){
+      const asm2 = JSON.parse(JSON.stringify(assumptions));
+      asm2.terminal_multiple = m;
+      asm2.terminal_multiple_type = sensMTEarly;
+      asm2.rev_growth = asm2.rev_growth.map(g=>g+dg);
+      const out = runFlowThrough(baseAnchor, asm2);
+      const priceAtIdx = out.implied_price[targetIdx];
+      const ret = (priceAtIdx / baseAnchor.base_price) - 1;
+      let bg = 'transparent';
+      if(ret >= 0.5) bg = '#d1fae5';
+      else if(ret >= 0) bg = '#fef9c3';
+      else if(ret >= -0.3) bg = '#fed7aa';
+      else bg = '#fee2e2';
+      html += `<td class="sens-cell" style="background:${bg}">${fmtPct(ret,0)}</td>`;
+    }
+    html += '</tr>';
+  }
+  // Update meta line
+  const metaEl = document.getElementById('sens-meta');
+  if(metaEl && window._sensAnchor){
+    const a = window._sensAnchor;
+    const valStr = a.type === 'fcf_yield' ? (a.value*100).toFixed(2)+'%' : a.value.toFixed(1)+'x';
+    metaEl.textContent = `Anchor ${valStr} (${a.source === 'historic_avg' ? '3yr avg' : a.source === 'user' ? 'user override' : a.source === 'default' ? 'default' : 'terminal input'}) · target year ${sensYr}`;
+  }
+  html += '</tbody>';
+  $('sens-table').innerHTML = html;
+}
+
+async function saveScenario(){
+  const label = $('scenario-label').value.trim() || 'base';
+  // mark all existing models for this ticker as inactive first
+  await sb.from('thesis_models').update({ is_active: false }).eq('user_id', currentUser.id).eq('ticker', currentTicker);
+
+  const assumptionsToSave = { ...assumptions, forward_multiples: forwardMultiples };
+  const payload = {
+    user_id: currentUser.id,
+    ticker: currentTicker,
+    scenario_label: label,
+    ...baseAnchor,
+    assumptions: assumptionsToSave,
+    computed,
+    is_active: true
+  };
+  const { error } = await sb.from('thesis_models').insert(payload);
+  if(error){ flash('Save failed: ' + error.message, 'error'); return; }
+  flash(`Scenario "${label}" saved and set active.`, 'success');
+  await loadScenariosList();
+}
+
+function resetDefaults(){
+  onTickerChange();
+}
+
+async function loadScenariosList(){
+  const { data } = await sb.from('thesis_models').select('id, scenario_label, is_active, created_at, computed').eq('user_id', currentUser.id).eq('ticker', currentTicker).order('created_at', { ascending: false }).limit(20);
+  if(!data || !data.length){
+    $('scenarios-list').innerHTML = '<div class="empty">No saved scenarios yet.</div>';
+    $('scn-meta').textContent = '0 scenarios';
+    return;
+  }
+  $('scn-meta').textContent = `${data.length} scenarios`;
+  $('scenarios-list').innerHTML = data.map(s=>{
+    const cr = s.computed?.cumulative_return_pct;
+    return `<div class="scenario-row ${s.is_active?'active':''}">
+      <div class="info"><b>${esc(s.scenario_label)}</b> · cum return <span class="${cr>0?'pos':'neg'}" style="color:${cr>0?'var(--success)':'var(--danger)'}">${fmtPct(cr)}</span> · ${new Date(s.created_at).toLocaleDateString()}</div>
+      <div style="display:flex; gap:6px;">
+        ${s.is_active ? '<span class="field-hint">Active</span>' : `<button class="btn btn-sm btn-ghost" onclick="window.activateScn('${s.id}')">Set active</button>`}
+        <button class="btn btn-sm btn-ghost" onclick="window.deleteScn('${s.id}')">Delete</button>
       </div>
-      <div class="kpi-grid" style="margin-top:10px">
-        <div class="kpi"><div class="l">PE</div><div class="v">${fmt(co.pe||f.pe_ltm,1)}</div></div>
-        <div class="kpi"><div class="l">EV/EBITDA</div><div class="v">${fmt(f.ev_ebitda_ntm||f.ev_ebitda_ltm,1)}</div></div>
-        <div class="kpi"><div class="l">FCF Yield</div><div class="v">${fmtPct(f.fcf_yield_ntm||f.fcf_yield_ltm)}</div></div>
-        <div class="kpi"><div class="l">Rev g 3yh</div><div class="v">${fmtPct(f.rev_growth_3y_hist)}</div></div>
-        <div class="kpi"><div class="l">Rev g 3yf</div><div class="v">${fmtPct(f.rev_growth_3y_fwd)}</div></div>
-        <div class="kpi"><div class="l">ND/EBITDA</div><div class="v">${fmt(f.net_debt_ebitda,1)}</div></div>
-        <div class="kpi"><div class="l">Gross %</div><div class="v">${fmtPct(f.gross_margin)}</div></div>
-        <div class="kpi"><div class="l">EBITDA %</div><div class="v">${fmtPct(f.ebitda_margin)}</div></div>
-      </div>`;
-  }
+    </div>`;
+  }).join('');
+}
 
-  function renderHistory(hist){
-    if(!hist.length){$('#historyTbl').innerHTML = '<div class="empty">No annual history</div>';return}
-    const rows = hist.slice(0,7);
-    $('#historyTbl').innerHTML = `<table class="tbl"><thead><tr><th>Year</th><th>Revenue</th><th>EBITDA</th><th>FCF</th><th>EPS</th><th>Shares (M)</th><th>Net debt</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.year)}</td><td>${fmtMoney(r.revenue)}</td><td>${fmtMoney(r.ebitda)}</td><td>${fmtMoney(r.fcf)}</td><td>${fmt(r.eps,2)}</td><td>${r.shares?fmt(r.shares/1e6,0):'—'}</td><td>${fmtMoney(r.net_debt)}</td></tr>`).join('')}</tbody></table>`;
-  }
+window.activateScn = async function(id){
+  await sb.from('thesis_models').update({ is_active: false }).eq('user_id', currentUser.id).eq('ticker', currentTicker);
+  const { error } = await sb.from('thesis_models').update({ is_active: true }).eq('id', id);
+  if(error){ flash('Failed: '+error.message,'error'); return; }
+  flash('Scenario activated.','success');
+  await loadScenariosList();
+};
 
-  function renderModeBanner(mode, yrs){
-    if(mode==='forward_only'){
-      $('#modeBanner').innerHTML = `<div class="mode-banner">⚠️ Only ${yrs} years of history. Switched to forward-only DCF based on analyst estimates. Use multiples cross-check on comps.</div>`;
-    }else{
-      $('#modeBanner').innerHTML = '';
-    }
-  }
+window.deleteScn = async function(id){
+  if(!confirm('Delete this scenario?')) return;
+  const { error } = await sb.from('thesis_models').delete().eq('id', id);
+  if(error){ flash('Failed: '+error.message,'error'); return; }
+  await loadScenariosList();
+};
 
-  function defaultAssumptions(scenario){
-    const f = state.fund || {};
-    const histG = f.rev_growth_3y_hist;
-    const fwdG = f.rev_growth_3y_fwd;
-    const ebitdaM = f.ebitda_margin || 0.20;
-    const fcfM = f.fcf_margin || 0.12;
-    const evEbitda = f.ev_ebitda_ntm || f.ev_ebitda_ltm || 12;
-    const peM = f.pe_ltm || 18;
+function flash(text, kind='info'){
+  $('msg-area').innerHTML = `<div class="msg msg-${kind}">${esc(text)}</div>`;
+  setTimeout(()=>{ $('msg-area').innerHTML=''; }, 5000);
+}
 
-    const baseG = (fwdG!=null && histG!=null) ? (fwdG*0.5 + histG*0.5) : (fwdG ?? histG ?? 0.05);
-
-    const scenarios = {
-      bear:    { growth: baseG-0.05, margin: ebitdaM*0.85, exit_mult: evEbitda*0.75, pe_exit: peM*0.75, years:3 },
-      base:    { growth: baseG,      margin: ebitdaM,       exit_mult: evEbitda,      pe_exit: peM,      years:3 },
-      bull:    { growth: baseG+0.05, margin: ebitdaM*1.15,  exit_mult: evEbitda*1.20, pe_exit: peM*1.20, years:3 }
-    };
-    return scenarios[scenario];
-  }
-
-  function buildScenarios(thesis){
-    const saved = (thesis && thesis.assumptions) || {};
-    state.scenarios = {
-      bear: Object.assign(defaultAssumptions('bear'), saved.bear||{}),
-      base: Object.assign(defaultAssumptions('base'), saved.base||{}),
-      bull: Object.assign(defaultAssumptions('bull'), saved.bull||{})
-    };
-    renderScenarios();
-  }
-
-  function renderScenarios(){
-    const labels = {bear:'Bear', base:'Base', bull:'Bull'};
-    $('#scenarios').innerHTML = ['bear','base','bull'].map(k=>{
-      const a = state.scenarios[k];
-      return `<div class="scenario ${k}">
-        <div class="scen-head">${labels[k]}<span class="muted" style="font-size:11px">${k==='base'?'most likely':k==='bear'?'downside':'upside'}</span></div>
-        <div class="assump-grid">
-          <label>Rev growth (annual)</label><input type="number" step="0.01" value="${fmt(a.growth,3)}" data-scen="${k}" data-key="growth"/>
-          <label>EBITDA margin</label><input type="number" step="0.01" value="${fmt(a.margin,3)}" data-scen="${k}" data-key="margin"/>
-          <label>Exit EV/EBITDA</label><input type="number" step="0.5" value="${fmt(a.exit_mult,1)}" data-scen="${k}" data-key="exit_mult"/>
-          <label>Exit P/E</label><input type="number" step="0.5" value="${fmt(a.pe_exit,1)}" data-scen="${k}" data-key="pe_exit"/>
-          <label>Years</label><input type="number" step="1" value="${a.years||3}" data-scen="${k}" data-key="years"/>
-        </div>
-      </div>`;
-    }).join('');
-    $$('#scenarios input').forEach(el=>el.addEventListener('input', onAssumpChange));
-  }
-  function onAssumpChange(e){
-    const k = e.target.dataset.scen; const key = e.target.dataset.key;
-    const v = num(e.target.value); if(v==null) return;
-    state.scenarios[k][key] = v;
-    recompute();
-  }
-
-  function recompute(){
-    if(!state.scenarios){return}
-    const out = {};
-    for(const k of ['bear','base','bull']){
-      out[k] = projectScenario(state.scenarios[k]);
-    }
-    state.computed = out;
-    renderOutput(out);
-  }
-
-  function projectScenario(a){
-    const latest = state.history[0] || {};
-    const baseRev = latest.revenue;
-    const sharesM = (latest.shares||0)/1e6 || null;
-    const netDebt = latest.net_debt;
-
-    if(!baseRev || baseRev<=0){
-      // Forward-only: use analyst estimates
-      const f = state.fund || {};
-      const ntmRev = f.market_cap && f.ev_revenue_ntm ? (f.market_cap+f.net_debt||0)/f.ev_revenue_ntm : null;
-      if(!ntmRev) return {error:'no_base'};
-      const futureRev = ntmRev * Math.pow(1+a.growth, a.years);
-      const ebitda = futureRev * a.margin;
-      const ev = ebitda * a.exit_mult;
-      const eq = ev - (netDebt||0);
-      const implied = sharesM ? eq/sharesM : null;
-      return {ebitda, ev, equity:eq, implied_price:implied, return_pct: implied&&state.spot ? (implied/state.spot - 1) : null, ann_return: implied&&state.spot ? Math.pow(implied/state.spot, 1/a.years) - 1 : null, mode:'forward'};
-    }
-    const futureRev = baseRev * Math.pow(1+a.growth, a.years);
-    const ebitda = futureRev * a.margin;
-    const ev = ebitda * a.exit_mult;
-    const eq = ev - (netDebt||0);
-    const implied = sharesM ? eq/sharesM : null;
-    return {ebitda, ev, equity:eq, implied_price:implied, return_pct: implied&&state.spot ? (implied/state.spot - 1) : null, ann_return: implied&&state.spot ? Math.pow(implied/state.spot, 1/a.years) - 1 : null, mode:'history'};
-  }
-
-  function renderOutput(out){
-    const spot = state.spot;
-    const asymmetry = (out.bull?.implied_price && out.bear?.implied_price && spot && spot>out.bear.implied_price)
-      ? (out.bull.implied_price - spot) / (spot - out.bear.implied_price) : null;
-    const labels = {bear:'Bear',base:'Base',bull:'Bull'};
-    const rows = ['bear','base','bull'].map(k=>{
-      const o = out[k]||{};
-      const color = o.return_pct>=0?'ok-txt':'bad-txt';
-      return `<tr><td><b>${labels[k]}</b></td><td>${fmtMoney(o.ebitda)}</td><td>${fmtMoney(o.equity)}</td><td>$${fmt(o.implied_price)}</td><td class="${color}">${fmtPct(o.return_pct)}</td><td class="${color}">${fmtPct(o.ann_return)} /yr</td></tr>`;
-    }).join('');
-    $('#output').innerHTML = `
-      <div class="kpi-grid">
-        <div class="kpi"><div class="l">Current price</div><div class="v">$${fmt(spot)}</div></div>
-        <div class="kpi"><div class="l">Base implied</div><div class="v">$${fmt(out.base?.implied_price)}</div></div>
-        <div class="kpi"><div class="l">Base return</div><div class="v ${out.base?.return_pct>=0?'ok-txt':'bad-txt'}">${fmtPct(out.base?.return_pct)}</div></div>
-        <div class="kpi"><div class="l">Asymmetry (bull$/bear$)</div><div class="v">${asymmetry==null?'—':fmt(asymmetry,2)+'x'}</div></div>
-      </div>
-      <table class="tbl" style="margin-top:8px"><thead><tr><th>Scenario</th><th>EBITDA exit</th><th>Equity</th><th>Implied $</th><th>Return</th><th>Annualized</th></tr></thead><tbody>${rows}</tbody></table>
-      ${state.mode==='forward_only'?'<div class="muted" style="font-size:11px;margin-top:6px">Forward-only mode: base revenue derived from NTM estimates.</div>':''}`;
-  }
-
-  async function saveThesis(){
-    if(!state.ticker || !state.computed){return alert('Load a ticker first.')}
-    const row = {
-      user_id: USER_ID,
-      ticker: state.ticker,
-      scenario_label: 'base',
-      base_price: state.spot,
-      assumptions: state.scenarios,
-      computed: {
-        bear_implied_price: state.computed.bear?.implied_price,
-        base_implied_price: state.computed.base?.implied_price,
-        bull_implied_price: state.computed.bull?.implied_price,
-        annualized_return: state.computed.base?.ann_return,
-        return_pct: state.computed.base?.return_pct
-      },
-      notes: $('#notes').value || null,
-      is_active: true,
-      updated_at: new Date().toISOString()
-    };
-    try{
-      const {error} = await sb.from('thesis_models').upsert(row, {onConflict:'user_id,ticker,scenario_label'});
-      if(error) throw error;
-      alert('Thesis saved.');
-    }catch(e){alert('Save failed: '+e.message)}
-  }
-
-  $('#loadBtn').addEventListener('click', ()=>{const v=$('#tickerInput').value.trim().toUpperCase(); if(v) loadTicker(v)});
-  $('#tickerInput').addEventListener('keydown', e=>{if(e.key==='Enter'){const v=e.target.value.trim().toUpperCase(); if(v) loadTicker(v)}});
-  $('#saveBtn').addEventListener('click', saveThesis);
-
-  const url = new URL(window.location.href);
-  const initT = url.searchParams.get('ticker');
-  if(initT){$('#tickerInput').value = initT; loadTicker(initT)}
 })();
 </script>
 </body>
