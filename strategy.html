@@ -158,22 +158,9 @@ const C = window.RR_CONFIG || {};
 const URL_ = C.SUPABASE_URL;
 const KEY = C.SUPABASE_PUBLISHABLE_KEY || C.SUPABASE_ANON_KEY;
 const USER = C.USER_ID;
-const PROJECT_REF = 'nrbffnsheenmewijeapb';
 
-// === AUTH HELPER (handles multiple session-storage formats) ===
-function getAuthToken() {
-  try {
-    const raw = localStorage.getItem('sb-'+PROJECT_REF+'-auth-token');
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed[0]; // some versions store [accessToken, refreshToken,...]
-      if (parsed.access_token) return parsed.access_token;
-      if (parsed.currentSession?.access_token) return parsed.currentSession.access_token;
-    }
-  } catch(_){}
-  return KEY; // fallback to anon key
-}
-function H(){ const t = getAuthToken(); return { apikey: KEY, Authorization: 'Bearer '+t, 'Content-Type':'application/json' }; }
+// Single-user platform: always use publishable key, server-side enforces real security
+function H(){ return { apikey: KEY, Authorization: 'Bearer '+KEY, 'Content-Type':'application/json' }; }
 
 const fmtUSD = (v) => {
   if (v == null || isNaN(v)) return '—';
