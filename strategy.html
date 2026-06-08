@@ -1,378 +1,305 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Strategy — Ridge Run</title>
-<script src="/config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<title>Ridge Run — Strategy</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="config.js"></script>
 <style>
-  :root{--bg:#fff;--ink:#0f172a;--ink2:#475569;--muted:#94a3b8;--line:#e2e8f0;--brand:#2563eb;--brand2:#1d4ed8;--ok:#16a34a;--warn:#d97706;--bad:#dc2626;--chip:#f1f5f9;}
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif}
-  a{color:var(--brand);text-decoration:none}
-  a:hover{text-decoration:underline}
-  .wrap{display:grid;grid-template-columns:380px 1fr;gap:14px;padding:14px;max-width:1600px;margin:0 auto}
-  @media(max-width:1100px){.wrap{grid-template-columns:1fr}}
-  .panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px}
-  .h1{font-size:18px;font-weight:700;margin:0 0 8px}
-  .h2{font-size:14px;font-weight:700;color:var(--ink2);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.04em}
-  .muted{color:var(--muted)}
-  .row{display:flex;gap:8px;align-items:center}
-  .pill{display:inline-block;background:var(--chip);color:var(--ink);padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
-  .pill.brand{background:var(--brand);color:#fff}
-  .pill.ok{background:#dcfce7;color:#166534}
-  .pill.warn{background:#fef3c7;color:#92400e}
-  .pill.bad{background:#fee2e2;color:#991b1b}
-  .tk{font-weight:700;cursor:pointer;color:var(--brand)}
-  .tk:hover{text-decoration:underline}
-  .card{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:#fff}
-  .card .hd{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
-  .card .body{color:var(--ink);font-size:13px}
-  .card .meta{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
-  .kv{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:12px;margin:6px 0}
-  .kv b{color:var(--ink2);font-weight:600}
-  .slot{border-top:1px dashed var(--line);margin-top:8px;padding-top:8px}
-  .btnrow{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-  button,.btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:6px 12px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer}
-  button.primary,.btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
-  button.primary:hover{background:var(--brand2)}
-  button.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
-  button.warn{background:#fff;color:var(--warn);border-color:var(--warn)}
-  button.bad{background:#fff;color:var(--bad);border-color:var(--bad)}
-  button:hover{filter:brightness(.98)}
-  .note{width:100%;min-height:54px;padding:8px;border:1px solid var(--line);border-radius:6px;font:inherit;resize:vertical;margin-top:6px}
-  .chatwrap{display:flex;flex-direction:column;height:calc(100vh - 120px);min-height:520px}
-  .msgs{flex:1;overflow-y:auto;padding:6px 2px 12px}
-  .msg{margin:8px 0;max-width:90%}
-  .msg.user{margin-left:auto;background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:8px 10px}
-  .msg.assistant{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
-  .composer{display:flex;gap:6px;border-top:1px solid var(--line);padding-top:8px}
-  .composer textarea{flex:1;min-height:54px;padding:8px;border:1px solid var(--line);border-radius:6px;font:inherit;resize:vertical}
-  table.tbl{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0}
-  table.tbl th,table.tbl td{border-bottom:1px solid var(--line);padding:5px 6px;text-align:right}
-  table.tbl th:first-child,table.tbl td:first-child{text-align:left}
-  table.tbl th{color:var(--ink2);font-weight:600;background:#f8fafc}
-  .ok-txt{color:var(--ok);font-weight:600}
-  .bad-txt{color:var(--bad);font-weight:600}
-  .ticker-link{font-weight:700;color:var(--brand);cursor:pointer}
-  .ticker-link:hover{text-decoration:underline}
-  .empty{color:var(--muted);padding:24px;text-align:center;border:1px dashed var(--line);border-radius:8px}
-  .modal{position:fixed;inset:0;background:rgba(15,23,42,.4);display:none;align-items:center;justify-content:center;z-index:50}
-  .modal.show{display:flex}
-  .modal .inner{background:#fff;border-radius:12px;max-width:720px;width:92%;max-height:80vh;overflow:auto;padding:18px}
+  :root { --b:#e5e7eb; --bg:#fafafa; --txt:#111827; --mut:#6b7280; --accent:#2563eb; --green:#059669; --red:#dc2626; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.5 -apple-system,Segoe UI,Roboto,sans-serif; color:var(--txt); background:#fff; }
+  nav { display:flex; gap:8px; padding:10px 20px; border-bottom:1px solid var(--b); background:var(--bg); align-items:center; position:sticky; top:0; z-index:50; }
+  nav strong { margin-right:12px; }
+  nav a { padding:6px 12px; border-radius:6px; text-decoration:none; color:#111; background:#fff; border:1px solid var(--b); font-size:13px; }
+  nav a.active { background:#111; color:#fff; border-color:#111; }
+  main { padding:20px 24px; max-width:1600px; margin:0 auto; }
+  h1 { margin:0 0 4px; font-size:22px; }
+  .sub { color:var(--mut); margin-bottom:16px; font-size:13px; }
+  /* Investor cards row */
+  .investor-row { display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; margin-bottom:20px; }
+  .investor-card { flex:0 0 220px; border:1px solid var(--b); border-radius:10px; padding:12px 14px; background:#fff; cursor:pointer; transition: border-color .15s; }
+  .investor-card:hover { border-color:#111; }
+  .investor-card .name { font-weight:600; font-size:13px; line-height:1.3; margin-bottom:6px; min-height:34px; }
+  .investor-card .meta { color:var(--mut); font-size:11px; display:flex; justify-content:space-between; }
+  .investor-card .aum { color:var(--accent); font-weight:600; font-size:12px; margin-top:4px; }
+  /* Two-column main */
+  .grid { display:grid; grid-template-columns: 380px 1fr; gap:20px; }
+  .panel { border:1px solid var(--b); border-radius:10px; background:#fff; }
+  .panel-h { padding:12px 14px; border-bottom:1px solid var(--b); display:flex; justify-content:space-between; align-items:center; }
+  .panel-h h2 { margin:0; font-size:14px; font-weight:600; }
+  .panel-h button { padding:5px 10px; border:1px solid var(--b); background:#fff; border-radius:6px; cursor:pointer; font-size:12px; }
+  .panel-h button:hover { background:#f3f4f6; }
+  .panel-body { padding:12px 14px; max-height:75vh; overflow-y:auto; }
+  /* Rec card */
+  .rec { border:1px solid var(--b); border-radius:8px; padding:12px; margin-bottom:10px; }
+  .rec-h { display:flex; justify-content:space-between; align-items:start; margin-bottom:6px; }
+  .rec-ticker { font-weight:700; font-size:15px; color:var(--accent); }
+  .rec-type { font-size:11px; color:var(--mut); text-transform:uppercase; }
+  .rec-score { font-size:11px; background:#eef2ff; color:#3730a3; padding:2px 6px; border-radius:4px; }
+  .rec-reasoning { color:#374151; font-size:12px; margin:6px 0; line-height:1.4; }
+  .rec-meta { display:flex; gap:12px; font-size:11px; color:var(--mut); flex-wrap:wrap; }
+  .rec-actions { margin-top:8px; display:flex; gap:6px; }
+  .rec-actions button { padding:5px 10px; border:1px solid var(--b); background:#fff; border-radius:5px; cursor:pointer; font-size:11px; }
+  .rec-actions button.accept { background:#059669; color:#fff; border-color:#059669; }
+  .rec-actions button.dismiss { background:#fff; color:#dc2626; border-color:#dc2626; }
+  /* Chat */
+  .chat-log { padding:12px 14px; max-height:60vh; overflow-y:auto; min-height:200px; }
+  .chat-msg { margin-bottom:12px; padding:10px 12px; border-radius:8px; font-size:13px; line-height:1.5; }
+  .chat-msg.user { background:#eef2ff; }
+  .chat-msg.assistant { background:#f9fafb; }
+  .chat-input { display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(--b); }
+  .chat-input textarea { flex:1; padding:8px 10px; border:1px solid var(--b); border-radius:6px; font:inherit; resize:none; min-height:36px; max-height:120px; }
+  .chat-input button { padding:8px 16px; background:var(--accent); color:#fff; border:0; border-radius:6px; cursor:pointer; font-weight:600; }
+  /* Modal */
+  .modal { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:100; }
+  .modal.open { display:flex; }
+  .modal-card { background:#fff; border-radius:12px; max-width:900px; width:90%; max-height:85vh; overflow:hidden; display:flex; flex-direction:column; }
+  .modal-h { padding:16px 20px; border-bottom:1px solid var(--b); display:flex; justify-content:space-between; align-items:center; }
+  .modal-h h3 { margin:0; font-size:16px; }
+  .modal-h button { background:none; border:0; font-size:24px; cursor:pointer; color:var(--mut); padding:0; line-height:1; }
+  .modal-body { padding:16px 20px; overflow-y:auto; }
+  .holdings-grid { display:grid; grid-template-columns: 60px 1fr 100px 100px 100px 80px; gap:8px 16px; align-items:center; font-size:12px; }
+  .holdings-grid > div { padding:6px 0; border-bottom:1px solid #f3f4f6; }
+  .holdings-grid .hdr { font-weight:600; color:var(--mut); text-transform:uppercase; font-size:10px; background:#f9fafb; }
+  .holdings-grid .num { text-align:right; }
+  .pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600; }
+  .pill.up { background:#d1fae5; color:#065f46; }
+  .pill.down { background:#fee2e2; color:#991b1b; }
+  .pill.same { background:#f3f4f6; color:#6b7280; }
+  .pill.new { background:#dbeafe; color:#1e40af; }
+  .empty { text-align:center; color:var(--mut); padding:30px; font-size:13px; }
+  .err { color:var(--red); padding:10px; background:#fef2f2; border-radius:6px; }
 </style>
 </head>
 <body>
-  <nav style="display:flex;gap:8px;padding:10px 16px;border-bottom:1px solid #e5e7eb;background:#fafafa;font:14px/1.4 -apple-system,Segoe UI,Roboto,sans-serif;align-items:center;position:sticky;top:0;z-index:50">
-  <strong style="margin-right:12px">Ridge Run</strong>
-  <a href="/strategy.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Strategy</a>
-  <a href="/research.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Research</a>
-  <a href="/screener.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Screener</a>
-  <a href="/model.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Model</a>
-  <a href="/portfolio.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Portfolio</a>
-  <a href="/watchlist.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Watchlist</a>
-  <a href="/dna.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">DNA</a>
+
+<nav>
+  <strong>Ridge Run</strong>
+  <a href="/strategy.html" class="active">Strategy</a>
+  <a href="/research.html">Research</a>
+  <a href="/screener.html">Screener</a>
+  <a href="/model.html">Model</a>
+  <a href="/portfolio.html">Portfolio</a>
+  <a href="/watchlist.html">Watchlist</a>
+  <a href="/dna.html">DNA</a>
 </nav>
-<div id="nav"></div>
-<script src="/nav.js"></script>
 
-<div class="wrap">
-  <!-- LEFT: Today's recs feed -->
-  <section class="panel">
-    <div class="row" style="justify-content:space-between">
-      <h2 class="h1">Today's Scout</h2>
-      <button id="refreshRecs" class="btn">Refresh</button>
+<main>
+  <h1>Strategy</h1>
+  <div class="sub">Today's scout + 13F overlay. Click an investor to inspect holdings. Chat for deep-dives and custom analysis.</div>
+
+  <!-- 13F INVESTOR CARDS -->
+  <div class="investor-row" id="investorRow">
+    <div class="empty" style="flex:1">Loading investors…</div>
+  </div>
+
+  <!-- TWO-COL: SCOUT + CHAT -->
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-h">
+        <h2>Today's Scout <span id="recsCount" style="color:var(--mut); font-weight:400; font-size:12px"></span></h2>
+        <button id="refreshScout">⟳ Refresh</button>
+      </div>
+      <div class="panel-body" id="recsBody">
+        <div class="empty">Loading recommendations…</div>
+      </div>
     </div>
-    <div class="muted" id="recsMeta" style="margin-bottom:8px"></div>
-    <div id="recsList"><div class="empty">Loading…</div></div>
-  </section>
 
-  <!-- RIGHT: Chat -->
-  <section class="panel chatwrap">
-    <h2 class="h1">Chat with Ridge Run AI</h2>
-    <div class="muted" style="margin-bottom:6px">Scans 150 candidates incl. watchlist + positions. Mention a ticker for a deep dive (chains, spreads, comps).</div>
-    <div id="msgs" class="msgs"></div>
-    <div class="composer">
-      <textarea id="composerInput" placeholder='e.g. "Give me the best 3 short-theta ideas in semis right now" or "Deep dive PYPL"'></textarea>
-      <button id="sendBtn" class="primary">Send</button>
+    <div class="panel">
+      <div class="panel-h">
+        <h2>Chat with Ridge Run AI</h2>
+        <span style="font-size:11px; color:var(--mut)">150 candidates + chains + spreads in context</span>
+      </div>
+      <div class="chat-log" id="chatLog">
+        <div class="chat-msg assistant">Hi Andrew. I have your DNA, $2K portfolio, watchlist, top 150 universe with vol & fundamentals, latest 13F moves, and real Tastytrade chain quotes. Ask anything: "best 3 short-theta ideas in semis," "deep dive PYPL," "is the VEON LEAP cheap vs realized?", or hit refresh on the Scout panel.</div>
+      </div>
+      <div class="chat-input">
+        <textarea id="chatBox" placeholder="Ask Ridge Run…"></textarea>
+        <button id="chatSend">Send</button>
+      </div>
     </div>
-  </section>
-</div>
+  </div>
+</main>
 
-<div id="modal" class="modal" onclick="if(event.target===this)hideModal()">
-  <div class="inner" id="modalInner"></div>
+<!-- HOLDINGS MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="modal-h">
+      <h3 id="modalTitle">—</h3>
+      <button onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
 </div>
 
 <script>
-(function(){
-  if(!window.RR_CONFIG){alert("Missing RR_CONFIG (load /config.js first)");return;}
-  const sb = window.supabase = supabase.createClient(window.RR_CONFIG.SUPABASE_URL, window.RR_CONFIG.SUPABASE_ANON_KEY);
-  const USER_ID = window.RR_CONFIG.USER_ID || 'e048e890-8554-429e-883e-d9c5d03a3510';
+const C = window.RR_CONFIG || {};
+const URL_ = C.SUPABASE_URL;
+const KEY = C.SUPABASE_PUBLISHABLE_KEY || C.SUPABASE_ANON_KEY;
+const USER = C.USER_ID;
+const H = { apikey: KEY, Authorization: 'Bearer '+KEY, 'Content-Type':'application/json' };
 
-  const fnURL = (slug) => `${window.RR_CONFIG.SUPABASE_URL}/functions/v1/${slug}`;
-  async function authHeader(){
-    const {data:{session}} = await sb.auth.getSession();
-    const t = session?.access_token || window.RR_CONFIG.SUPABASE_ANON_KEY;
-    return {Authorization:`Bearer ${t}`,'Content-Type':'application/json'};
-  }
+const fmtUSD = (v) => {
+  if (v == null || isNaN(v)) return '—';
+  v = Number(v);
+  if (v >= 1e9) return '$'+(v/1e9).toFixed(2)+'B';
+  if (v >= 1e6) return '$'+(v/1e6).toFixed(1)+'M';
+  if (v >= 1e3) return '$'+(v/1e3).toFixed(0)+'K';
+  return '$'+v.toFixed(0);
+};
+const fmtPct = (v, dec=1) => v == null ? '—' : (v*100).toFixed(dec)+'%';
 
-  // ---------- Helpers ----------
-  const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
-  function fmtPct(x,d=1){return (x==null||isNaN(x))?'—':((x>=0?'+':'')+(x*100).toFixed(d)+'%')}
-  function fmtNum(x,d=2){return (x==null||isNaN(x))?'—':Number(x).toFixed(d)}
-  function fmtMcap(x){if(x==null)return'—';if(x>=1e12)return '$'+(x/1e12).toFixed(2)+'T';if(x>=1e9)return '$'+(x/1e9).toFixed(1)+'B';if(x>=1e6)return '$'+(x/1e6).toFixed(0)+'M';return '$'+x}
-  function tickerLink(t){return `<span class="ticker-link" onclick="window.location.href='/research.html?ticker=${encodeURIComponent(t)}'">${t}</span>`}
-  function pillClass(score){if(score==null)return'';if(score>=75)return 'ok';if(score>=50)return 'warn';return'bad'}
-  function esc(s){return String(s==null?'':s).replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
-  function showModal(html){$('#modalInner').innerHTML=html;$('#modal').classList.add('show')}
-  function hideModal(){$('#modal').classList.remove('show')}
-  window.hideModal=hideModal;
+// === LOAD INVESTORS ===
+let investorsCache = [];
+async function loadInvestors() {
+  try {
+    const r = await fetch(URL_+'/rest/v1/investors?user_id=eq.'+USER+'&select=*&order=total_value_usd.desc.nullslast', { headers: H });
+    if (!r.ok) throw new Error('fetch failed '+r.status);
+    investorsCache = await r.json();
+    renderInvestors();
+  } catch(e) {
+    document.getElementById('investorRow').innerHTML = '<div class="err">Failed to load investors: '+e.message+'</div>';
+  }
+}
+function renderInvestors() {
+  const row = document.getElementById('investorRow');
+  if (!investorsCache.length) { row.innerHTML = '<div class="empty" style="flex:1">No investors loaded. Run WF35 to seed 13F data.</div>'; return; }
+  row.innerHTML = investorsCache.map((inv, i) => {
+    const period = inv.latest_period || '—';
+    const n = Array.isArray(inv.current_holdings) ? inv.current_holdings.length : 0;
+    const aum = inv.total_value_usd ? fmtUSD(inv.total_value_usd) : '—';
+    return `<div class="investor-card" onclick="openInvestor(${i})">
+      <div class="name">${inv.investor_name}</div>
+      <div class="meta"><span>${period}</span><span>${n} pos</span></div>
+      <div class="aum">${aum}</div>
+    </div>`;
+  }).join('');
+}
 
-  // ---------- Slot/component renderer ----------
-  function renderSlot(slot){
-    if(!slot||!slot.component) return '';
-    const t = slot.title?`<div class="h2" style="margin-top:2px">${esc(slot.title)}</div>`:'';
-    const d = slot.data||{};
-    try{
-      switch(slot.component){
-        case 'thesis_card': return t+renderThesisCard(d);
-        case 'payoff_diagram': return t+renderPayoff(d);
-        case 'iv_term_chart': return t+renderIvTerm(d);
-        case 'fundamentals_5fy': return t+renderFiveYr(d);
-        case 'peer_comparison': return t+renderPeers(d);
-        case 'position_sizing': return t+renderSizing(d);
-        case 'catalyst_timeline': return t+renderCatalysts(d);
-        case 'growth_x_multiple': return t+renderGrowthMultiple(d);
-        case 'short_thesis_card': return t+renderShortThesis(d);
-        case 'ranked_list': return t+renderRanked(d);
-        case 'kpi_grid': return t+renderKpi(d);
-        case 'bar_chart': case 'line_chart': return t+renderChart(slot.component,d);
-        case 'table_simple': return t+renderTableSimple(d);
-        case 'markdown_text': return t+`<div class="body">${esc(d.text||'')}</div>`;
-        case 'pair_correlation': return t+renderPair(d);
-        case 'credit_recovery': return t+renderCredit(d);
-        case 'deal_arb': return t+renderDealArb(d);
-        case 'core_holding_card': return t+renderCoreHolding(d);
-        default: return t+`<pre style="white-space:pre-wrap;font-size:11px;color:var(--ink2)">${esc(JSON.stringify(d,null,2))}</pre>`;
-      }
-    }catch(e){console.warn('slot render',e); return t+`<div class="muted">render error</div>`}
-  }
-  function renderThesisCard(d){
-    const tk = d.ticker?tickerLink(d.ticker):'';
-    return `<div class="kv">
-      ${tk?`<b>Ticker</b><div>${tk}</div>`:''}
-      ${d.opportunity_type?`<b>Type</b><div>${esc(d.opportunity_type)}${d.direction?' / '+esc(d.direction):''}</div>`:''}
-      ${d.structure?`<b>Structure</b><div>${esc(d.structure)}</div>`:''}
-      ${d.strike!=null?`<b>Strike</b><div>${esc(d.strike)}</div>`:''}
-      ${d.expiry?`<b>Expiry</b><div>${esc(d.expiry)}</div>`:''}
-      ${d.conviction!=null?`<b>Conviction</b><div>${esc(d.conviction)}/5</div>`:''}
-      ${d.expected_return_pct!=null?`<b>Exp return</b><div>${fmtPct(d.expected_return_pct)}</div>`:''}
-      ${d.expected_horizon_days!=null?`<b>Horizon</b><div>${esc(d.expected_horizon_days)}d</div>`:''}
-      ${d.max_loss!=null?`<b>Max loss</b><div>$${esc(d.max_loss)}</div>`:''}
-    </div>
-    ${d.thesis?`<div class="body" style="margin:6px 0">${esc(d.thesis)}</div>`:''}
-    ${d.what_to_watch?`<div class="kv"><b>Watch</b><div>${esc(d.what_to_watch)}</div></div>`:''}
-    ${d.exit_criteria?`<div class="kv"><b>Exit</b><div>${esc(d.exit_criteria)}</div></div>`:''}`;
-  }
-  function renderPayoff(d){
-    return `<div class="kv">
-      <b>Ticker</b><div>${d.ticker?tickerLink(d.ticker):'—'}</div>
-      <b>Structure</b><div>${esc(d.structure||'—')}</div>
-      <b>Spot</b><div>${fmtNum(d.spot)}</div>
-      <b>Strike</b><div>${fmtNum(d.strike)}</div>
-      <b>Premium</b><div>${fmtNum(d.premium)}</div>
-      <b>Breakeven</b><div>${fmtNum(d.breakeven)}</div>
-      <b>Max loss</b><div>${fmtNum(d.max_loss)}</div>
-      <b>Max gain</b><div>${d.max_gain==null?'—':fmtNum(d.max_gain)}</div>
-    </div>`;
-  }
-  function renderIvTerm(d){
-    const pts=Array.isArray(d.points)?d.points:[];
-    return `<table class="tbl"><thead><tr><th>DTE</th><th>IV</th></tr></thead><tbody>${pts.map(p=>`<tr><td>${esc(p.dte)}</td><td>${fmtPct(p.iv)}</td></tr>`).join('')}</tbody></table>
-    ${d.iv_rank!=null?`<div class="muted">IV rank: ${fmtNum(d.iv_rank,0)}${d.regime?' · '+esc(d.regime):''}</div>`:''}`;
-  }
-  function renderFiveYr(d){
-    const y=Array.isArray(d.years)?d.years:[];
-    return `<table class="tbl"><thead><tr><th>Year</th><th>Rev</th><th>EBITDA</th><th>FCF</th><th>EPS</th></tr></thead><tbody>${y.map(r=>`<tr><td>${esc(r.year)}</td><td>${fmtMcap(r.revenue)}</td><td>${fmtMcap(r.ebitda)}</td><td>${fmtMcap(r.fcf)}</td><td>${fmtNum(r.eps)}</td></tr>`).join('')}</tbody></table>`;
-  }
-  function renderPeers(d){
-    const t=Array.isArray(d.tickers)?d.tickers:[];
-    return `<table class="tbl"><thead><tr><th>Ticker</th><th>PE</th><th>EV/EBITDA</th><th>FCF Yld</th><th>Rev g</th><th>1y</th></tr></thead><tbody>${t.map(r=>`<tr><td>${tickerLink(r.ticker)}</td><td>${fmtNum(r.pe,1)}</td><td>${fmtNum(r.ev_ebitda,1)}</td><td>${fmtPct(r.fcf_yield)}</td><td>${fmtPct(r.rev_growth)}</td><td>${fmtPct(r.return_1y)}</td></tr>`).join('')}</tbody></table>`;
-  }
-  function renderSizing(d){
-    return `<div class="kv">
-      <b>Ticker</b><div>${d.ticker?tickerLink(d.ticker):'—'}</div>
-      <b>Structure</b><div>${esc(d.structure||'—')}</div>
-      <b>Contracts</b><div>${esc(d.recommended_contracts??'—')}</div>
-      <b>Sizing $</b><div>${d.sizing_dollars==null?'—':'$'+fmtNum(d.sizing_dollars,0)}</div>
-      <b>Max loss</b><div>${d.max_loss==null?'—':'$'+fmtNum(d.max_loss,0)}</div>
-      <b>% of NAV</b><div>${fmtPct(d.pct_of_nav)}</div>
-      <b>Breakeven</b><div>${fmtNum(d.breakeven_at_expiry)}</div>
-      <b>DTE</b><div>${esc(d.days_to_expiry??'—')}</div>
-    </div>`;
-  }
-  function renderCatalysts(d){
-    const c=Array.isArray(d.catalysts)?d.catalysts:[];
-    return `<table class="tbl"><thead><tr><th>Date</th><th>Type</th><th>Label</th><th>Impact</th></tr></thead><tbody>${c.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.label||'')}</td><td>${esc(x.impact||'')}</td></tr>`).join('')}</tbody></table>`;
-  }
-  function renderGrowthMultiple(d){
-    const s=Array.isArray(d.scenarios)?d.scenarios:[];
-    return `<div class="kv"><b>Base price</b><div>${fmtNum(d.base_price)}</div></div>
-    <table class="tbl"><thead><tr><th>Scenario</th><th>Mult</th><th>Growth</th><th>Implied $</th><th>Return</th></tr></thead><tbody>${s.map(r=>`<tr><td>${esc(r.label)}</td><td>${fmtNum(r.multiple,1)}x</td><td>${fmtPct(r.growth_pct)}</td><td>${fmtNum(r.implied_price)}</td><td>${fmtPct(r.return_pct)}</td></tr>`).join('')}</tbody></table>`;
-  }
-  function renderShortThesis(d){
-    return `<div class="kv">
-      <b>Ticker</b><div>${d.ticker?tickerLink(d.ticker):'—'}</div>
-      <b>Short interest</b><div>${fmtPct(d.short_interest_pct)}</div>
-      <b>Days to cover</b><div>${fmtNum(d.days_to_cover,1)}</div>
-      <b>Borrow cost</b><div>${fmtPct(d.borrow_cost_pct)}</div>
-      <b>Catalyst</b><div>${esc(d.downside_catalyst||'')}</div>
-      <b>Hedge strike</b><div>${esc(d.upside_protection_strike||'')}</div>
-    </div>`;
-  }
-  function renderRanked(d){
-    const items=Array.isArray(d.items)?d.items:[];
-    return `<table class="tbl"><thead><tr><th>Ticker</th><th>Score</th><th>Reason</th></tr></thead><tbody>${items.map(r=>`<tr><td>${tickerLink(r.ticker)}</td><td>${fmtNum(r.score,0)}</td><td style="text-align:left">${esc(r.reason||'')}</td></tr>`).join('')}</tbody></table>`;
-  }
-  function renderKpi(d){
-    const t=Array.isArray(d.tiles)?d.tiles:[];
-    return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px">${t.map(k=>`<div style="border:1px solid var(--line);border-radius:8px;padding:6px 8px"><div class="muted" style="font-size:11px">${esc(k.label||'')}</div><div style="font-weight:700">${esc(k.value||'')}</div>${k.delta?`<div style="font-size:11px">${esc(k.delta)}</div>`:''}</div>`).join('')}</div>`;
-  }
-  function renderChart(kind,d){
-    const pts=Array.isArray(d.points||d.data)?(d.points||d.data):[];
-    return `<div class="muted" style="font-size:11px">${esc(kind)}</div>
-    <table class="tbl"><thead><tr><th>${esc(d.x_label||'X')}</th><th>${esc(d.y_label||'Y')}</th></tr></thead><tbody>${pts.map(p=>`<tr><td>${esc(p.x??p.label??'')}</td><td>${fmtNum(p.y??p.value)}</td></tr>`).join('')}</tbody></table>`;
-  }
-  function renderTableSimple(d){
-    const cols=Array.isArray(d.columns)?d.columns:[]; const rows=Array.isArray(d.rows)?d.rows:[];
-    return `<table class="tbl"><thead><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${(Array.isArray(r)?r:cols.map(c=>r[c])).map(v=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-  }
-  function renderPair(d){
-    return `<div class="kv">
-      <b>Long</b><div>${d.long_ticker?tickerLink(d.long_ticker):'—'}</div>
-      <b>Short</b><div>${d.short_ticker?tickerLink(d.short_ticker):'—'}</div>
-      <b>Correlation</b><div>${fmtNum(d.correlation,2)}</div>
-      <b>Beta</b><div>${fmtNum(d.beta,2)}</div>
-      <b>Current spread</b><div>${fmtNum(d.current_spread)}</div>
-      <b>Mean</b><div>${fmtNum(d.mean_spread)}</div>
-      <b>σ</b><div>${fmtNum(d.sigma)}</div>
-    </div>`;
-  }
-  function renderCredit(d){return `<pre style="white-space:pre-wrap;font-size:11px">${esc(JSON.stringify(d,null,2))}</pre>`}
-  function renderDealArb(d){return `<pre style="white-space:pre-wrap;font-size:11px">${esc(JSON.stringify(d,null,2))}</pre>`}
-  function renderCoreHolding(d){return renderThesisCard(d)}
-
-  // ---------- Today's Recs ----------
-  async function loadRecs(){
-    $('#recsList').innerHTML='<div class="empty">Loading…</div>';
-    try{
-      const {data,error} = await sb.rpc('get_todays_recs',{p_user:USER_ID});
-      if(error) throw error;
-      const recs = Array.isArray(data)?data:[];
-      $('#recsMeta').textContent = `${recs.length} ideas pending · ${new Date().toLocaleString()}`;
-      if(!recs.length){$('#recsList').innerHTML='<div class="empty">No new ideas. Trigger overnight scout or chat below.</div>';return}
-      $('#recsList').innerHTML = recs.map(renderRecCard).join('');
-      $$('.rec-action').forEach(b=>b.addEventListener('click',onRecAction));
-    }catch(e){
-      console.error(e);
-      $('#recsList').innerHTML='<div class="empty">Failed to load recs.</div>';
+function openInvestor(idx) {
+  const inv = investorsCache[idx];
+  document.getElementById('modalTitle').textContent = inv.investor_name + ' — ' + (inv.latest_period || '');
+  const holdings = Array.isArray(inv.current_holdings) ? inv.current_holdings : [];
+  const changes = inv.holdings_changes || {};
+  // Sort by size desc
+  holdings.sort((a,b)=>(b.size_usd||0)-(a.size_usd||0));
+  let html = `<div style="margin-bottom:12px; font-size:13px; color:var(--mut)">
+    Total: <strong style="color:#111">${fmtUSD(inv.total_value_usd)}</strong> · 
+    ${holdings.length} positions · 
+    Filed: ${inv.latest_filing_date || '—'}
+  </div>`;
+  html += `<div class="holdings-grid">
+    <div class="hdr">#</div>
+    <div class="hdr">Issuer</div>
+    <div class="hdr num">Ticker</div>
+    <div class="hdr num">% Port</div>
+    <div class="hdr num">Size</div>
+    <div class="hdr num">Change</div>`;
+  holdings.slice(0,50).forEach((h, i) => {
+    const ch = (changes && changes[h.cusip]) || null;
+    let pill = '<span class="pill same">UNCHG</span>';
+    if (ch) {
+      if (ch.action === 'NEW') pill = '<span class="pill new">NEW</span>';
+      else if (ch.action === 'EXIT') pill = '<span class="pill down">EXIT</span>';
+      else if (ch.action === 'ADD') pill = '<span class="pill up">+'+ (ch.pct_change ? (ch.pct_change*100).toFixed(0)+'%' : 'ADD')+'</span>';
+      else if (ch.action === 'TRIM') pill = '<span class="pill down">-'+ (ch.pct_change ? Math.abs(ch.pct_change*100).toFixed(0)+'%' : 'TRIM')+'</span>';
     }
-  }
-  function renderRecCard(r){
-    const slots = Array.isArray(r.slots)?r.slots:[];
-    const slotsHtml = slots.map(s=>`<div class="slot">${renderSlot(s)}</div>`).join('');
-    const id = r.id;
-    return `<div class="card" data-rec-id="${id}">
-      <div class="hd">
-        <div>${tickerLink(r.ticker)} <span class="pill brand">${esc(r.opportunity_type||'—')}</span>${r.direction?' <span class="pill">'+esc(r.direction)+'</span>':''}</div>
-        <div><span class="pill ${pillClass(r.composite_score)}">${r.composite_score!=null?Math.round(r.composite_score):'—'}</span></div>
-      </div>
-      <div class="body">${esc(r.reasoning||'')}</div>
-      <div class="kv">
-        ${r.structure?`<b>Structure</b><div>${esc(r.structure)}</div>`:''}
-        ${r.what_to_watch?`<b>Watch</b><div>${esc(r.what_to_watch)}</div>`:''}
-        ${r.exit_criteria?`<b>Exit</b><div>${esc(r.exit_criteria)}</div>`:''}
-        ${r.expected_return_pct!=null?`<b>Exp return</b><div>${fmtPct(r.expected_return_pct)}</div>`:''}
-        ${r.expected_horizon_days!=null?`<b>Horizon</b><div>${esc(r.expected_horizon_days)}d</div>`:''}
-        ${r.sizing_dollars!=null?`<b>Sizing $</b><div>$${fmtNum(r.sizing_dollars,0)}</div>`:''}
-        ${r.max_loss!=null?`<b>Max loss</b><div>$${fmtNum(r.max_loss,0)}</div>`:''}
-      </div>
-      ${slotsHtml}
-      <textarea class="note" data-rec-id="${id}" placeholder="Why accept / dismiss? (saves to your DNA + ticker notes)"></textarea>
-      <div class="btnrow">
-        <button class="rec-action ok" data-action="accept" data-rec-id="${id}">Accept</button>
-        <button class="rec-action warn" data-action="later" data-rec-id="${id}">Later</button>
-        <button class="rec-action bad" data-action="dismiss" data-rec-id="${id}">Dismiss</button>
-      </div>
-    </div>`;
-  }
-  async function onRecAction(ev){
-    const btn = ev.currentTarget; const id = btn.dataset.recId; const action = btn.dataset.action;
-    const card = btn.closest('.card'); const note = card.querySelector('.note').value.trim();
-    btn.disabled=true; btn.textContent='…';
-    const r = recCache[id]||{};
-    const body = {user_id:USER_ID, action, rec:{
-      ai_recommendation_id:id, ticker:r.ticker, opportunity_type:r.opportunity_type, direction:r.direction,
-      structure:r.structure, composite_score:r.composite_score, thesis:r.reasoning,
-      what_to_watch:r.what_to_watch, exit_criteria:r.exit_criteria,
-      expected_horizon_days:r.expected_horizon_days, expected_return_pct:r.expected_return_pct,
-      max_loss:r.max_loss, user_reason: note || null,
-      strike:r.strike, expiry:r.expiry, conviction:r.conviction
-    }};
-    try{
-      const headers = await authHeader();
-      const res = await fetch(fnURL('strategy-save-rec'),{method:'POST',headers,body:JSON.stringify(body)});
-      if(!res.ok) throw new Error(await res.text());
-      card.style.opacity=.5; card.style.pointerEvents='none';
-      setTimeout(loadRecs,400);
-    }catch(e){console.error(e); alert('Save failed: '+e.message); btn.disabled=false; btn.textContent=action}
-  }
-  const recCache = {};
-  const origRender = renderRecCard;
-  renderRecCard = function(r){recCache[r.id]=r; return origRender(r)};
+    html += `<div>${i+1}</div>
+      <div>${h.name||'—'}</div>
+      <div class="num">${h.ticker || ''}</div>
+      <div class="num">${fmtPct(h.pct,1)}</div>
+      <div class="num">${fmtUSD(h.size_usd)}</div>
+      <div class="num">${pill}</div>`;
+  });
+  html += '</div>';
+  if (holdings.length > 50) html += `<div style="margin-top:10px; color:var(--mut); font-size:12px">… ${holdings.length - 50} more positions</div>`;
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
 
-  // ---------- Chat ----------
-  async function loadChatHistory(){
-    try{
-      const {data,error} = await sb.from('strategy_chat_log').select('role,content,slots,created_at').eq('user_id',USER_ID).order('created_at',{ascending:false}).limit(20);
-      if(error) throw error;
-      const msgs = (data||[]).slice().reverse();
-      const box = $('#msgs'); box.innerHTML='';
-      for(const m of msgs) appendMsg(m.role, m.content, m.slots);
-      box.scrollTop = box.scrollHeight;
-    }catch(e){console.warn('chat history',e)}
+// === LOAD RECS ===
+async function loadRecs() {
+  document.getElementById('recsBody').innerHTML = '<div class="empty">Loading…</div>';
+  try {
+    const r = await fetch(URL_+'/rest/v1/rpc/get_todays_recs', { method:'POST', headers:H, body: JSON.stringify({ p_user: USER }) });
+    const recs = await r.json();
+    document.getElementById('recsCount').textContent = recs.length ? '· '+recs.length+' ideas' : '';
+    if (!recs.length) {
+      document.getElementById('recsBody').innerHTML = '<div class="empty">No active recommendations.<br><br>Click <strong>⟳ Refresh</strong> to run the overnight scout now.</div>';
+      return;
+    }
+    document.getElementById('recsBody').innerHTML = recs.map(rec => renderRec(rec)).join('');
+  } catch(e) {
+    document.getElementById('recsBody').innerHTML = '<div class="err">Failed: '+e.message+'</div>';
   }
-  function appendMsg(role, content, slots){
-    const div = document.createElement('div'); div.className='msg '+(role==='user'?'user':'assistant');
-    div.innerHTML = `<div>${esc(content)}</div>` + (Array.isArray(slots)?slots.map(s=>`<div class="slot">${renderSlot(s)}</div>`).join(''):'');
-    $('#msgs').appendChild(div);
-    $('#msgs').scrollTop = $('#msgs').scrollHeight;
-    return div;
-  }
-  async function sendChat(){
-    const t = $('#composerInput'); const text = t.value.trim(); if(!text) return;
-    appendMsg('user', text, null); t.value='';
-    const thinking = appendMsg('assistant','Thinking…',null);
-    try{
-      const headers = await authHeader();
-      const {data:hist} = await sb.from('strategy_chat_log').select('role,content').eq('user_id',USER_ID).order('created_at',{ascending:false}).limit(10);
-      const history = (hist||[]).slice().reverse().map(m=>({role:m.role,content:m.content}));
-      const res = await fetch(fnURL('strategy-chat'),{method:'POST',headers,body:JSON.stringify({user_id:USER_ID,message:text,history})});
-      const j = await res.json();
-      thinking.remove();
-      appendMsg('assistant', j.reply||'(no reply)', j.slots);
-    }catch(e){thinking.querySelector('div').textContent='Error: '+e.message}
-  }
+}
+function renderRec(rec) {
+  return `<div class="rec">
+    <div class="rec-h">
+      <div><span class="rec-ticker">${rec.ticker}</span> <span class="rec-type">${rec.opportunity_type || rec.structure || ''}</span></div>
+      <div class="rec-score">${Math.round(rec.composite_score||0)}</div>
+    </div>
+    <div class="rec-reasoning">${rec.reasoning || ''}</div>
+    <div class="rec-meta">
+      ${rec.expected_return_pct ? '<span>RET '+(rec.expected_return_pct*100).toFixed(0)+'%</span>' : ''}
+      ${rec.expected_horizon_days ? '<span>'+rec.expected_horizon_days+'d</span>' : ''}
+      ${rec.sizing_dollars ? '<span>Size $'+rec.sizing_dollars+'</span>' : ''}
+      ${rec.max_loss ? '<span>Max -$'+rec.max_loss+'</span>' : ''}
+    </div>
+    ${rec.what_to_watch ? '<div style="font-size:11px; color:var(--mut); margin-top:6px"><strong>Watch:</strong> '+rec.what_to_watch+'</div>' : ''}
+    ${rec.exit_criteria ? '<div style="font-size:11px; color:var(--mut)"><strong>Exit:</strong> '+rec.exit_criteria+'</div>' : ''}
+    <div class="rec-actions">
+      <button class="accept" onclick="actRec('${rec.id}','accept')">Accept</button>
+      <button onclick="actRec('${rec.id}','later')">Later</button>
+      <button class="dismiss" onclick="actRec('${rec.id}','dismiss')">Dismiss</button>
+      <button onclick="openResearch('${rec.ticker}')">Research →</button>
+    </div>
+  </div>`;
+}
+async function actRec(id, action) {
+  try {
+    await fetch(URL_+'/functions/v1/strategy-save-rec', { method:'POST', headers:H, body: JSON.stringify({ rec_id:id, action, user_id:USER }) });
+    loadRecs();
+  } catch(e) { alert('Failed: '+e.message); }
+}
+function openResearch(t) { window.location.href = '/research.html?ticker='+t; }
 
-  // ---------- Wire up ----------
-  $('#refreshRecs').addEventListener('click',loadRecs);
-  $('#sendBtn').addEventListener('click',sendChat);
-  $('#composerInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();sendChat()}});
+// === REFRESH SCOUT (fires daily-recs) ===
+document.getElementById('refreshScout').addEventListener('click', async () => {
+  const btn = document.getElementById('refreshScout');
+  btn.disabled = true; btn.textContent = 'Generating… ~90s';
+  try {
+    const r = await fetch(URL_+'/functions/v1/daily-recs', { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
+    const j = await r.json();
+    btn.textContent = j.ok ? 'Generated '+j.generated : 'Error';
+    setTimeout(() => { btn.disabled = false; btn.textContent = '⟳ Refresh'; loadRecs(); }, 1500);
+  } catch(e) { btn.disabled = false; btn.textContent = '⟳ Refresh'; alert('Failed: '+e.message); }
+});
 
-  loadRecs();
-  loadChatHistory();
-})();
+// === CHAT ===
+async function sendChat() {
+  const box = document.getElementById('chatBox');
+  const msg = box.value.trim(); if (!msg) return;
+  const log = document.getElementById('chatLog');
+  log.insertAdjacentHTML('beforeend', '<div class="chat-msg user">'+msg.replace(/</g,'&lt;')+'</div>');
+  box.value = '';
+  const wait = document.createElement('div'); wait.className='chat-msg assistant'; wait.textContent='Thinking…'; log.appendChild(wait); log.scrollTop=log.scrollHeight;
+  try {
+    const r = await fetch(URL_+'/functions/v1/strategy-chat', { method:'POST', headers:H, body: JSON.stringify({ user_id:USER, message: msg }) });
+    const j = await r.json();
+    wait.innerHTML = (j.text || j.error || 'No response').replace(/</g,'&lt;').replace(/\n/g,'<br>');
+    log.scrollTop = log.scrollHeight;
+  } catch(e) { wait.textContent = 'Error: '+e.message; }
+}
+document.getElementById('chatSend').addEventListener('click', sendChat);
+document.getElementById('chatBox').addEventListener('keydown', e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
+
+// === INIT ===
+loadInvestors();
+loadRecs();
 </script>
 </body>
 </html>
