@@ -6,9 +6,9 @@
 <title>Strategy — Ridge Run</title>
 <script src="/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/nav.js"></script>
+<script src="/nav.js"></script>
 <style>
-  :root{--bg:#fff;--ink:#0f172a;--ink2:#475569;--mut:#94a3b8;--line:#e2e8f0;--brand:#2563eb;--brand2:#1d4ed8;--ok:#16a34a;--warn:#d97706;--bad:#dc2626;--chip:#f1f5f9}
+  :root{--bg:#fff;--ink:#0f172a;--ink2:#475569;--mut:#94a3b8;--line:#e2e8f0;--brand:#2563eb;--ok:#16a34a;--warn:#d97706;--bad:#dc2626;--chip:#f1f5f9}
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif}
   a{color:var(--brand);text-decoration:none} a:hover{text-decoration:underline}
@@ -16,46 +16,49 @@
   @media(max-width:1100px){.layout{grid-template-columns:1fr}}
   .panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
   .h1{font-size:18px;font-weight:700;margin:0 0 8px}
-  .h2{font-size:13px;font-weight:700;color:var(--ink2);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.04em}
-  .muted{color:var(--mut)} .mut{color:var(--mut)}
+  .muted,.mut{color:var(--mut)}
   .row{display:flex;gap:8px;align-items:center}
-  .pill{display:inline-block;background:var(--chip);color:var(--ink);padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
-  .pill.ok{background:#dcfce7;color:#166534} .pill.bad{background:#fee2e2;color:#991b1b} .pill.warn{background:#fef3c7;color:#854d0e}
   .ok-txt{color:var(--ok);font-weight:600} .bad-txt{color:var(--bad);font-weight:600}
   .btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
   .btn:hover{filter:brightness(.97)} .btn:disabled{opacity:.5;cursor:not-allowed}
   .btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
   .btn.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+  .btn.warn{background:var(--warn);color:#fff;border-color:var(--warn)}
   .btn.bad{background:var(--bad);color:#fff;border-color:var(--bad)}
-  .wl-row{display:grid;grid-template-columns:48px 1fr auto;gap:6px;align-items:center;padding:8px 6px;border-radius:8px;cursor:pointer;border:1px solid transparent}
+  .btn.sm{padding:4px 9px;font-size:11px}
+  .wl-row{display:grid;grid-template-columns:48px 1fr auto;gap:6px;align-items:center;padding:8px 6px;border-radius:8px;cursor:pointer}
   .wl-row:hover{background:#f8fafc}
-  .wl-row b{font-size:13px}
-  .wl-spark{height:24px;width:48px}
-  .wl-perf{font-size:11px;text-align:right}
+  .wl-spark{height:24px;width:48px} .wl-perf{font-size:11px;text-align:right}
   .lookup{display:flex;gap:6px;margin-bottom:8px}
   .lookup input{flex:1;padding:6px 8px;border:1px solid var(--line);border-radius:6px;font:inherit;text-transform:uppercase}
   .empty{color:var(--mut);padding:18px;text-align:center;border:1px dashed var(--line);border-radius:8px;font-size:12px}
   .stat{display:inline-block;padding:6px 12px;border:1px solid var(--line);border-radius:6px;margin-right:6px}
   .stat .l{font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.05em}
   .stat .v{font-size:15px;font-weight:700}
-  .rec{border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:10px;background:#fff}
+  .prop-row{background:#fff;border:1px solid var(--line);border-radius:6px;padding:10px;margin-bottom:6px;display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:flex-start}
+  .prop-row.rejected{background:#fef2f2;opacity:.85}
+  .prop-row.unsel{background:#fafafa;opacity:.7}
+  .prop-row input[type=checkbox]{width:18px;height:18px;margin-top:2px;cursor:pointer}
+  .prop-body{min-width:0}
+  .prop-h{font-size:14px;font-weight:700}
+  .prop-tag{font-size:10px;padding:2px 8px;border-radius:4px;margin-left:6px;text-transform:uppercase;font-weight:600;vertical-align:middle}
+  .prop-tag.bull,.prop-tag.long{background:#dcfce7;color:#166534}
+  .prop-tag.bear,.prop-tag.bearish,.prop-tag.short{background:#fee2e2;color:#991b1b}
+  .prop-tag.neutral{background:#f1f5f9;color:#475569}
+  .prop-tag.dim{background:var(--chip);color:var(--ink2)}
+  .prop-struct{font-size:12px;color:#374151;margin-top:3px}
+  .prop-money{font-size:12px;text-align:right;white-space:nowrap}
+  .prop-actions{margin-top:8px;display:flex;gap:5px;flex-wrap:wrap;grid-column:2 / span 2}
+  .prop-status{grid-column:2 / span 2;font-size:11px;margin-top:5px;min-height:14px}
+  .rec{border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:10px}
   .rec-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
   .rec-ticker{font-size:16px;font-weight:700}
   .rec-type{font-size:11px;color:var(--ink2);background:var(--chip);padding:2px 8px;border-radius:4px;margin-left:6px;text-transform:uppercase}
-  .rec-dir{font-size:11px;padding:2px 8px;border-radius:4px;margin-left:6px;text-transform:uppercase;font-weight:600}
-  .rec-dir.long,.rec-dir.bullish{background:#dcfce7;color:#166534}
-  .rec-dir.short,.rec-dir.bearish{background:#fee2e2;color:#991b1b}
-  .rec-dir.neutral{background:#f1f5f9;color:#475569}
-  .rec-structure{font-size:13px;color:var(--ink);margin-top:3px}
   .rec-score{font-size:14px;font-weight:700;color:var(--brand);min-width:55px;text-align:right}
-  .rec-reasoning{font-size:12px;color:var(--ink2);margin-top:6px;line-height:1.5}
+  .rec-structure{font-size:13px;margin-top:3px}
+  .rec-reasoning{font-size:12px;color:var(--ink2);margin-top:6px}
   .rec-meta{font-size:11px;color:var(--mut);margin-top:6px;display:flex;gap:10px;flex-wrap:wrap}
   .rec-actions{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
-  .rec-actions button{padding:5px 10px;font-size:12px;border-radius:5px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:600}
-  .rec-actions button.execute{background:var(--brand);color:#fff;border-color:var(--brand)}
-  .rec-actions button.dismiss{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
-  .rec-actions button.later{background:#fef3c7;border-color:#fbbf24}
-  .rec-actions button:disabled{opacity:.4;cursor:not-allowed}
   .modal{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;align-items:center;justify-content:center;z-index:50}
   .modal.show{display:flex}
   .modal .inner{background:#fff;border-radius:12px;max-width:700px;width:94%;max-height:84vh;overflow:auto;padding:18px;border:1px solid var(--line)}
@@ -65,21 +68,18 @@
   .chat-msg.ai{background:#f8fafc;border:1px solid var(--line);white-space:pre-wrap}
   .chat-input{display:flex;gap:6px;margin-top:8px}
   .chat-input input{flex:1;padding:8px;border:1px solid var(--line);border-radius:6px;font:inherit}
-  .prop-row{background:#fff;border:1px solid var(--line);border-radius:6px;padding:10px;margin-bottom:6px}
-  .prop-row.rejected{background:#fef2f2}
   .input-grp{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;margin:6px 0}
   .input-grp label{font-size:12px;color:var(--ink2);font-weight:600}
   .input-grp input{padding:6px 8px;border:1px solid var(--line);border-radius:6px;font:inherit;width:120px}
   .banner{background:linear-gradient(90deg,#eef2ff,#f0f9ff);border:1px solid #c7d2fe;border-radius:10px;padding:12px 14px;margin-bottom:14px}
   .banner-h{display:flex;justify-content:space-between;align-items:center}
-  .banner-title{font-weight:700;font-size:14px}
-  .banner-body{font-size:12px;color:var(--ink2);margin-top:6px;display:none}
+  .banner-body{font-size:12px;color:var(--ink2);margin-top:6px;display:none;white-space:pre-wrap}
   .banner-body.show{display:block}
+  .batch-summary{background:#f0f9ff;padding:12px;border-radius:6px;margin-bottom:12px;border:1px solid #bae6fd;font-size:13px}
+  .batch-summary.over{background:#fef2f2;border-color:#fca5a5}
 </style>
 </head>
 <body>
-
-
 <div class="layout">
   <aside class="panel" style="margin-bottom:0">
     <div class="h1">Watchlist</div>
@@ -91,14 +91,13 @@
   </aside>
 
   <main>
-    <!-- Account header -->
-    <section class="panel" id="acctPanel">
+    <section class="panel">
       <div class="row" style="justify-content:space-between;flex-wrap:wrap">
         <div>
           <div class="h1" style="margin:0">Strategy</div>
           <div class="muted" style="font-size:12px">Account <span id="acctNum">—</span></div>
         </div>
-        <div id="acctStats" class="row" style="flex-wrap:wrap">
+        <div class="row" style="flex-wrap:wrap">
           <span class="stat"><span class="l">NAV</span><div class="v" id="acctNav">—</div></span>
           <span class="stat"><span class="l">Used BPR</span><div class="v" id="acctBpr">—</div></span>
           <span class="stat"><span class="l">Positions</span><div class="v" id="acctPos">—</div></span>
@@ -107,23 +106,21 @@
       </div>
     </section>
 
-    <!-- Active journal banner -->
     <div id="journalBanner"></div>
 
-    <!-- Phase 1: Propose/Preview/Submit -->
     <section class="panel">
-      <div class="row" style="justify-content:space-between;align-items:center">
+      <div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
         <div class="h1" style="margin:0">Today's batch proposals</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button id="proposeBtn" class="btn primary">1. Propose</button>
-          <button id="previewBtn" class="btn" disabled>2. Preview All</button>
-          <button id="submitBtn" class="btn ok" disabled>3. Submit All</button>
+          <button id="proposeBtn" class="btn primary">1. Refresh proposals</button>
+          <button id="previewBtn" class="btn" disabled>2. Preview Selected</button>
+          <button id="submitBtn" class="btn ok" disabled>3. Submit Selected</button>
         </div>
       </div>
-      <div id="proposalContainer" style="margin-top:10px"><div class="empty">Click "1. Propose" to load policy-filtered candidates.</div></div>
+      <div id="batchSummary" style="margin-top:10px"></div>
+      <div id="proposalContainer"><div class="empty">Click "1. Refresh proposals" to load policy-filtered candidates.</div></div>
     </section>
 
-    <!-- AI Scout chat -->
     <section class="panel">
       <div class="row" style="justify-content:space-between;align-items:center">
         <div class="h1" style="margin:0">AI Scout</div>
@@ -136,7 +133,6 @@
       </div>
     </section>
 
-    <!-- Individual recommendations -->
     <section class="panel">
       <div class="h1">Open recommendations</div>
       <div id="recList"><div class="empty">Loading…</div></div>
@@ -156,20 +152,20 @@
   const USER = window.RR_CONFIG.USER_ID || 'e048e890-8554-429e-883e-d9c5d03a3510';
   const ACCOUNT = '5WI80114';
   const sb = supabase.createClient(URL_, KEY);
-if(window.RidgeRunNav) window.RidgeRunNav.mount({ active:'strategy', supabase: sb });
+  if(window.RidgeRunNav) window.RidgeRunNav.mount({ active:'strategy', supabase: sb });
+
   function H(prefer){ const h={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'}; if(prefer) h.Prefer=prefer; return h; }
   function $(s,r=document){ return r.querySelector(s); }
   function $$(s,r=document){ return Array.from(r.querySelectorAll(s)); }
-  function esc(s){ return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   function fmt(x,d=2){ return (x==null||isNaN(x))?'—':Number(x).toFixed(d); }
   function fmtPct(x,d=1){ return (x==null||isNaN(x))?'—':((x>=0?'+':'')+(x*100).toFixed(d)+'%'); }
-  function fmtMoney(x){ if(x==null||isNaN(x))return'—'; const n=Number(x); if(Math.abs(n)>=1e6) return '$'+(n/1e6).toFixed(1)+'M'; if(Math.abs(n)>=1e3) return '$'+(n/1e3).toFixed(1)+'K'; return '$'+n.toFixed(0); }
   function perfColor(p){ if(p==null||isNaN(p))return''; return p>=0?'ok-txt':'bad-txt'; }
-  function showModal(html){ $('#modalInner').innerHTML = '<button class="close" onclick="hideModal()">Close</button>'+html; $('#modal').classList.add('show'); }
+  function showModal(html){ $('#modalInner').innerHTML='<button class="close" onclick="hideModal()">Close</button>'+html; $('#modal').classList.add('show'); }
   function hideModal(){ $('#modal').classList.remove('show'); }
   window.hideModal = hideModal;
 
-  // ============ Sidebar watchlist ============
+  // ========== Sidebar watchlist ==========
   function sparkSvg(series,w=48,h=24){
     if(!Array.isArray(series)||series.length<2) return '';
     const ys = series.map(p=>Number(p.c)).filter(n=>!isNaN(n));
@@ -186,7 +182,7 @@ if(window.RidgeRunNav) window.RidgeRunNav.mount({ active:'strategy', supabase: s
       const arr = Array.isArray(data)?data:[];
       if(!arr.length){ $('#wlList').innerHTML='<div class="empty">Empty watchlist</div>'; return; }
       $('#wlList').innerHTML = arr.map(r=>`
-        <div class="wl-row" data-ticker="${esc(r.ticker)}" onclick="openResearch('${esc(r.ticker)}')">
+        <div class="wl-row" onclick="openResearch('${esc(r.ticker)}')">
           <div>${sparkSvg(r.sparkline)}</div>
           <div><b>${esc(r.ticker)}</b><div class="muted" style="font-size:11px">$${fmt(r.price)}</div></div>
           <div class="wl-perf">
@@ -196,13 +192,14 @@ if(window.RidgeRunNav) window.RidgeRunNav.mount({ active:'strategy', supabase: s
         </div>`).join('');
     }catch(e){ console.error(e); $('#wlList').innerHTML='<div class="empty">Load failed</div>'; }
   }
-  function openResearch(t){ window.location.href = '/research.html?ticker='+encodeURIComponent(t); }
+  function openResearch(t){ window.location.href='/research.html?ticker='+encodeURIComponent(t); }
   window.openResearch = openResearch;
   $('#goLookup').addEventListener('click', ()=>{ const v=$('#tickerLookup').value.trim().toUpperCase(); if(v) openResearch(v); });
   $('#tickerLookup').addEventListener('keydown', e=>{ if(e.key==='Enter'){ const v=e.target.value.trim().toUpperCase(); if(v) openResearch(v); }});
 
-  // ============ Account header ============
+  // ========== Account header ==========
   let CURRENT_NAV = 2040;
+  let POLICY_MAX_BPR = 0.35;
   async function loadAccount(){
     try{
       const r = await fetch(URL_+'/functions/v1/tastytrade-sync', { method:'POST', headers:H(), body: JSON.stringify({ user_id:USER, mode:'all' }) });
@@ -212,26 +209,24 @@ if(window.RidgeRunNav) window.RidgeRunNav.mount({ active:'strategy', supabase: s
       const nav = bal?.nlv || j.debug?.balance_nlv;
       if(nav){ CURRENT_NAV = Number(nav); $('#acctNav').textContent = '$'+CURRENT_NAV.toFixed(0); }
       $('#acctPos').textContent = pos?.positions ?? '—';
-      // BPR: derive from policy preview if possible. For now show '—'
       $('#acctBpr').textContent = '—';
-    }catch(e){ console.error('sync',e); $('#acctNav').textContent='—'; }
+    }catch(e){ console.error('sync',e); }
   }
   $('#syncBtn').addEventListener('click', loadAccount);
 
-  // ============ Journal banner ============
+  // ========== Journal banner ==========
   async function loadJournalBanner(){
     try{
       const r = await fetch(URL_+'/rest/v1/rpc/get_strategy_context', { method:'POST', headers:H(), body: JSON.stringify({ p_user:USER, p_limit:5 }) });
       const ctx = await r.json();
       const aj = Array.isArray(ctx?.active_journal_entries) ? ctx.active_journal_entries : [];
       if(!aj.length){ $('#journalBanner').innerHTML=''; return; }
-      const j = aj[0];
-      const perf = j.performance||{};
+      const j = aj[0]; const perf = j.performance||{};
       $('#journalBanner').innerHTML = `
-        <div class="banner" id="bnr">
+        <div class="banner">
           <div class="banner-h">
             <div>
-              <div class="banner-title">📓 ${esc(j.title)}</div>
+              <div style="font-weight:700;font-size:14px">📓 ${esc(j.title)}</div>
               <div style="font-size:11px;color:var(--ink2);margin-top:2px">
                 ${perf.n_open||0} open · ${perf.n_closed||0} closed · 
                 Target ${(j.target_return_pct*100).toFixed(0)}%/${(j.target_capacity_pct*100).toFixed(0)}% BPR · 
@@ -240,14 +235,14 @@ if(window.RidgeRunNav) window.RidgeRunNav.mount({ active:'strategy', supabase: s
             </div>
             <button class="btn" onclick="toggleBanner()">Details</button>
           </div>
-          <div class="banner-body" id="bnrBody">${esc(j.body||'').replace(/\n/g,'<br/>')}</div>
+          <div class="banner-body" id="bnrBody">${esc(j.body||'')}</div>
         </div>`;
     }catch(e){ console.error('journal',e); }
   }
   function toggleBanner(){ $('#bnrBody').classList.toggle('show'); }
   window.toggleBanner = toggleBanner;
 
-  // ============ Recommendations ============
+  // ========== Recommendations cards ==========
   let CURRENT_RECS = [];
   async function loadRecs(){
     try{
@@ -262,78 +257,74 @@ if(window.RidgeRunNav) window.RidgeRunNav.mount({ active:'strategy', supabase: s
     const slot = Array.isArray(rec.slots) ? rec.slots.find(s=>s?.data?.legs) : null;
     const executable = !!(slot && Array.isArray(slot.data?.legs) && slot.data.legs.length>=1);
     const dirCls = (rec.direction||'').toLowerCase();
-    return `<div class="rec" id="rec-${idx}">
+    return `<div class="rec">
       <div class="rec-h">
         <div>
           <div>
             <span class="rec-ticker">${esc(rec.ticker)}</span>
             <span class="rec-type">${esc(rec.opportunity_type||'')}</span>
-            ${rec.direction ? `<span class="rec-dir ${esc(dirCls)}">${esc(rec.direction)}</span>` : ''}
+            ${rec.direction?`<span class="prop-tag ${esc(dirCls)}">${esc(rec.direction)}</span>`:''}
           </div>
-          ${rec.structure ? `<div class="rec-structure">${esc(rec.structure)}</div>` : ''}
+          ${rec.structure?`<div class="rec-structure">${esc(rec.structure)}</div>`:''}
         </div>
         <div class="rec-score">${Math.round(rec.composite_score||0)}</div>
       </div>
       <div class="rec-reasoning">${esc(rec.reasoning||'')}</div>
       <div class="rec-meta">
-        ${rec.expected_return_pct ? `<span>RET ${(rec.expected_return_pct*100).toFixed(0)}%</span>` : ''}
-        ${rec.expected_horizon_days ? `<span>${rec.expected_horizon_days}d</span>` : ''}
-        ${rec.max_loss ? `<span>Max -$${rec.max_loss}</span>` : ''}
+        ${rec.expected_return_pct?`<span>RET ${(rec.expected_return_pct*100).toFixed(0)}%</span>`:''}
+        ${rec.expected_horizon_days?`<span>${rec.expected_horizon_days}d</span>`:''}
+        ${rec.max_loss?`<span>Max -$${rec.max_loss}</span>`:''}
       </div>
-      ${rec.exit_criteria ? `<div style="font-size:11px;color:var(--mut);margin-top:6px"><b>Exit:</b> ${esc(rec.exit_criteria)}</div>` : ''}
       <div class="rec-actions">
-        ${executable
-          ? `<button class="execute" onclick="openExecute(${idx})">⚡ Execute</button>`
-          : `<button disabled title="No structured trade payload">⚡ Execute</button>`}
-        <button onclick="openResearch('${esc(rec.ticker)}')">Research →</button>
-        <button class="later" onclick="actRec('${esc(rec.id)}','later')">Later</button>
-        <button class="dismiss" onclick="actRec('${esc(rec.id)}','dismiss')">Dismiss</button>
+        ${executable?`<button class="btn primary sm" onclick="openExecuteModal(${idx})">⚡ Execute</button>`:`<button class="btn sm" disabled>⚡ Execute</button>`}
+        <button class="btn sm" onclick="openResearch('${esc(rec.ticker)}')">Research →</button>
+        <button class="btn sm warn" onclick="actRec('${esc(rec.id)}','later')">Later</button>
+        <button class="btn sm bad" onclick="actRec('${esc(rec.id)}','dismiss')">Dismiss</button>
       </div>
     </div>`;
   }
   async function actRec(id, action){
     try{
       const r = await fetch(URL_+'/functions/v1/strategy-save-rec', { method:'POST', headers:H(), body: JSON.stringify({ user_id:USER, rec_id:id, action }) });
-      if(r.ok){ const card = document.querySelector('[id^="rec-"][id$="-'+id+'"]')||null; loadRecs(); }
-      else alert('Failed: '+(await r.text()).slice(0,200));
+      if(r.ok){ loadRecs(); } else alert('Failed: '+(await r.text()).slice(0,200));
     }catch(e){ alert('Failed: '+e.message); }
   }
   window.actRec = actRec;
   window.loadRecs = loadRecs;
 
-  // ============ Execute modal (single trade) ============
-  function openExecute(idx){
+  // ========== Execute modal (single rec from cards) ==========
+  function openExecuteModal(idx){
     const rec = CURRENT_RECS[idx];
-    if(!rec){ alert('Rec not found'); return; }
+    if(!rec) return alert('Rec not found');
     const slot = Array.isArray(rec.slots) ? rec.slots.find(s=>s?.data?.legs) : null;
     const d = slot?.data || {};
     const credit = Number(d.net_credit_estimate || 0);
-    const maxLoss = Number(d.max_loss_per_spread || 0);
     const legsHtml = (d.legs||[]).map(l=>`<tr><td>${esc(l.action||'')}</td><td>${esc(l.side||'')}</td><td>${esc(l.strike||'')}</td><td>${l.bid??''} / ${l.mid??''} / ${l.ask??''}</td></tr>`).join('');
     showModal(`
       <h3 style="margin:0 0 6px">⚡ Execute: ${esc(rec.ticker)} <span class="muted" style="font-weight:400;font-size:13px">${esc(rec.structure||'')}</span></h3>
-      <div style="font-size:12px;color:var(--ink2);margin-bottom:8px">Score ${Math.round(rec.composite_score||0)} · ${esc(rec.opportunity_type||'')} · ${d.dte||'?'} DTE · expiry ${esc(d.expiry||'')}</div>
+      <div style="font-size:12px;color:var(--ink2);margin-bottom:8px">Score ${Math.round(rec.composite_score||0)} · ${d.dte||'?'} DTE · expiry ${esc(d.expiry||'')}</div>
       <table style="width:100%;font-size:12px;border-collapse:collapse;margin-bottom:10px">
-        <thead><tr style="background:#f8fafc"><th style="text-align:left;padding:4px">Action</th><th style="text-align:left;padding:4px">Side</th><th style="text-align:left;padding:4px">Strike</th><th style="text-align:left;padding:4px">Bid/Mid/Ask</th></tr></thead>
+        <thead><tr style="background:#f8fafc"><th style="text-align:left;padding:4px">Action</th><th style="text-align:left;padding:4px">Side</th><th style="text-align:left;padding:4px">Strike</th><th style="text-align:left;padding:4px">B/M/A</th></tr></thead>
         <tbody>${legsHtml}</tbody>
       </table>
       <div class="input-grp"><label>Contracts</label><input id="exContracts" type="number" min="1" value="${d.contracts_suggested||1}"/></div>
-      <div class="input-grp"><label>Limit credit ($)</label><input id="exCredit" type="number" step="0.01" value="${credit.toFixed(2)}"/></div>
-      <div class="input-grp"><label></label><div style="font-size:11px;color:var(--mut)">Max loss/spread ~$${maxLoss.toFixed(0)} · Click below to dry-run, then submit</div></div>
+      <div class="input-grp"><label>Limit ${credit>=0?'credit':'debit'} ($)</label><input id="exCredit" type="number" step="0.01" value="${Math.abs(credit).toFixed(2)}"/></div>
       <div id="exResult" style="font-size:12px;margin:8px 0"></div>
       <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="btn" onclick="doPreview(${idx})">Preview (dry-run)</button>
-        <button class="btn ok" id="exSubmitBtn" onclick="doSubmit(${idx})" disabled>Submit for real</button>
+        <button class="btn" onclick="doExecPreview(${idx})">Preview (dry-run)</button>
+        <button class="btn ok" id="exSubmitBtn" onclick="doExecSubmit(${idx})" disabled>Submit for real</button>
       </div>`);
   }
-  window.openExecute = openExecute;
+  window.openExecuteModal = openExecuteModal;
 
-  async function doPreview(idx){
+  async function doExecPreview(idx){
     const rec = CURRENT_RECS[idx];
     const slot = rec.slots.find(s=>s?.data?.legs);
     const contracts = Math.max(1, Number($('#exContracts').value)||1);
-    const credit = Number($('#exCredit').value)||0;
-    const order = buildTTOrder(slot.data, rec.ticker, contracts, credit);
+    const credit = Math.abs(Number($('#exCredit').value)||0);
+    const isCredit = Number(slot.data.net_credit_estimate||0) >= 0;
+    const signedCredit = isCredit ? credit : -credit;
+    const order = buildTTOrder(slot.data, rec.ticker, contracts, signedCredit);
     $('#exResult').innerHTML = '<span class="muted">⏳ previewing…</span>';
     try{
       const r = await fetch(URL_+'/functions/v1/tastytrade-order', { method:'POST', headers:H(), body: JSON.stringify({ action:'preview', account_number:ACCOUNT, order }) });
@@ -345,15 +336,15 @@ if(window.RidgeRunNav) window.RidgeRunNav.mount({ active:'strategy', supabase: s
         $('#exResult').innerHTML = `<span class="ok-txt">✓ Preview OK · ΔBP $${bp} · Fees $${fees}</span>`;
         $('#exSubmitBtn').disabled = false;
         rec._lastOrder = order;
-      } else {
+      }else{
         const msg = j.response?.error?.message || j.response?.errors?.[0]?.message || j.detail || JSON.stringify(j).slice(0,200);
         $('#exResult').innerHTML = `<span class="bad-txt">✗ ${esc(msg)}</span>`;
       }
     }catch(e){ $('#exResult').innerHTML = `<span class="bad-txt">✗ ${esc(e.message)}</span>`; }
   }
-  window.doPreview = doPreview;
+  window.doExecPreview = doExecPreview;
 
-  async function doSubmit(idx){
+  async function doExecSubmit(idx){
     const rec = CURRENT_RECS[idx];
     if(!rec._lastOrder) return alert('Run Preview first.');
     if(!confirm('Submit REAL order to Tastytrade?')) return;
@@ -364,19 +355,21 @@ if(window.RidgeRunNav) window.RidgeRunNav.mount({ active:'strategy', supabase: s
       const oid = j.response?.order?.id || j.response?.data?.order?.id;
       if(r.ok && oid){
         $('#exResult').innerHTML = `<span class="ok-txt">✓ Submitted · Order #${oid}</span>`;
-        // Log + mark rec accepted
-        await fetch(URL_+'/rest/v1/auto_trade_decisions', { method:'POST', headers:H('return=minimal'), body: JSON.stringify({ user_id:USER, rec_id:rec.id, action:'executed', tt_order_id:String(oid), executed:true, executed_at:new Date().toISOString(), reasoning:{ structure:rec.structure, manual_execute:true }})}).catch(()=>{});
+        await logDecision(rec.id, oid, rec.structure, rec.composite_score, rec.direction, 'manual');
         await fetch(URL_+'/functions/v1/strategy-save-rec', { method:'POST', headers:H(), body: JSON.stringify({ user_id:USER, rec_id:rec.id, action:'accept' })}).catch(()=>{});
         setTimeout(()=>{ hideModal(); loadRecs(); loadAccount(); }, 1500);
-      } else {
-        const msg = j.response?.error?.message || j.detail || 'submit failed';
-        $('#exResult').innerHTML = `<span class="bad-txt">✗ ${esc(msg)}</span>`;
+      }else{
+        $('#exResult').innerHTML = `<span class="bad-txt">✗ ${esc(j.response?.error?.message||j.detail||'submit failed')}</span>`;
       }
     }catch(e){ $('#exResult').innerHTML = `<span class="bad-txt">✗ ${esc(e.message)}</span>`; }
   }
-  window.doSubmit = doSubmit;
+  window.doExecSubmit = doExecSubmit;
 
-  // ============ Phase 1: Batch Propose / Preview / Submit ============
+  async function logDecision(recId, orderId, structure, score, direction, source){
+    return fetch(URL_+'/rest/v1/auto_trade_decisions', { method:'POST', headers:H('return=minimal'), body: JSON.stringify({ user_id:USER, rec_id:recId, action:'executed', tt_order_id:String(orderId), executed:true, executed_at:new Date().toISOString(), reasoning:{ structure, score, direction, source }})}).catch(()=>{});
+  }
+
+  // ========== Phase 1: Batch propose / preview / submit ==========
   function occSymbol(underlying, expiry, side, strike){
     const root = (String(underlying||'')+'      ').slice(0,6);
     const ymd  = String(expiry||'').replace(/-/g,'').slice(2);
@@ -384,79 +377,198 @@ if(window.RidgeRunNav) window.RidgeRunNav.mount({ active:'strategy', supabase: s
     const k    = String(Math.round(Number(strike)*1000)).padStart(8,'0');
     return root + ymd + cp + k;
   }
-  function buildTTOrder(slotData, ticker, contracts, creditOverride){
-    if(!Array.isArray(slotData.legs) || !slotData.legs.length) throw new Error(ticker+': no legs');
+  function buildTTOrder(slotData, ticker, contracts, signedCredit){
+    if(!Array.isArray(slotData.legs)||!slotData.legs.length) throw new Error(ticker+': no legs');
     const legs = slotData.legs.map(leg=>({
-      'instrument-type': 'Equity Option',
+      'instrument-type':'Equity Option',
       'symbol': occSymbol(slotData.underlying||ticker, slotData.expiry, leg.side, leg.strike),
       'quantity': contracts,
       'action': leg.action
     }));
-    const net = creditOverride != null ? Number(creditOverride) : Number(slotData.net_credit_estimate||0);
+    const net = Number(signedCredit||0);
     return {
-      'order-type': 'Limit',
-      'time-in-force': 'Day',
+      'order-type':'Limit', 'time-in-force':'Day',
       'price': Math.abs(net).toFixed(2),
       'price-effect': net >= 0 ? 'Credit' : 'Debit',
       'legs': legs
     };
   }
 
+  let PROPOSALS = [];
+  const SELECTED = new Set();
+
   async function loadProposals(){
-    const btn = $('#proposeBtn'); btn.disabled = true; btn.textContent = 'Loading…';
+    const btn = $('#proposeBtn'); btn.disabled=true; btn.textContent='Loading…';
     try{
       const r = await fetch(URL_+'/rest/v1/rpc/propose_trades', { method:'POST', headers:H(), body: JSON.stringify({ p_user:USER }) });
       const result = await r.json();
       if(result.error){ alert('Policy error: '+result.error); return; }
-      const proposals = result.proposals || [];
-      const approved = proposals.filter(p=>p.approved);
-      const rejected = proposals.filter(p=>!p.approved);
-      const totalCredit = approved.reduce((s,p)=>s+(p.total_credit||0),0);
-      const totalRisk = approved.reduce((s,p)=>s+(p.total_max_loss||0),0);
-      const policyMax = result.policy?.max_bpr_pct || 0.35;
-      $('#proposalContainer').innerHTML = `
-        <div style="background:#f0f9ff;padding:12px;border-radius:6px;margin-bottom:12px;border:1px solid #bae6fd">
-          <b>${approved.length} approved</b> · Credit <b class="ok-txt">$${totalCredit.toFixed(0)}</b> · 
-          Risk <b class="bad-txt">$${totalRisk.toFixed(0)}</b> · 
-          BPR ${(totalRisk/CURRENT_NAV*100).toFixed(0)}% / cap ${(policyMax*100).toFixed(0)}%
-        </div>
-        ${approved.map((p,i)=>proposalRow(p,true,i)).join('')}
-        ${rejected.length ? `<div style="margin:14px 0 6px;color:var(--mut);font-size:12px"><b>Rejected by policy (${rejected.length}):</b></div>` : ''}
-        ${rejected.map((p,i)=>proposalRow(p,false,'r'+i)).join('')}`;
-      window._proposals = approved;
-      $('#previewBtn').disabled = approved.length === 0;
-      $('#submitBtn').disabled = true;
+      PROPOSALS = result.proposals || [];
+      POLICY_MAX_BPR = result.policy?.max_bpr_pct || 0.35;
+      autoSelectTopFit();
+      renderProposals();
     }catch(e){ alert('Failed: '+e.message); }
     finally{ btn.disabled=false; btn.textContent='1. Refresh proposals'; }
   }
+
+  function autoSelectTopFit(){
+    SELECTED.clear();
+    const cap = CURRENT_NAV * POLICY_MAX_BPR;
+    let cum = 0;
+    const approved = PROPOSALS.filter(p=>p.approved).sort((a,b)=>(b.composite_score||0)-(a.composite_score||0));
+    for(const p of approved){
+      const risk = Number(p.total_max_loss||0);
+      if(cum + risk <= cap){ SELECTED.add(p.rec_id); cum += risk; }
+    }
+  }
+
+  function renderProposals(){
+    const approved = PROPOSALS.filter(p=>p.approved);
+    const rejected = PROPOSALS.filter(p=>!p.approved);
+    if(!PROPOSALS.length){ $('#proposalContainer').innerHTML='<div class="empty">No candidates returned by policy filter.</div>'; updateBatchSummary(); return; }
+    $('#proposalContainer').innerHTML = `
+      ${approved.map((p,i)=>proposalRow(p,true,i)).join('')}
+      ${rejected.length?`<div style="margin:14px 0 6px;color:var(--mut);font-size:12px"><b>Rejected by policy (${rejected.length}):</b></div>`:''}
+      ${rejected.map((p,i)=>proposalRow(p,false,'r'+i)).join('')}`;
+    updateBatchSummary();
+  }
+
   function proposalRow(p, isApproved, idx){
-    const dirColor = p.direction?.includes('bear') ? '#dc2626' : p.direction==='neutral' ? '#6b7280' : '#16a34a';
-    return `<div class="prop-row ${isApproved?'':'rejected'}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div><b style="font-size:14px">${esc(p.ticker)}</b>
-          <span style="font-size:11px;color:${dirColor};text-transform:uppercase;margin-left:6px">${esc(p.direction||'')}</span>
-          <span style="font-size:11px;color:var(--mut);margin-left:6px">${p.contracts}× · ${p.dte}DTE</span>
+    const sel = SELECTED.has(p.rec_id);
+    const dirCls = (p.direction||'').toLowerCase().includes('bear') ? 'bear' : (p.direction==='neutral'?'neutral':'long');
+    const credit = Number(p.total_credit||0);
+    const moneyLabel = credit>=0 ? `Cr <b class="ok-txt">$${credit.toFixed(0)}</b>` : `Db <b class="bad-txt">$${Math.abs(credit).toFixed(0)}</b>`;
+    return `<div class="prop-row ${isApproved?'':'rejected'} ${isApproved&&!sel?'unsel':''}" id="prop-${idx}">
+      ${isApproved ? `<input type="checkbox" ${sel?'checked':''} onchange="toggleSel('${esc(p.rec_id)}')"/>` : `<div></div>`}
+      <div class="prop-body">
+        <div>
+          <span class="prop-h">${esc(p.ticker)}</span>
+          <span class="prop-tag ${dirCls}">${esc(p.direction||'')}</span>
+          <span class="prop-tag dim">${p.contracts}× · ${p.dte}DTE · score ${p.composite_score}</span>
         </div>
-        <div style="font-size:12px;text-align:right">Cr <b class="ok-txt">$${(p.total_credit||0).toFixed(0)}</b> · Risk <b class="bad-txt">$${(p.total_max_loss||0).toFixed(0)}</b> · Score ${p.composite_score}</div>
+        <div class="prop-struct">${esc(p.structure||'')}</div>
+        ${!isApproved?`<div style="font-size:11px;color:var(--bad);margin-top:4px">⚠ Rejected: <b>${esc(p.rejection_reason)}</b></div>`:''}
       </div>
-      <div style="font-size:12px;color:var(--ink);margin-top:3px">${esc(p.structure||'')}</div>
-      ${!isApproved ? `<div style="font-size:11px;color:var(--bad);margin-top:4px">⚠ Rejected: <b>${esc(p.rejection_reason)}</b></div>` : ''}
-      <div id="status-${idx}" style="font-size:11px;margin-top:4px"></div>
+      <div class="prop-money">${moneyLabel}<br/>Risk <b class="bad-txt">$${Number(p.total_max_loss||0).toFixed(0)}</b></div>
+      ${isApproved?`<div class="prop-actions">
+        <button class="btn sm primary" onclick="executeProp(${idx})">⚡ Execute</button>
+        <button class="btn sm" onclick="previewProp(${idx})">👁 Preview</button>
+        <button class="btn sm" onclick="openResearch('${esc(p.ticker)}')">Research →</button>
+        <button class="btn sm bad" onclick="dismissProp(${idx},'${esc(p.rec_id)}')">✗ Dismiss</button>
+      </div>`:''}
+      <div class="prop-status" id="status-${idx}"></div>
     </div>`;
   }
 
-  async function previewAll(){
-    if(!window._proposals?.length) return;
-    const btn = $('#previewBtn'); btn.disabled = true; btn.textContent = 'Previewing…';
+  function updateBatchSummary(){
+    const selected = PROPOSALS.filter(p=>p.approved && SELECTED.has(p.rec_id));
+    const cred = selected.reduce((s,p)=>s+(Number(p.total_credit)||0),0);
+    const risk = selected.reduce((s,p)=>s+(Number(p.total_max_loss)||0),0);
+    const cap = CURRENT_NAV * POLICY_MAX_BPR;
+    const bprPct = risk / CURRENT_NAV * 100;
+    const over = risk > cap;
+    $('#batchSummary').innerHTML = `<div class="batch-summary ${over?'over':''}">
+      <b>${selected.length} selected</b> · Credit <b class="ok-txt">$${cred.toFixed(0)}</b> · 
+      Risk <b class="bad-txt">$${risk.toFixed(0)}</b> · 
+      BPR ${bprPct.toFixed(0)}% / cap ${(POLICY_MAX_BPR*100).toFixed(0)}% 
+      ${over?'<span class="bad-txt">⚠ over cap — deselect some</span>':'✓ within cap'}
+    </div>`;
+    $('#previewBtn').disabled = selected.length === 0;
+    $('#submitBtn').disabled = true;
+  }
+
+  function toggleSel(recId){
+    if(SELECTED.has(recId)) SELECTED.delete(recId);
+    else SELECTED.add(recId);
+    renderProposals();
+  }
+  window.toggleSel = toggleSel;
+
+  function approvedByIdx(idx){
+    // idx is into the approved array as rendered
+    return PROPOSALS.filter(p=>p.approved)[idx];
+  }
+
+  // Per-row Preview only
+  async function previewProp(idx){
+    const p = approvedByIdx(idx);
+    const statusEl = $('#status-'+idx);
+    statusEl.innerHTML = '<span class="muted">⏳ previewing…</span>';
+    try{
+      const order = buildTTOrder(p.slot?.data, p.ticker, p.contracts, p.net_credit*100);
+      const r = await fetch(URL_+'/functions/v1/tastytrade-order', { method:'POST', headers:H(), body: JSON.stringify({ action:'preview', account_number:ACCOUNT, order }) });
+      const j = await r.json();
+      const valid = r.ok && !j.response?.error && !j.response?.errors;
+      if(valid){
+        const bp = j.response?.['buying-power-effect']?.['change-in-buying-power'] || '?';
+        statusEl.innerHTML = `<span class="ok-txt">✓ Preview OK · ΔBP $${bp}</span>`;
+        p._previewPassed = true; p._builtOrder = order;
+      }else{
+        statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(j.response?.error?.message||j.response?.errors?.[0]?.message||j.detail||'failed').slice(0,200)}</span>`;
+        p._previewPassed = false;
+      }
+    }catch(e){ statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(e.message)}</span>`; }
+  }
+  window.previewProp = previewProp;
+
+  // Per-row Execute = preview + confirm + submit, one shot
+  async function executeProp(idx){
+    const p = approvedByIdx(idx);
+    if(!confirm(`Execute ${p.ticker} ${p.opportunity_type}? Will preview, then submit if preview passes.`)) return;
+    const statusEl = $('#status-'+idx);
+    statusEl.innerHTML = '<span class="muted">⏳ previewing…</span>';
+    try{
+      const order = buildTTOrder(p.slot?.data, p.ticker, p.contracts, p.net_credit*100);
+      let r = await fetch(URL_+'/functions/v1/tastytrade-order', { method:'POST', headers:H(), body: JSON.stringify({ action:'preview', account_number:ACCOUNT, order }) });
+      let j = await r.json();
+      const valid = r.ok && !j.response?.error && !j.response?.errors;
+      if(!valid){
+        statusEl.innerHTML = `<span class="bad-txt">✗ Preview failed: ${esc(j.response?.error?.message||j.response?.errors?.[0]?.message||j.detail||'unknown').slice(0,200)}</span>`;
+        return;
+      }
+      const bp = j.response?.['buying-power-effect']?.['change-in-buying-power'] || '?';
+      statusEl.innerHTML = `<span class="ok-txt">✓ Preview OK · ΔBP $${bp}</span> · <span class="muted">⏳ submitting…</span>`;
+      r = await fetch(URL_+'/functions/v1/tastytrade-order', { method:'POST', headers:H(), body: JSON.stringify({ action:'submit', account_number:ACCOUNT, order }) });
+      j = await r.json();
+      const oid = j.response?.order?.id || j.response?.data?.order?.id;
+      if(r.ok && oid){
+        statusEl.innerHTML = `<span class="ok-txt">✓ Submitted · Order #${oid}</span>`;
+        await logDecision(p.rec_id, oid, p.structure, p.composite_score, p.direction, 'per-row');
+        await fetch(URL_+'/functions/v1/strategy-save-rec', { method:'POST', headers:H(), body: JSON.stringify({ user_id:USER, rec_id:p.rec_id, action:'accept' })}).catch(()=>{});
+        setTimeout(loadAccount, 1500);
+      }else{
+        statusEl.innerHTML = `<span class="bad-txt">✗ Submit failed: ${esc(j.response?.error?.message||j.detail||'failed').slice(0,200)}</span>`;
+      }
+    }catch(e){ statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(e.message)}</span>`; }
+  }
+  window.executeProp = executeProp;
+
+  // Per-row Dismiss
+  async function dismissProp(idx, recId){
+    if(!confirm('Dismiss this proposal? (also marks the underlying recommendation dismissed)')) return;
+    try{
+      await fetch(URL_+'/functions/v1/strategy-save-rec', { method:'POST', headers:H(), body: JSON.stringify({ user_id:USER, rec_id:recId, action:'dismiss' })});
+      SELECTED.delete(recId);
+      PROPOSALS = PROPOSALS.filter(p=>p.rec_id !== recId);
+      renderProposals();
+      loadRecs();
+    }catch(e){ alert('Failed: '+e.message); }
+  }
+  window.dismissProp = dismissProp;
+
+  // Batch: Preview SELECTED
+  async function previewSelected(){
+    const approved = PROPOSALS.filter(p=>p.approved && SELECTED.has(p.rec_id));
+    if(!approved.length) return;
+    const btn = $('#previewBtn'); btn.disabled=true; btn.textContent='Previewing…';
     let ok=0, fail=0;
-    for(let i=0; i<window._proposals.length; i++){
-      const p = window._proposals[i];
-      const slot = p.slot?.data;
-      const statusEl = $('#status-'+i);
-      if(!slot){ if(statusEl) statusEl.innerHTML = '<span class="bad-txt">✗ no slot data</span>'; fail++; continue; }
+    const approvedAll = PROPOSALS.filter(p=>p.approved);
+    for(const p of approved){
+      const idx = approvedAll.indexOf(p);
+      const statusEl = $('#status-'+idx);
       if(statusEl) statusEl.innerHTML = '<span class="muted">⏳ previewing…</span>';
       try{
-        const order = buildTTOrder(slot, p.ticker, p.contracts, p.net_credit);
+        const order = buildTTOrder(p.slot?.data, p.ticker, p.contracts, p.net_credit*100);
         const r = await fetch(URL_+'/functions/v1/tastytrade-order', { method:'POST', headers:H(), body: JSON.stringify({ action:'preview', account_number:ACCOUNT, order }) });
         const j = await r.json();
         const valid = r.ok && !j.response?.error && !j.response?.errors;
@@ -464,35 +576,29 @@ if(window.RidgeRunNav) window.RidgeRunNav.mount({ active:'strategy', supabase: s
           ok++;
           const bp = j.response?.['buying-power-effect']?.['change-in-buying-power'] || '?';
           if(statusEl) statusEl.innerHTML = `<span class="ok-txt">✓ preview OK · ΔBP $${bp}</span>`;
-          p._previewPassed = true;
-          p._builtOrder = order;
-        } else {
+          p._previewPassed=true; p._builtOrder=order;
+        }else{
           fail++;
-          const msg = j.response?.error?.message || j.response?.errors?.[0]?.message || j.detail || 'unknown';
-          if(statusEl) statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(msg).slice(0,200)}</span>`;
-          p._previewPassed = false;
+          if(statusEl) statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(j.response?.error?.message||j.response?.errors?.[0]?.message||j.detail||'failed').slice(0,200)}</span>`;
+          p._previewPassed=false;
         }
-      }catch(e){
-        fail++;
-        if(statusEl) statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(e.message)}</span>`;
-        p._previewPassed = false;
-      }
+      }catch(e){ fail++; if(statusEl) statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(e.message)}</span>`; }
     }
-    btn.disabled=false; btn.textContent = `2. Preview All (${ok} ✓ / ${fail} ✗)`;
-    $('#submitBtn').disabled = ok === 0;
+    btn.disabled=false; btn.textContent=`2. Preview Selected (${ok} ✓ / ${fail} ✗)`;
+    $('#submitBtn').disabled = ok===0;
     if(ok>0) $('#submitBtn').textContent = `3. Submit ${ok} that passed`;
   }
 
-  async function submitAll(){
-    const toSubmit = (window._proposals||[]).filter(p=>p._previewPassed);
-    if(!toSubmit.length) return alert('No previewed-OK proposals to submit. Run Preview first.');
+  async function submitSelected(){
+    const toSubmit = PROPOSALS.filter(p=>p.approved && SELECTED.has(p.rec_id) && p._previewPassed);
+    if(!toSubmit.length) return alert('No previewed-OK proposals to submit. Run Preview Selected first.');
     if(!confirm(`Submit ${toSubmit.length} REAL orders to Tastytrade account ${ACCOUNT}?`)) return;
-    const btn = $('#submitBtn'); btn.disabled = true; btn.textContent = 'Submitting…';
+    const btn = $('#submitBtn'); btn.disabled=true; btn.textContent='Submitting…';
     let placed=0, failed=0;
-    for(let i=0; i<window._proposals.length; i++){
-      const p = window._proposals[i];
-      if(!p._previewPassed) continue;
-      const statusEl = $('#status-'+i);
+    const approvedAll = PROPOSALS.filter(p=>p.approved);
+    for(const p of toSubmit){
+      const idx = approvedAll.indexOf(p);
+      const statusEl = $('#status-'+idx);
       try{
         const r = await fetch(URL_+'/functions/v1/tastytrade-order', { method:'POST', headers:H(), body: JSON.stringify({ action:'submit', account_number:ACCOUNT, order:p._builtOrder }) });
         const j = await r.json();
@@ -500,68 +606,67 @@ if(window.RidgeRunNav) window.RidgeRunNav.mount({ active:'strategy', supabase: s
         if(r.ok && oid){
           placed++;
           if(statusEl) statusEl.innerHTML = `<span class="ok-txt">✓ submitted · Order #${oid}</span>`;
-          await fetch(URL_+'/rest/v1/auto_trade_decisions', { method:'POST', headers:H('return=minimal'), body: JSON.stringify({ user_id:USER, rec_id:p.rec_id, action:'executed', contracts_proposed:p.contracts, net_credit_proposed:p.net_credit, max_loss_proposed:p.total_max_loss, bpr_proposed:p.total_max_loss, tt_order_id:String(oid), executed:true, executed_at:new Date().toISOString(), reasoning:{ structure:p.structure, score:p.composite_score, direction:p.direction, batch:true }}) }).catch(()=>{});
+          await logDecision(p.rec_id, oid, p.structure, p.composite_score, p.direction, 'batch');
           await fetch(URL_+'/functions/v1/strategy-save-rec', { method:'POST', headers:H(), body: JSON.stringify({ user_id:USER, rec_id:p.rec_id, action:'accept' })}).catch(()=>{});
-        } else {
+        }else{
           failed++;
-          const msg = j.response?.error?.message || j.detail || 'submit failed';
-          if(statusEl) statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(msg).slice(0,200)}</span>`;
+          if(statusEl) statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(j.response?.error?.message||j.detail||'submit failed').slice(0,200)}</span>`;
         }
-      }catch(e){
-        failed++;
-        if(statusEl) statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(e.message)}</span>`;
-      }
+      }catch(e){ failed++; if(statusEl) statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(e.message)}</span>`; }
     }
     alert(`Done: ${placed} placed, ${failed} failed. Refreshing.`);
-    btn.textContent = '3. Submit All';
+    btn.textContent='3. Submit Selected';
     setTimeout(()=>{ loadAccount(); loadRecs(); }, 1000);
   }
   window.loadProposals = loadProposals;
-  window.previewAll = previewAll;
-  window.submitAll = submitAll;
+  window.previewSelected = previewSelected;
+  window.submitSelected = submitSelected;
   $('#proposeBtn').addEventListener('click', loadProposals);
-  $('#previewBtn').addEventListener('click', previewAll);
-  $('#submitBtn').addEventListener('click', submitAll);
+  $('#previewBtn').addEventListener('click', previewSelected);
+  $('#submitBtn').addEventListener('click', submitSelected);
 
-  // ============ AI Scout chat ============
+  // ========== AI Scout chat ==========
   const chatHistory = [];
   async function sendChat(){
     const input = $('#chatInput'); const msg = input.value.trim(); if(!msg) return;
-    input.value = ''; input.disabled = true;
+    input.value=''; input.disabled=true;
     const log = $('#chatLog');
     log.innerHTML += `<div class="chat-msg user">${esc(msg)}</div>`;
     const placeholder = document.createElement('div');
-    placeholder.className = 'chat-msg ai'; placeholder.textContent = '⏳ thinking…'; log.appendChild(placeholder);
+    placeholder.className='chat-msg ai'; placeholder.textContent='⏳ thinking…'; log.appendChild(placeholder);
     log.scrollTop = log.scrollHeight;
     chatHistory.push({ role:'user', content:msg });
     try{
-      const r = await fetch(URL_+'/functions/v1/strategy-chat', { method:'POST', headers:H(), body: JSON.stringify({ user_id:USER, messages: chatHistory }) });
+      const r = await fetch(URL_+'/functions/v1/strategy-chat', { method:'POST', headers:H(), body: JSON.stringify({ user_id:USER, messages:chatHistory }) });
       const j = await r.json();
       const reply = j.response || j.text || j.message || 'No response';
       placeholder.textContent = reply;
-      chatHistory.push({ role:'assistant', content: reply });
-    }catch(e){ placeholder.textContent = '✗ '+e.message; }
-    finally{ input.disabled=false; input.focus(); log.scrollTop = log.scrollHeight; }
+      chatHistory.push({ role:'assistant', content:reply });
+    }catch(e){ placeholder.textContent='✗ '+e.message; }
+    finally{ input.disabled=false; input.focus(); log.scrollTop=log.scrollHeight; }
   }
   $('#chatSend').addEventListener('click', sendChat);
   $('#chatInput').addEventListener('keydown', e=>{ if(e.key==='Enter') sendChat(); });
 
-  // ============ Refresh Scout ============
+  // ========== Refresh Scout ==========
   $('#refreshScout').addEventListener('click', async ()=>{
     const btn = $('#refreshScout'); btn.disabled=true; btn.textContent='Generating… ~90s';
     try{
       const r = await fetch(URL_+'/functions/v1/daily-recs', { method:'POST', headers:H(), body: JSON.stringify({ user_id:USER }) });
       const j = await r.json();
       btn.textContent = j.ok ? `✓ Generated ${j.generated||0}` : '✗ Error';
-      setTimeout(()=>{ btn.disabled=false; btn.textContent='⟳ Refresh Recs'; loadRecs(); }, 1500);
+      setTimeout(()=>{ btn.disabled=false; btn.textContent='⟳ Refresh Recs'; loadRecs(); loadProposals(); }, 1500);
     }catch(e){ btn.disabled=false; btn.textContent='⟳ Refresh Recs'; alert('Failed: '+e.message); }
   });
 
-  // ============ Init ============
-  loadWatchlistSidebar();
-  loadAccount();
-  loadJournalBanner();
-  loadRecs();
+  // ========== Init ==========
+  (async function init(){
+    await loadAccount();
+    loadWatchlistSidebar();
+    loadJournalBanner();
+    loadRecs();
+    loadProposals();  // auto-load proposals on page open
+  })();
 })();
 </script>
 </body>
