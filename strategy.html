@@ -288,9 +288,9 @@ function renderRec(rec, idx) {
     ${rec.exit_criteria ? '<div style="font-size:11px; color:var(--mut); margin-top:6px"><strong>Exit:</strong> '+rec.exit_criteria+'</div>' : ''}
     <div class="rec-actions">
       ${executable ? '<button class="execute" onclick="openExecute('+idx+')">⚡ Execute</button>' : '<button disabled title="No structured trade payload">⚡ Execute</button>'}
-      <button onclick="openResearch(\''+rec.ticker+'\')">Research →</button>
-      <button onclick="actRec(\''+rec.id+'\',\'later\')">Later</button>
-      <button class="dismiss" onclick="actRec(\''+rec.id+'\',\'dismiss\')">Dismiss</button>
+    <button onclick="openResearch('${rec.ticker}')">Research →</button>
+<button onclick="actRec('${rec.id}','later')">Later</button>
+<button class="dismiss" onclick="actRec('${rec.id}','dismiss')">Dismiss</button>
     </div>
   </div>`;
 }
