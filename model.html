@@ -285,8 +285,8 @@ async function onTickerChange(){
   if(priorYears.size < 3){
     flash(`Loading 4-year history for ${t} from FMP… (one-time, ~5 sec)`, 'info');
     try {
-  await fetch(`${SUPABASE_URL}/functions/v1/backfill-fundamentals`, {
-  method: 'POST',
+await fetch('https://nrbffnsheenmewijeapb.supabase.co/functions/v1/backfill-fundamentals', {
+      method: 'POST',
   headers: { 'content-type': 'application/json', apikey: SUPABASE_PUBLISHABLE_KEY, Authorization: 'Bearer ' + SUPABASE_PUBLISHABLE_KEY },
   body: JSON.stringify({ ticker: t, limit: 4 })
 });
