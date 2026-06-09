@@ -298,7 +298,16 @@ async function actRec(id, action) {
   try { await fetch(URL_+'/functions/v1/strategy-save-rec', { method:'POST', headers:H(), body: JSON.stringify({ rec_id:id, action, user_id:USER }) }); loadRecs(); } 
   catch(e) { alert('Failed: '+e.message); }
 }
-function openResearch(t) { window.location.href = '/research.html?ticker='+t; }
+function openResearch(t) { window.location.href = '/research.html?ticker='+encodeURIComponent(t); }
+// Expose to inline onclick handlers
+window.actRec = actRec;
+window.openResearch = openResearch;
+window.openExecute = openExecute;
+window.openInvestor = openInvestor;
+window.closeModal = closeModal;
+window.selectLimit = selectLimit;
+window.doPreview = doPreview;
+window.doSubmit = doSubmit;
 
 document.getElementById('refreshScout').addEventListener('click', async () => {
   const btn = document.getElementById('refreshScout');
