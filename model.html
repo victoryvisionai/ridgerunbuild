@@ -285,11 +285,11 @@ async function onTickerChange(){
   if(priorYears.size < 3){
     flash(`Loading 4-year history for ${t} from FMP… (one-time, ~5 sec)`, 'info');
     try {
-      await fetch('https://victoryvision.app.n8n.cloud/webhook/historical/backfill', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ticker: t, limit: 4 })
-      });
+  await fetch(`${SUPABASE_URL}/functions/v1/backfill-fundamentals`, {
+  method: 'POST',
+  headers: { 'content-type': 'application/json', apikey: SUPABASE_PUBLISHABLE_KEY, Authorization: 'Bearer ' + SUPABASE_PUBLISHABLE_KEY },
+  body: JSON.stringify({ ticker: t, limit: 4 })
+});
       // Poll for new rows (up to 10 sec)
       let attempts = 0;
       while(attempts < 10){
