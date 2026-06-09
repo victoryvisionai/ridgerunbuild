@@ -146,18 +146,34 @@
     return `<div class="cell" style="background:${bg}">${(pct>=0?'+':'')+pct.toFixed(1)}</div>`;
   }
   function renderHeatmap(d){
-    const ys = (d&&Array.isArray(d.years))?d.years:[];
-    if(!ys.length) return `<div class="empty">No monthly return data (waiting on daily_bars seed)</div>`;
-    const months=['J','F','M','A','M','J','J','A','S','O','N','D'];
-    let html = `<div class="heatmap"><div class="hd"></div>${months.map(m=>`<div class="hd">${m}</div>`).join('')}`;
-    for(const yr of ys){
-      const lookup={}; (yr.months||[]).forEach(m=>{lookup[m.m]=m.ret});
-      html += `<div class="yr">${yr.y}</div>`;
-      for(let m=1;m<=12;m++) html += heatCell(lookup[m]);
-    }
-    html += `</div>`;
-    return html;
+  const ys = (d&&Array.isArray(d.years))?d.years:[];
+  if(!ys.length) return `<div class="empty">No monthly return data (waiting on daily_bars seed)</div>`;
+  const months=['J','F','M','A','M','J','J','A','S','O','N','D'];
+  let html = `<div class="heatmap"><div class="hd"></div>${months.map(m=>`<div class="hd">${m}</div>`).join('')}`;
+  for(const yr of ys){
+    const lookup={}; (yr.months||[]).forEach(m=>{lookup[m.m]=m.ret});
+    html += `<div class="yr">${yr.y}</div>`;
+    for(let m=1;m<=12;m++) html += heatCell(lookup[m]);
   }
+  // Average row at bottom (5y average per month — seasonality signal)
+  const avg = Array.isArray(d.avg_by_month) ? d.avg_by_month : [];
+  if(avg.length){
+    const al={}; avg.forEach(m=>{al[m.m]=m.avg});
+    html += `<div class="yr" style="border-top:2px solid #94a3b8;font-weight:700;color:#0f172a">AVG</div>`;
+    for(let m=1;m<=12;m++){
+      const v=al[m]; 
+      if(v==null||isNaN(v)){ html += `<div class="cell" style="background:#f1f5f9;border-top:2px solid #94a3b8">—</div>`; }
+      else {
+        const pct=v*100, intensity=Math.min(1,Math.abs(pct)/15);
+        const r=v>=0?22:220, g=v>=0?163:38, b=v>=0?74:38;
+        const bg=`rgba(${r},${g},${b},${0.15+intensity*0.55})`;
+        html += `<div class="cell" style="background:${bg};border-top:2px solid #94a3b8;font-weight:700">${(pct>=0?'+':'')+pct.toFixed(1)}</div>`;
+      }
+    }
+  }
+  html += `</div>`;
+  return html;
+}
 
   // ---------- Sidebar watchlist ----------
   async function loadWatchlistSidebar(){
