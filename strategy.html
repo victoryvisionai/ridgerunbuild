@@ -248,7 +248,83 @@ function openInvestor(idx) {
 }
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 document.getElementById('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
-
+// === PROPOSE TRADES + BULK APPROVE ===
+async function loadProposals() {
+  const r = await fetch(URL_ + '/rest/v1/rpc/propose_trades', {
+    method: 'POST', headers: H(), body: JSON.stringify({ p_user: USER })
+  });
+  const result = await r.json();
+  if (result.error) return alert('Policy error: ' + result.error);
+  
+  const proposals = result.proposals || [];
+  const approved = proposals.filter(p => p.approved);
+  const rejected = proposals.filter(p => !p.approved);
+  
+  const totalCredit = approved.reduce((s,p) => s + (p.total_credit || 0), 0);
+  const totalRisk = approved.reduce((s,p) => s + (p.total_max_loss || 0), 0);
+  
+  document.getElementById('proposalContainer').innerHTML = `
+    <div style="background:#f0f9ff; padding:12px; border-radius:6px; margin-bottom:12px;">
+      <b>${approved.length} approved</b> · 
+      Total credit: <b style="color:#16a34a">$${totalCredit.toFixed(0)}</b> · 
+      Total max risk: <b style="color:#dc2626">$${totalRisk.toFixed(0)}</b> · 
+      BPR: ${(totalRisk / 2040 * 100).toFixed(0)}% of NAV
+      <button onclick="approveAll()" style="float:right; padding:6px 14px; background:#16a34a; color:white; border:none; border-radius:4px; cursor:pointer;">Approve All →</button>
+    </div>
+    ${approved.map(p => proposalRow(p, true)).join('')}
+    ${rejected.length ? `<div style="margin-top:16px; opacity:0.6;"><b>Rejected (${rejected.length}):</b></div>` : ''}
+    ${rejected.map(p => proposalRow(p, false)).join('')}
+  `;
+  window._proposals = approved;
+}
+function proposalRow(p, isApproved) {
+  const cls = isApproved ? '#fff' : '#fef2f2';
+  const dirColor = p.direction?.includes('bear') ? '#dc2626' : p.direction === 'neutral' ? '#6b7280' : '#16a34a';
+  return `<div style="background:${cls}; border:1px solid #e5e7eb; border-radius:6px; padding:10px; margin-bottom:6px;">
+    <div style="display:flex; justify-content:space-between;">
+      <span><b>${p.ticker}</b> <span style="font-size:11px; color:${dirColor};">${p.direction || ''}</span> · ${p.contracts}x · ${p.dte}DTE</span>
+      <span>Cr $${(p.total_credit||0).toFixed(0)} · Risk $${(p.total_max_loss||0).toFixed(0)} · Score ${p.composite_score}</span>
+    </div>
+    <div style="font-size:12px; color:#374151;">${p.structure || ''}</div>
+    ${!isApproved ? `<div style="font-size:11px; color:#dc2626;">Rejected: ${p.rejection_reason}</div>` : ''}
+  </div>`;
+}
+async function approveAll() {
+  if (!confirm(`Submit ${window._proposals.length} orders to Tastytrade?`)) return;
+  for (const p of window._proposals) {
+    const order = {
+      user_id: USER,
+      account: '5WI80114',
+      ticker: p.ticker,
+      legs: p.slot?.data?.legs || [],
+      quantity: p.contracts,
+      time_in_force: 'Day',
+      order_type: 'Limit',
+      price_effect: 'Credit',
+      price: (p.net_credit || 0).toFixed(2),
+      rec_id: p.rec_id
+    };
+    const r = await fetch(URL_ + '/functions/v1/tastytrade-order', {
+      method: 'POST', headers: H(), body: JSON.stringify(order)
+    });
+    const result = await r.json();
+    if (result.ok) {
+      // Log decision
+      await fetch(URL_ + '/rest/v1/auto_trade_decisions', {
+        method: 'POST', headers: H('return=minimal'),
+        body: JSON.stringify({
+          user_id: USER, rec_id: p.rec_id, action: 'executed',
+          contracts_proposed: p.contracts, net_credit_proposed: p.net_credit,
+          max_loss_proposed: p.total_max_loss, tt_order_id: result.order_id,
+          executed: true, executed_at: new Date().toISOString()
+        })
+      });
+    }
+  }
+  alert('Done. Reload to see updated positions.');
+}
+// Add a button somewhere: <button onclick="loadProposals()">Propose today's trades</button>
+// And a container: <div id="proposalContainer"></div>
 // === LOAD RECS ===
 let recsCache = [];
 async function loadRecs() {
