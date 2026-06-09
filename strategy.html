@@ -6,6 +6,7 @@
 <title>Strategy — Ridge Run</title>
 <script src="/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/nav.js"></script>
 <style>
   :root{--bg:#fff;--ink:#0f172a;--ink2:#475569;--mut:#94a3b8;--line:#e2e8f0;--brand:#2563eb;--brand2:#1d4ed8;--ok:#16a34a;--warn:#d97706;--bad:#dc2626;--chip:#f1f5f9}
   *{box-sizing:border-box}
@@ -77,16 +78,7 @@
 </style>
 </head>
 <body>
-<nav style="display:flex;gap:8px;padding:10px 16px;border-bottom:1px solid #e5e7eb;background:#fafafa;font:14px/1.4 -apple-system,Segoe UI,Roboto,sans-serif;align-items:center;position:sticky;top:0;z-index:50">
-  <strong style="margin-right:12px">Ridge Run</strong>
-  <a href="/strategy.html" style="padding:6px 12px;border-radius:6px;color:#111;background:#eef2ff;border:1px solid #c7d2fe">Strategy</a>
-  <a href="/research.html" style="padding:6px 12px;border-radius:6px;color:#111;background:#fff;border:1px solid #e5e7eb">Research</a>
-  <a href="/screener.html" style="padding:6px 12px;border-radius:6px;color:#111;background:#fff;border:1px solid #e5e7eb">Screener</a>
-  <a href="/model.html" style="padding:6px 12px;border-radius:6px;color:#111;background:#fff;border:1px solid #e5e7eb">Model</a>
-  <a href="/portfolio.html" style="padding:6px 12px;border-radius:6px;color:#111;background:#fff;border:1px solid #e5e7eb">Portfolio</a>
-  <a href="/watchlist.html" style="padding:6px 12px;border-radius:6px;color:#111;background:#fff;border:1px solid #e5e7eb">Watchlist</a>
-  <a href="/dna.html" style="padding:6px 12px;border-radius:6px;color:#111;background:#fff;border:1px solid #e5e7eb">DNA</a>
-</nav>
+
 
 <div class="layout">
   <aside class="panel" style="margin-bottom:0">
@@ -164,7 +156,7 @@
   const USER = window.RR_CONFIG.USER_ID || 'e048e890-8554-429e-883e-d9c5d03a3510';
   const ACCOUNT = '5WI80114';
   const sb = supabase.createClient(URL_, KEY);
-
+if(window.RidgeRunNav) window.RidgeRunNav.mount({ active:'strategy', supabase: sb });
   function H(prefer){ const h={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'}; if(prefer) h.Prefer=prefer; return h; }
   function $(s,r=document){ return r.querySelector(s); }
   function $$(s,r=document){ return Array.from(r.querySelectorAll(s)); }
