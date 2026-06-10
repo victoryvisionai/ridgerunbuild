@@ -49,7 +49,7 @@
   .prop-struct{font-size:12px;color:#374151;margin-top:3px}
   .prop-money{font-size:12px;text-align:right;white-space:nowrap}
   .prop-actions{margin-top:8px;display:flex;gap:5px;flex-wrap:wrap;grid-column:2 / span 2}
-  .prop-status{grid-column:2 / span 2;font-size:11px;margin-top:5px;min-height:14px}
+  .prop-status{grid-column:2 / span 2;font-size:11px;margin-top:5px;min-height:14px;word-break:break-word}
   .rec{border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:10px}
   .rec-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
   .rec-ticker{font-size:16px;font-weight:700}
@@ -164,6 +164,37 @@
   function showModal(html){ $('#modalInner').innerHTML='<button class="close" onclick="hideModal()">Close</button>'+html; $('#modal').classList.add('show'); }
   function hideModal(){ $('#modal').classList.remove('show'); }
   window.hideModal = hideModal;
+
+  // === Tastytrade response parsers (handles preflight failures + nested data) ===
+  function extractTTError(resp){
+    if(!resp) return 'no response';
+    if(typeof resp === 'string') return resp.slice(0,300);
+    const e = resp.error || resp;
+    if(typeof e === 'string') return e.slice(0,300);
+    const main = e.message || '';
+    const arr = Array.isArray(e.errors) ? e.errors : (Array.isArray(resp.errors) ? resp.errors : []);
+    const details = arr.map(x => {
+      if(typeof x === 'string') return x;
+      return x.reason || x.message || x.code || JSON.stringify(x);
+    }).join(' · ');
+    const combined = [main, details].filter(Boolean).join(' — ');
+    return combined || JSON.stringify(resp).slice(0, 200);
+  }
+  function extractBP(resp){
+    const data = resp?.data || resp || {};
+    const bpe = data['buying-power-effect'] || {};
+    const cibp = bpe['change-in-buying-power'];
+    if(cibp == null) return '?';
+    if(typeof cibp === 'object') return cibp.value || cibp.amount || JSON.stringify(cibp);
+    return cibp;
+  }
+  function previewIsValid(httpOk, resp){
+    if(!httpOk) return false;
+    if(!resp) return false;
+    if(resp.error) return false;
+    if(Array.isArray(resp.errors) && resp.errors.length) return false;
+    return !!(resp.data || resp['buying-power-effect']);
+  }
 
   // ========== Sidebar watchlist ==========
   function sparkSvg(series,w=48,h=24){
@@ -308,8 +339,8 @@
         <tbody>${legsHtml}</tbody>
       </table>
       <div class="input-grp"><label>Contracts</label><input id="exContracts" type="number" min="1" value="${d.contracts_suggested||1}"/></div>
-      <div class="input-grp"><label>Limit ${credit>=0?'credit':'debit'} ($)</label><input id="exCredit" type="number" step="0.01" value="${Math.abs(credit).toFixed(2)}"/></div>
-      <div id="exResult" style="font-size:12px;margin:8px 0"></div>
+      <div class="input-grp"><label>Limit ${credit>=0?'credit':'debit'} ($/spread)</label><input id="exCredit" type="number" step="0.01" value="${Math.abs(credit).toFixed(2)}"/></div>
+      <div id="exResult" style="font-size:12px;margin:8px 0;word-break:break-word"></div>
       <div style="display:flex;gap:8px;margin-top:10px">
         <button class="btn" onclick="doExecPreview(${idx})">Preview (dry-run)</button>
         <button class="btn ok" id="exSubmitBtn" onclick="doExecSubmit(${idx})" disabled>Submit for real</button>
@@ -329,16 +360,14 @@
     try{
       const r = await fetch(URL_+'/functions/v1/tastytrade-order', { method:'POST', headers:H(), body: JSON.stringify({ action:'preview', account_number:ACCOUNT, order }) });
       const j = await r.json();
-      const valid = r.ok && !j.response?.error && !j.response?.errors;
-      if(valid){
-        const bp = j.response?.['buying-power-effect']?.['change-in-buying-power'] || '?';
-        const fees = j.response?.['fee-calculation']?.['total-fees'] || '?';
+      if(previewIsValid(r.ok, j.response)){
+        const bp = extractBP(j.response);
+        const fees = j.response?.data?.['fee-calculation']?.['total-fees'] || '?';
         $('#exResult').innerHTML = `<span class="ok-txt">✓ Preview OK · ΔBP $${bp} · Fees $${fees}</span>`;
         $('#exSubmitBtn').disabled = false;
         rec._lastOrder = order;
       }else{
-        const msg = j.response?.error?.message || j.response?.errors?.[0]?.message || j.detail || JSON.stringify(j).slice(0,200);
-        $('#exResult').innerHTML = `<span class="bad-txt">✗ ${esc(msg)}</span>`;
+        $('#exResult').innerHTML = `<span class="bad-txt">✗ ${esc(extractTTError(j.response))}</span>`;
       }
     }catch(e){ $('#exResult').innerHTML = `<span class="bad-txt">✗ ${esc(e.message)}</span>`; }
   }
@@ -352,14 +381,14 @@
     try{
       const r = await fetch(URL_+'/functions/v1/tastytrade-order', { method:'POST', headers:H(), body: JSON.stringify({ action:'submit', account_number:ACCOUNT, order:rec._lastOrder }) });
       const j = await r.json();
-      const oid = j.response?.order?.id || j.response?.data?.order?.id;
+      const oid = j.response?.data?.order?.id || j.response?.order?.id;
       if(r.ok && oid){
         $('#exResult').innerHTML = `<span class="ok-txt">✓ Submitted · Order #${oid}</span>`;
         await logDecision(rec.id, oid, rec.structure, rec.composite_score, rec.direction, 'manual');
         await fetch(URL_+'/functions/v1/strategy-save-rec', { method:'POST', headers:H(), body: JSON.stringify({ user_id:USER, rec_id:rec.id, action:'accept' })}).catch(()=>{});
         setTimeout(()=>{ hideModal(); loadRecs(); loadAccount(); }, 1500);
       }else{
-        $('#exResult').innerHTML = `<span class="bad-txt">✗ ${esc(j.response?.error?.message||j.detail||'submit failed')}</span>`;
+        $('#exResult').innerHTML = `<span class="bad-txt">✗ ${esc(extractTTError(j.response))}</span>`;
       }
     }catch(e){ $('#exResult').innerHTML = `<span class="bad-txt">✗ ${esc(e.message)}</span>`; }
   }
@@ -377,6 +406,8 @@
     const k    = String(Math.round(Number(strike)*1000)).padStart(8,'0');
     return root + ymd + cp + k;
   }
+  // signedCredit is DOLLARS PER SPREAD (e.g., 0.70 for 70¢ credit, -3.67 for $3.67 debit).
+  // Tastytrade expects 'price' as the per-spread limit price, NOT the dollar total.
   function buildTTOrder(slotData, ticker, contracts, signedCredit){
     if(!Array.isArray(slotData.legs)||!slotData.legs.length) throw new Error(ticker+': no legs');
     const legs = slotData.legs.map(leg=>({
@@ -484,60 +515,55 @@
   }
   window.toggleSel = toggleSel;
 
-  function approvedByIdx(idx){
-    // idx is into the approved array as rendered
-    return PROPOSALS.filter(p=>p.approved)[idx];
-  }
+  function approvedByIdx(idx){ return PROPOSALS.filter(p=>p.approved)[idx]; }
 
-  // Per-row Preview only
+  // Per-row Preview
   async function previewProp(idx){
     const p = approvedByIdx(idx);
     const statusEl = $('#status-'+idx);
     statusEl.innerHTML = '<span class="muted">⏳ previewing…</span>';
     try{
-      const order = buildTTOrder(p.slot?.data, p.ticker, p.contracts, p.net_credit*100);
+      const order = buildTTOrder(p.slot?.data, p.ticker, p.contracts, p.net_credit);  // FIXED: no *100
       const r = await fetch(URL_+'/functions/v1/tastytrade-order', { method:'POST', headers:H(), body: JSON.stringify({ action:'preview', account_number:ACCOUNT, order }) });
       const j = await r.json();
-      const valid = r.ok && !j.response?.error && !j.response?.errors;
-      if(valid){
-        const bp = j.response?.['buying-power-effect']?.['change-in-buying-power'] || '?';
+      if(previewIsValid(r.ok, j.response)){
+        const bp = extractBP(j.response);
         statusEl.innerHTML = `<span class="ok-txt">✓ Preview OK · ΔBP $${bp}</span>`;
         p._previewPassed = true; p._builtOrder = order;
       }else{
-        statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(j.response?.error?.message||j.response?.errors?.[0]?.message||j.detail||'failed').slice(0,200)}</span>`;
+        statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(extractTTError(j.response)).slice(0,300)}</span>`;
         p._previewPassed = false;
       }
     }catch(e){ statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(e.message)}</span>`; }
   }
   window.previewProp = previewProp;
 
-  // Per-row Execute = preview + confirm + submit, one shot
+  // Per-row Execute = preview + confirm + submit
   async function executeProp(idx){
     const p = approvedByIdx(idx);
     if(!confirm(`Execute ${p.ticker} ${p.opportunity_type}? Will preview, then submit if preview passes.`)) return;
     const statusEl = $('#status-'+idx);
     statusEl.innerHTML = '<span class="muted">⏳ previewing…</span>';
     try{
-      const order = buildTTOrder(p.slot?.data, p.ticker, p.contracts, p.net_credit*100);
+      const order = buildTTOrder(p.slot?.data, p.ticker, p.contracts, p.net_credit);  // FIXED: no *100
       let r = await fetch(URL_+'/functions/v1/tastytrade-order', { method:'POST', headers:H(), body: JSON.stringify({ action:'preview', account_number:ACCOUNT, order }) });
       let j = await r.json();
-      const valid = r.ok && !j.response?.error && !j.response?.errors;
-      if(!valid){
-        statusEl.innerHTML = `<span class="bad-txt">✗ Preview failed: ${esc(j.response?.error?.message||j.response?.errors?.[0]?.message||j.detail||'unknown').slice(0,200)}</span>`;
+      if(!previewIsValid(r.ok, j.response)){
+        statusEl.innerHTML = `<span class="bad-txt">✗ Preview failed: ${esc(extractTTError(j.response)).slice(0,300)}</span>`;
         return;
       }
-      const bp = j.response?.['buying-power-effect']?.['change-in-buying-power'] || '?';
+      const bp = extractBP(j.response);
       statusEl.innerHTML = `<span class="ok-txt">✓ Preview OK · ΔBP $${bp}</span> · <span class="muted">⏳ submitting…</span>`;
       r = await fetch(URL_+'/functions/v1/tastytrade-order', { method:'POST', headers:H(), body: JSON.stringify({ action:'submit', account_number:ACCOUNT, order }) });
       j = await r.json();
-      const oid = j.response?.order?.id || j.response?.data?.order?.id;
+      const oid = j.response?.data?.order?.id || j.response?.order?.id;
       if(r.ok && oid){
         statusEl.innerHTML = `<span class="ok-txt">✓ Submitted · Order #${oid}</span>`;
         await logDecision(p.rec_id, oid, p.structure, p.composite_score, p.direction, 'per-row');
         await fetch(URL_+'/functions/v1/strategy-save-rec', { method:'POST', headers:H(), body: JSON.stringify({ user_id:USER, rec_id:p.rec_id, action:'accept' })}).catch(()=>{});
         setTimeout(loadAccount, 1500);
       }else{
-        statusEl.innerHTML = `<span class="bad-txt">✗ Submit failed: ${esc(j.response?.error?.message||j.detail||'failed').slice(0,200)}</span>`;
+        statusEl.innerHTML = `<span class="bad-txt">✗ Submit failed: ${esc(extractTTError(j.response)).slice(0,300)}</span>`;
       }
     }catch(e){ statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(e.message)}</span>`; }
   }
@@ -556,7 +582,7 @@
   }
   window.dismissProp = dismissProp;
 
-  // Batch: Preview SELECTED
+  // Batch Preview Selected
   async function previewSelected(){
     const approved = PROPOSALS.filter(p=>p.approved && SELECTED.has(p.rec_id));
     if(!approved.length) return;
@@ -568,18 +594,17 @@
       const statusEl = $('#status-'+idx);
       if(statusEl) statusEl.innerHTML = '<span class="muted">⏳ previewing…</span>';
       try{
-        const order = buildTTOrder(p.slot?.data, p.ticker, p.contracts, p.net_credit*100);
+        const order = buildTTOrder(p.slot?.data, p.ticker, p.contracts, p.net_credit);  // FIXED: no *100
         const r = await fetch(URL_+'/functions/v1/tastytrade-order', { method:'POST', headers:H(), body: JSON.stringify({ action:'preview', account_number:ACCOUNT, order }) });
         const j = await r.json();
-        const valid = r.ok && !j.response?.error && !j.response?.errors;
-        if(valid){
+        if(previewIsValid(r.ok, j.response)){
           ok++;
-          const bp = j.response?.['buying-power-effect']?.['change-in-buying-power'] || '?';
+          const bp = extractBP(j.response);
           if(statusEl) statusEl.innerHTML = `<span class="ok-txt">✓ preview OK · ΔBP $${bp}</span>`;
           p._previewPassed=true; p._builtOrder=order;
         }else{
           fail++;
-          if(statusEl) statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(j.response?.error?.message||j.response?.errors?.[0]?.message||j.detail||'failed').slice(0,200)}</span>`;
+          if(statusEl) statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(extractTTError(j.response)).slice(0,300)}</span>`;
           p._previewPassed=false;
         }
       }catch(e){ fail++; if(statusEl) statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(e.message)}</span>`; }
@@ -602,7 +627,7 @@
       try{
         const r = await fetch(URL_+'/functions/v1/tastytrade-order', { method:'POST', headers:H(), body: JSON.stringify({ action:'submit', account_number:ACCOUNT, order:p._builtOrder }) });
         const j = await r.json();
-        const oid = j.response?.order?.id || j.response?.data?.order?.id;
+        const oid = j.response?.data?.order?.id || j.response?.order?.id;
         if(r.ok && oid){
           placed++;
           if(statusEl) statusEl.innerHTML = `<span class="ok-txt">✓ submitted · Order #${oid}</span>`;
@@ -610,7 +635,7 @@
           await fetch(URL_+'/functions/v1/strategy-save-rec', { method:'POST', headers:H(), body: JSON.stringify({ user_id:USER, rec_id:p.rec_id, action:'accept' })}).catch(()=>{});
         }else{
           failed++;
-          if(statusEl) statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(j.response?.error?.message||j.detail||'submit failed').slice(0,200)}</span>`;
+          if(statusEl) statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(extractTTError(j.response)).slice(0,300)}</span>`;
         }
       }catch(e){ failed++; if(statusEl) statusEl.innerHTML = `<span class="bad-txt">✗ ${esc(e.message)}</span>`; }
     }
@@ -665,7 +690,7 @@
     loadWatchlistSidebar();
     loadJournalBanner();
     loadRecs();
-    loadProposals();  // auto-load proposals on page open
+    loadProposals();
   })();
 })();
 </script>
