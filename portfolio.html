@@ -28,6 +28,7 @@
   .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:9px 14px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500}
   .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)}
   .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
+  .btn-sm{font-size:10px;padding:4px 8px}
 
   .banner-card{background:var(--bg);border:1px solid var(--border);border-radius:6px;margin-bottom:18px;overflow:hidden}
   .banner-head{background:#0f172a;color:#f1f5f9;padding:13px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
@@ -46,20 +47,20 @@
   table{width:100%;border-collapse:collapse;font-size:12px}
   th{text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);padding:7px 8px;border-bottom:1px solid var(--border);background:var(--bg-tint);white-space:nowrap;position:sticky;top:0}
   td{padding:7px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;white-space:nowrap}
-  td.num{text-align:right} td.pos{color:var(--success)} td.neg{color:var(--danger)}
-  td.dim{color:var(--text-muted)}
+  td.num{text-align:right} td.pos{color:var(--success)} td.neg{color:var(--danger)} td.dim{color:var(--text-muted)}
   td a{color:var(--accent);text-decoration:none;font-weight:600}
   tbody tr:hover{background:var(--bg-tint)}
 
   .pill{display:inline-block;padding:2px 7px;border-radius:10px;font-size:9.5px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase}
   .pill-long{background:var(--success-bg);color:#065f46}
   .pill-short{background:var(--danger-bg);color:#991b1b}
-  .pill-warn{background:var(--warning-bg);color:#92400e}
+
+  .tag{display:inline-block;padding:1px 5px;border-radius:8px;font-size:8.5px;font-weight:600;letter-spacing:0.04em;margin-left:5px;vertical-align:middle}
+  .tag-live{background:var(--success-bg);color:#065f46}
+  .tag-eod{background:var(--border);color:var(--text-muted)}
+  .tag-loading{background:var(--bg-blue);color:var(--accent-dark)}
 
   .empty{padding:32px 20px;text-align:center;color:var(--text-muted);font-size:13px;font-style:italic}
-  .msg{padding:10px 14px;font-size:13px;border-radius:4px;margin:10px 0}
-  .msg-error{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
-  .msg-info{background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--accent-dark)}
 
   .risk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
   .risk-box{padding:12px 14px;border:1px solid var(--border);border-radius:4px;background:var(--bg-tint)}
@@ -78,13 +79,18 @@
   <div id="rr-nav-container"></div>
 
   <h1 class="page-title">Portfolio</h1>
-  <p class="page-sub">Live positions from Tastytrade (synced every 10 min). Hover P&amp;L cells for cost basis.</p>
+  <p class="page-sub">Live positions from Tastytrade with DXLink price overlay. Underlying prices update on load; refresh button re-pulls.</p>
 
   <div id="msg-area"></div>
 
-  <!-- Summary -->
   <div class="banner-card">
-    <div class="banner-head"><h2>Summary</h2><span class="banner-meta" id="summary-meta">—</span></div>
+    <div class="banner-head">
+      <h2>Summary <span id="quote-status" class="tag tag-loading">FETCHING LIVE…</span></h2>
+      <div style="display:flex;gap:10px;align-items:center">
+        <span class="banner-meta" id="summary-meta">—</span>
+        <button id="refresh-btn" class="btn btn-ghost btn-sm" type="button">Refresh quotes</button>
+      </div>
+    </div>
     <div class="banner-body">
       <div class="grid-5">
         <div class="metric-box"><div class="l">NAV (Equity + Net Opt)</div><div class="v" id="m-nav">—</div><div class="sub" id="m-nav-sub">—</div></div>
@@ -96,7 +102,6 @@
     </div>
   </div>
 
-  <!-- Positions table -->
   <div class="banner-card">
     <div class="banner-head"><h2>Open positions</h2><span class="banner-meta">brokerage_positions · live sync</span></div>
     <div class="banner-body scroll">
@@ -110,7 +115,7 @@
             <th style="text-align:right">Entry $</th>
             <th style="text-align:right">Price</th>
             <th style="text-align:right">Value</th>
-            <th style="text-align:right">% of NAV</th>
+            <th style="text-align:right">% NAV</th>
             <th style="text-align:right">P&amp;L</th>
             <th style="text-align:right">Mkt Cap</th>
             <th style="text-align:right">FCF Yld</th>
@@ -131,7 +136,6 @@
     </div>
   </div>
 
-  <!-- Spreads -->
   <div class="banner-card" id="spreads-card" style="display:none">
     <div class="banner-head"><h2>Spread structures (paired)</h2><span class="banner-meta">net credit · spread width · ROR</span></div>
     <div class="banner-body scroll">
@@ -152,7 +156,6 @@
     </div>
   </div>
 
-  <!-- Risk -->
   <div class="banner-card">
     <div class="banner-head"><h2>Risk &amp; leverage</h2><span class="banner-meta">v4 framework</span></div>
     <div class="banner-body">
@@ -173,7 +176,10 @@
 (() => {
   const cfg = window.RR_CONFIG || {};
   const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY);
+  const DXLINK_URL = cfg.SUPABASE_URL + '/functions/v1/dxlink-quotes';
   let currentUser = null;
+  let portfolioData = null;
+  let liveQuotes = {};
 
   const $ = id => document.getElementById(id);
   const show = (id, on) => $(id).classList.toggle('hidden', !(on!==false));
@@ -198,7 +204,8 @@
     currentUser = r.data.session.user;
     show('loading-screen', false); show('app', true);
     try { if (window.RidgeRunNav) await window.RidgeRunNav.mount({active:'portfolio', supabase:sb}); } catch(e){}
-    loadPortfolio();
+    $('refresh-btn').addEventListener('click', () => fetchLiveQuotes());
+    await loadPortfolio();
   })();
 
   async function loadPortfolio() {
@@ -207,23 +214,74 @@
       $('positions-tbody').innerHTML = '<tr><td colspan="23" class="empty">Error: '+esc(r.error.message)+'</td></tr>';
       return;
     }
-    const data = r.data || {};
-    const positions = data.positions || [];
-    const spreads = data.spreads || [];
-    const sm = data.summary || {};
+    portfolioData = r.data || {};
+    render();
+    fetchLiveQuotes();
+  }
 
-    const equityValue = Number(sm.total_equity_value||0);
-    const equityCost  = Number(sm.total_equity_cost||0);
-    const optCredit   = Number(sm.total_options_credit_received||0);
-    const optDebit    = Number(sm.total_options_debit_paid||0);
-    const netOptions  = optCredit - optDebit;
+  async function fetchLiveQuotes() {
+    $('quote-status').textContent = 'FETCHING LIVE…';
+    $('quote-status').className = 'tag tag-loading';
+    const tickers = [...new Set((portfolioData.positions||[]).map(p => p.underlying).filter(Boolean))];
+    if (!tickers.length) { $('quote-status').textContent='EOD'; $('quote-status').className='tag tag-eod'; return; }
+
+    const r = await fetch(DXLINK_URL, {
+      method:'POST',
+      headers:{'content-type':'application/json','apikey':cfg.SUPABASE_PUBLISHABLE_KEY,'Authorization':'Bearer '+cfg.SUPABASE_PUBLISHABLE_KEY},
+      body: JSON.stringify({ symbols: tickers })
+    }).then(r => r.json()).catch(()=>null);
+
+    let liveCount = 0;
+    if (r && Array.isArray(r.quotes)) {
+      r.quotes.forEach(q => {
+        if (q.symbol && q.bid != null && q.ask != null) {
+          liveQuotes[q.symbol] = { bid: Number(q.bid), ask: Number(q.ask), mid: (Number(q.bid)+Number(q.ask))/2 };
+          liveCount++;
+        }
+      });
+    }
+
+    if (liveCount > 0) {
+      $('quote-status').textContent = liveCount+'/'+tickers.length+' LIVE · '+new Date().toLocaleTimeString();
+      $('quote-status').className = 'tag tag-live';
+    } else {
+      $('quote-status').textContent = 'EOD (no live quotes)';
+      $('quote-status').className = 'tag tag-eod';
+    }
+    render();
+  }
+
+  function render() {
+    if (!portfolioData) return;
+    const positions = portfolioData.positions || [];
+    const spreads = portfolioData.spreads || [];
+    const sm = portfolioData.summary || {};
+
+    // Apply live quote overlay
+    let equityValue = 0, equityCost = 0;
+    const positionsAdj = positions.map(p => {
+      const live = liveQuotes[p.underlying];
+      const livePx = live ? live.mid : null;
+      const px = livePx != null ? livePx : Number(p.current_price||0);
+      let posValue = Number(p.position_value);
+      // For equity: re-mark to live
+      if (p.instrument_type === 'Equity') {
+        posValue = Number(p.qty) * px;
+        equityValue += posValue;
+        equityCost  += Number(p.qty) * Number(p.avg_open_price);
+      }
+      return { ...p, _live_px: livePx, _disp_px: px, _disp_value: posValue,
+               _pnl: posValue - Number(p.cost_basis) };
+    });
+
+    const optCredit = Number(sm.total_options_credit_received||0);
+    const optDebit  = Number(sm.total_options_debit_paid||0);
+    const netOptions = optCredit - optDebit;
     const shortNotional = Number(sm.short_options_notional||0);
     const longNotional  = Number(sm.long_options_notional||0);
 
     const nav = equityValue + netOptions;
-    const totalPnl = positions.reduce((s,p) => s + Number(p.pnl||0), 0);
-
-    // Net spread max loss from spreads (worst case across defined-risk structures)
+    const totalPnl = positionsAdj.reduce((s,p) => s + Number(p._pnl||0), 0);
     const netSpreadMaxLoss = spreads.reduce((s,sp) => s + Number(sp.spread_max_loss||0), 0);
 
     $('m-nav').textContent = usd0(nav);
@@ -235,19 +293,19 @@
     $('m-pnl').innerHTML = '<span class="'+cls(totalPnl)+'">'+usd0(totalPnl)+'</span>';
     $('m-pnl-sub').textContent = 'Mark-to-market';
     $('m-count').textContent = sm.position_count||0;
-    $('m-count-sub').textContent = (data.generated_at||'').slice(11,19)+' UTC';
-    $('summary-meta').textContent = (sm.position_count||0)+' positions · sync '+(data.generated_at||'').slice(11,19);
+    $('m-count-sub').textContent = (portfolioData.generated_at||'').slice(11,19)+' UTC';
+    $('summary-meta').textContent = (sm.position_count||0)+' positions · sync '+(portfolioData.generated_at||'').slice(11,19);
 
-    // Positions table
-    if (!positions.length) {
+    if (!positionsAdj.length) {
       $('positions-tbody').innerHTML = '<tr><td colspan="23" class="empty">No open positions.</td></tr>';
     } else {
-      $('positions-tbody').innerHTML = positions.map(p => {
+      $('positions-tbody').innerHTML = positionsAdj.map(p => {
         const isOpt = p.instrument_type === 'Equity Option';
         const isShort = p.direction === 'Short';
         const instLabel = isOpt ? (p.side === 'put' ? 'Put' : 'Call') : 'Equity';
         const dirPill = isShort ? '<span class="pill pill-short">SHORT</span>' : '<span class="pill pill-long">LONG</span>';
-        const pctOfNav = nav > 0 ? Math.abs(Number(p.position_value||0)) / nav * 100 : null;
+        const pctOfNav = nav > 0 ? Math.abs(Number(p._disp_value||0)) / nav * 100 : null;
+        const priceTag = p._live_px != null ? '<span class="tag tag-live">LIVE</span>' : '<span class="tag tag-eod">EOD</span>';
         return '<tr>'
           + '<td><a href="/research.html?ticker='+esc(p.underlying)+'">'+esc(p.underlying)+'</a></td>'
           + '<td>'+esc(instLabel)+'</td>'
@@ -256,10 +314,10 @@
           + '<td class="num">'+(p.strike!=null?num(p.strike,0):'—')+'</td>'
           + '<td class="dim">'+esc((p.expiry||'').toString().slice(0,10)||'—')+'</td>'
           + '<td class="num">'+usd2(p.avg_open_price)+'</td>'
-          + '<td class="num">'+usd2(p.current_price)+'</td>'
-          + '<td class="num">'+usd0(p.position_value)+'</td>'
+          + '<td class="num">'+usd2(p._disp_px)+priceTag+'</td>'
+          + '<td class="num">'+usd0(p._disp_value)+'</td>'
           + '<td class="num dim">'+(pctOfNav!=null?pct(pctOfNav):'—')+'</td>'
-          + '<td class="num '+cls(p.pnl)+'" title="Cost basis: '+usd2(p.cost_basis)+'">'+usd0(p.pnl)+'</td>'
+          + '<td class="num '+cls(p._pnl)+'" title="Cost basis: '+usd2(p.cost_basis)+'">'+usd0(p._pnl)+'</td>'
           + '<td class="num dim">'+cap(p.market_cap)+'</td>'
           + '<td class="num dim">'+(p.fcf_yield_ltm!=null?pct(Number(p.fcf_yield_ltm)*100):'—')+'</td>'
           + '<td class="num dim">'+num(p.pe_ltm,1)+'</td>'
@@ -276,7 +334,6 @@
       }).join('');
     }
 
-    // Spreads table
     if (spreads.length) {
       $('spreads-card').style.display = '';
       $('spreads-tbody').innerHTML = spreads.map(s => '<tr>'
@@ -294,7 +351,6 @@
         + '</tr>').join('');
     }
 
-    // Risk metrics
     const grossExposure = Math.abs(equityValue) + shortNotional + longNotional;
     const leverage = equityValue > 0 ? grossExposure / equityValue : null;
     const bprRatio = equityValue > 0 ? netSpreadMaxLoss / equityValue * 100 : null;
@@ -302,20 +358,12 @@
     $('r-lev').textContent = leverage != null ? num(leverage,2)+'x' : '—';
     $('r-lev').className = 'v ' + (leverage>5?'neg':leverage>3?'warn':'pos');
     $('risk-leverage').className = 'risk-box ' + (leverage>5?'danger':leverage>3?'warn':'');
-
     $('r-short-not').textContent = usd0(shortNotional);
-    $('r-short-not').className = 'v ' + (shortNotional > equityValue*100 ? 'warn' : '');
-    $('risk-short-notional').className = 'risk-box ' + (shortNotional > equityValue*100 ? 'warn' : '');
-
     $('r-net-loss').textContent = usd0(netSpreadMaxLoss);
     $('r-net-loss').className = 'v ' + (netSpreadMaxLoss > equityValue*0.5 ? 'warn' : '');
     $('risk-net-loss').className = 'risk-box ' + (netSpreadMaxLoss > equityValue*0.5 ? 'warn' : '');
-
     $('r-bpr').textContent = bprRatio != null ? pct(bprRatio) : '—';
     $('r-bpr').className = 'v ' + (bprRatio>60?'neg':bprRatio>40?'warn':'pos');
     $('risk-cash-bpr').className = 'risk-box ' + (bprRatio>60?'danger':bprRatio>40?'warn':'');
   }
 })();
-</script>
-</body>
-</html>
