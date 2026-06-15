@@ -13,14 +13,15 @@
     --bg:#fff;--bg-tint:#f8fafc;--bg-blue:#eff6ff;--border:#e2e8f0;--border-blue:#bfdbfe;
     --text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
     --accent:#2563eb;--accent-dark:#1e40af;
-    --success:#059669;--success-bg:#d1fae5;--danger:#dc2626;--danger-bg:#fee2e2;
+    --success:#059669;--success-bg:#d1fae5;--warning:#d97706;
+    --danger:#dc2626;--danger-bg:#fee2e2;
     --serif:'Source Serif 4',Georgia,serif;--sans:'Inter',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace;
   }
   *{box-sizing:border-box} html,body{margin:0;padding:0}
-  body{background:var(--bg-tint);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh}
+  body{background:var(--bg-tint);color:var(--text);font-family:var(--sans);font-size:13.5px;line-height:1.5;min-height:100vh}
   .hidden{display:none!important}
   .loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim)}
-  .shell{max-width:1320px;margin:0 auto;padding:0 24px 80px}
+  .shell{max-width:1640px;margin:0 auto;padding:0 20px 80px}
   h1.page-title{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-0.02em;margin:24px 0 4px}
   .page-sub{color:var(--text-muted);margin:0 0 22px;font-size:14px}
 
@@ -28,29 +29,38 @@
   .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)}
   .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
   .btn-danger{background:var(--bg);color:var(--danger);border-color:#fecaca}
-  .btn-sm{font-size:10px;padding:5px 9px}
+  .btn-sm{font-size:10px;padding:4px 8px}
 
   .banner-card{background:var(--bg);border:1px solid var(--border);border-radius:6px;margin-bottom:18px;overflow:hidden}
   .banner-head{background:#0f172a;color:#f1f5f9;padding:13px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
   .banner-head h2{font-family:var(--serif);font-size:17px;font-weight:500;margin:0;color:#f1f5f9}
   .banner-meta{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8}
-  .banner-body{padding:20px 22px}
-  .h2-sub{color:var(--text-muted);font-size:13px;margin:0 0 14px;line-height:1.55}
+  .banner-body{padding:18px 20px}
 
   .form-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
   .field label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
   .field input, .field textarea{width:100%;background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-family:var(--mono);font-size:12px;color:var(--text);border-radius:3px}
   .field textarea{font-family:var(--sans);min-height:50px;resize:vertical}
 
-  table{width:100%;border-collapse:collapse;font-size:12.5px}
-  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:8px;border-bottom:1px solid var(--border);background:var(--bg-tint)}
-  td{padding:8px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11.5px}
+  .scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);padding:7px 8px;border-bottom:1px solid var(--border);background:var(--bg-tint);white-space:nowrap}
+  td{padding:7px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;white-space:nowrap}
+  td.num{text-align:right} td.pos{color:var(--success)} td.neg{color:var(--danger)} td.dim{color:var(--text-muted)}
   td a{color:var(--accent);text-decoration:none;font-weight:600}
+  tbody tr:hover{background:var(--bg-tint)}
 
-  .empty{padding:24px;text-align:center;color:var(--text-muted);font-size:13px;font-style:italic}
-  .msg{padding:10px 14px;font-size:13px;border-radius:4px;line-height:1.5;margin:8px 0}
+  .target-input{width:65px;background:transparent;border:1px solid transparent;text-align:right;font-family:var(--mono);font-size:11px;color:var(--text);padding:2px 4px;border-radius:2px}
+  .target-input:hover{border-color:var(--border)}
+  .target-input:focus{outline:none;border-color:var(--accent);background:var(--bg)}
+
+  .thesis-cell{max-width:280px;white-space:normal;font-family:var(--sans);font-size:11.5px;line-height:1.4;color:var(--text-muted)}
+
+  .empty{padding:32px 20px;text-align:center;color:var(--text-muted);font-size:13px;font-style:italic}
+  .msg{padding:10px 14px;font-size:13px;border-radius:4px;margin:10px 0}
   .msg-error{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
   .msg-success{background:var(--success-bg);border:1px solid #a7f3d0;color:#065f46}
+
   @media (max-width:980px){ .form-grid-3{grid-template-columns:1fr} }
 </style>
 </head>
@@ -60,7 +70,7 @@
   <div id="rr-nav-container"></div>
 
   <h1 class="page-title">Watchlist</h1>
-  <p class="page-sub">Active tickers feed data workflows (fundamentals, vol, insider, analyst, options chain) and surface in the screener & dashboard.</p>
+  <p class="page-sub">Performance, IV regime, analyst targets, and your conviction targets. Edit Up/Down targets inline — saved on blur.</p>
 
   <div id="msg-area"></div>
 
@@ -71,20 +81,38 @@
         <div class="form-grid-3">
           <div class="field"><label>Ticker</label><input type="text" name="ticker" required maxlength="8" style="text-transform:uppercase" placeholder="ADBE"></div>
           <div class="field"><label>Company name</label><input type="text" name="company_name" placeholder="Adobe Inc."></div>
-          <div class="field"><label>Target price ($)</label><input type="number" name="target_price" step="0.01" placeholder="optional"></div>
+          <div class="field"><label>Thesis (short)</label><input type="text" name="thesis" placeholder="Why this is on the list"></div>
         </div>
-        <div class="field" style="margin-bottom:12px"><label>Thesis</label><textarea name="thesis" placeholder="Why this ticker is on the list"></textarea></div>
         <button type="submit" class="btn btn-primary">Add to watchlist</button>
       </form>
     </div>
   </div>
 
   <div class="banner-card">
-    <div class="banner-head"><h2>Active tickers</h2><span class="banner-meta" id="wl-count">—</span></div>
-    <div class="banner-body" style="overflow-x:auto">
+    <div class="banner-head">
+      <h2>Active tickers</h2>
+      <span class="banner-meta" id="wl-count">—</span>
+    </div>
+    <div class="banner-body scroll">
       <table>
-        <thead><tr><th>Ticker</th><th>Company</th><th style="text-align:right">Target</th><th>Thesis</th><th>Added</th><th></th></tr></thead>
-        <tbody id="wl-tbody"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody>
+        <thead><tr>
+          <th>Ticker</th>
+          <th style="text-align:right">Price</th>
+          <th style="text-align:right">1D</th>
+          <th style="text-align:right">1W</th>
+          <th style="text-align:right">1M</th>
+          <th style="text-align:right">1Y</th>
+          <th style="text-align:right">3Y</th>
+          <th style="text-align:right">IVR</th>
+          <th style="text-align:right">Up TGT $</th>
+          <th style="text-align:right">Up %</th>
+          <th style="text-align:right">Down TGT $</th>
+          <th style="text-align:right">Down %</th>
+          <th style="text-align:right">Cons.</th>
+          <th>Thesis</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="wl-tbody"><tr><td colspan="15" class="empty">Loading…</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -99,45 +127,72 @@
   const cfg = window.RR_CONFIG || {};
   const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY);
   let currentUser = null;
+
   const $ = id => document.getElementById(id);
   const show = (id, on) => $(id).classList.toggle('hidden', !(on!==false));
   const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const fmt2 = n => (n==null||isNaN(n))?'—':Number(n).toFixed(2);
+  const num = (n, d) => (n==null||isNaN(Number(n)))?'—':Number(n).toFixed(d==null?2:d);
+  const pct = (n) => (n==null||isNaN(Number(n)))?'—':(Number(n)>=0?'+':'')+Number(n).toFixed(1)+'%';
+  const usd2 = n => (n==null||isNaN(Number(n)))?'—':'$'+Number(n).toFixed(2);
+  const cls = n => (n==null||isNaN(Number(n)))?'':(Number(n)>=0?'pos':'neg');
   const flash = (text, kind) => {
     $('msg-area').innerHTML = '<div class="msg msg-'+esc(kind||'info')+'">'+esc(text)+'</div>';
-    if (kind !== 'error') setTimeout(function(){ $('msg-area').innerHTML=''; }, 6000);
+    if (kind !== 'error') setTimeout(() => { $('msg-area').innerHTML=''; }, 5000);
   };
 
   (async () => {
     const r = await sb.auth.getSession();
-    const session = r && r.data && r.data.session;
-    if (!session || !session.user) { window.location.href='/index.html'; return; }
-    currentUser = session.user;
-    show('loading-screen', false);
-    show('app', true);
+    if (!r.data?.session?.user) { window.location.href='/index.html'; return; }
+    currentUser = r.data.session.user;
+    show('loading-screen', false); show('app', true);
     try { if (window.RidgeRunNav) await window.RidgeRunNav.mount({active:'watchlist', supabase:sb}); } catch(e){}
     $('add-form').addEventListener('submit', addTicker);
     loadWatchlist();
   })();
 
   async function loadWatchlist() {
-    const r = await sb.from('ticker_watchlist').select('*').eq('user_id',currentUser.id).eq('is_active',true).order('added_at',{ascending:false});
-    if (r.error) { $('wl-tbody').innerHTML = '<tr><td colspan="6" class="empty">Error: '+esc(r.error.message)+'</td></tr>'; return; }
-    const data = r.data || [];
+    const r = await sb.rpc('get_watchlist_view', { p_user: currentUser.id });
+    if (r.error) { $('wl-tbody').innerHTML='<tr><td colspan="15" class="empty">Error: '+esc(r.error.message)+'</td></tr>'; return; }
+    const data = (r.data && r.data.watchlist) || [];
     $('wl-count').textContent = data.length+' ticker'+(data.length===1?'':'s');
-    if (!data.length) { $('wl-tbody').innerHTML = '<tr><td colspan="6" class="empty">No tickers. Add one above.</td></tr>'; return; }
-    $('wl-tbody').innerHTML = data.map(function(w){
+    if (!data.length) { $('wl-tbody').innerHTML='<tr><td colspan="15" class="empty">No tickers yet.</td></tr>'; return; }
+    $('wl-tbody').innerHTML = data.map(w => {
+      const upTgt = w.user_target_price != null ? Number(w.user_target_price).toFixed(2) : '';
+      const dnTgt = w.user_downside_price != null ? Number(w.user_downside_price).toFixed(2) : '';
       return '<tr>'
         + '<td><a href="/research.html?ticker='+esc(w.ticker)+'">'+esc(w.ticker)+'</a></td>'
-        + '<td>'+esc(w.company_name||'')+'</td>'
-        + '<td style="text-align:right">'+(w.target_price!=null?'$'+fmt2(w.target_price):'—')+'</td>'
-        + '<td title="'+esc(w.thesis||'')+'">'+esc((w.thesis||'').slice(0,50))+(w.thesis&&w.thesis.length>50?'…':'')+'</td>'
-        + '<td>'+esc((w.added_at||w.created_at||'').slice(0,10))+'</td>'
-        + '<td><button type="button" class="btn btn-sm btn-danger" data-remove="'+esc(w.id)+'">Remove</button></td>'
+        + '<td class="num">'+usd2(w.spot)+'</td>'
+        + '<td class="num '+cls(w.perf_1d_pct)+'">'+pct(w.perf_1d_pct)+'</td>'
+        + '<td class="num '+cls(w.perf_1wk_pct)+'">'+pct(w.perf_1wk_pct)+'</td>'
+        + '<td class="num '+cls(w.perf_1mo_pct)+'">'+pct(w.perf_1mo_pct)+'</td>'
+        + '<td class="num '+cls(w.perf_1yr_pct)+'">'+pct(w.perf_1yr_pct)+'</td>'
+        + '<td class="num '+cls(w.perf_3yr_pct)+'">'+pct(w.perf_3yr_pct)+'</td>'
+        + '<td class="num dim">'+(w.ivr!=null?num(w.ivr,0):'—')+'</td>'
+        + '<td class="num"><input type="number" class="target-input" step="0.01" data-id="'+esc(w.id)+'" data-field="target_price" value="'+esc(upTgt)+'" placeholder="—"></td>'
+        + '<td class="num '+cls(w.user_up_pct)+'">'+pct(w.user_up_pct)+'</td>'
+        + '<td class="num"><input type="number" class="target-input" step="0.01" data-id="'+esc(w.id)+'" data-field="downside_target_price" value="'+esc(dnTgt)+'" placeholder="—"></td>'
+        + '<td class="num '+cls(w.user_down_pct)+'">'+pct(w.user_down_pct)+'</td>'
+        + '<td class="num dim" title="Analyst high '+usd2(w.analyst_target_high)+' / low '+usd2(w.analyst_target_low)+' ('+(w.analyst_count||0)+' analysts)">'+pct(w.analyst_up_pct)+'</td>'
+        + '<td class="thesis-cell" title="'+esc(w.thesis||'')+'">'+esc(w.thesis||'—')+'</td>'
+        + '<td><button type="button" class="btn btn-sm btn-danger" data-remove="'+esc(w.id)+'">×</button></td>'
         + '</tr>';
     }).join('');
-    $('wl-tbody').querySelectorAll('button[data-remove]').forEach(function(b){
-      b.addEventListener('click', async function(){
+
+    // Wire target input saves
+    document.querySelectorAll('.target-input').forEach(inp => {
+      inp.addEventListener('blur', async () => {
+        const id = inp.dataset.id, field = inp.dataset.field;
+        const val = inp.value === '' ? null : Number(inp.value);
+        const upd = {}; upd[field] = val;
+        const r = await sb.from('ticker_watchlist').update(upd).eq('id', id);
+        if (r.error) flash('Save failed: '+r.error.message,'error');
+        else { flash('Saved.','success'); loadWatchlist(); }
+      });
+    });
+
+    // Wire remove buttons
+    document.querySelectorAll('button[data-remove]').forEach(b => {
+      b.addEventListener('click', async () => {
         if (!confirm('Remove from watchlist?')) return;
         const r = await sb.from('ticker_watchlist').update({is_active:false}).eq('id', b.dataset.remove);
         if (r.error) flash('Remove failed: '+r.error.message,'error');
@@ -152,44 +207,23 @@
     const ticker = (fd.get('ticker')||'').trim().toUpperCase();
     if (!ticker) return;
     const row = {
-      user_id: currentUser.id,
-      ticker: ticker,
-      symbol: ticker,
+      user_id: currentUser.id, ticker, symbol: ticker,
       company_name: fd.get('company_name') || null,
-      target_price: fd.get('target_price') ? Number(fd.get('target_price')) : null,
       thesis: fd.get('thesis') || null,
-      is_active: true,
-      added_at: new Date().toISOString()
+      is_active: true, added_at: new Date().toISOString()
     };
     const r = await sb.from('ticker_watchlist').insert(row);
     if (r.error) flash('Save failed: '+r.error.message,'error');
-    else {
-      flash('Added '+ticker+'. Firing research bootstrap (fundamentals, options, vol, insider, analyst)…','success');
-      fireBootstrapForTicker(ticker);
-      e.target.reset();
-      loadWatchlist();
-    }
+    else { flash('Added '+ticker+'. Firing research bootstrap…','success'); fireBootstrap(ticker); e.target.reset(); loadWatchlist(); }
   }
 
-  function fireBootstrapForTicker(ticker) {
+  function fireBootstrap(ticker) {
     fetch(N8N+'/webhook/research/bootstrap', {
       method:'POST', headers:{'content-type':'application/json'},
-      body: JSON.stringify({ ticker: ticker })
-    }).then(function(r){
-      if (!r.ok && r.status === 404) {
-        ['historical/backfill','insider/sync','analyst/sync','options/snap','vol/backfill'].forEach(function(p){
-          fetch(N8N+'/webhook/'+p, {
-            method:'POST', headers:{'content-type':'application/json'},
-            body: JSON.stringify({ ticker: ticker })
-          }).catch(function(){});
-        });
-      }
-    }).catch(function(){
-      ['historical/backfill','insider/sync','analyst/sync','options/snap','vol/backfill'].forEach(function(p){
-        fetch(N8N+'/webhook/'+p, {
-          method:'POST', headers:{'content-type':'application/json'},
-          body: JSON.stringify({ ticker: ticker })
-        }).catch(function(){});
+      body: JSON.stringify({ ticker })
+    }).catch(()=>{
+      ['historical/backfill','insider/sync','analyst/sync','options/snap','vol/backfill'].forEach(p => {
+        fetch(N8N+'/webhook/'+p, {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ticker})}).catch(()=>{});
       });
     });
   }
