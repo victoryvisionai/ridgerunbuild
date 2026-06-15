@@ -13,146 +13,155 @@
     --bg:#fff;--bg-tint:#f8fafc;--bg-blue:#eff6ff;--border:#e2e8f0;--border-blue:#bfdbfe;
     --text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
     --accent:#2563eb;--accent-dark:#1e40af;
-    --success:#059669;--success-bg:#d1fae5;--warning:#d97706;--warning-bg:#fed7aa;
+    --success:#059669;--success-bg:#d1fae5;--warning:#d97706;--warning-bg:#fef3c7;
     --danger:#dc2626;--danger-bg:#fee2e2;
     --serif:'Source Serif 4',Georgia,serif;--sans:'Inter',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace;
   }
   *{box-sizing:border-box} html,body{margin:0;padding:0}
-  body{background:var(--bg-tint);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh}
+  body{background:var(--bg-tint);color:var(--text);font-family:var(--sans);font-size:13.5px;line-height:1.5;min-height:100vh}
   .hidden{display:none!important}
   .loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim)}
-  .shell{max-width:1320px;margin:0 auto;padding:0 24px 80px}
+  .shell{max-width:1640px;margin:0 auto;padding:0 20px 80px}
   h1.page-title{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-0.02em;margin:24px 0 4px}
   .page-sub{color:var(--text-muted);margin:0 0 22px;font-size:14px}
 
   .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:9px 14px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500}
   .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)}
   .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
-  .btn-danger{background:var(--bg);color:var(--danger);border-color:#fecaca}
-  .btn-sm{font-size:10px;padding:5px 9px}
 
   .banner-card{background:var(--bg);border:1px solid var(--border);border-radius:6px;margin-bottom:18px;overflow:hidden}
   .banner-head{background:#0f172a;color:#f1f5f9;padding:13px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
   .banner-head h2{font-family:var(--serif);font-size:17px;font-weight:500;margin:0;color:#f1f5f9}
   .banner-meta{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8}
-  .banner-body{padding:20px 22px}
-  .h2-sub{color:var(--text-muted);font-size:13px;margin:0 0 14px;line-height:1.55}
+  .banner-body{padding:18px 20px}
 
-  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
-  .metric-box{padding:13px 14px;background:var(--bg-tint);border:1px solid var(--border);border-radius:4px}
-  .metric-box .l{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
-  .metric-box .v{font-family:var(--serif);font-size:22px;font-weight:500;letter-spacing:-0.01em;color:var(--text)}
-  .metric-box .v.pos{color:var(--success)} .metric-box .v.neg{color:var(--danger)}
+  .grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:12px}
+  .metric-box{padding:12px 14px;background:var(--bg-tint);border:1px solid var(--border);border-radius:4px}
+  .metric-box .l{font-family:var(--mono);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px}
+  .metric-box .v{font-family:var(--serif);font-size:20px;font-weight:500;letter-spacing:-0.01em;color:var(--text)}
+  .metric-box .v.pos{color:var(--success)} .metric-box .v.neg{color:var(--danger)} .metric-box .v.warn{color:var(--warning)}
+  .metric-box .sub{font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-top:3px}
 
-  table{width:100%;border-collapse:collapse;font-size:12.5px}
-  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);padding:8px;border-bottom:1px solid var(--border);background:var(--bg-tint);white-space:nowrap}
-  td{padding:8px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11.5px;white-space:nowrap}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);padding:7px 8px;border-bottom:1px solid var(--border);background:var(--bg-tint);white-space:nowrap;position:sticky;top:0}
+  td{padding:7px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;white-space:nowrap}
   td.num{text-align:right} td.pos{color:var(--success)} td.neg{color:var(--danger)}
+  td.dim{color:var(--text-muted)}
+  td a{color:var(--accent);text-decoration:none;font-weight:600}
+  tbody tr:hover{background:var(--bg-tint)}
 
-  .form-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
-  .form-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
-  .field label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
-  .field input, .field select, .field textarea{width:100%;background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-family:var(--mono);font-size:12px;color:var(--text);border-radius:3px}
-  .field textarea{font-family:var(--sans);min-height:60px;resize:vertical}
-  .field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:var(--accent)}
+  .pill{display:inline-block;padding:2px 7px;border-radius:10px;font-size:9.5px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase}
+  .pill-long{background:var(--success-bg);color:#065f46}
+  .pill-short{background:var(--danger-bg);color:#991b1b}
+  .pill-warn{background:var(--warning-bg);color:#92400e}
 
   .empty{padding:32px 20px;text-align:center;color:var(--text-muted);font-size:13px;font-style:italic}
-  .msg{padding:10px 14px;font-size:13px;border-radius:4px;line-height:1.5;margin:10px 0}
+  .msg{padding:10px 14px;font-size:13px;border-radius:4px;margin:10px 0}
   .msg-error{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
-  .msg-success{background:var(--success-bg);border:1px solid #a7f3d0;color:#065f46}
   .msg-info{background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--accent-dark)}
 
-  @media (max-width:980px){
-    .form-grid-4{grid-template-columns:repeat(2,1fr)}
-    .form-grid-3{grid-template-columns:1fr}
-    .grid-4{grid-template-columns:repeat(2,1fr)}
-  }
+  .risk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+  .risk-box{padding:12px 14px;border:1px solid var(--border);border-radius:4px;background:var(--bg-tint)}
+  .risk-box.warn{border-color:var(--warning);background:var(--warning-bg)}
+  .risk-box.danger{border-color:var(--danger);background:var(--danger-bg)}
+  .risk-box .l{font-family:var(--mono);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px}
+  .risk-box .v{font-family:var(--serif);font-size:18px;font-weight:500;color:var(--text)}
+  .risk-box .d{font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.4}
+
+  @media (max-width:980px){ .grid-5{grid-template-columns:repeat(2,1fr)} .risk-grid{grid-template-columns:repeat(2,1fr)} }
 </style>
 </head>
 <body>
-
 <div id="loading-screen" class="loading">Loading portfolio…</div>
-
 <div id="app" class="shell hidden">
   <div id="rr-nav-container"></div>
 
   <h1 class="page-title">Portfolio</h1>
-  <p class="page-sub">Open positions and P&amp;L. Add positions inline below — no need to bounce to Strategy.</p>
+  <p class="page-sub">Live positions from Tastytrade (synced every 10 min). Hover P&amp;L cells for cost basis.</p>
 
   <div id="msg-area"></div>
 
+  <!-- Summary -->
   <div class="banner-card">
     <div class="banner-head"><h2>Summary</h2><span class="banner-meta" id="summary-meta">—</span></div>
     <div class="banner-body">
-      <div class="grid-4">
-        <div class="metric-box"><div class="l">Open positions</div><div class="v" id="m-count">—</div></div>
-        <div class="metric-box"><div class="l">Cost basis</div><div class="v" id="m-cost">—</div></div>
-        <div class="metric-box"><div class="l">Current value</div><div class="v" id="m-value">—</div></div>
-        <div class="metric-box"><div class="l">Unrealized P&L</div><div class="v" id="m-pl">—</div></div>
+      <div class="grid-5">
+        <div class="metric-box"><div class="l">NAV (Equity + Net Opt)</div><div class="v" id="m-nav">—</div><div class="sub" id="m-nav-sub">—</div></div>
+        <div class="metric-box"><div class="l">Equity value</div><div class="v" id="m-equity">—</div><div class="sub" id="m-equity-sub">—</div></div>
+        <div class="metric-box"><div class="l">Net options credit</div><div class="v" id="m-opt">—</div><div class="sub" id="m-opt-sub">—</div></div>
+        <div class="metric-box"><div class="l">Total P&amp;L (mkt)</div><div class="v" id="m-pnl">—</div><div class="sub" id="m-pnl-sub">—</div></div>
+        <div class="metric-box"><div class="l">Positions</div><div class="v" id="m-count">—</div><div class="sub" id="m-count-sub">—</div></div>
       </div>
     </div>
   </div>
 
+  <!-- Positions table -->
   <div class="banner-card">
-    <div class="banner-head"><h2>Open positions</h2><span class="banner-meta">is_open = true</span></div>
-    <div class="banner-body" style="overflow-x:auto">
+    <div class="banner-head"><h2>Open positions</h2><span class="banner-meta">brokerage_positions · live sync</span></div>
+    <div class="banner-body scroll">
       <table>
         <thead>
           <tr>
-            <th>Ticker</th><th>Instrument</th>
+            <th>Ticker</th><th>Instrument</th><th>Dir</th>
             <th style="text-align:right">Qty</th>
             <th style="text-align:right">Strike</th>
             <th>Expiry</th>
             <th style="text-align:right">Entry $</th>
-            <th>Entry dt</th>
-            <th style="text-align:right">Cost</th>
+            <th style="text-align:right">Price</th>
             <th style="text-align:right">Value</th>
+            <th style="text-align:right">% of NAV</th>
             <th style="text-align:right">P&amp;L</th>
-            <th style="text-align:right">Max loss</th>
-            <th>Thesis</th>
-            <th></th>
+            <th style="text-align:right">Mkt Cap</th>
+            <th style="text-align:right">FCF Yld</th>
+            <th style="text-align:right">P/E LTM</th>
+            <th style="text-align:right">P/E NTM</th>
+            <th style="text-align:right">Rev gr 1Y</th>
+            <th style="text-align:right">Up TGT</th>
+            <th style="text-align:right">Down TGT</th>
+            <th style="text-align:right">Up%</th>
+            <th style="text-align:right">Down%</th>
+            <th style="text-align:right">R/R</th>
+            <th style="text-align:right">Max Gain</th>
+            <th style="text-align:right">Max Loss</th>
           </tr>
         </thead>
-        <tbody id="positions-tbody"><tr><td colspan="13" class="empty">Loading…</td></tr></tbody>
+        <tbody id="positions-tbody"><tr><td colspan="23" class="empty">Loading…</td></tr></tbody>
       </table>
     </div>
   </div>
 
+  <!-- Spreads -->
+  <div class="banner-card" id="spreads-card" style="display:none">
+    <div class="banner-head"><h2>Spread structures (paired)</h2><span class="banner-meta">net credit · spread width · ROR</span></div>
+    <div class="banner-body scroll">
+      <table>
+        <thead><tr>
+          <th>Underlying</th><th>Side</th><th>Expiry</th>
+          <th style="text-align:right">Qty</th>
+          <th style="text-align:right">Short K</th>
+          <th style="text-align:right">Long K</th>
+          <th style="text-align:right">Width</th>
+          <th style="text-align:right">Net Credit</th>
+          <th style="text-align:right">$ Credit</th>
+          <th style="text-align:right">Max Loss</th>
+          <th style="text-align:right">ROR</th>
+        </tr></thead>
+        <tbody id="spreads-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Risk -->
   <div class="banner-card">
-    <div class="banner-head"><h2>Add position</h2><span class="banner-meta">Inserts to positions with is_open=true</span></div>
+    <div class="banner-head"><h2>Risk &amp; leverage</h2><span class="banner-meta">v4 framework</span></div>
     <div class="banner-body">
-      <p class="h2-sub">Defined-risk preferred at $2K capital. Max loss per ticket ≤ $500.</p>
-      <form id="add-position-form">
-        <div class="form-grid-4">
-          <div class="field"><label>Ticker</label><input type="text" name="ticker" required maxlength="8" style="text-transform:uppercase" placeholder="ADBE"></div>
-          <div class="field"><label>Instrument</label>
-            <select name="instrument" required>
-              <option value="equity">Equity</option>
-              <option value="call">Call</option>
-              <option value="put">Put</option>
-              <option value="LEAP_call">LEAP call</option>
-              <option value="LEAP_put">LEAP put</option>
-              <option value="vertical_call">Vertical call</option>
-              <option value="vertical_put">Vertical put</option>
-              <option value="straddle">Straddle</option>
-              <option value="strangle">Strangle</option>
-            </select>
-          </div>
-          <div class="field"><label>Qty</label><input type="number" name="qty" step="1" required placeholder="1"></div>
-          <div class="field"><label>Entry price ($)</label><input type="number" name="entry_price" step="0.01" required placeholder="2.50"></div>
-        </div>
-        <div class="form-grid-4">
-          <div class="field"><label>Entry date</label><input type="date" name="entry_dt" required></div>
-          <div class="field"><label>Strike</label><input type="number" name="strike" step="0.5" placeholder="optional"></div>
-          <div class="field"><label>Expiry</label><input type="date" name="expiry"></div>
-          <div class="field"><label>Max loss ($)</label><input type="number" name="max_loss" step="1" placeholder="500" max="500"></div>
-        </div>
-        <div class="form-grid-3">
-          <div class="field"><label>Target exit ($)</label><input type="number" name="target_exit" step="0.01" placeholder="optional"></div>
-          <div class="field" style="grid-column:span 2"><label>Thesis</label><textarea name="thesis" placeholder="Short rationale for the position"></textarea></div>
-        </div>
-        <button type="submit" class="btn btn-primary">Add position</button>
-      </form>
+      <div class="risk-grid">
+        <div class="risk-box" id="risk-leverage"><div class="l">Leverage</div><div class="v" id="r-lev">—</div><div class="d">Total gross exposure / Equity value</div></div>
+        <div class="risk-box" id="risk-short-notional"><div class="l">Short option notional</div><div class="v" id="r-short-not">—</div><div class="d">Capital at risk if all short legs go ITM (gross)</div></div>
+        <div class="risk-box" id="risk-net-loss"><div class="l">Net spread max loss</div><div class="v" id="r-net-loss">—</div><div class="d">Defined-risk worst case across all paired spreads</div></div>
+        <div class="risk-box" id="risk-cash-bpr"><div class="l">Implied BPR ratio</div><div class="v" id="r-bpr">—</div><div class="d">Net option max loss as % of equity NAV</div></div>
+      </div>
     </div>
   </div>
 </div>
@@ -162,7 +171,6 @@
 <script src="/config.js"></script>
 <script>
 (() => {
-  const N8N = 'https://victoryvision.app.n8n.cloud';
   const cfg = window.RR_CONFIG || {};
   const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY);
   let currentUser = null;
@@ -170,138 +178,142 @@
   const $ = id => document.getElementById(id);
   const show = (id, on) => $(id).classList.toggle('hidden', !(on!==false));
   const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const fmt2 = n => (n==null||isNaN(n))?'—':Number(n).toFixed(2);
-  const fmt0 = n => (n==null||isNaN(n))?'—':Number(n).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
-  const flash = (text, kind) => {
-    $('msg-area').innerHTML = '<div class="msg msg-'+esc(kind||'info')+'">'+esc(text)+'</div>';
-    if (kind !== 'error') setTimeout(function(){ $('msg-area').innerHTML=''; }, 6000);
+  const num = (n, d) => (n==null||isNaN(Number(n)))?'—':Number(n).toFixed(d==null?2:d);
+  const usd0 = n => (n==null||isNaN(Number(n)))?'—':Number(n).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+  const usd2 = n => (n==null||isNaN(Number(n)))?'—':Number(n).toLocaleString('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
+  const pct = (n, d) => (n==null||isNaN(Number(n)))?'—':(Number(n)>=0?'+':'')+Number(n).toFixed(d==null?1:d)+'%';
+  const cap = n => {
+    if (n==null||isNaN(Number(n))) return '—';
+    const v = Number(n);
+    if (v >= 1e12) return '$'+(v/1e12).toFixed(2)+'T';
+    if (v >= 1e9)  return '$'+(v/1e9).toFixed(1)+'B';
+    if (v >= 1e6)  return '$'+(v/1e6).toFixed(0)+'M';
+    return '$'+v.toFixed(0);
   };
+  const cls = n => (n==null||isNaN(Number(n)))?'':(Number(n)>=0?'pos':'neg');
 
   (async () => {
     const r = await sb.auth.getSession();
-    const session = r && r.data && r.data.session;
-    if (!session || !session.user) { window.location.href='/index.html'; return; }
-    currentUser = session.user;
-    show('loading-screen', false);
-    show('app', true);
+    if (!r.data?.session?.user) { window.location.href='/index.html'; return; }
+    currentUser = r.data.session.user;
+    show('loading-screen', false); show('app', true);
     try { if (window.RidgeRunNav) await window.RidgeRunNav.mount({active:'portfolio', supabase:sb}); } catch(e){}
-    document.querySelector('input[name="entry_dt"]').value = new Date().toISOString().slice(0,10);
-    $('add-position-form').addEventListener('submit', addPosition);
-    loadPositions();
+    loadPortfolio();
   })();
 
-  async function loadPositions() {
-    const r = await sb.from('positions').select('*')
-      .eq('user_id', currentUser.id).eq('is_open', true)
-      .order('entry_dt',{ascending:false}).limit(200);
+  async function loadPortfolio() {
+    const r = await sb.rpc('get_portfolio_view', { p_user: currentUser.id });
     if (r.error) {
-      $('positions-tbody').innerHTML = '<tr><td colspan="13" class="empty">Error: '+esc(r.error.message)+'</td></tr>';
+      $('positions-tbody').innerHTML = '<tr><td colspan="23" class="empty">Error: '+esc(r.error.message)+'</td></tr>';
       return;
     }
-    const data = r.data || [];
-    let totalCost = 0, totalValue = 0;
-    data.forEach(function(p){
-      const cost = p.entry_total != null ? Number(p.entry_total) : (p.entry_price!=null && p.qty!=null ? Number(p.entry_price)*Number(p.qty) : 0);
-      totalCost += cost;
-      totalValue += p.current_value != null ? Number(p.current_value) : cost;
-    });
-    const pl = totalValue - totalCost;
-    $('m-count').textContent = data.length;
-    $('m-cost').textContent = fmt0(totalCost);
-    $('m-value').textContent = fmt0(totalValue);
-    $('m-pl').innerHTML = '<span class="'+(pl>=0?'pos':'neg')+'">'+fmt0(pl)+'</span>';
-    $('summary-meta').textContent = data.length+' open · last update '+new Date().toLocaleTimeString();
+    const data = r.data || {};
+    const positions = data.positions || [];
+    const spreads = data.spreads || [];
+    const sm = data.summary || {};
 
-    if (!data.length) {
-      $('positions-tbody').innerHTML = '<tr><td colspan="13" class="empty">No open positions. Add one below.</td></tr>';
-      return;
+    const equityValue = Number(sm.total_equity_value||0);
+    const equityCost  = Number(sm.total_equity_cost||0);
+    const optCredit   = Number(sm.total_options_credit_received||0);
+    const optDebit    = Number(sm.total_options_debit_paid||0);
+    const netOptions  = optCredit - optDebit;
+    const shortNotional = Number(sm.short_options_notional||0);
+    const longNotional  = Number(sm.long_options_notional||0);
+
+    const nav = equityValue + netOptions;
+    const totalPnl = positions.reduce((s,p) => s + Number(p.pnl||0), 0);
+
+    // Net spread max loss from spreads (worst case across defined-risk structures)
+    const netSpreadMaxLoss = spreads.reduce((s,sp) => s + Number(sp.spread_max_loss||0), 0);
+
+    $('m-nav').textContent = usd0(nav);
+    $('m-nav-sub').textContent = 'Equity + Net Options';
+    $('m-equity').textContent = usd0(equityValue);
+    $('m-equity-sub').textContent = 'Cost: '+usd0(equityCost);
+    $('m-opt').textContent = usd0(netOptions);
+    $('m-opt-sub').textContent = 'Credit '+usd0(optCredit)+' · Debit '+usd0(optDebit);
+    $('m-pnl').innerHTML = '<span class="'+cls(totalPnl)+'">'+usd0(totalPnl)+'</span>';
+    $('m-pnl-sub').textContent = 'Mark-to-market';
+    $('m-count').textContent = sm.position_count||0;
+    $('m-count-sub').textContent = (data.generated_at||'').slice(11,19)+' UTC';
+    $('summary-meta').textContent = (sm.position_count||0)+' positions · sync '+(data.generated_at||'').slice(11,19);
+
+    // Positions table
+    if (!positions.length) {
+      $('positions-tbody').innerHTML = '<tr><td colspan="23" class="empty">No open positions.</td></tr>';
+    } else {
+      $('positions-tbody').innerHTML = positions.map(p => {
+        const isOpt = p.instrument_type === 'Equity Option';
+        const isShort = p.direction === 'Short';
+        const instLabel = isOpt ? (p.side === 'put' ? 'Put' : 'Call') : 'Equity';
+        const dirPill = isShort ? '<span class="pill pill-short">SHORT</span>' : '<span class="pill pill-long">LONG</span>';
+        const pctOfNav = nav > 0 ? Math.abs(Number(p.position_value||0)) / nav * 100 : null;
+        return '<tr>'
+          + '<td><a href="/research.html?ticker='+esc(p.underlying)+'">'+esc(p.underlying)+'</a></td>'
+          + '<td>'+esc(instLabel)+'</td>'
+          + '<td>'+dirPill+'</td>'
+          + '<td class="num">'+(p.qty!=null?p.qty:'—')+'</td>'
+          + '<td class="num">'+(p.strike!=null?num(p.strike,0):'—')+'</td>'
+          + '<td class="dim">'+esc((p.expiry||'').toString().slice(0,10)||'—')+'</td>'
+          + '<td class="num">'+usd2(p.avg_open_price)+'</td>'
+          + '<td class="num">'+usd2(p.current_price)+'</td>'
+          + '<td class="num">'+usd0(p.position_value)+'</td>'
+          + '<td class="num dim">'+(pctOfNav!=null?pct(pctOfNav):'—')+'</td>'
+          + '<td class="num '+cls(p.pnl)+'" title="Cost basis: '+usd2(p.cost_basis)+'">'+usd0(p.pnl)+'</td>'
+          + '<td class="num dim">'+cap(p.market_cap)+'</td>'
+          + '<td class="num dim">'+(p.fcf_yield_ltm!=null?pct(Number(p.fcf_yield_ltm)*100):'—')+'</td>'
+          + '<td class="num dim">'+num(p.pe_ltm,1)+'</td>'
+          + '<td class="num dim">'+num(p.pe_ntm,1)+'</td>'
+          + '<td class="num dim">'+(p.rev_growth_1y!=null?pct(Number(p.rev_growth_1y)*100):'—')+'</td>'
+          + '<td class="num">'+usd0(p.analyst_target_high)+'</td>'
+          + '<td class="num">'+usd0(p.analyst_target_low)+'</td>'
+          + '<td class="num '+cls(p.up_pct)+'">'+pct(p.up_pct)+'</td>'
+          + '<td class="num '+cls(p.down_pct)+'">'+pct(p.down_pct)+'</td>'
+          + '<td class="num">'+num(p.rr_ratio,2)+'</td>'
+          + '<td class="num pos">'+(p.leg_max_gain!=null?usd0(p.leg_max_gain):'—')+'</td>'
+          + '<td class="num neg">'+(p.leg_max_loss!=null?usd0(p.leg_max_loss):'unlim')+'</td>'
+          + '</tr>';
+      }).join('');
     }
-    $('positions-tbody').innerHTML = data.map(function(p){
-      const cost = p.entry_total != null ? Number(p.entry_total) : (p.entry_price!=null && p.qty!=null ? Number(p.entry_price)*Number(p.qty) : 0);
-      const val = p.current_value != null ? Number(p.current_value) : cost;
-      const ppl = val - cost;
-      return '<tr>'
-        + '<td><a href="/research.html?ticker='+esc(p.ticker)+'" style="color:var(--accent);text-decoration:none;font-weight:600">'+esc(p.ticker)+'</a></td>'
-        + '<td>'+esc(p.instrument||'')+'</td>'
-        + '<td class="num">'+(p.qty!=null?p.qty:'—')+'</td>'
-        + '<td class="num">'+(p.legs && p.legs.strike != null ? fmt2(p.legs.strike) : '—')+'</td>'
-        + '<td>'+esc(p.expiry||'—')+'</td>'
-        + '<td class="num">'+fmt2(p.entry_price)+'</td>'
-        + '<td>'+esc((p.entry_dt||'').slice(0,10))+'</td>'
-        + '<td class="num">'+fmt0(cost)+'</td>'
-        + '<td class="num">'+fmt0(val)+'</td>'
-        + '<td class="num '+(ppl>=0?'pos':'neg')+'">'+fmt0(ppl)+'</td>'
-        + '<td class="num">'+(p.max_loss!=null?fmt0(p.max_loss):'—')+'</td>'
-        + '<td title="'+esc(p.thesis||'')+'">'+esc((p.thesis||'').slice(0,40))+(p.thesis&&p.thesis.length>40?'…':'')+'</td>'
-        + '<td><button type="button" class="btn btn-sm btn-danger" data-close="'+esc(p.id)+'">Close</button></td>'
-        + '</tr>';
-    }).join('');
-    $('positions-tbody').querySelectorAll('button[data-close]').forEach(function(b){
-      b.addEventListener('click', async function(){
-        const exitPrice = prompt('Exit price (leave blank to use current/entry):');
-        const updates = { is_open: false, closed_dt: new Date().toISOString() };
-        if (exitPrice && !isNaN(parseFloat(exitPrice))) updates.closed_price = parseFloat(exitPrice);
-        const r = await sb.from('positions').update(updates).eq('id', b.dataset.close);
-        if (r.error) flash('Close failed: '+r.error.message,'error');
-        else { flash('Position closed.','success'); loadPositions(); }
-      });
-    });
-  }
 
-  async function addPosition(e) {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const ticker = (fd.get('ticker')||'').trim().toUpperCase();
-    const qty = fd.get('qty') ? Number(fd.get('qty')) : null;
-    const entryPrice = fd.get('entry_price') ? Number(fd.get('entry_price')) : null;
-    const strike = fd.get('strike') ? Number(fd.get('strike')) : null;
-    const row = {
-      user_id: currentUser.id,
-      ticker: ticker,
-      instrument: fd.get('instrument'),
-      qty: qty,
-      entry_price: entryPrice,
-      entry_dt: fd.get('entry_dt') ? new Date(fd.get('entry_dt')).toISOString() : new Date().toISOString(),
-      entry_total: (qty != null && entryPrice != null) ? qty * entryPrice : null,
-      expiry: fd.get('expiry') || null,
-      max_loss: fd.get('max_loss') ? Number(fd.get('max_loss')) : null,
-      target_exit: fd.get('target_exit') ? Number(fd.get('target_exit')) : null,
-      thesis: fd.get('thesis') || null,
-      legs: strike != null ? { strike: strike } : null,
-      is_open: true
-    };
-    const r = await sb.from('positions').insert(row);
-    if (r.error) flash('Save failed: '+r.error.message, 'error');
-    else {
-      flash('Position added for '+ticker+'. Refreshing data feeds…','success');
-      fireBootstrapForTicker(ticker);
-      e.target.reset();
-      document.querySelector('input[name="entry_dt"]').value = new Date().toISOString().slice(0,10);
-      loadPositions();
+    // Spreads table
+    if (spreads.length) {
+      $('spreads-card').style.display = '';
+      $('spreads-tbody').innerHTML = spreads.map(s => '<tr>'
+        + '<td><a href="/research.html?ticker='+esc(s.underlying)+'">'+esc(s.underlying)+'</a></td>'
+        + '<td>'+esc(s.side)+'</td>'
+        + '<td class="dim">'+esc((s.expiry||'').toString().slice(0,10))+'</td>'
+        + '<td class="num">'+s.qty+'</td>'
+        + '<td class="num">'+num(s.short_strike,0)+'</td>'
+        + '<td class="num">'+num(s.long_strike,0)+'</td>'
+        + '<td class="num">'+num(s.spread_width,0)+'</td>'
+        + '<td class="num">'+usd2(s.net_credit_per_share)+'</td>'
+        + '<td class="num pos">'+usd0(s.net_credit_dollars)+'</td>'
+        + '<td class="num neg">'+usd0(s.spread_max_loss)+'</td>'
+        + '<td class="num pos">'+pct(s.spread_ror_pct)+'</td>'
+        + '</tr>').join('');
     }
-  }
 
-  function fireBootstrapForTicker(ticker) {
-    fetch(N8N+'/webhook/research/bootstrap', {
-      method:'POST', headers:{'content-type':'application/json'},
-      body: JSON.stringify({ ticker: ticker })
-    }).then(function(r){
-      if (!r.ok && r.status === 404) {
-        ['historical/backfill','insider/sync','analyst/sync','options/snap','vol/backfill'].forEach(function(p){
-          fetch(N8N+'/webhook/'+p, {
-            method:'POST', headers:{'content-type':'application/json'},
-            body: JSON.stringify({ ticker: ticker })
-          }).catch(function(){});
-        });
-      }
-    }).catch(function(){
-      ['historical/backfill','insider/sync','analyst/sync','options/snap','vol/backfill'].forEach(function(p){
-        fetch(N8N+'/webhook/'+p, {
-          method:'POST', headers:{'content-type':'application/json'},
-          body: JSON.stringify({ ticker: ticker })
-        }).catch(function(){});
-      });
-    });
+    // Risk metrics
+    const grossExposure = Math.abs(equityValue) + shortNotional + longNotional;
+    const leverage = equityValue > 0 ? grossExposure / equityValue : null;
+    const bprRatio = equityValue > 0 ? netSpreadMaxLoss / equityValue * 100 : null;
+
+    $('r-lev').textContent = leverage != null ? num(leverage,2)+'x' : '—';
+    $('r-lev').className = 'v ' + (leverage>5?'neg':leverage>3?'warn':'pos');
+    $('risk-leverage').className = 'risk-box ' + (leverage>5?'danger':leverage>3?'warn':'');
+
+    $('r-short-not').textContent = usd0(shortNotional);
+    $('r-short-not').className = 'v ' + (shortNotional > equityValue*100 ? 'warn' : '');
+    $('risk-short-notional').className = 'risk-box ' + (shortNotional > equityValue*100 ? 'warn' : '');
+
+    $('r-net-loss').textContent = usd0(netSpreadMaxLoss);
+    $('r-net-loss').className = 'v ' + (netSpreadMaxLoss > equityValue*0.5 ? 'warn' : '');
+    $('risk-net-loss').className = 'risk-box ' + (netSpreadMaxLoss > equityValue*0.5 ? 'warn' : '');
+
+    $('r-bpr').textContent = bprRatio != null ? pct(bprRatio) : '—';
+    $('r-bpr').className = 'v ' + (bprRatio>60?'neg':bprRatio>40?'warn':'pos');
+    $('risk-cash-bpr').className = 'risk-box ' + (bprRatio>60?'danger':bprRatio>40?'warn':'');
   }
 })();
 </script>
