@@ -39,8 +39,7 @@
 
   .form-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
   .field label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
-  .field input, .field textarea{width:100%;background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-family:var(--mono);font-size:12px;color:var(--text);border-radius:3px}
-  .field textarea{font-family:var(--sans);min-height:50px;resize:vertical}
+  .field input{width:100%;background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-family:var(--mono);font-size:12px;color:var(--text);border-radius:3px}
 
   .scroll{overflow-x:auto}
   table{width:100%;border-collapse:collapse;font-size:12px}
@@ -56,10 +55,16 @@
 
   .thesis-cell{max-width:280px;white-space:normal;font-family:var(--sans);font-size:11.5px;line-height:1.4;color:var(--text-muted)}
 
+  .tag{display:inline-block;padding:1px 5px;border-radius:8px;font-size:8.5px;font-weight:600;letter-spacing:0.04em;margin-left:5px;vertical-align:middle}
+  .tag-live{background:var(--success-bg);color:#065f46}
+  .tag-eod{background:var(--border);color:var(--text-muted)}
+  .tag-loading{background:var(--bg-blue);color:var(--accent-dark)}
+
   .empty{padding:32px 20px;text-align:center;color:var(--text-muted);font-size:13px;font-style:italic}
   .msg{padding:10px 14px;font-size:13px;border-radius:4px;margin:10px 0}
   .msg-error{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
   .msg-success{background:var(--success-bg);border:1px solid #a7f3d0;color:#065f46}
+  .msg-info{background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--accent-dark)}
 
   @media (max-width:980px){ .form-grid-3{grid-template-columns:1fr} }
 </style>
@@ -70,7 +75,7 @@
   <div id="rr-nav-container"></div>
 
   <h1 class="page-title">Watchlist</h1>
-  <p class="page-sub">Performance, IV regime, analyst targets, and your conviction targets. Edit Up/Down targets inline — saved on blur.</p>
+  <p class="page-sub">Performance, IV regime, analyst targets, and your conviction targets. Live quotes via DXLink (refresh button reloads).</p>
 
   <div id="msg-area"></div>
 
@@ -90,8 +95,11 @@
 
   <div class="banner-card">
     <div class="banner-head">
-      <h2>Active tickers</h2>
-      <span class="banner-meta" id="wl-count">—</span>
+      <h2>Active tickers <span id="quote-status" class="tag tag-loading">FETCHING LIVE…</span></h2>
+      <div style="display:flex;gap:10px;align-items:center">
+        <span class="banner-meta" id="wl-count">—</span>
+        <button id="refresh-btn" class="btn btn-ghost btn-sm" type="button">Refresh quotes</button>
+      </div>
     </div>
     <div class="banner-body scroll">
       <table>
@@ -126,7 +134,10 @@
   const N8N = 'https://victoryvision.app.n8n.cloud';
   const cfg = window.RR_CONFIG || {};
   const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY);
+  const DXLINK_URL = cfg.SUPABASE_URL + '/functions/v1/dxlink-quotes';
   let currentUser = null;
+  let currentRows = [];   // Source-of-truth from RPC
+  let liveQuotes = {};    // ticker -> {bid, ask, mid}
 
   const $ = id => document.getElementById(id);
   const show = (id, on) => $(id).classList.toggle('hidden', !(on!==false));
@@ -147,38 +158,103 @@
     show('loading-screen', false); show('app', true);
     try { if (window.RidgeRunNav) await window.RidgeRunNav.mount({active:'watchlist', supabase:sb}); } catch(e){}
     $('add-form').addEventListener('submit', addTicker);
-    loadWatchlist();
+    $('refresh-btn').addEventListener('click', () => { fetchLiveQuotes(); });
+    await loadWatchlist();
   })();
 
   async function loadWatchlist() {
     const r = await sb.rpc('get_watchlist_view', { p_user: currentUser.id });
     if (r.error) { $('wl-tbody').innerHTML='<tr><td colspan="15" class="empty">Error: '+esc(r.error.message)+'</td></tr>'; return; }
-    const data = (r.data && r.data.watchlist) || [];
-    $('wl-count').textContent = data.length+' ticker'+(data.length===1?'':'s');
-    if (!data.length) { $('wl-tbody').innerHTML='<tr><td colspan="15" class="empty">No tickers yet.</td></tr>'; return; }
-    $('wl-tbody').innerHTML = data.map(w => {
+    currentRows = (r.data && r.data.watchlist) || [];
+    $('wl-count').textContent = currentRows.length+' ticker'+(currentRows.length===1?'':'s');
+    if (!currentRows.length) { $('wl-tbody').innerHTML='<tr><td colspan="15" class="empty">No tickers yet.</td></tr>'; return; }
+    renderTable();
+    // Fire live-quote fetch in background
+    fetchLiveQuotes();
+  }
+
+  async function fetchLiveQuotes() {
+    $('quote-status').textContent = 'FETCHING LIVE…';
+    $('quote-status').className = 'tag tag-loading';
+    const tickers = currentRows.map(r => r.ticker).filter(t => t && t !== 'VIX');
+    // Batch in groups of 25 to keep dxlink WS payload small
+    const batches = [];
+    for (let i=0; i<tickers.length; i+=25) batches.push(tickers.slice(i, i+25));
+
+    // Fire all batches in parallel
+    const results = await Promise.allSettled(batches.map(b => 
+      fetch(DXLINK_URL, {
+        method:'POST',
+        headers:{'content-type':'application/json', 'apikey': cfg.SUPABASE_PUBLISHABLE_KEY, 'Authorization':'Bearer '+cfg.SUPABASE_PUBLISHABLE_KEY},
+        body: JSON.stringify({ symbols: b })
+      }).then(r => r.json())
+    ));
+
+    let liveCount = 0;
+    results.forEach(res => {
+      if (res.status === 'fulfilled' && res.value && Array.isArray(res.value.quotes)) {
+        res.value.quotes.forEach(q => {
+          if (q.symbol && q.bid != null && q.ask != null) {
+            const mid = (Number(q.bid) + Number(q.ask)) / 2;
+            liveQuotes[q.symbol] = { bid: Number(q.bid), ask: Number(q.ask), mid };
+            liveCount++;
+          }
+        });
+      }
+    });
+
+    if (liveCount > 0) {
+      $('quote-status').textContent = liveCount+'/'+tickers.length+' LIVE · '+new Date().toLocaleTimeString();
+      $('quote-status').className = 'tag tag-live';
+    } else {
+      $('quote-status').textContent = 'EOD (no live quotes)';
+      $('quote-status').className = 'tag tag-eod';
+    }
+    renderTable();
+  }
+
+  function renderTable() {
+    $('wl-tbody').innerHTML = currentRows.map(w => {
       const upTgt = w.user_target_price != null ? Number(w.user_target_price).toFixed(2) : '';
       const dnTgt = w.user_downside_price != null ? Number(w.user_downside_price).toFixed(2) : '';
+      const prevClose = w.prev_close != null ? Number(w.prev_close) : null;
+      const live = liveQuotes[w.ticker];
+      // Use live mid if available, else fall back to prev_close
+      const livePrice = live ? live.mid : null;
+      const spot = livePrice != null ? livePrice : prevClose;
+      const perf1d = (livePrice != null && prevClose != null && prevClose > 0)
+        ? (livePrice/prevClose - 1) * 100
+        : null;  // Show — when no live; never show prior-day-vs-prior change
+      const perf1w = (spot != null && w.px_1wk_back > 0) ? (spot/w.px_1wk_back - 1)*100 : null;
+      const perf1m = (spot != null && w.px_1mo_back > 0) ? (spot/w.px_1mo_back - 1)*100 : null;
+      const perf1y = (spot != null && w.px_1yr_back > 0) ? (spot/w.px_1yr_back - 1)*100 : null;
+      const perf3y = (spot != null && w.px_3yr_back > 0) ? (spot/w.px_3yr_back - 1)*100 : null;
+      const userUp = (spot != null && w.user_target_price != null && spot > 0) ? (w.user_target_price/spot - 1)*100 : null;
+      const userDn = (spot != null && w.user_downside_price != null && spot > 0) ? (w.user_downside_price/spot - 1)*100 : null;
+      const consUp = (spot != null && w.analyst_target_high != null && spot > 0) ? (w.analyst_target_high/spot - 1)*100 : null;
+      const priceTag = livePrice != null ? '<span class="tag tag-live">LIVE</span>' : '<span class="tag tag-eod">EOD</span>';
       return '<tr>'
         + '<td><a href="/research.html?ticker='+esc(w.ticker)+'">'+esc(w.ticker)+'</a></td>'
-        + '<td class="num">'+usd2(w.spot)+'</td>'
-        + '<td class="num '+cls(w.perf_1d_pct)+'">'+pct(w.perf_1d_pct)+'</td>'
-        + '<td class="num '+cls(w.perf_1wk_pct)+'">'+pct(w.perf_1wk_pct)+'</td>'
-        + '<td class="num '+cls(w.perf_1mo_pct)+'">'+pct(w.perf_1mo_pct)+'</td>'
-        + '<td class="num '+cls(w.perf_1yr_pct)+'">'+pct(w.perf_1yr_pct)+'</td>'
-        + '<td class="num '+cls(w.perf_3yr_pct)+'">'+pct(w.perf_3yr_pct)+'</td>'
+        + '<td class="num">'+usd2(spot)+priceTag+'</td>'
+        + '<td class="num '+cls(perf1d)+'">'+(perf1d==null?'—':pct(perf1d))+'</td>'
+        + '<td class="num '+cls(perf1w)+'">'+pct(perf1w)+'</td>'
+        + '<td class="num '+cls(perf1m)+'">'+pct(perf1m)+'</td>'
+        + '<td class="num '+cls(perf1y)+'">'+pct(perf1y)+'</td>'
+        + '<td class="num '+cls(perf3y)+'">'+pct(perf3y)+'</td>'
         + '<td class="num dim">'+(w.ivr!=null?num(w.ivr,0):'—')+'</td>'
         + '<td class="num"><input type="number" class="target-input" step="0.01" data-id="'+esc(w.id)+'" data-field="target_price" value="'+esc(upTgt)+'" placeholder="—"></td>'
-        + '<td class="num '+cls(w.user_up_pct)+'">'+pct(w.user_up_pct)+'</td>'
+        + '<td class="num '+cls(userUp)+'">'+pct(userUp)+'</td>'
         + '<td class="num"><input type="number" class="target-input" step="0.01" data-id="'+esc(w.id)+'" data-field="downside_target_price" value="'+esc(dnTgt)+'" placeholder="—"></td>'
-        + '<td class="num '+cls(w.user_down_pct)+'">'+pct(w.user_down_pct)+'</td>'
-        + '<td class="num dim" title="Analyst high '+usd2(w.analyst_target_high)+' / low '+usd2(w.analyst_target_low)+' ('+(w.analyst_count||0)+' analysts)">'+pct(w.analyst_up_pct)+'</td>'
+        + '<td class="num '+cls(userDn)+'">'+pct(userDn)+'</td>'
+        + '<td class="num dim" title="Analyst high '+usd2(w.analyst_target_high)+' / low '+usd2(w.analyst_target_low)+' ('+(w.analyst_count||0)+' analysts)">'+pct(consUp)+'</td>'
         + '<td class="thesis-cell" title="'+esc(w.thesis||'')+'">'+esc(w.thesis||'—')+'</td>'
         + '<td><button type="button" class="btn btn-sm btn-danger" data-remove="'+esc(w.id)+'">×</button></td>'
         + '</tr>';
     }).join('');
+    wireRowEvents();
+  }
 
-    // Wire target input saves
+  function wireRowEvents() {
     document.querySelectorAll('.target-input').forEach(inp => {
       inp.addEventListener('blur', async () => {
         const id = inp.dataset.id, field = inp.dataset.field;
@@ -189,8 +265,6 @@
         else { flash('Saved.','success'); loadWatchlist(); }
       });
     });
-
-    // Wire remove buttons
     document.querySelectorAll('button[data-remove]').forEach(b => {
       b.addEventListener('click', async () => {
         if (!confirm('Remove from watchlist?')) return;
