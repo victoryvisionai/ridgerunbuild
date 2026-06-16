@@ -75,7 +75,7 @@
   <div id="rr-nav-container"></div>
 
   <h1 class="page-title">Watchlist</h1>
-  <p class="page-sub">Performance, IV regime, analyst targets, and your conviction targets. Live quotes via DXLink (refresh button reloads).</p>
+  <p class="page-sub">Live quotes during market hours; falls back to last completed session's close-to-close move outside RTH.</p>
 
   <div id="msg-area"></div>
 
@@ -136,8 +136,8 @@
   const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY);
   const DXLINK_URL = cfg.SUPABASE_URL + '/functions/v1/dxlink-quotes';
   let currentUser = null;
-  let currentRows = [];   // Source-of-truth from RPC
-  let liveQuotes = {};    // ticker -> {bid, ask, mid}
+  let currentRows = [];
+  let liveQuotes = {};
 
   const $ = id => document.getElementById(id);
   const show = (id, on) => $(id).classList.toggle('hidden', !(on!==false));
@@ -151,6 +151,18 @@
     if (kind !== 'error') setTimeout(() => { $('msg-area').innerHTML=''; }, 5000);
   };
 
+  // Detect if US equity market is open (very rough: Mon-Fri 9:30-16:00 ET).
+  function marketIsOpen() {
+    const now = new Date();
+    // Convert to ET via locale
+    const etStr = now.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false });
+    const et = new Date(etStr);
+    const day = et.getDay();
+    if (day === 0 || day === 6) return false;
+    const mins = et.getHours()*60 + et.getMinutes();
+    return mins >= 570 && mins < 960; // 9:30-16:00
+  }
+
   (async () => {
     const r = await sb.auth.getSession();
     if (!r.data?.session?.user) { window.location.href='/index.html'; return; }
@@ -158,7 +170,7 @@
     show('loading-screen', false); show('app', true);
     try { if (window.RidgeRunNav) await window.RidgeRunNav.mount({active:'watchlist', supabase:sb}); } catch(e){}
     $('add-form').addEventListener('submit', addTicker);
-    $('refresh-btn').addEventListener('click', () => { fetchLiveQuotes(); });
+    $('refresh-btn').addEventListener('click', () => fetchLiveQuotes());
     await loadWatchlist();
   })();
 
@@ -169,20 +181,22 @@
     $('wl-count').textContent = currentRows.length+' ticker'+(currentRows.length===1?'':'s');
     if (!currentRows.length) { $('wl-tbody').innerHTML='<tr><td colspan="15" class="empty">No tickers yet.</td></tr>'; return; }
     renderTable();
-    // Fire live-quote fetch in background
-    fetchLiveQuotes();
+    if (marketIsOpen()) {
+      fetchLiveQuotes();
+    } else {
+      $('quote-status').textContent = 'MARKET CLOSED · showing last EOD';
+      $('quote-status').className = 'tag tag-eod';
+    }
   }
 
   async function fetchLiveQuotes() {
     $('quote-status').textContent = 'FETCHING LIVE…';
     $('quote-status').className = 'tag tag-loading';
     const tickers = currentRows.map(r => r.ticker).filter(t => t && t !== 'VIX');
-    // Batch in groups of 25 to keep dxlink WS payload small
     const batches = [];
     for (let i=0; i<tickers.length; i+=25) batches.push(tickers.slice(i, i+25));
 
-    // Fire all batches in parallel
-    const results = await Promise.allSettled(batches.map(b => 
+    const results = await Promise.allSettled(batches.map(b =>
       fetch(DXLINK_URL, {
         method:'POST',
         headers:{'content-type':'application/json', 'apikey': cfg.SUPABASE_PUBLISHABLE_KEY, 'Authorization':'Bearer '+cfg.SUPABASE_PUBLISHABLE_KEY},
@@ -194,7 +208,7 @@
     results.forEach(res => {
       if (res.status === 'fulfilled' && res.value && Array.isArray(res.value.quotes)) {
         res.value.quotes.forEach(q => {
-          if (q.symbol && q.bid != null && q.ask != null) {
+          if (q.symbol && q.bid != null && q.ask != null && Number(q.bid) > 0 && Number(q.ask) > 0) {
             const mid = (Number(q.bid) + Number(q.ask)) / 2;
             liveQuotes[q.symbol] = { bid: Number(q.bid), ask: Number(q.ask), mid };
             liveCount++;
@@ -207,7 +221,7 @@
       $('quote-status').textContent = liveCount+'/'+tickers.length+' LIVE · '+new Date().toLocaleTimeString();
       $('quote-status').className = 'tag tag-live';
     } else {
-      $('quote-status').textContent = 'EOD (no live quotes)';
+      $('quote-status').textContent = 'NO LIVE · showing last EOD';
       $('quote-status').className = 'tag tag-eod';
     }
     renderTable();
@@ -217,14 +231,25 @@
     $('wl-tbody').innerHTML = currentRows.map(w => {
       const upTgt = w.user_target_price != null ? Number(w.user_target_price).toFixed(2) : '';
       const dnTgt = w.user_downside_price != null ? Number(w.user_downside_price).toFixed(2) : '';
-      const prevClose = w.prev_close != null ? Number(w.prev_close) : null;
+      const lastClose  = w.last_close  != null ? Number(w.last_close)  : null;
+      const priorClose = w.prior_close != null ? Number(w.prior_close) : null;
       const live = liveQuotes[w.ticker];
-      // Use live mid if available, else fall back to prev_close
       const livePrice = live ? live.mid : null;
-      const spot = livePrice != null ? livePrice : prevClose;
-      const perf1d = (livePrice != null && prevClose != null && prevClose > 0)
-        ? (livePrice/prevClose - 1) * 100
-        : null;  // Show — when no live; never show prior-day-vs-prior change
+      const spot = livePrice != null ? livePrice : lastClose;
+
+      // 1D logic:
+      // - If live: compare live mid to last EOD close (today's intraday move)
+      // - Else:    compare last EOD close to prior EOD close (last completed session's move)
+      let perf1d = null, tag1d = '';
+      if (livePrice != null && lastClose != null && lastClose > 0) {
+        perf1d = (livePrice/lastClose - 1) * 100;
+        tag1d  = '<span class="tag tag-live">LIVE</span>';
+      } else if (lastClose != null && priorClose != null && priorClose > 0) {
+        perf1d = (lastClose/priorClose - 1) * 100;
+        tag1d  = '<span class="tag tag-eod" title="Close-to-close move on '+esc(w.last_date||'')+'">EOD</span>';
+      }
+
+      // Other perf bands: use whatever spot we have (live preferred, else last close)
       const perf1w = (spot != null && w.px_1wk_back > 0) ? (spot/w.px_1wk_back - 1)*100 : null;
       const perf1m = (spot != null && w.px_1mo_back > 0) ? (spot/w.px_1mo_back - 1)*100 : null;
       const perf1y = (spot != null && w.px_1yr_back > 0) ? (spot/w.px_1yr_back - 1)*100 : null;
@@ -232,11 +257,12 @@
       const userUp = (spot != null && w.user_target_price != null && spot > 0) ? (w.user_target_price/spot - 1)*100 : null;
       const userDn = (spot != null && w.user_downside_price != null && spot > 0) ? (w.user_downside_price/spot - 1)*100 : null;
       const consUp = (spot != null && w.analyst_target_high != null && spot > 0) ? (w.analyst_target_high/spot - 1)*100 : null;
-      const priceTag = livePrice != null ? '<span class="tag tag-live">LIVE</span>' : '<span class="tag tag-eod">EOD</span>';
+      const priceTag = livePrice != null ? '<span class="tag tag-live">LIVE</span>' : '<span class="tag tag-eod" title="As of '+esc(w.last_date||'')+'">EOD</span>';
+
       return '<tr>'
         + '<td><a href="/research.html?ticker='+esc(w.ticker)+'">'+esc(w.ticker)+'</a></td>'
         + '<td class="num">'+usd2(spot)+priceTag+'</td>'
-        + '<td class="num '+cls(perf1d)+'">'+(perf1d==null?'—':pct(perf1d))+'</td>'
+        + '<td class="num '+cls(perf1d)+'">'+(perf1d==null?'—':pct(perf1d))+tag1d+'</td>'
         + '<td class="num '+cls(perf1w)+'">'+pct(perf1w)+'</td>'
         + '<td class="num '+cls(perf1m)+'">'+pct(perf1m)+'</td>'
         + '<td class="num '+cls(perf1y)+'">'+pct(perf1y)+'</td>'
@@ -248,7 +274,7 @@
         + '<td class="num '+cls(userDn)+'">'+pct(userDn)+'</td>'
         + '<td class="num dim" title="Analyst high '+usd2(w.analyst_target_high)+' / low '+usd2(w.analyst_target_low)+' ('+(w.analyst_count||0)+' analysts)">'+pct(consUp)+'</td>'
         + '<td class="thesis-cell" title="'+esc(w.thesis||'')+'">'+esc(w.thesis||'—')+'</td>'
-        + '<td><button type="button" class="btn btn-sm btn-danger" data-remove="'+esc(w.id)+'">×</button></td>'
+        + '<td><button type="button" class="btn btn-sm btn-ghost" data-bootstrap="'+esc(w.ticker)+'" title="Re-fetch all data sources">↻</button> <button type="button" class="btn btn-sm btn-danger" data-remove="'+esc(w.id)+'" title="Remove">×</button></td>'
         + '</tr>';
     }).join('');
     wireRowEvents();
@@ -273,6 +299,13 @@
         else { flash('Removed.','success'); loadWatchlist(); }
       });
     });
+    document.querySelectorAll('button[data-bootstrap]').forEach(b => {
+      b.addEventListener('click', () => {
+        const tk = b.dataset.bootstrap;
+        flash('Refreshing data for '+tk+'…','info');
+        bootstrapTicker(tk, false);  // incremental on re-fetch
+      });
+    });
   }
 
   async function addTicker(e) {
@@ -287,19 +320,38 @@
       is_active: true, added_at: new Date().toISOString()
     };
     const r = await sb.from('ticker_watchlist').insert(row);
-    if (r.error) flash('Save failed: '+r.error.message,'error');
-    else { flash('Added '+ticker+'. Firing research bootstrap…','success'); fireBootstrap(ticker); e.target.reset(); loadWatchlist(); }
+    if (r.error) { flash('Save failed: '+r.error.message,'error'); return; }
+    e.target.reset();
+    flash('Added '+ticker+'. Fetching profile, fundamentals, analyst targets, bars, IV/IVR, and options chain…','info');
+    loadWatchlist();
+    bootstrapTicker(ticker, true);  // full_history=true for new ticker
   }
 
-  function fireBootstrap(ticker) {
-    fetch(N8N+'/webhook/research/bootstrap', {
-      method:'POST', headers:{'content-type':'application/json'},
-      body: JSON.stringify({ ticker })
-    }).catch(()=>{
-      ['historical/backfill','insider/sync','analyst/sync','options/snap','vol/backfill'].forEach(p => {
-        fetch(N8N+'/webhook/'+p, {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ticker})}).catch(()=>{});
+  // Fires all 6 backfill edge functions in parallel via the ticker-bootstrap orchestrator.
+  // Populates: company_profile, company_fundamentals, analyst_price_targets, daily_bars,
+  // vol_snapshots_v2, options_chain_snapshots. Drives research.html, model.html, watchlist.
+  async function bootstrapTicker(ticker, fullHistory) {
+    const url = cfg.SUPABASE_URL + '/functions/v1/ticker-bootstrap';
+    try {
+      const r = await fetch(url, {
+        method:'POST',
+        headers:{'content-type':'application/json','apikey':cfg.SUPABASE_PUBLISHABLE_KEY,'Authorization':'Bearer '+cfg.SUPABASE_PUBLISHABLE_KEY},
+        body: JSON.stringify({ ticker, full_history: !!fullHistory })
       });
-    });
+      const data = await r.json().catch(()=>({}));
+      const ok = data.ok_count || 0;
+      const tot = data.total || 6;
+      const ms = data.total_ms || 0;
+      if (ok === tot) {
+        flash('✓ '+ticker+': all '+tot+' sources loaded ('+(ms/1000).toFixed(1)+'s). Refresh page to see new data.','success');
+      } else {
+        const failed = (data.results||[]).filter(x=>!x.ok).map(x=>x.fn).join(', ');
+        flash('⚠ '+ticker+': '+ok+'/'+tot+' sources loaded ('+(ms/1000).toFixed(1)+'s). Failed: '+failed,'info');
+      }
+      loadWatchlist();
+    } catch (e) {
+      flash('Bootstrap failed for '+ticker+': '+String(e),'error');
+    }
   }
 })();
 </script>
