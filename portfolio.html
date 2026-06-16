@@ -79,7 +79,7 @@
   <div id="rr-nav-container"></div>
 
   <h1 class="page-title">Portfolio</h1>
-  <p class="page-sub">Live positions from Tastytrade with DXLink price overlay. Underlying prices update on load; refresh button re-pulls.</p>
+  <p class="page-sub">Live positions from Tastytrade with DXLink price overlay during RTH; falls back to last EOD close outside RTH.</p>
 
   <div id="msg-area"></div>
 
@@ -198,6 +198,15 @@
   };
   const cls = n => (n==null||isNaN(Number(n)))?'':(Number(n)>=0?'pos':'neg');
 
+  function marketIsOpen() {
+    const now = new Date();
+    const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false }));
+    const day = et.getDay();
+    if (day === 0 || day === 6) return false;
+    const mins = et.getHours()*60 + et.getMinutes();
+    return mins >= 570 && mins < 960;
+  }
+
   (async () => {
     const r = await sb.auth.getSession();
     if (!r.data?.session?.user) { window.location.href='/index.html'; return; }
@@ -216,6 +225,7 @@
     }
     portfolioData = r.data || {};
     render();
+    // Always attempt live quotes — DXLink returns last print outside market hours too
     fetchLiveQuotes();
   }
 
@@ -234,7 +244,7 @@
     let liveCount = 0;
     if (r && Array.isArray(r.quotes)) {
       r.quotes.forEach(q => {
-        if (q.symbol && q.bid != null && q.ask != null) {
+        if (q.symbol && q.bid != null && q.ask != null && Number(q.bid) > 0 && Number(q.ask) > 0) {
           liveQuotes[q.symbol] = { bid: Number(q.bid), ask: Number(q.ask), mid: (Number(q.bid)+Number(q.ask))/2 };
           liveCount++;
         }
@@ -245,7 +255,7 @@
       $('quote-status').textContent = liveCount+'/'+tickers.length+' LIVE · '+new Date().toLocaleTimeString();
       $('quote-status').className = 'tag tag-live';
     } else {
-      $('quote-status').textContent = 'EOD (no live quotes)';
+      $('quote-status').textContent = 'NO LIVE · showing last EOD';
       $('quote-status').className = 'tag tag-eod';
     }
     render();
@@ -257,14 +267,12 @@
     const spreads = portfolioData.spreads || [];
     const sm = portfolioData.summary || {};
 
-    // Apply live quote overlay
     let equityValue = 0, equityCost = 0;
     const positionsAdj = positions.map(p => {
       const live = liveQuotes[p.underlying];
       const livePx = live ? live.mid : null;
       const px = livePx != null ? livePx : Number(p.current_price||0);
       let posValue = Number(p.position_value);
-      // For equity: re-mark to live
       if (p.instrument_type === 'Equity') {
         posValue = Number(p.qty) * px;
         equityValue += posValue;
@@ -305,7 +313,7 @@
         const instLabel = isOpt ? (p.side === 'put' ? 'Put' : 'Call') : 'Equity';
         const dirPill = isShort ? '<span class="pill pill-short">SHORT</span>' : '<span class="pill pill-long">LONG</span>';
         const pctOfNav = nav > 0 ? Math.abs(Number(p._disp_value||0)) / nav * 100 : null;
-        const priceTag = p._live_px != null ? '<span class="tag tag-live">LIVE</span>' : '<span class="tag tag-eod">EOD</span>';
+        const priceTag = p._live_px != null ? '<span class="tag tag-live">LIVE</span>' : '<span class="tag tag-eod" title="As of '+esc(p.price_as_of||'')+'">EOD</span>';
         return '<tr>'
           + '<td><a href="/research.html?ticker='+esc(p.underlying)+'">'+esc(p.underlying)+'</a></td>'
           + '<td>'+esc(instLabel)+'</td>'
@@ -367,3 +375,6 @@
     $('risk-cash-bpr').className = 'risk-box ' + (bprRatio>60?'danger':bprRatio>40?'warn':'');
   }
 })();
+</script>
+</body>
+</html>
