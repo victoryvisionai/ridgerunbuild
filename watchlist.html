@@ -181,12 +181,8 @@
     $('wl-count').textContent = currentRows.length+' ticker'+(currentRows.length===1?'':'s');
     if (!currentRows.length) { $('wl-tbody').innerHTML='<tr><td colspan="15" class="empty">No tickers yet.</td></tr>'; return; }
     renderTable();
-    if (marketIsOpen()) {
-      fetchLiveQuotes();
-    } else {
-      $('quote-status').textContent = 'MARKET CLOSED · showing last EOD';
-      $('quote-status').className = 'tag tag-eod';
-    }
+    // Always attempt live quotes (DXLink returns last print outside market hours too)
+    fetchLiveQuotes();
   }
 
   async function fetchLiveQuotes() {
@@ -233,20 +229,34 @@
       const dnTgt = w.user_downside_price != null ? Number(w.user_downside_price).toFixed(2) : '';
       const lastClose  = w.last_close  != null ? Number(w.last_close)  : null;
       const priorClose = w.prior_close != null ? Number(w.prior_close) : null;
+      const lastDate   = w.last_date;
       const live = liveQuotes[w.ticker];
       const livePrice = live ? live.mid : null;
       const spot = livePrice != null ? livePrice : lastClose;
 
-      // 1D logic:
-      // - If live: compare live mid to last EOD close (today's intraday move)
-      // - Else:    compare last EOD close to prior EOD close (last completed session's move)
+      // Date-aware 1D logic — root-cause fix for stale daily_bars (Monday's bar lands Tuesday AM)
+      // todayET = current US/Eastern calendar date
+      const todayET = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+      const lastBarIsToday = (lastDate || '').slice(0,10) === todayET;
+      // Reference = the close BEFORE today's session
+      const refClose = lastBarIsToday ? priorClose : lastClose;
+      // Current = live print if we have one, else today's official close (only if bar IS today)
+      const curPx = livePrice != null
+        ? livePrice
+        : (lastBarIsToday ? lastClose : null);
+
       let perf1d = null, tag1d = '';
-      if (livePrice != null && lastClose != null && lastClose > 0) {
-        perf1d = (livePrice/lastClose - 1) * 100;
-        tag1d  = '<span class="tag tag-live">LIVE</span>';
+      if (refClose != null && curPx != null && refClose > 0) {
+        perf1d = (curPx/refClose - 1) * 100;
+        if (livePrice != null) {
+          tag1d = '<span class="tag tag-live" title="Live mark vs prior session close">LIVE</span>';
+        } else {
+          tag1d = '<span class="tag tag-eod" title="Today\'s EOD vs prior session close ('+esc(todayET)+')">EOD</span>';
+        }
       } else if (lastClose != null && priorClose != null && priorClose > 0) {
+        // No live quote AND today's bar not loaded yet — show last completed session's move with clear date label
         perf1d = (lastClose/priorClose - 1) * 100;
-        tag1d  = '<span class="tag tag-eod" title="Close-to-close move on '+esc(w.last_date||'')+'">EOD</span>';
+        tag1d = '<span class="tag tag-eod" title="Stale: last completed session close-to-close move from '+esc((lastDate||'').slice(0,10))+'. Today\'s data pending.">STALE</span>';
       }
 
       // Other perf bands: use whatever spot we have (live preferred, else last close)
@@ -257,7 +267,11 @@
       const userUp = (spot != null && w.user_target_price != null && spot > 0) ? (w.user_target_price/spot - 1)*100 : null;
       const userDn = (spot != null && w.user_downside_price != null && spot > 0) ? (w.user_downside_price/spot - 1)*100 : null;
       const consUp = (spot != null && w.analyst_target_high != null && spot > 0) ? (w.analyst_target_high/spot - 1)*100 : null;
-      const priceTag = livePrice != null ? '<span class="tag tag-live">LIVE</span>' : '<span class="tag tag-eod" title="As of '+esc(w.last_date||'')+'">EOD</span>';
+      const priceTag = livePrice != null 
+        ? '<span class="tag tag-live">LIVE</span>' 
+        : (lastBarIsToday 
+          ? '<span class="tag tag-eod" title="Today\'s EOD close">EOD</span>'
+          : '<span class="tag tag-eod" title="Stale: last bar from '+esc((lastDate||'').slice(0,10))+', today\'s bar not yet synced">STALE</span>');
 
       return '<tr>'
         + '<td><a href="/research.html?ticker='+esc(w.ticker)+'">'+esc(w.ticker)+'</a></td>'
