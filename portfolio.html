@@ -21,12 +21,11 @@
   body{background:var(--bg-tint);color:var(--text);font-family:var(--sans);font-size:13.5px;line-height:1.5;min-height:100vh}
   .hidden{display:none!important}
   .loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim)}
-  .shell{max-width:1640px;margin:0 auto;padding:0 20px 80px}
+  .shell{max-width:1680px;margin:0 auto;padding:0 20px 80px}
   h1.page-title{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-0.02em;margin:24px 0 4px}
   .page-sub{color:var(--text-muted);margin:0 0 22px;font-size:14px}
 
   .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:9px 14px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500}
-  .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)}
   .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
   .btn-sm{font-size:10px;padding:4px 8px}
 
@@ -60,7 +59,15 @@
   .tag-eod{background:var(--border);color:var(--text-muted)}
   .tag-loading{background:var(--bg-blue);color:var(--accent-dark)}
 
+  .target-input{width:62px;background:transparent;border:1px solid transparent;text-align:right;font-family:var(--mono);font-size:11px;color:var(--text);padding:2px 4px;border-radius:2px}
+  .target-input:hover{border-color:var(--border)}
+  .target-input:focus{outline:none;border-color:var(--accent);background:var(--bg)}
+
   .empty{padding:32px 20px;text-align:center;color:var(--text-muted);font-size:13px;font-style:italic}
+  .msg{padding:10px 14px;font-size:13px;border-radius:4px;margin:10px 0}
+  .msg-error{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
+  .msg-success{background:var(--success-bg);border:1px solid #a7f3d0;color:#065f46}
+  .msg-info{background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--accent-dark)}
 
   .risk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
   .risk-box{padding:12px 14px;border:1px solid var(--border);border-radius:4px;background:var(--bg-tint)}
@@ -79,7 +86,7 @@
   <div id="rr-nav-container"></div>
 
   <h1 class="page-title">Portfolio</h1>
-  <p class="page-sub">Live positions from Tastytrade with DXLink price overlay during RTH; falls back to last EOD close outside RTH.</p>
+  <p class="page-sub">Live Tastytrade balances + position marks. Up/Down targets editable inline (saved to watchlist, single source of truth across pages).</p>
 
   <div id="msg-area"></div>
 
@@ -93,11 +100,11 @@
     </div>
     <div class="banner-body">
       <div class="grid-5">
-        <div class="metric-box"><div class="l">NAV (Equity + Net Opt)</div><div class="v" id="m-nav">—</div><div class="sub" id="m-nav-sub">—</div></div>
-        <div class="metric-box"><div class="l">Equity value</div><div class="v" id="m-equity">—</div><div class="sub" id="m-equity-sub">—</div></div>
-        <div class="metric-box"><div class="l">Net options credit</div><div class="v" id="m-opt">—</div><div class="sub" id="m-opt-sub">—</div></div>
-        <div class="metric-box"><div class="l">Total P&amp;L (mkt)</div><div class="v" id="m-pnl">—</div><div class="sub" id="m-pnl-sub">—</div></div>
-        <div class="metric-box"><div class="l">Positions</div><div class="v" id="m-count">—</div><div class="sub" id="m-count-sub">—</div></div>
+        <div class="metric-box"><div class="l">NLV (Tastytrade)</div><div class="v" id="m-nlv">—</div><div class="sub" id="m-nlv-sub">—</div></div>
+        <div class="metric-box"><div class="l">Cash</div><div class="v" id="m-cash">—</div><div class="sub" id="m-cash-sub">—</div></div>
+        <div class="metric-box"><div class="l">Long equity value</div><div class="v" id="m-equity">—</div><div class="sub" id="m-equity-sub">—</div></div>
+        <div class="metric-box"><div class="l">BPR used / NLV</div><div class="v" id="m-bpr">—</div><div class="sub" id="m-bpr-sub">—</div></div>
+        <div class="metric-box"><div class="l">Net P&amp;L (positions)</div><div class="v" id="m-pnl">—</div><div class="sub" id="m-pnl-sub">—</div></div>
       </div>
     </div>
   </div>
@@ -108,36 +115,35 @@
       <table>
         <thead>
           <tr>
-            <th>Ticker</th><th>Instrument</th><th>Dir</th>
+            <th>Ticker</th><th>Inst</th><th>Dir</th>
             <th style="text-align:right">Qty</th>
             <th style="text-align:right">Strike</th>
             <th>Expiry</th>
             <th style="text-align:right">Entry $</th>
             <th style="text-align:right">Price</th>
             <th style="text-align:right">Value</th>
-            <th style="text-align:right">% NAV</th>
+            <th style="text-align:right">% NLV</th>
             <th style="text-align:right">P&amp;L</th>
             <th style="text-align:right">Mkt Cap</th>
             <th style="text-align:right">FCF Yld</th>
             <th style="text-align:right">P/E LTM</th>
             <th style="text-align:right">P/E NTM</th>
             <th style="text-align:right">Rev gr 1Y</th>
-            <th style="text-align:right">Up TGT</th>
-            <th style="text-align:right">Down TGT</th>
-            <th style="text-align:right">Up%</th>
-            <th style="text-align:right">Down%</th>
+            <th style="text-align:right">Up TGT $</th>
+            <th style="text-align:right">Up %</th>
+            <th style="text-align:right">Down TGT $</th>
+            <th style="text-align:right">Down %</th>
             <th style="text-align:right">R/R</th>
-            <th style="text-align:right">Max Gain</th>
-            <th style="text-align:right">Max Loss</th>
+            <th style="text-align:right">Analyst Cons.</th>
           </tr>
         </thead>
-        <tbody id="positions-tbody"><tr><td colspan="23" class="empty">Loading…</td></tr></tbody>
+        <tbody id="positions-tbody"><tr><td colspan="22" class="empty">Loading…</td></tr></tbody>
       </table>
     </div>
   </div>
 
   <div class="banner-card" id="spreads-card" style="display:none">
-    <div class="banner-head"><h2>Spread structures (paired)</h2><span class="banner-meta">net credit · spread width · ROR</span></div>
+    <div class="banner-head"><h2>Spread structures (paired, defined-risk)</h2><span class="banner-meta">net credit · spread width · ROR · max loss</span></div>
     <div class="banner-body scroll">
       <table>
         <thead><tr>
@@ -157,13 +163,13 @@
   </div>
 
   <div class="banner-card">
-    <div class="banner-head"><h2>Risk &amp; leverage</h2><span class="banner-meta">v4 framework</span></div>
+    <div class="banner-head"><h2>Risk &amp; leverage</h2><span class="banner-meta">Tastytrade-reported · v4 framework</span></div>
     <div class="banner-body">
       <div class="risk-grid">
-        <div class="risk-box" id="risk-leverage"><div class="l">Leverage</div><div class="v" id="r-lev">—</div><div class="d">Total gross exposure / Equity value</div></div>
-        <div class="risk-box" id="risk-short-notional"><div class="l">Short option notional</div><div class="v" id="r-short-not">—</div><div class="d">Capital at risk if all short legs go ITM (gross)</div></div>
-        <div class="risk-box" id="risk-net-loss"><div class="l">Net spread max loss</div><div class="v" id="r-net-loss">—</div><div class="d">Defined-risk worst case across all paired spreads</div></div>
-        <div class="risk-box" id="risk-cash-bpr"><div class="l">Implied BPR ratio</div><div class="v" id="r-bpr">—</div><div class="d">Net option max loss as % of equity NAV</div></div>
+        <div class="risk-box" id="risk-leverage"><div class="l">Gross leverage</div><div class="v" id="r-lev">—</div><div class="d">(Long equity + Long deriv + |Short deriv|) / NLV. Captures equity AND options exposure together.</div></div>
+        <div class="risk-box" id="risk-bpr"><div class="l">BPR used (Tastytrade)</div><div class="v" id="r-bpr">—</div><div class="d">Actual buying-power consumed across equity + options. The number Tasty enforces.</div></div>
+        <div class="risk-box" id="risk-spread-loss"><div class="l">Net spread max loss</div><div class="v" id="r-spread-loss">—</div><div class="d">Defined-risk worst case across all paired credit spreads.</div></div>
+        <div class="risk-box" id="risk-naked"><div class="l">Naked short risk</div><div class="v" id="r-naked">—</div><div class="d">Unpaired short legs (uncapped for calls). "UNLIMITED" if any unpaired short call exists.</div></div>
       </div>
     </div>
   </div>
@@ -197,15 +203,10 @@
     return '$'+v.toFixed(0);
   };
   const cls = n => (n==null||isNaN(Number(n)))?'':(Number(n)>=0?'pos':'neg');
-
-  function marketIsOpen() {
-    const now = new Date();
-    const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false }));
-    const day = et.getDay();
-    if (day === 0 || day === 6) return false;
-    const mins = et.getHours()*60 + et.getMinutes();
-    return mins >= 570 && mins < 960;
-  }
+  const flash = (text, kind) => {
+    $('msg-area').innerHTML = '<div class="msg msg-'+esc(kind||'info')+'">'+esc(text)+'</div>';
+    if (kind !== 'error') setTimeout(() => { $('msg-area').innerHTML=''; }, 4000);
+  };
 
   (async () => {
     const r = await sb.auth.getSession();
@@ -220,12 +221,11 @@
   async function loadPortfolio() {
     const r = await sb.rpc('get_portfolio_view', { p_user: currentUser.id });
     if (r.error) {
-      $('positions-tbody').innerHTML = '<tr><td colspan="23" class="empty">Error: '+esc(r.error.message)+'</td></tr>';
+      $('positions-tbody').innerHTML = '<tr><td colspan="22" class="empty">Error: '+esc(r.error.message)+'</td></tr>';
       return;
     }
     portfolioData = r.data || {};
     render();
-    // Always attempt live quotes — DXLink returns last print outside market hours too
     fetchLiveQuotes();
   }
 
@@ -233,7 +233,7 @@
     $('quote-status').textContent = 'FETCHING LIVE…';
     $('quote-status').className = 'tag tag-loading';
     const tickers = [...new Set((portfolioData.positions||[]).map(p => p.underlying).filter(Boolean))];
-    if (!tickers.length) { $('quote-status').textContent='EOD'; $('quote-status').className='tag tag-eod'; return; }
+    if (!tickers.length) { $('quote-status').textContent='—'; $('quote-status').className='tag tag-eod'; return; }
 
     const r = await fetch(DXLINK_URL, {
       method:'POST',
@@ -261,13 +261,32 @@
     render();
   }
 
+  // Save user target — upserts ticker_watchlist row by (user_id, ticker). Auto-adds if missing.
+  // Single source of truth across portfolio + watchlist.
+  async function saveTarget(ticker, field, value) {
+    const existing = await sb.from('ticker_watchlist').select('id').eq('user_id', currentUser.id).eq('ticker', ticker).eq('is_active', true).maybeSingle();
+    if (existing.data && existing.data.id) {
+      const upd = {}; upd[field] = value;
+      const r = await sb.from('ticker_watchlist').update(upd).eq('id', existing.data.id);
+      if (r.error) { flash('Save failed: '+r.error.message,'error'); return; }
+    } else {
+      const row = { user_id: currentUser.id, ticker, symbol: ticker, is_active: true, added_at: new Date().toISOString() };
+      row[field] = value;
+      const r = await sb.from('ticker_watchlist').insert(row);
+      if (r.error) { flash('Save failed: '+r.error.message,'error'); return; }
+      flash('Added '+ticker+' to watchlist with target.','info');
+    }
+    flash('Target saved.','success');
+    loadPortfolio();
+  }
+
   function render() {
     if (!portfolioData) return;
     const positions = portfolioData.positions || [];
     const spreads = portfolioData.spreads || [];
-    const sm = portfolioData.summary || {};
+    const bal = portfolioData.balances || {};
 
-    let equityValue = 0, equityCost = 0;
+    let equityLiveValue = 0, equityCost = 0, mtmPnl = 0;
     const positionsAdj = positions.map(p => {
       const live = liveQuotes[p.underlying];
       const livePx = live ? live.mid : null;
@@ -275,45 +294,76 @@
       let posValue = Number(p.position_value);
       if (p.instrument_type === 'Equity') {
         posValue = Number(p.qty) * px;
-        equityValue += posValue;
+        equityLiveValue += posValue;
         equityCost  += Number(p.qty) * Number(p.avg_open_price);
       }
-      return { ...p, _live_px: livePx, _disp_px: px, _disp_value: posValue,
-               _pnl: posValue - Number(p.cost_basis) };
+      const pnl = posValue - Number(p.cost_basis);
+      mtmPnl += pnl;
+      return { ...p, _live_px: livePx, _disp_px: px, _disp_value: posValue, _pnl: pnl };
     });
 
-    const optCredit = Number(sm.total_options_credit_received||0);
-    const optDebit  = Number(sm.total_options_debit_paid||0);
-    const netOptions = optCredit - optDebit;
-    const shortNotional = Number(sm.short_options_notional||0);
-    const longNotional  = Number(sm.long_options_notional||0);
+    // ===== Summary (Tastytrade-driven) =====
+    const nlv = Number(bal.nlv || 0);
+    const cash = Number(bal.cash || 0);
+    const bprUsed = Number(bal.bpr_used || 0);
+    const bprAvail = Number(bal.derivative_bp_available || 0);
+    const longEquityTT = Number(bal.long_equity_value || 0);
+    const longDerivTT = Number(bal.long_derivative_value || 0);
+    const shortDerivTT = Number(bal.short_derivative_value || 0);
 
-    const nav = equityValue + netOptions;
-    const totalPnl = positionsAdj.reduce((s,p) => s + Number(p._pnl||0), 0);
+    const grossExposure = longEquityTT + longDerivTT + Math.abs(shortDerivTT);
+    const leverage = nlv > 0 ? grossExposure / nlv : null;
+    const bprPct = nlv > 0 ? bprUsed / nlv * 100 : null;
+
     const netSpreadMaxLoss = spreads.reduce((s,sp) => s + Number(sp.spread_max_loss||0), 0);
 
-    $('m-nav').textContent = usd0(nav);
-    $('m-nav-sub').textContent = 'Equity + Net Options';
-    $('m-equity').textContent = usd0(equityValue);
-    $('m-equity-sub').textContent = 'Cost: '+usd0(equityCost);
-    $('m-opt').textContent = usd0(netOptions);
-    $('m-opt-sub').textContent = 'Credit '+usd0(optCredit)+' · Debit '+usd0(optDebit);
-    $('m-pnl').innerHTML = '<span class="'+cls(totalPnl)+'">'+usd0(totalPnl)+'</span>';
-    $('m-pnl-sub').textContent = 'Mark-to-market';
-    $('m-count').textContent = sm.position_count||0;
-    $('m-count-sub').textContent = (portfolioData.generated_at||'').slice(11,19)+' UTC';
-    $('summary-meta').textContent = (sm.position_count||0)+' positions · sync '+(portfolioData.generated_at||'').slice(11,19);
+    // Naked short detection — short legs not paired in a spread
+    const pairedSet = new Set();
+    spreads.forEach(sp => {
+      pairedSet.add(`${sp.underlying}|${sp.expiry}|${sp.side}|${sp.short_strike}|S`);
+      pairedSet.add(`${sp.underlying}|${sp.expiry}|${sp.side}|${sp.long_strike}|L`);
+    });
+    let nakedRisk = 0;
+    let nakedCallUnlimited = false;
+    positionsAdj.forEach(p => {
+      if (p.instrument_type !== 'Equity Option' || p.direction !== 'Short') return;
+      const key = `${p.underlying}|${p.expiry}|${p.side}|${p.strike}|S`;
+      if (pairedSet.has(key)) return;
+      if (p.side === 'call') { nakedCallUnlimited = true; }
+      else if (p.side === 'put' && p.strike) {
+        nakedRisk += Number(p.qty_abs) * (Number(p.strike) * 100 - Number(p.avg_open_price) * Number(p.multiplier));
+      }
+    });
 
+    $('m-nlv').textContent = usd0(nlv);
+    $('m-nlv-sub').textContent = bal.as_of ? 'as of '+String(bal.as_of).slice(0,16).replace('T',' ') : '—';
+    $('m-cash').textContent = usd0(cash);
+    $('m-cash-sub').textContent = bprAvail > 0 ? 'Avail BPR '+usd0(bprAvail) : 'BPR maxed';
+    $('m-equity').textContent = usd0(longEquityTT);
+    $('m-equity-sub').textContent = 'Live mark '+usd0(equityLiveValue)+' · cost '+usd0(equityCost);
+    $('m-bpr').textContent = bprPct != null ? pct(bprPct,1) : '—';
+    $('m-bpr').className = 'v ' + (bprPct>80?'neg':bprPct>50?'warn':'pos');
+    $('m-bpr-sub').textContent = 'Used '+usd0(bprUsed)+' / NLV '+usd0(nlv);
+    $('m-pnl').innerHTML = '<span class="'+cls(mtmPnl)+'">'+usd0(mtmPnl)+'</span>';
+    $('m-pnl-sub').textContent = 'Mark-to-market vs entry';
+    $('summary-meta').textContent = (positions.length)+' positions · sync '+(portfolioData.generated_at||'').slice(11,19);
+
+    // ===== Positions =====
     if (!positionsAdj.length) {
-      $('positions-tbody').innerHTML = '<tr><td colspan="23" class="empty">No open positions.</td></tr>';
+      $('positions-tbody').innerHTML = '<tr><td colspan="22" class="empty">No open positions.</td></tr>';
     } else {
       $('positions-tbody').innerHTML = positionsAdj.map(p => {
         const isOpt = p.instrument_type === 'Equity Option';
         const isShort = p.direction === 'Short';
-        const instLabel = isOpt ? (p.side === 'put' ? 'Put' : 'Call') : 'Equity';
+        const instLabel = isOpt ? (p.side === 'put' ? 'Put' : 'Call') : 'Eqty';
         const dirPill = isShort ? '<span class="pill pill-short">SHORT</span>' : '<span class="pill pill-long">LONG</span>';
-        const pctOfNav = nav > 0 ? Math.abs(Number(p._disp_value||0)) / nav * 100 : null;
-        const priceTag = p._live_px != null ? '<span class="tag tag-live">LIVE</span>' : '<span class="tag tag-eod" title="As of '+esc(p.price_as_of||'')+'">EOD</span>';
+        const pctOfNlv = nlv > 0 ? Math.abs(Number(p._disp_value||0)) / nlv * 100 : null;
+        const priceTag = p._live_px != null ? '<span class="tag tag-live">LIVE</span>' : '<span class="tag tag-eod">EOD</span>';
+        const upTgt = p.user_up_target   != null ? Number(p.user_up_target).toFixed(2)   : '';
+        const dnTgt = p.user_down_target != null ? Number(p.user_down_target).toFixed(2) : '';
+        const upPct = p.up_pct_user   != null ? p.up_pct_user   : p.up_pct_analyst;
+        const dnPct = p.down_pct_user != null ? p.down_pct_user : p.down_pct_analyst;
+        const consTitle = 'Analyst high '+usd2(p.analyst_target_high)+' / low '+usd2(p.analyst_target_low)+' ('+(p.analyst_count||0)+' analysts)';
         return '<tr>'
           + '<td><a href="/research.html?ticker='+esc(p.underlying)+'">'+esc(p.underlying)+'</a></td>'
           + '<td>'+esc(instLabel)+'</td>'
@@ -324,24 +374,31 @@
           + '<td class="num">'+usd2(p.avg_open_price)+'</td>'
           + '<td class="num">'+usd2(p._disp_px)+priceTag+'</td>'
           + '<td class="num">'+usd0(p._disp_value)+'</td>'
-          + '<td class="num dim">'+(pctOfNav!=null?pct(pctOfNav):'—')+'</td>'
+          + '<td class="num dim">'+(pctOfNlv!=null?pct(pctOfNlv):'—')+'</td>'
           + '<td class="num '+cls(p._pnl)+'" title="Cost basis: '+usd2(p.cost_basis)+'">'+usd0(p._pnl)+'</td>'
           + '<td class="num dim">'+cap(p.market_cap)+'</td>'
           + '<td class="num dim">'+(p.fcf_yield_ltm!=null?pct(Number(p.fcf_yield_ltm)*100):'—')+'</td>'
           + '<td class="num dim">'+num(p.pe_ltm,1)+'</td>'
           + '<td class="num dim">'+num(p.pe_ntm,1)+'</td>'
           + '<td class="num dim">'+(p.rev_growth_1y!=null?pct(Number(p.rev_growth_1y)*100):'—')+'</td>'
-          + '<td class="num">'+usd0(p.analyst_target_high)+'</td>'
-          + '<td class="num">'+usd0(p.analyst_target_low)+'</td>'
-          + '<td class="num '+cls(p.up_pct)+'">'+pct(p.up_pct)+'</td>'
-          + '<td class="num '+cls(p.down_pct)+'">'+pct(p.down_pct)+'</td>'
+          + '<td class="num"><input type="number" class="target-input" step="0.01" data-ticker="'+esc(p.underlying)+'" data-field="target_price" value="'+esc(upTgt)+'" placeholder="—"></td>'
+          + '<td class="num '+cls(upPct)+'">'+pct(upPct)+'</td>'
+          + '<td class="num"><input type="number" class="target-input" step="0.01" data-ticker="'+esc(p.underlying)+'" data-field="downside_target_price" value="'+esc(dnTgt)+'" placeholder="—"></td>'
+          + '<td class="num '+cls(dnPct)+'">'+pct(dnPct)+'</td>'
           + '<td class="num">'+num(p.rr_ratio,2)+'</td>'
-          + '<td class="num pos">'+(p.leg_max_gain!=null?usd0(p.leg_max_gain):'—')+'</td>'
-          + '<td class="num neg">'+(p.leg_max_loss!=null?usd0(p.leg_max_loss):'unlim')+'</td>'
+          + '<td class="num dim" title="'+esc(consTitle)+'">'+pct(p.consensus_pct)+'</td>'
           + '</tr>';
       }).join('');
+      document.querySelectorAll('.target-input').forEach(inp => {
+        inp.addEventListener('blur', () => {
+          const ticker = inp.dataset.ticker, field = inp.dataset.field;
+          const val = inp.value === '' ? null : Number(inp.value);
+          saveTarget(ticker, field, val);
+        });
+      });
     }
 
+    // ===== Spreads =====
     if (spreads.length) {
       $('spreads-card').style.display = '';
       $('spreads-tbody').innerHTML = spreads.map(s => '<tr>'
@@ -359,20 +416,29 @@
         + '</tr>').join('');
     }
 
-    const grossExposure = Math.abs(equityValue) + shortNotional + longNotional;
-    const leverage = equityValue > 0 ? grossExposure / equityValue : null;
-    const bprRatio = equityValue > 0 ? netSpreadMaxLoss / equityValue * 100 : null;
-
+    // ===== Risk boxes =====
     $('r-lev').textContent = leverage != null ? num(leverage,2)+'x' : '—';
     $('r-lev').className = 'v ' + (leverage>5?'neg':leverage>3?'warn':'pos');
     $('risk-leverage').className = 'risk-box ' + (leverage>5?'danger':leverage>3?'warn':'');
-    $('r-short-not').textContent = usd0(shortNotional);
-    $('r-net-loss').textContent = usd0(netSpreadMaxLoss);
-    $('r-net-loss').className = 'v ' + (netSpreadMaxLoss > equityValue*0.5 ? 'warn' : '');
-    $('risk-net-loss').className = 'risk-box ' + (netSpreadMaxLoss > equityValue*0.5 ? 'warn' : '');
-    $('r-bpr').textContent = bprRatio != null ? pct(bprRatio) : '—';
-    $('r-bpr').className = 'v ' + (bprRatio>60?'neg':bprRatio>40?'warn':'pos');
-    $('risk-cash-bpr').className = 'risk-box ' + (bprRatio>60?'danger':bprRatio>40?'warn':'');
+
+    $('r-bpr').textContent = usd0(bprUsed);
+    $('r-bpr').className = 'v ' + (bprPct>80?'neg':bprPct>50?'warn':'pos');
+    $('risk-bpr').className = 'risk-box ' + (bprPct>80?'danger':bprPct>50?'warn':'');
+
+    $('r-spread-loss').textContent = usd0(netSpreadMaxLoss);
+    $('r-spread-loss').className = 'v ' + (netSpreadMaxLoss > nlv*0.5 ? 'warn' : '');
+    $('risk-spread-loss').className = 'risk-box ' + (netSpreadMaxLoss > nlv*0.5 ? 'warn' : '');
+
+    if (nakedCallUnlimited) {
+      $('r-naked').innerHTML = '<span class="neg">UNLIMITED</span>';
+      $('risk-naked').className = 'risk-box danger';
+    } else if (nakedRisk > 0) {
+      $('r-naked').textContent = usd0(nakedRisk);
+      $('risk-naked').className = 'risk-box ' + (nakedRisk > nlv*0.5 ? 'warn' : '');
+    } else {
+      $('r-naked').innerHTML = '<span class="dim">None</span>';
+      $('risk-naked').className = 'risk-box';
+    }
   }
 })();
 </script>
