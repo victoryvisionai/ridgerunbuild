@@ -24,23 +24,19 @@
   .shell{max-width:1640px;margin:0 auto;padding:0 20px 80px}
   h1.page-title{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-0.02em;margin:24px 0 4px}
   .page-sub{color:var(--text-muted);margin:0 0 22px;font-size:14px}
-
   .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:9px 14px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500}
   .btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{background:var(--accent-dark)}
   .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
   .btn-danger{background:var(--bg);color:var(--danger);border-color:#fecaca}
   .btn-sm{font-size:10px;padding:4px 8px}
-
   .banner-card{background:var(--bg);border:1px solid var(--border);border-radius:6px;margin-bottom:18px;overflow:hidden}
   .banner-head{background:#0f172a;color:#f1f5f9;padding:13px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
   .banner-head h2{font-family:var(--serif);font-size:17px;font-weight:500;margin:0;color:#f1f5f9}
   .banner-meta{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8}
   .banner-body{padding:18px 20px}
-
   .form-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
   .field label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
   .field input{width:100%;background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-family:var(--mono);font-size:12px;color:var(--text);border-radius:3px}
-
   .scroll{overflow-x:auto}
   table{width:100%;border-collapse:collapse;font-size:12px}
   th{text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);padding:7px 8px;border-bottom:1px solid var(--border);background:var(--bg-tint);white-space:nowrap}
@@ -48,24 +44,20 @@
   td.num{text-align:right} td.pos{color:var(--success)} td.neg{color:var(--danger)} td.dim{color:var(--text-muted)}
   td a{color:var(--accent);text-decoration:none;font-weight:600}
   tbody tr:hover{background:var(--bg-tint)}
-
   .target-input{width:65px;background:transparent;border:1px solid transparent;text-align:right;font-family:var(--mono);font-size:11px;color:var(--text);padding:2px 4px;border-radius:2px}
   .target-input:hover{border-color:var(--border)}
   .target-input:focus{outline:none;border-color:var(--accent);background:var(--bg)}
-
   .thesis-cell{max-width:280px;white-space:normal;font-family:var(--sans);font-size:11.5px;line-height:1.4;color:var(--text-muted)}
-
   .tag{display:inline-block;padding:1px 5px;border-radius:8px;font-size:8.5px;font-weight:600;letter-spacing:0.04em;margin-left:5px;vertical-align:middle}
   .tag-live{background:var(--success-bg);color:#065f46}
   .tag-eod{background:var(--border);color:var(--text-muted)}
+  .tag-stale{background:#fef3c7;color:#92400e}
   .tag-loading{background:var(--bg-blue);color:var(--accent-dark)}
-
   .empty{padding:32px 20px;text-align:center;color:var(--text-muted);font-size:13px;font-style:italic}
   .msg{padding:10px 14px;font-size:13px;border-radius:4px;margin:10px 0}
   .msg-error{background:var(--danger-bg);border:1px solid #fecaca;color:#991b1b}
   .msg-success{background:var(--success-bg);border:1px solid #a7f3d0;color:#065f46}
   .msg-info{background:var(--bg-blue);border:1px solid var(--border-blue);color:var(--accent-dark)}
-
   @media (max-width:980px){ .form-grid-3{grid-template-columns:1fr} }
 </style>
 </head>
@@ -73,10 +65,8 @@
 <div id="loading-screen" class="loading">Loading watchlist…</div>
 <div id="app" class="shell hidden">
   <div id="rr-nav-container"></div>
-
   <h1 class="page-title">Watchlist</h1>
-  <p class="page-sub">Live quotes during market hours; falls back to last completed session's close-to-close move outside RTH.</p>
-
+  <p class="page-sub">Live quotes auto-refresh every 20s (RTH) or 5min (extended). 1D = today's last vs prior session close, sourced directly from Tastytrade.</p>
   <div id="msg-area"></div>
 
   <div class="banner-card">
@@ -95,32 +85,27 @@
 
   <div class="banner-card">
     <div class="banner-head">
-      <h2>Active tickers <span id="quote-status" class="tag tag-loading">FETCHING LIVE…</span></h2>
+      <h2>Active tickers <span id="quote-status" class="tag tag-loading">LOADING…</span></h2>
       <div style="display:flex;gap:10px;align-items:center">
         <span class="banner-meta" id="wl-count">—</span>
-        <button id="refresh-btn" class="btn btn-ghost btn-sm" type="button">Refresh quotes</button>
+        <button id="refresh-btn" class="btn btn-ghost btn-sm" type="button">Refresh</button>
       </div>
     </div>
     <div class="banner-body scroll">
       <table>
         <thead><tr>
-          <th>Ticker</th>
-          <th style="text-align:right">Price</th>
-          <th style="text-align:right">1D</th>
-          <th style="text-align:right">1W</th>
-          <th style="text-align:right">1M</th>
-          <th style="text-align:right">1Y</th>
-          <th style="text-align:right">3Y</th>
-          <th style="text-align:right">IVR</th>
-          <th style="text-align:right">Up TGT $</th>
-          <th style="text-align:right">Up %</th>
-          <th style="text-align:right">Down TGT $</th>
-          <th style="text-align:right">Down %</th>
+          <th>Ticker</th><th style="text-align:right">Price</th>
+          <th style="text-align:right">1D</th><th style="text-align:right">1W</th>
+          <th style="text-align:right">1M</th><th style="text-align:right">1Y</th>
+          <th style="text-align:right">3Y</th><th style="text-align:right">IVR</th>
+          <th style="text-align:right" title="Free Cash Flow Yield (TTM): FCF / Market Cap">FCF Yld</th>
+          <th style="text-align:right" title="Insider Ownership %. Source pending FMP plan upgrade.">Insider %</th>
+          <th style="text-align:right">Up TGT $</th><th style="text-align:right">Up %</th>
+          <th style="text-align:right">Down TGT $</th><th style="text-align:right">Down %</th>
           <th style="text-align:right">Cons.</th>
-          <th>Thesis</th>
-          <th></th>
+          <th>Thesis</th><th></th>
         </tr></thead>
-        <tbody id="wl-tbody"><tr><td colspan="15" class="empty">Loading…</td></tr></tbody>
+        <tbody id="wl-tbody"><tr><td colspan="17" class="empty">Loading…</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -131,13 +116,14 @@
 <script src="/config.js"></script>
 <script>
 (() => {
-  const N8N = 'https://victoryvision.app.n8n.cloud';
   const cfg = window.RR_CONFIG || {};
   const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY);
-  const DXLINK_URL = cfg.SUPABASE_URL + '/functions/v1/dxlink-quotes';
+  const TT_QUOTES_URL = cfg.SUPABASE_URL + '/functions/v1/tt-quotes';
+  const BOOTSTRAP_URL = cfg.SUPABASE_URL + '/functions/v1/ticker-bootstrap';
   let currentUser = null;
   let currentRows = [];
   let liveQuotes = {};
+  let pollTimer = null;
 
   const $ = id => document.getElementById(id);
   const show = (id, on) => $(id).classList.toggle('hidden', !(on!==false));
@@ -148,19 +134,19 @@
   const cls = n => (n==null||isNaN(Number(n)))?'':(Number(n)>=0?'pos':'neg');
   const flash = (text, kind) => {
     $('msg-area').innerHTML = '<div class="msg msg-'+esc(kind||'info')+'">'+esc(text)+'</div>';
-    if (kind !== 'error') setTimeout(() => { $('msg-area').innerHTML=''; }, 5000);
+    if (kind !== 'error') setTimeout(() => { $('msg-area').innerHTML=''; }, 4000);
   };
 
-  // Detect if US equity market is open (very rough: Mon-Fri 9:30-16:00 ET).
   function marketIsOpen() {
-    const now = new Date();
-    // Convert to ET via locale
-    const etStr = now.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false });
-    const et = new Date(etStr);
+    const et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false }));
     const day = et.getDay();
     if (day === 0 || day === 6) return false;
     const mins = et.getHours()*60 + et.getMinutes();
-    return mins >= 570 && mins < 960; // 9:30-16:00
+    return mins >= 570 && mins < 960;  // 9:30 - 16:00 ET
+  }
+
+  function pollInterval() {
+    return marketIsOpen() ? 20000 : 300000;  // 20s RTH, 5min outside
   }
 
   (async () => {
@@ -172,53 +158,57 @@
     $('add-form').addEventListener('submit', addTicker);
     $('refresh-btn').addEventListener('click', () => fetchLiveQuotes());
     await loadWatchlist();
+    startAutoRefresh();
+    // Refetch quotes when tab becomes visible
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) fetchLiveQuotes(); });
   })();
+
+  function startAutoRefresh() {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(() => { if (!document.hidden) fetchLiveQuotes(); }, pollInterval());
+  }
 
   async function loadWatchlist() {
     const r = await sb.rpc('get_watchlist_view', { p_user: currentUser.id });
-    if (r.error) { $('wl-tbody').innerHTML='<tr><td colspan="15" class="empty">Error: '+esc(r.error.message)+'</td></tr>'; return; }
+    if (r.error) { $('wl-tbody').innerHTML='<tr><td colspan="17" class="empty">Error: '+esc(r.error.message)+'</td></tr>'; return; }
     currentRows = (r.data && r.data.watchlist) || [];
     $('wl-count').textContent = currentRows.length+' ticker'+(currentRows.length===1?'':'s');
-    if (!currentRows.length) { $('wl-tbody').innerHTML='<tr><td colspan="15" class="empty">No tickers yet.</td></tr>'; return; }
+    if (!currentRows.length) { $('wl-tbody').innerHTML='<tr><td colspan="17" class="empty">No tickers yet.</td></tr>'; return; }
     renderTable();
-    // Always attempt live quotes (DXLink returns last print outside market hours too)
     fetchLiveQuotes();
   }
 
   async function fetchLiveQuotes() {
-    $('quote-status').textContent = 'FETCHING LIVE…';
+    $('quote-status').textContent = 'FETCHING…';
     $('quote-status').className = 'tag tag-loading';
     const tickers = currentRows.map(r => r.ticker).filter(t => t && t !== 'VIX');
-    const batches = [];
-    for (let i=0; i<tickers.length; i+=25) batches.push(tickers.slice(i, i+25));
-
-    const results = await Promise.allSettled(batches.map(b =>
-      fetch(DXLINK_URL, {
+    if (!tickers.length) return;
+    // tt-quotes REST handles 100+ symbols easily in one call (sub-second)
+    try {
+      const resp = await fetch(TT_QUOTES_URL, {
         method:'POST',
-        headers:{'content-type':'application/json', 'apikey': cfg.SUPABASE_PUBLISHABLE_KEY, 'Authorization':'Bearer '+cfg.SUPABASE_PUBLISHABLE_KEY},
-        body: JSON.stringify({ symbols: b })
-      }).then(r => r.json())
-    ));
-
-    let liveCount = 0;
-    results.forEach(res => {
-      if (res.status === 'fulfilled' && res.value && Array.isArray(res.value.quotes)) {
-        res.value.quotes.forEach(q => {
-          if (q.symbol && q.bid != null && q.ask != null && Number(q.bid) > 0 && Number(q.ask) > 0) {
-            const mid = (Number(q.bid) + Number(q.ask)) / 2;
-            liveQuotes[q.symbol] = { bid: Number(q.bid), ask: Number(q.ask), mid };
-            liveCount++;
+        headers:{'content-type':'application/json','apikey':cfg.SUPABASE_PUBLISHABLE_KEY,'Authorization':'Bearer '+cfg.SUPABASE_PUBLISHABLE_KEY},
+        body: JSON.stringify({ symbols: tickers })
+      });
+      const data = await resp.json();
+      if (data && Array.isArray(data.quotes)) {
+        liveQuotes = {};
+        data.quotes.forEach(q => {
+          if (q.symbol && (q.last != null || (q.bid != null && q.ask != null))) {
+            const mid = q.mid != null ? q.mid : (q.bid != null && q.ask != null ? (q.bid+q.ask)/2 : null);
+            const price = q.last != null ? q.last : mid;
+            liveQuotes[q.symbol] = { price, bid: q.bid, ask: q.ask, last: q.last, mid, prev_close: q.prev_close };
           }
         });
+        $('quote-status').textContent = data.quotes.length+' LIVE · '+new Date().toLocaleTimeString();
+        $('quote-status').className = 'tag tag-live';
+      } else {
+        $('quote-status').textContent = 'NO LIVE · using EOD';
+        $('quote-status').className = 'tag tag-eod';
       }
-    });
-
-    if (liveCount > 0) {
-      $('quote-status').textContent = liveCount+'/'+tickers.length+' LIVE · '+new Date().toLocaleTimeString();
-      $('quote-status').className = 'tag tag-live';
-    } else {
-      $('quote-status').textContent = 'NO LIVE · showing last EOD';
-      $('quote-status').className = 'tag tag-eod';
+    } catch (e) {
+      $('quote-status').textContent = 'QUOTE ERROR';
+      $('quote-status').className = 'tag tag-stale';
     }
     renderTable();
   }
@@ -227,39 +217,24 @@
     $('wl-tbody').innerHTML = currentRows.map(w => {
       const upTgt = w.user_target_price != null ? Number(w.user_target_price).toFixed(2) : '';
       const dnTgt = w.user_downside_price != null ? Number(w.user_downside_price).toFixed(2) : '';
-      const lastClose  = w.last_close  != null ? Number(w.last_close)  : null;
-      const priorClose = w.prior_close != null ? Number(w.prior_close) : null;
-      const lastDate   = w.last_date;
+      const lastCloseBars  = w.last_close  != null ? Number(w.last_close)  : null;
+      const priorCloseBars = w.prior_close != null ? Number(w.prior_close) : null;
       const live = liveQuotes[w.ticker];
-      const livePrice = live ? live.mid : null;
-      const spot = livePrice != null ? livePrice : lastClose;
+      const livePrice = live ? live.price : null;
+      // Prefer Tastytrade's prev_close (always today's session reference). Falls back to daily_bars.
+      const refClose = (live && live.prev_close != null) ? live.prev_close : lastCloseBars;
+      const spot = livePrice != null ? livePrice : lastCloseBars;
 
-      // Date-aware 1D logic — root-cause fix for stale daily_bars (Monday's bar lands Tuesday AM)
-      // todayET = current US/Eastern calendar date
-      const todayET = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
-      const lastBarIsToday = (lastDate || '').slice(0,10) === todayET;
-      // Reference = the close BEFORE today's session
-      const refClose = lastBarIsToday ? priorClose : lastClose;
-      // Current = live print if we have one, else today's official close (only if bar IS today)
-      const curPx = livePrice != null
-        ? livePrice
-        : (lastBarIsToday ? lastClose : null);
-
+      // 1D: live vs reference (Tasty prev_close preferred); EOD fallback only when no live.
       let perf1d = null, tag1d = '';
-      if (refClose != null && curPx != null && refClose > 0) {
-        perf1d = (curPx/refClose - 1) * 100;
-        if (livePrice != null) {
-          tag1d = '<span class="tag tag-live" title="Live mark vs prior session close">LIVE</span>';
-        } else {
-          tag1d = '<span class="tag tag-eod" title="Today\'s EOD vs prior session close ('+esc(todayET)+')">EOD</span>';
-        }
-      } else if (lastClose != null && priorClose != null && priorClose > 0) {
-        // No live quote AND today's bar not loaded yet — show last completed session's move with clear date label
-        perf1d = (lastClose/priorClose - 1) * 100;
-        tag1d = '<span class="tag tag-eod" title="Stale: last completed session close-to-close move from '+esc((lastDate||'').slice(0,10))+'. Today\'s data pending.">STALE</span>';
+      if (livePrice != null && refClose != null && refClose > 0) {
+        perf1d = (livePrice/refClose - 1) * 100;
+        tag1d = '<span class="tag tag-live">LIVE</span>';
+      } else if (lastCloseBars != null && priorCloseBars != null && priorCloseBars > 0) {
+        perf1d = (lastCloseBars/priorCloseBars - 1) * 100;
+        tag1d = '<span class="tag tag-eod" title="Last session close-to-close">EOD</span>';
       }
 
-      // Other perf bands: use whatever spot we have (live preferred, else last close)
       const perf1w = (spot != null && w.px_1wk_back > 0) ? (spot/w.px_1wk_back - 1)*100 : null;
       const perf1m = (spot != null && w.px_1mo_back > 0) ? (spot/w.px_1mo_back - 1)*100 : null;
       const perf1y = (spot != null && w.px_1yr_back > 0) ? (spot/w.px_1yr_back - 1)*100 : null;
@@ -267,11 +242,7 @@
       const userUp = (spot != null && w.user_target_price != null && spot > 0) ? (w.user_target_price/spot - 1)*100 : null;
       const userDn = (spot != null && w.user_downside_price != null && spot > 0) ? (w.user_downside_price/spot - 1)*100 : null;
       const consUp = (spot != null && w.analyst_target_high != null && spot > 0) ? (w.analyst_target_high/spot - 1)*100 : null;
-      const priceTag = livePrice != null 
-        ? '<span class="tag tag-live">LIVE</span>' 
-        : (lastBarIsToday 
-          ? '<span class="tag tag-eod" title="Today\'s EOD close">EOD</span>'
-          : '<span class="tag tag-eod" title="Stale: last bar from '+esc((lastDate||'').slice(0,10))+', today\'s bar not yet synced">STALE</span>');
+      const priceTag = livePrice != null ? '<span class="tag tag-live">LIVE</span>' : '<span class="tag tag-eod">EOD</span>';
 
       return '<tr>'
         + '<td><a href="/research.html?ticker='+esc(w.ticker)+'">'+esc(w.ticker)+'</a></td>'
@@ -282,13 +253,15 @@
         + '<td class="num '+cls(perf1y)+'">'+pct(perf1y)+'</td>'
         + '<td class="num '+cls(perf3y)+'">'+pct(perf3y)+'</td>'
         + '<td class="num dim">'+(w.ivr!=null?num(w.ivr,0):'—')+'</td>'
+        + '<td class="num '+(w.fcf_yield_ltm!=null?(Number(w.fcf_yield_ltm)>=0.04?'pos':(Number(w.fcf_yield_ltm)<0.02?'neg':'dim')):'dim')+'">'+(w.fcf_yield_ltm!=null?pct(Number(w.fcf_yield_ltm)*100):'—')+'</td>'
+        + '<td class="num dim">'+(w.insider_ownership_pct!=null?pct(Number(w.insider_ownership_pct)*100):'—')+'</td>'
         + '<td class="num"><input type="number" class="target-input" step="0.01" data-id="'+esc(w.id)+'" data-field="target_price" value="'+esc(upTgt)+'" placeholder="—"></td>'
         + '<td class="num '+cls(userUp)+'">'+pct(userUp)+'</td>'
         + '<td class="num"><input type="number" class="target-input" step="0.01" data-id="'+esc(w.id)+'" data-field="downside_target_price" value="'+esc(dnTgt)+'" placeholder="—"></td>'
         + '<td class="num '+cls(userDn)+'">'+pct(userDn)+'</td>'
         + '<td class="num dim" title="Analyst high '+usd2(w.analyst_target_high)+' / low '+usd2(w.analyst_target_low)+' ('+(w.analyst_count||0)+' analysts)">'+pct(consUp)+'</td>'
         + '<td class="thesis-cell" title="'+esc(w.thesis||'')+'">'+esc(w.thesis||'—')+'</td>'
-        + '<td><button type="button" class="btn btn-sm btn-ghost" data-bootstrap="'+esc(w.ticker)+'" title="Re-fetch all data sources">↻</button> <button type="button" class="btn btn-sm btn-danger" data-remove="'+esc(w.id)+'" title="Remove">×</button></td>'
+        + '<td><button type="button" class="btn btn-sm btn-ghost" data-bootstrap="'+esc(w.ticker)+'" title="Re-fetch data">↻</button> <button type="button" class="btn btn-sm btn-danger" data-remove="'+esc(w.id)+'" title="Remove">×</button></td>'
         + '</tr>';
     }).join('');
     wireRowEvents();
@@ -314,11 +287,7 @@
       });
     });
     document.querySelectorAll('button[data-bootstrap]').forEach(b => {
-      b.addEventListener('click', () => {
-        const tk = b.dataset.bootstrap;
-        flash('Refreshing data for '+tk+'…','info');
-        bootstrapTicker(tk, false);  // incremental on re-fetch
-      });
+      b.addEventListener('click', () => { flash('Refreshing '+b.dataset.bootstrap+'…','info'); bootstrapTicker(b.dataset.bootstrap, false); });
     });
   }
 
@@ -336,36 +305,24 @@
     const r = await sb.from('ticker_watchlist').insert(row);
     if (r.error) { flash('Save failed: '+r.error.message,'error'); return; }
     e.target.reset();
-    flash('Added '+ticker+'. Fetching profile, fundamentals, analyst targets, bars, IV/IVR, and options chain…','info');
+    flash('Added '+ticker+'. Fetching all data sources…','info');
     loadWatchlist();
-    bootstrapTicker(ticker, true);  // full_history=true for new ticker
+    bootstrapTicker(ticker, true);
   }
 
-  // Fires all 6 backfill edge functions in parallel via the ticker-bootstrap orchestrator.
-  // Populates: company_profile, company_fundamentals, analyst_price_targets, daily_bars,
-  // vol_snapshots_v2, options_chain_snapshots. Drives research.html, model.html, watchlist.
   async function bootstrapTicker(ticker, fullHistory) {
-    const url = cfg.SUPABASE_URL + '/functions/v1/ticker-bootstrap';
     try {
-      const r = await fetch(url, {
+      const r = await fetch(BOOTSTRAP_URL, {
         method:'POST',
         headers:{'content-type':'application/json','apikey':cfg.SUPABASE_PUBLISHABLE_KEY,'Authorization':'Bearer '+cfg.SUPABASE_PUBLISHABLE_KEY},
         body: JSON.stringify({ ticker, full_history: !!fullHistory })
       });
-      const data = await r.json().catch(()=>({}));
+      const data = await r.json();
       const ok = data.ok_count || 0;
       const tot = data.total || 6;
-      const ms = data.total_ms || 0;
-      if (ok === tot) {
-        flash('✓ '+ticker+': all '+tot+' sources loaded ('+(ms/1000).toFixed(1)+'s). Refresh page to see new data.','success');
-      } else {
-        const failed = (data.results||[]).filter(x=>!x.ok).map(x=>x.fn).join(', ');
-        flash('⚠ '+ticker+': '+ok+'/'+tot+' sources loaded ('+(ms/1000).toFixed(1)+'s). Failed: '+failed,'info');
-      }
+      flash('✓ '+ticker+': '+ok+'/'+tot+' sources loaded ('+((data.total_ms||0)/1000).toFixed(1)+'s)', ok===tot ? 'success' : 'info');
       loadWatchlist();
-    } catch (e) {
-      flash('Bootstrap failed for '+ticker+': '+String(e),'error');
-    }
+    } catch (e) { flash('Bootstrap failed: '+e,'error'); }
   }
 })();
 </script>
