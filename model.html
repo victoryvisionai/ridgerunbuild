@@ -100,6 +100,7 @@
       </div>
       <div class="banner-body">
         <p class="h2-sub">Enter as percentages (12 means 12%). Changes recompute the flow-through instantly.</p>
+        <div id="assumptions-warning"></div>
         <table class="model-table" id="assumptions-table"></table>
         <div class="term-controls">
           <div class="field">
@@ -422,54 +423,158 @@ await fetch('https://nrbffnsheenmewijeapb.supabase.co/functions/v1/backfill-fund
   show('model-area', true);
 }
 
-// Compute average YoY revenue growth from the historical annual rows we already loaded.
-// Returns {avg3y, avg5y, latestYoY} — all may be null if insufficient data.
+// Compute average YoY revenue growth + EBITDA margin trajectory from the historical annual rows.
+// Returns {growth: {avg3y, avg5y, latestYoY}, margin: {latest, avg3y, expansion_rate_3y, max_recent, volatile}}
 function computeHistGrowth(historicalCap){
-  if(!historicalCap || historicalCap.length < 2) return { avg3y: null, avg5y: null, latestYoY: null };
+  const empty = { growth: { avg3y: null, avg5y: null, latestYoY: null },
+                  margin: { latest: null, avg3y: null, expansion_rate_3y: null, max_recent: null, volatile: false } };
+  if(!historicalCap || historicalCap.length < 2) return empty;
   const sorted = [...historicalCap].sort((a,b) => (a.fiscal_year||0) - (b.fiscal_year||0));
+  // Revenue YoY growth
   const yoy = [];
   for(let i = 1; i < sorted.length; i++){
     const curr = Number(sorted[i].revenue), prev = Number(sorted[i-1].revenue);
     if(curr > 0 && prev > 0) yoy.push(curr/prev - 1);
   }
-  if(!yoy.length) return { avg3y: null, avg5y: null, latestYoY: null };
+  // EBITDA margin per year + YoY margin changes (pp expansion)
+  const margins = sorted.map(r => {
+    const rev = Number(r.revenue), ebt = Number(r.ebitda);
+    return (rev > 0 && ebt != null && isFinite(ebt)) ? ebt/rev : null;
+  });
+  const validMargins = margins.filter(m => m != null);
+  const marginDeltas = [];
+  for(let i = 1; i < margins.length; i++){
+    if(margins[i] != null && margins[i-1] != null) marginDeltas.push(margins[i] - margins[i-1]);
+  }
+  const last3Delta = marginDeltas.slice(-3);
+  const avg3yExpansion = last3Delta.length ? last3Delta.reduce((a,b)=>a+b,0)/last3Delta.length : null;
+  const stddev = (arr) => {
+    if(arr.length < 2) return 0;
+    const m = arr.reduce((a,b)=>a+b,0)/arr.length;
+    return Math.sqrt(arr.reduce((s,v)=>s+(v-m)**2,0)/arr.length);
+  };
+  const marginVolatile = stddev(last3Delta) > 0.04; // >4pp stddev in YoY margin = volatile (BE territory)
   const last3 = yoy.slice(-3), last5 = yoy.slice(-5);
   return {
-    avg3y: last3.reduce((a,b)=>a+b,0) / last3.length,
-    avg5y: last5.reduce((a,b)=>a+b,0) / last5.length,
-    latestYoY: yoy[yoy.length-1]
+    growth: {
+      avg3y: last3.length ? last3.reduce((a,b)=>a+b,0) / last3.length : null,
+      avg5y: last5.length ? last5.reduce((a,b)=>a+b,0) / last5.length : null,
+      latestYoY: yoy.length ? yoy[yoy.length-1] : null
+    },
+    margin: {
+      latest: validMargins.length ? validMargins[validMargins.length-1] : null,
+      avg3y: validMargins.slice(-3).length ? validMargins.slice(-3).reduce((a,b)=>a+b,0) / Math.min(3, validMargins.length) : null,
+      expansion_rate_3y: avg3yExpansion,
+      max_recent: validMargins.slice(-3).length ? Math.max(...validMargins.slice(-3)) : null,
+      volatile: marginVolatile
+    }
   };
 }
 
 function defaultAssumptions(f, historicalCap){
-  // Smart fallback chain for rev_growth — NEVER use the bare 10% default when we have real data.
-  //   Priority order:
-  //     1. FMP analyst NTM forecast (if present and reasonable: 0-100%)
-  //     2. Historical 3-yr YoY average (best fallback for compounders)
-  //     3. Historical latest YoY (if 3yr unavailable but at least one year exists)
-  //     4. Hard default 10% (flagged in _meta so user knows)
-  //   Out-year tapering: m2 = ntm * 0.85, m3 = ntm * 0.70, m4 = ntm * 0.55 (geometric decay toward terminal)
-  //   Floors: each year >= 0.04 (terminal-ish), unless ntm itself is very low
+  // === ARCHITECTURE ===
+  // 1. If analyst forward projections exist (rev_growth_ntm/2y/3y from FMP, ebitda forecasts when stored):
+  //      → Use them. Back into margin from analyst $ amounts. Don't extrapolate.
+  // 2. Else extrapolate from history (3-yr hist avg with taper for revenue, operating leverage for margin).
+  //
+  // For EBITDA margin specifically: if we have analyst REVENUE but no analyst EBITDA,
+  // we must assume some operating leverage — a company doubling revenue while margin only
+  // creeps +0.5%/yr makes no economic sense. The model anchors expansion to either:
+  //   (a) recovery to recent peak margin (when base is anomalously low)
+  //   (b) operating leverage: margin expansion rate tied to revenue growth (when revenue is growing fast)
+  //   (c) historical 3-yr margin expansion trend (when stable)
+  // The (a)/(b)/(c) pick is logged in _meta so user can see why.
+
   const hist = computeHistGrowth(historicalCap);
+  const histG = hist.growth;
+  const histM = hist.margin;
+
+  // -------- Revenue growth: analyst → 3yr hist avg → latest YoY → 10% --------
   const ntmRaw = f?.rev_growth_ntm;
   const ntmValid = (typeof ntmRaw === 'number' && isFinite(ntmRaw) && ntmRaw >= 0 && ntmRaw <= 1.0);
   let ntm, ntmSource;
   if(ntmValid){ ntm = ntmRaw; ntmSource = 'analyst_ntm'; }
-  else if(hist.avg3y != null){ ntm = hist.avg3y; ntmSource = 'hist_3yr_avg'; }
-  else if(hist.latestYoY != null){ ntm = hist.latestYoY; ntmSource = 'hist_latest_yoy'; }
+  else if(histG.avg3y != null){ ntm = histG.avg3y; ntmSource = 'hist_3yr_avg'; }
+  else if(histG.latestYoY != null){ ntm = histG.latestYoY; ntmSource = 'hist_latest_yoy'; }
   else { ntm = 0.10; ntmSource = 'default_10pct'; }
-  // Cap top end at 50% to avoid absurd extrapolations (e.g. one-off acquisition year)
-  ntm = Math.min(ntm, 0.50);
-  // Geometric taper toward 4-5% terminal over 4 years
-  const floor = Math.min(0.04, ntm);  // don't force floor above ntm itself
+  ntm = Math.min(ntm, 0.50); // safety cap on extreme NTM values
+  const floor = Math.min(0.04, ntm);
+  // Out-years: prefer analyst 2y/3y, else taper geometrically (we DO NOT have analyst 2y/3y unless FMP plan permits)
   const m2 = f?.rev_growth_2y_fwd ?? Math.max(floor, ntm * 0.80);
   const m3 = f?.rev_growth_3y_fwd ?? Math.max(floor, ntm * 0.65);
   const m4 = Math.max(floor, ntm * 0.50);
-  const ebm = f?.ebitda_margin ?? 0.25;
+  const hasAnalyst2y = f?.rev_growth_2y_fwd != null;
+  const hasAnalyst3y = f?.rev_growth_3y_fwd != null;
+
+  // -------- EBITDA margin --------
+  // We do NOT currently store analyst forward EBITDA dollar projections (would need to extend schema).
+  // So today's path is always: anchor base margin, extrapolate via the smartest model we have.
+  // When the schema gets analyst-ebitda columns, hook them in HERE first.
+  const baseEbm = (f?.ebitda_margin != null) ? f.ebitda_margin
+                : (histM.avg3y != null) ? histM.avg3y
+                : 0.20;
+  const baseEbmSource = (f?.ebitda_margin != null) ? 'estimate_or_actual'
+                      : (histM.avg3y != null) ? 'hist_3yr_avg' : 'default_20pct';
+
+  // Detect anomalous base: current FY margin > 3pp below recent peak
+  const peak = histM.max_recent;
+  const baseBelowPeak = (peak != null && baseEbm < peak - 0.03);
+
+  // Detect operating leverage opportunity: revenue forecast to grow fast (>15%) and we have no analyst EBITDA
+  const fastGrowthNoMarginAnalyst = (ntm > 0.15);
+
+  let ebitdaMargins, marginPathSource;
+  if(baseBelowPeak){
+    // Recovery path: base → recent peak over 3 years, then hold at peak.
+    // This captures BE/turnaround case: 2025 margin reset to 1% but 2024 hit 6.1%.
+    // Don't spread the recovery to year 4 (your original valid critique).
+    const step = (peak - baseEbm) / 3;
+    ebitdaMargins = [baseEbm, baseEbm + step, baseEbm + step*2, peak];
+    marginPathSource = 'recovery_to_peak';
+  } else if(fastGrowthNoMarginAnalyst && histM.expansion_rate_3y != null && histM.expansion_rate_3y > 0 && !histM.volatile){
+    // Stable expansion + fast growth: continue trend, but cap so we don't extrapolate forever.
+    const rate = Math.min(histM.expansion_rate_3y, 0.02); // cap 2pp/yr
+    const ceiling = peak != null ? peak * 1.2 : baseEbm * 1.5; // 20% above recent peak or 50% above base
+    ebitdaMargins = [
+      baseEbm,
+      Math.min(baseEbm + rate, ceiling),
+      Math.min(baseEbm + rate*2, ceiling),
+      Math.min(baseEbm + rate*3, ceiling)
+    ];
+    marginPathSource = 'hist_expansion_trend';
+  } else if(fastGrowthNoMarginAnalyst){
+    // Fast growth but no clean margin signal — assume mild operating leverage:
+    // margin expands at 25% of revenue growth rate, capped 2pp/yr.
+    // Hold at base * 1.5 (no peak data) or recent peak * 1.1 (have peak data).
+    const rate = Math.min(ntm * 0.25, 0.02);
+    const ceiling = peak != null ? peak * 1.1 : baseEbm * 1.5;
+    ebitdaMargins = [
+      baseEbm,
+      Math.min(baseEbm + rate, ceiling),
+      Math.min(baseEbm + rate*2, ceiling),
+      Math.min(baseEbm + rate*3, ceiling)
+    ];
+    marginPathSource = 'oper_leverage_derived';
+  } else if(histM.expansion_rate_3y != null && histM.expansion_rate_3y > 0.001 && !histM.volatile){
+    // Slow growth, stable history — continue mild expansion
+    const rate = Math.min(histM.expansion_rate_3y, 0.01);
+    ebitdaMargins = [baseEbm, baseEbm + rate, baseEbm + rate*2, baseEbm + rate*3];
+    marginPathSource = 'hist_expansion_trend';
+  } else {
+    // No clean signal — keep flat. User must override.
+    ebitdaMargins = [baseEbm, baseEbm, baseEbm, baseEbm];
+    marginPathSource = histM.volatile ? 'volatile_flat' : 'flat_no_signal';
+  }
+
+  // Flag when the analyst-revenue / no-analyst-EBITDA mismatch creates risk of bad defaults.
+  // This is the BE case: we know revenue will grow per analyst, but we're guessing margin.
+  const manualOverrideRecommended = (ntmSource === 'analyst_ntm' || ntm > 0.20)
+                                    && marginPathSource !== 'recovery_to_peak';
+
   return {
     years: [1,2,3,4].map(i => baseAnchor.base_year + i),
     rev_growth: [ntm, m2, m3, m4],
-    ebitda_margin: [ebm, ebm+0.005, ebm+0.01, ebm+0.015],
+    ebitda_margin: ebitdaMargins,
     fcf_conversion: [0.85, 0.85, 0.85, 0.85],
     buyback_pct_of_fcf: [0.40, 0.40, 0.40, 0.40],
     dividend_pct_of_fcf: [0.0, 0.0, 0.0, 0.0],
@@ -478,11 +583,18 @@ function defaultAssumptions(f, historicalCap){
     terminal_multiple_type: 'ev_ebitda',
     _meta: {
       growth_source_ntm: ntmSource,
-      growth_source_2y: f?.rev_growth_2y_fwd != null ? 'analyst_2y' : 'derived_taper',
-      growth_source_3y: f?.rev_growth_3y_fwd != null ? 'analyst_3y' : 'derived_taper',
-      hist_avg_3y: hist.avg3y,
-      hist_latest_yoy: hist.latestYoY,
-      hist_avg_5y: hist.avg5y
+      growth_source_2y: hasAnalyst2y ? 'analyst_2y' : 'derived_taper',
+      growth_source_3y: hasAnalyst3y ? 'analyst_3y' : 'derived_taper',
+      hist_avg_3y: histG.avg3y,
+      hist_latest_yoy: histG.latestYoY,
+      hist_avg_5y: histG.avg5y,
+      ebitda_margin_base_source: baseEbmSource,
+      ebitda_margin_path_source: marginPathSource,
+      ebitda_margin_max_recent: peak,
+      ebitda_margin_volatile: histM.volatile,
+      analyst_revenue_available: (ntmSource === 'analyst_ntm') || hasAnalyst2y || hasAnalyst3y,
+      analyst_ebitda_available: false,  // not stored yet
+      manual_override_recommended: manualOverrideRecommended
     }
   };
 }
@@ -550,28 +662,51 @@ function renderAssumptionsTable(){
     if(rowKey === 'fcf_conversion') return 0.85;  // shown as implied default
     return null;
   }
-  // Lineage tag next to growth row so user sees WHERE the numbers came from. Eliminates silent 10% default.
+  // Lineage tags + warning banner. Architecture: analyst data wins (green), extrapolation (blue/grey), override-needed (red/orange).
   const meta = assumptions?._meta || {};
   const srcMap = {
-    analyst_ntm: { label: 'NTM', color: '#059669', tip: 'Analyst NTM forecast from FMP' },
-    hist_3yr_avg: { label: '3Y AVG', color: '#2563eb', tip: `3-yr historical YoY avg = ${meta.hist_avg_3y!=null?(meta.hist_avg_3y*100).toFixed(1)+'%':'—'}` },
-    hist_latest_yoy: { label: 'LAST YoY', color: '#2563eb', tip: `Most recent YoY = ${meta.hist_latest_yoy!=null?(meta.hist_latest_yoy*100).toFixed(1)+'%':'—'}` },
-    default_10pct: { label: 'DEFAULT', color: '#dc2626', tip: 'No data — using 10% magic number. Refresh data to get real growth.' },
-    analyst_2y: { label: 'NTM', color: '#059669', tip: 'Analyst 2yr forecast' },
-    analyst_3y: { label: 'NTM', color: '#059669', tip: 'Analyst 3yr forecast' },
-    derived_taper: { label: 'TAPER', color: '#94a3b8', tip: 'Geometric taper from year 1 toward terminal' }
+    // Revenue growth sources
+    analyst_ntm:       { label: 'NTM',       color: '#059669', tip: 'Analyst NTM forecast from FMP' },
+    hist_3yr_avg:      { label: '3Y AVG',    color: '#2563eb', tip: `3-yr historical YoY avg = ${meta.hist_avg_3y!=null?(meta.hist_avg_3y*100).toFixed(1)+'%':'—'}` },
+    hist_latest_yoy:   { label: 'LAST YoY',  color: '#2563eb', tip: `Most recent YoY = ${meta.hist_latest_yoy!=null?(meta.hist_latest_yoy*100).toFixed(1)+'%':'—'}` },
+    default_10pct:     { label: 'DEFAULT',   color: '#dc2626', tip: 'No data — using 10% magic number. Refresh the bootstrap.' },
+    analyst_2y:        { label: 'NTM',       color: '#059669', tip: 'Analyst 2yr forecast' },
+    analyst_3y:        { label: 'NTM',       color: '#059669', tip: 'Analyst 3yr forecast' },
+    derived_taper:     { label: 'TAPER',     color: '#94a3b8', tip: 'Geometric taper from year 1 (no analyst out-year data)' },
+    // EBITDA margin BASE sources
+    estimate_or_actual: { label: 'EST',      color: '#059669', tip: 'Current FY estimate or latest actual margin' },
+    default_20pct:     { label: 'DEFAULT',   color: '#dc2626', tip: 'No margin data — using 20% generic. Will likely be wrong.' },
+    // EBITDA margin PATH sources
+    recovery_to_peak:  { label: 'RECOVERY',  color: '#d97706', tip: `Base margin below recent peak (${meta.ebitda_margin_max_recent!=null?(meta.ebitda_margin_max_recent*100).toFixed(1)+'%':'—'}). Pathing to peak over 3 years, then hold.` },
+    hist_expansion_trend: { label: '3Y TREND', color: '#2563eb', tip: 'Margin expansion continued from 3-yr historical trend' },
+    oper_leverage_derived: { label: 'OPER LEV', color: '#d97706', tip: 'Revenue forecast to grow >15% but no analyst margin estimate. Assuming margin expansion = 25% of revenue growth, capped 2pp/yr. OVERRIDE recommended.' },
+    volatile_flat:     { label: 'VOLATILE',  color: '#d97706', tip: 'Recent margins volatile (stddev >4pp). Held flat — override with your view.' },
+    flat_no_signal:    { label: 'FLAT',      color: '#94a3b8', tip: 'No expansion signal — margins held flat. Override if you have a view.' }
   };
   const tagFor = (src) => {
     const s = srcMap[src] || { label: src||'?', color: '#94a3b8', tip: '' };
     return `<span style="display:inline-block;font-family:var(--mono);font-size:8.5px;letter-spacing:0.05em;padding:1px 4px;border-radius:6px;background:${s.color};color:#fff;margin-left:4px;vertical-align:middle" title="${esc(s.tip)}">${s.label}</span>`;
   };
   const growthSrcs = [meta.growth_source_ntm, meta.growth_source_2y, meta.growth_source_3y, 'derived_taper'];
+  const ebmBaseTag = meta.ebitda_margin_base_source ? tagFor(meta.ebitda_margin_base_source) : '';
+  const ebmPathTag = meta.ebitda_margin_path_source ? tagFor(meta.ebitda_margin_path_source) : '';
+
+  // Warning banner for the analyst-revenue / no-analyst-EBITDA mismatch — the BE case
+  let warningBanner = '';
+  if(meta.manual_override_recommended){
+    const revText = meta.growth_source_ntm === 'analyst_ntm' ? 'Analyst NTM revenue forecast available'
+                  : 'Revenue forecast to grow >20% (historical avg)';
+    warningBanner = `<div style="background:#fef3c7;border:1px solid #d97706;padding:8px 12px;margin-bottom:8px;border-radius:4px;font-size:11px;color:#92400e;line-height:1.4">
+      <strong>⚠ Manual EBITDA margin override recommended.</strong> ${revText}, but no analyst EBITDA forecast in our data (FMP plan limit). Margin defaults are derived from base year + operating-leverage assumption (capped). For high-growth names (turnarounds, scale-up stories), enter your own margin path.
+    </div>`;
+  }
+  $('assumptions-warning').innerHTML = warningBanner;
 
   const html = `
     <thead><tr><th>Driver</th>${hist.map(h=>`<th style="color:var(--text-muted)">FY${h.year} (h)</th>`).join('')}<th style="background:var(--bg-blue-soft)">FY${baseAnchor.base_year}</th>${yrs.map(y=>`<th>FY${y}</th>`).join('')}</tr></thead>
     <tbody>${rows.map(r=>`
       <tr>
-        <td class="row-label">${esc(r.l)}${r.k==='rev_growth'?tagFor(meta.growth_source_ntm):''}</td>
+        <td class="row-label">${esc(r.l)}${r.k==='rev_growth'?tagFor(meta.growth_source_ntm):''}${r.k==='ebitda_margin'?ebmBaseTag+ebmPathTag:''}</td>
         ${hist.map((h,i)=>`<td style="color:var(--text-muted)">${r.histFn ? fmtPctH(r.histFn(i)) : '—'}</td>`).join('')}
         <td style="background:var(--bg-blue-soft); color:var(--text-muted)">${fmtPctH(baseVal(r.k))}</td>
         ${assumptions[r.k].map((v,i)=>`<td><input class="assumption" data-row="${r.k}" data-idx="${i}" type="number" step="0.5" value="${(Number(v)*100).toFixed(1)}">${r.k==='rev_growth'?tagFor(growthSrcs[i]):''}</td>`).join('')}
