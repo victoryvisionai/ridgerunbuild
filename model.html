@@ -335,21 +335,43 @@ await fetch('https://nrbffnsheenmewijeapb.supabase.co/functions/v1/backfill-fund
     historicalCap._displayStart = 0;
   }
   // Pick best base-anchor row: prefer FY estimate or daily snapshot, else most recent FY actual
+  // SPARSE-SAFE: a single estimate row often has rev_growth_ntm=null, ebitda_margin=null, etc.
+  // We assemble `f` by taking the LAST non-null value of each field across the most recent N rows
+  // — same pattern as v_latest_fundamentals — so any one missing field doesn't poison the whole row.
   let f = null;
-  // Look for current-FY estimate row first (synthetic or analyst)
+  // Prefer the estimate row as the "spine" (for shares, mcap, latest price)
   for(const row of allFund){
-    if(row.data_source === 'fmp_analyst_estimate' || row.data_source === 'synthetic_current_fy' || row.data_source === 'fmp_estimate_current_fy'){ f = row; break; }
+    if(row.data_source === 'fmp_analyst_estimate' || row.data_source === 'synthetic_current_fy' || row.data_source === 'fmp_estimate_current_fy'){ f = {...row}; break; }
   }
-  // Then look for any row dated within last 30 days (daily snapshot)
   if(!f){
     const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
     const cutoffStr = cutoff.toISOString().slice(0,10);
     for(let idx = allFund.length - 1; idx >= 0; idx--){
-      if(allFund[idx].as_of_date > cutoffStr){ f = allFund[idx]; break; }
+      if(allFund[idx].as_of_date > cutoffStr){ f = {...allFund[idx]}; break; }
     }
   }
-  // Fall back to most recent row
-  if(!f) f = allFund[allFund.length-1];
+  if(!f) f = {...allFund[allFund.length-1]};
+  // Now fill ANY null field on `f` from the most recent non-null in allFund (sorted DESC by as_of_date)
+  const recentDesc = [...allFund].sort((a,b)=> String(b.as_of_date).localeCompare(String(a.as_of_date)));
+  const fillFields = ['rev_growth_ntm','rev_growth_1y','rev_growth_2y_fwd','rev_growth_3y_fwd',
+                      'ebitda_margin','fcf_margin','fcf_yield_ltm','market_cap','enterprise_value',
+                      'cash','total_debt','net_debt','pe_ltm','pe_ntm','ev_ebitda_ltm','ev_revenue_ltm',
+                      'insider_ownership_pct','institutional_ownership_pct'];
+  for(const field of fillFields){
+    if(f[field] != null) continue;
+    for(const row of recentDesc){
+      if(row[field] != null){ f[field] = row[field]; break; }
+    }
+  }
+  // Same for raw_data nested fields (revenue_ltm, ebitda_ltm, shares_outstanding, price)
+  if(!f.raw_data) f.raw_data = {};
+  const rawFields = ['revenue_ltm','ebitda_ltm','shares_outstanding','price','net_income_ltm','gross_profit','fcf_ltm','cffo','capex'];
+  for(const field of rawFields){
+    if(f.raw_data[field] != null) continue;
+    for(const row of recentDesc){
+      if(row.raw_data && row.raw_data[field] != null){ f.raw_data[field] = row.raw_data[field]; break; }
+    }
+  }
 
   // load active model if exists
   const { data: existingActive } = await sb.from('thesis_models').select('*').eq('user_id', currentUser.id).eq('ticker',t).eq('is_active',true).order('updated_at',{ascending:false}).limit(1);
@@ -386,7 +408,7 @@ await fetch('https://nrbffnsheenmewijeapb.supabase.co/functions/v1/backfill-fund
                   ?? (f?.market_cap && f?.raw_data?.shares_outstanding ? Number(f.market_cap) / Number(f.raw_data.shares_outstanding) : null)
                   ?? 100
     };
-    assumptions = defaultAssumptions(f);
+    assumptions = defaultAssumptions(f, historicalCap);
     $('term-multiple').value = assumptions.terminal_multiple;
     $('term-multiple-type').value = assumptions.terminal_multiple_type;
     $('scenario-label').value = 'base';
@@ -400,21 +422,68 @@ await fetch('https://nrbffnsheenmewijeapb.supabase.co/functions/v1/backfill-fund
   show('model-area', true);
 }
 
-function defaultAssumptions(f){
-  const ntm = f?.rev_growth_ntm ?? 0.10;
-  const m2 = f?.rev_growth_2y_fwd ?? Math.max(0.05, ntm - 0.01);
-  const m3 = f?.rev_growth_3y_fwd ?? Math.max(0.05, ntm - 0.02);
+// Compute average YoY revenue growth from the historical annual rows we already loaded.
+// Returns {avg3y, avg5y, latestYoY} — all may be null if insufficient data.
+function computeHistGrowth(historicalCap){
+  if(!historicalCap || historicalCap.length < 2) return { avg3y: null, avg5y: null, latestYoY: null };
+  const sorted = [...historicalCap].sort((a,b) => (a.fiscal_year||0) - (b.fiscal_year||0));
+  const yoy = [];
+  for(let i = 1; i < sorted.length; i++){
+    const curr = Number(sorted[i].revenue), prev = Number(sorted[i-1].revenue);
+    if(curr > 0 && prev > 0) yoy.push(curr/prev - 1);
+  }
+  if(!yoy.length) return { avg3y: null, avg5y: null, latestYoY: null };
+  const last3 = yoy.slice(-3), last5 = yoy.slice(-5);
+  return {
+    avg3y: last3.reduce((a,b)=>a+b,0) / last3.length,
+    avg5y: last5.reduce((a,b)=>a+b,0) / last5.length,
+    latestYoY: yoy[yoy.length-1]
+  };
+}
+
+function defaultAssumptions(f, historicalCap){
+  // Smart fallback chain for rev_growth — NEVER use the bare 10% default when we have real data.
+  //   Priority order:
+  //     1. FMP analyst NTM forecast (if present and reasonable: 0-100%)
+  //     2. Historical 3-yr YoY average (best fallback for compounders)
+  //     3. Historical latest YoY (if 3yr unavailable but at least one year exists)
+  //     4. Hard default 10% (flagged in _meta so user knows)
+  //   Out-year tapering: m2 = ntm * 0.85, m3 = ntm * 0.70, m4 = ntm * 0.55 (geometric decay toward terminal)
+  //   Floors: each year >= 0.04 (terminal-ish), unless ntm itself is very low
+  const hist = computeHistGrowth(historicalCap);
+  const ntmRaw = f?.rev_growth_ntm;
+  const ntmValid = (typeof ntmRaw === 'number' && isFinite(ntmRaw) && ntmRaw >= 0 && ntmRaw <= 1.0);
+  let ntm, ntmSource;
+  if(ntmValid){ ntm = ntmRaw; ntmSource = 'analyst_ntm'; }
+  else if(hist.avg3y != null){ ntm = hist.avg3y; ntmSource = 'hist_3yr_avg'; }
+  else if(hist.latestYoY != null){ ntm = hist.latestYoY; ntmSource = 'hist_latest_yoy'; }
+  else { ntm = 0.10; ntmSource = 'default_10pct'; }
+  // Cap top end at 50% to avoid absurd extrapolations (e.g. one-off acquisition year)
+  ntm = Math.min(ntm, 0.50);
+  // Geometric taper toward 4-5% terminal over 4 years
+  const floor = Math.min(0.04, ntm);  // don't force floor above ntm itself
+  const m2 = f?.rev_growth_2y_fwd ?? Math.max(floor, ntm * 0.80);
+  const m3 = f?.rev_growth_3y_fwd ?? Math.max(floor, ntm * 0.65);
+  const m4 = Math.max(floor, ntm * 0.50);
   const ebm = f?.ebitda_margin ?? 0.25;
   return {
-    years: [1,2,3,4].map(i=>baseAnchor.base_year + i),
-    rev_growth: [ntm, m2, m3, Math.max(0.04, m3-0.02)],
+    years: [1,2,3,4].map(i => baseAnchor.base_year + i),
+    rev_growth: [ntm, m2, m3, m4],
     ebitda_margin: [ebm, ebm+0.005, ebm+0.01, ebm+0.015],
     fcf_conversion: [0.85, 0.85, 0.85, 0.85],
     buyback_pct_of_fcf: [0.40, 0.40, 0.40, 0.40],
     dividend_pct_of_fcf: [0.0, 0.0, 0.0, 0.0],
     debt_paydown_pct_of_fcf: [0.10, 0.10, 0.10, 0.10],
     terminal_multiple: 14,
-    terminal_multiple_type: 'ev_ebitda'
+    terminal_multiple_type: 'ev_ebitda',
+    _meta: {
+      growth_source_ntm: ntmSource,
+      growth_source_2y: f?.rev_growth_2y_fwd != null ? 'analyst_2y' : 'derived_taper',
+      growth_source_3y: f?.rev_growth_3y_fwd != null ? 'analyst_3y' : 'derived_taper',
+      hist_avg_3y: hist.avg3y,
+      hist_latest_yoy: hist.latestYoY,
+      hist_avg_5y: hist.avg5y
+    }
   };
 }
 
@@ -481,14 +550,31 @@ function renderAssumptionsTable(){
     if(rowKey === 'fcf_conversion') return 0.85;  // shown as implied default
     return null;
   }
+  // Lineage tag next to growth row so user sees WHERE the numbers came from. Eliminates silent 10% default.
+  const meta = assumptions?._meta || {};
+  const srcMap = {
+    analyst_ntm: { label: 'NTM', color: '#059669', tip: 'Analyst NTM forecast from FMP' },
+    hist_3yr_avg: { label: '3Y AVG', color: '#2563eb', tip: `3-yr historical YoY avg = ${meta.hist_avg_3y!=null?(meta.hist_avg_3y*100).toFixed(1)+'%':'—'}` },
+    hist_latest_yoy: { label: 'LAST YoY', color: '#2563eb', tip: `Most recent YoY = ${meta.hist_latest_yoy!=null?(meta.hist_latest_yoy*100).toFixed(1)+'%':'—'}` },
+    default_10pct: { label: 'DEFAULT', color: '#dc2626', tip: 'No data — using 10% magic number. Refresh data to get real growth.' },
+    analyst_2y: { label: 'NTM', color: '#059669', tip: 'Analyst 2yr forecast' },
+    analyst_3y: { label: 'NTM', color: '#059669', tip: 'Analyst 3yr forecast' },
+    derived_taper: { label: 'TAPER', color: '#94a3b8', tip: 'Geometric taper from year 1 toward terminal' }
+  };
+  const tagFor = (src) => {
+    const s = srcMap[src] || { label: src||'?', color: '#94a3b8', tip: '' };
+    return `<span style="display:inline-block;font-family:var(--mono);font-size:8.5px;letter-spacing:0.05em;padding:1px 4px;border-radius:6px;background:${s.color};color:#fff;margin-left:4px;vertical-align:middle" title="${esc(s.tip)}">${s.label}</span>`;
+  };
+  const growthSrcs = [meta.growth_source_ntm, meta.growth_source_2y, meta.growth_source_3y, 'derived_taper'];
+
   const html = `
     <thead><tr><th>Driver</th>${hist.map(h=>`<th style="color:var(--text-muted)">FY${h.year} (h)</th>`).join('')}<th style="background:var(--bg-blue-soft)">FY${baseAnchor.base_year}</th>${yrs.map(y=>`<th>FY${y}</th>`).join('')}</tr></thead>
     <tbody>${rows.map(r=>`
       <tr>
-        <td class="row-label">${esc(r.l)}</td>
+        <td class="row-label">${esc(r.l)}${r.k==='rev_growth'?tagFor(meta.growth_source_ntm):''}</td>
         ${hist.map((h,i)=>`<td style="color:var(--text-muted)">${r.histFn ? fmtPctH(r.histFn(i)) : '—'}</td>`).join('')}
         <td style="background:var(--bg-blue-soft); color:var(--text-muted)">${fmtPctH(baseVal(r.k))}</td>
-        ${assumptions[r.k].map((v,i)=>`<td><input class="assumption" data-row="${r.k}" data-idx="${i}" type="number" step="0.5" value="${(Number(v)*100).toFixed(1)}"></td>`).join('')}
+        ${assumptions[r.k].map((v,i)=>`<td><input class="assumption" data-row="${r.k}" data-idx="${i}" type="number" step="0.5" value="${(Number(v)*100).toFixed(1)}">${r.k==='rev_growth'?tagFor(growthSrcs[i]):''}</td>`).join('')}
       </tr>
     `).join('')}</tbody>
   `;
