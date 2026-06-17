@@ -393,6 +393,34 @@ async function onTickerChange(){
                   ?? (f?.market_cap && f?.raw_data?.shares_outstanding ? Number(f.market_cap) / Number(f.raw_data.shares_outstanding) : null)
                   ?? 100
     };
+    // Fix 2026-06-16: when FMP returns LTM (not NTM) for the spine "estimate" row, the FY{baseYear}
+    // column showed 0% growth because base_revenue equalled lastHist.revenue. Project forward using
+    // analyst NTM → 3yr hist avg → latest YoY → skip. This makes the base column show real growth.
+    const _lh = historicalCap[historicalCap.length-1];
+    if (_lh?.revenue && baseAnchor.base_revenue &&
+        Math.abs(baseAnchor.base_revenue - _lh.revenue) / _lh.revenue < 0.005) {
+      const _hg = computeHistGrowth(historicalCap).growth;
+      let _projRate = null, _projSource = null;
+      if (f?.rev_growth_ntm != null && typeof f.rev_growth_ntm === 'number' &&
+          f.rev_growth_ntm > 0 && f.rev_growth_ntm < 1.0) {
+        _projRate = f.rev_growth_ntm; _projSource = 'analyst_ntm';
+      } else if (_hg.avg3y != null && _hg.avg3y > -0.5 && _hg.avg3y < 1.0) {
+        _projRate = _hg.avg3y; _projSource = 'hist_3yr_avg';
+      } else if (_hg.latestYoY != null && _hg.latestYoY > -0.5 && _hg.latestYoY < 1.0) {
+        _projRate = _hg.latestYoY; _projSource = 'hist_latest_yoy';
+      }
+      if (_projRate != null) {
+        const _projRev = baseAnchor.base_revenue * (1 + _projRate);
+        if (baseAnchor.base_ebitda && baseAnchor.base_revenue > 0) {
+          const _margin = baseAnchor.base_ebitda / baseAnchor.base_revenue;
+          baseAnchor.base_ebitda = Math.round(_projRev * _margin);
+        }
+        baseAnchor.base_revenue = Math.round(_projRev);
+        baseAnchor._base_projected_from_ltm = true;
+        baseAnchor._base_projection_rate = _projRate;
+        baseAnchor._base_projection_source = _projSource;
+      }
+    }
     assumptions = defaultAssumptions(f, historicalCap);
     $('term-multiple').value = assumptions.terminal_multiple;
     $('term-multiple-type').value = assumptions.terminal_multiple_type;
