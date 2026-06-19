@@ -126,9 +126,9 @@
             <th style="text-align:right">P&amp;L</th>
             <th style="text-align:right">Mkt Cap</th>
             <th style="text-align:right">FCF Yld</th>
+            <th style="text-align:right">Rev gr 1Y</th>
             <th style="text-align:right">P/E LTM</th>
             <th style="text-align:right">P/E NTM</th>
-            <th style="text-align:right">Rev gr 1Y</th>
             <th style="text-align:right">Up TGT $</th>
             <th style="text-align:right">Up %</th>
             <th style="text-align:right">Down TGT $</th>
@@ -138,6 +138,7 @@
           </tr>
         </thead>
         <tbody id="positions-tbody"><tr><td colspan="22" class="empty">Loading…</td></tr></tbody>
+        <tfoot id="positions-tfoot"></tfoot>
       </table>
     </div>
   </div>
@@ -378,9 +379,9 @@
           + '<td class="num '+cls(p._pnl)+'" title="Cost basis: '+usd2(p.cost_basis)+'">'+usd0(p._pnl)+'</td>'
           + '<td class="num dim">'+cap(p.market_cap)+'</td>'
           + '<td class="num dim">'+(p.fcf_yield_ltm!=null?pct(Number(p.fcf_yield_ltm)*100):'—')+'</td>'
+          + '<td class="num dim">'+(p.rev_growth_1y!=null?pct(Number(p.rev_growth_1y)*100):'—')+'</td>'
           + '<td class="num dim">'+num(p.pe_ltm,1)+'</td>'
           + '<td class="num dim">'+num(p.pe_ntm,1)+'</td>'
-          + '<td class="num dim">'+(p.rev_growth_1y!=null?pct(Number(p.rev_growth_1y)*100):'—')+'</td>'
           + '<td class="num"><input type="number" class="target-input" step="0.01" data-ticker="'+esc(p.underlying)+'" data-field="target_price" value="'+esc(upTgt)+'" placeholder="—"></td>'
           + '<td class="num '+cls(upPct)+'">'+pct(upPct)+'</td>'
           + '<td class="num"><input type="number" class="target-input" step="0.01" data-ticker="'+esc(p.underlying)+'" data-field="downside_target_price" value="'+esc(dnTgt)+'" placeholder="—"></td>'
@@ -398,7 +399,40 @@
       });
     }
 
-    // ===== Spreads =====
+    // ===== Sums footer (equities only — options skipped due to different notional) =====
+    (function renderSumsFooter(){
+      const eqPositions = positionsAdj.filter(p => p.instrument_type === 'Equity');
+      if (!eqPositions.length) { $('positions-tfoot').innerHTML = ''; return; }
+      let tValue = 0, tPnl = 0, tUpDollars = 0, tDnDollars = 0;
+      let upCount = 0, dnCount = 0;
+      eqPositions.forEach(p => {
+        const v = Number(p._disp_value||0); tValue += v;
+        const pnl = Number(p._pnl||0); tPnl += pnl;
+        const px = Number(p._disp_px||p.current_price||0);
+        const qty = Number(p.qty||0);
+        if (p.user_up_target != null && px > 0) {
+          tUpDollars += qty * (Number(p.user_up_target) - px); upCount++;
+        }
+        if (p.user_down_target != null && px > 0) {
+          tDnDollars += qty * (Number(p.user_down_target) - px); dnCount++;
+        }
+      });
+      const upPct = tValue > 0 ? (tUpDollars / tValue * 100) : null;
+      const dnPct = tValue > 0 ? (tDnDollars / tValue * 100) : null;
+      // 22 columns total: ticker, inst, dir, qty, strike, expiry, entry, price, VALUE, %nlv, P&L, mcap, fcfy, revg, pe_ltm, pe_ntm, UpTGT, Up%, DnTGT, Dn%, R/R, AnalystCons
+      $('positions-tfoot').innerHTML = '<tr style="font-weight:600;border-top:2px solid var(--border);background:var(--bg-tint)">'
+        + '<td colspan="8" style="text-align:right;padding:9px 8px;font-family:var(--mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase">Equity totals ('+eqPositions.length+')</td>'
+        + '<td class="num">'+usd0(tValue)+'</td>'
+        + '<td class="num dim">'+(tValue>0?pct(100,1):'—')+'</td>'
+        + '<td class="num '+cls(tPnl)+'">'+usd0(tPnl)+'</td>'
+        + '<td colspan="4"></td>'
+        + '<td class="num dim" title="'+upCount+' positions with up target">'+usd0(tUpDollars)+'</td>'
+        + '<td class="num '+cls(upPct)+'">'+(upPct!=null?pct(upPct,1):'—')+'</td>'
+        + '<td class="num dim" title="'+dnCount+' positions with down target">'+usd0(tDnDollars)+'</td>'
+        + '<td class="num '+cls(dnPct)+'">'+(dnPct!=null?pct(dnPct,1):'—')+'</td>'
+        + '<td colspan="2"></td>'
+        + '</tr>';
+    })();
     if (spreads.length) {
       $('spreads-card').style.display = '';
       $('spreads-tbody').innerHTML = spreads.map(s => '<tr>'
