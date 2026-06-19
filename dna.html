@@ -2,176 +2,558 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Investor DNA · Ridge Run</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/assets/themes.css" />
 <style>
-  .dna-section { margin-bottom: 18px; }
-  .dna-section h3 { font-family:var(--serif); font-size:16px; font-weight:600; margin:0 0 8px; color:var(--text); }
-  .tag-row { display:flex; gap:6px; flex-wrap:wrap; }
-  .tag { font-family:var(--mono); font-size:10px; letter-spacing:0.08em; padding:4px 10px; border-radius:3px; background:var(--bg-tint); border:1px solid var(--border); color:var(--text-muted); }
-  .tag.strength { background:var(--success-bg); color:#065f46; border-color:#a7f3d0; }
-  .tag.weakness { background:var(--warning-bg); color:#92400e; border-color:#fcd34d; }
-  .tag.warning { background:var(--danger-bg); color:#991b1b; border-color:#fecaca; }
-  .guardrail-row { padding:10px 12px; background:var(--bg-tint); border-left:3px solid var(--danger); border-radius:4px; margin-bottom:6px; font-size:12px; }
-  .guardrail-row.soft { border-left-color:var(--warning); }
+  :root { --gap: 16px; }
+  *{box-sizing:border-box}
+  body{font-family:var(--sans, ui-sans-serif, system-ui, -apple-system, sans-serif);margin:0;background:var(--bg, #fafaf7);color:var(--text, #1a1a1a);line-height:1.5}
+  .shell{max-width:1280px;margin:0 auto;padding:24px 24px 80px}
+  .page-head{margin-bottom:24px}
+  .page-title{font-size:28px;font-weight:600;margin:0 0 4px;letter-spacing:-0.01em}
+  .page-sub{color:var(--text-muted, #666);font-size:13px;margin:0}
+
+  /* Identity strip */
+  .identity{background:linear-gradient(135deg, var(--bg-tint, #f3efe7) 0%, var(--bg, #fafaf7) 100%);border:1px solid var(--border, #d8d4cb);border-radius:8px;padding:18px 20px;margin-bottom:20px}
+  .identity-name{font-size:18px;font-weight:600;margin:0 0 6px}
+  .identity-tag{color:var(--text-muted, #666);font-size:12.5px;margin:0 0 12px;font-style:italic}
+  .identity-stats{display:flex;gap:18px;flex-wrap:wrap;margin-top:8px}
+  .identity-stat{display:flex;flex-direction:column;gap:2px}
+  .identity-stat-label{font-family:var(--mono, ui-monospace, monospace);font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted)}
+  .identity-stat-value{font-size:15px;font-weight:600;font-family:var(--mono)}
+  .pos{color:#0a7a3f}.neg{color:#b21f1f}.warn{color:#a06400}
+
+  /* Action bar */
+  .actions{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+  .btn{padding:7px 14px;background:var(--bg, #fafaf7);border:1px solid var(--border, #d8d4cb);border-radius:5px;cursor:pointer;font-size:12.5px;font-family:inherit;color:var(--text);transition:all 0.15s}
+  .btn:hover{background:var(--bg-tint);border-color:var(--text-muted)}
+  .btn-primary{background:#1a1a1a;color:#fafaf7;border-color:#1a1a1a}
+  .btn-primary:hover{background:#333}
+  .btn-sm{padding:3px 8px;font-size:11px}
+  .btn-danger{color:#b21f1f}
+  .btn-danger:hover{background:#fdf2f2;border-color:#b21f1f}
+
+  /* Category card */
+  .cat{background:var(--bg, #fafaf7);border:1px solid var(--border, #d8d4cb);border-radius:7px;margin-bottom:12px;overflow:hidden}
+  .cat-head{padding:12px 16px;cursor:pointer;user-select:none;display:flex;align-items:center;gap:10px;background:var(--bg-tint, #f3efe7);border-bottom:1px solid transparent;transition:border-color 0.15s}
+  .cat.open .cat-head{border-bottom-color:var(--border)}
+  .cat-toggle{display:inline-flex;width:18px;height:18px;align-items:center;justify-content:center;font-weight:600;color:var(--text-muted);font-family:var(--mono);font-size:14px}
+  .cat.open .cat-toggle::before{content:'−'}
+  .cat:not(.open) .cat-toggle::before{content:'+'}
+  .cat-icon{font-size:16px}
+  .cat-title{font-weight:600;font-size:14px;flex:1}
+  .cat-count{color:var(--text-muted);font-size:11.5px;font-family:var(--mono)}
+  .cat-desc{color:var(--text-muted);font-size:12px;font-style:italic;margin-left:auto;display:none}
+  @media (min-width: 720px) { .cat-desc { display:inline } }
+  .cat-body{display:none;padding:8px 12px 12px}
+  .cat.open .cat-body{display:block}
+
+  /* Entry card */
+  .entry{background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:10px 12px;margin:8px 0;position:relative}
+  .entry-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px}
+  .entry-title{font-weight:600;font-size:13px;line-height:1.35;margin:0}
+  .entry-actions{display:flex;gap:4px;opacity:0;transition:opacity 0.15s;flex-shrink:0}
+  .entry:hover .entry-actions{opacity:1}
+  .entry-body{font-size:12.5px;line-height:1.55;color:var(--text);white-space:pre-wrap;word-wrap:break-word;font-family:inherit}
+  .entry-body strong{font-weight:600}
+  .entry-body em{font-style:italic}
+  .entry-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center}
+  .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:0.04em;background:var(--bg-tint);border:1px solid var(--border);padding:2px 6px;border-radius:3px;color:var(--text-muted)}
+  .tag-rule{background:#f3f1e7;border-color:#d4c79b;color:#7a6300}
+  .tag-pinned{background:#fef3e0;border-color:#f3c97a;color:#a06400}
+  .updated{color:var(--text-muted);font-size:10.5px;font-family:var(--mono);margin-left:auto}
+
+  /* Edit mode */
+  .entry.editing{border-color:#1a1a1a;background:#fffef9}
+  .input-title{width:100%;font-size:13px;font-weight:600;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-family:inherit;margin-bottom:6px}
+  .input-body{width:100%;min-height:140px;font-size:12.5px;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-family:inherit;line-height:1.55;resize:vertical}
+  .input-tags{width:100%;font-size:11.5px;padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-family:var(--mono);margin-top:6px}
+  .input-row{display:flex;gap:8px;margin-top:6px;align-items:center}
+  .input-row label{font-size:11px;color:var(--text-muted);font-family:var(--mono)}
+  .edit-actions{display:flex;gap:6px;margin-top:8px;justify-content:flex-end}
+
+  /* Per-ticker subgroups */
+  .ticker-group{margin:6px 0;border:1px solid var(--border);border-radius:5px;overflow:hidden}
+  .ticker-head{padding:7px 12px;cursor:pointer;background:var(--bg);user-select:none;display:flex;align-items:center;gap:8px;font-size:12.5px}
+  .ticker-head:hover{background:var(--bg-tint)}
+  .ticker-symbol{font-weight:600;font-family:var(--mono);font-size:13px}
+  .ticker-count{color:var(--text-muted);font-size:11px;font-family:var(--mono)}
+  .ticker-body{display:none;padding:4px 8px 8px;background:var(--bg-tint)}
+  .ticker-group.open .ticker-body{display:block}
+  .ticker-group.open .ticker-head{border-bottom:1px solid var(--border)}
+  .ticker-toggle{font-weight:600;color:var(--text-muted);font-family:var(--mono);font-size:13px;width:14px}
+  .ticker-group.open .ticker-toggle::before{content:'−'}
+  .ticker-group:not(.open) .ticker-toggle::before{content:'+'}
+
+  /* Track record + patterns boxes */
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+  .stat-box{padding:10px 12px;border:1px solid var(--border);border-radius:5px;background:var(--bg)}
+  .stat-box-title{font-family:var(--mono);font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
+  .stat-row{display:flex;justify-content:space-between;padding:3px 0;font-size:12.5px;font-family:var(--mono)}
+  .stat-row .label{color:var(--text)}
+  .stat-row .val{font-weight:600}
+  
+  /* Add new form */
+  .add-form{background:#fffef9;border:2px dashed #1a1a1a;border-radius:5px;padding:12px;margin:8px 0;display:none}
+  .add-form.show{display:block}
+  
+  /* Empty state */
+  .empty{padding:14px;color:var(--text-muted);font-style:italic;font-size:12.5px;text-align:center}
+  
+  /* Status / messages */
+  .toast{position:fixed;bottom:20px;right:20px;padding:10px 16px;background:#1a1a1a;color:#fafaf7;border-radius:5px;font-size:12.5px;opacity:0;transform:translateY(10px);transition:all 0.25s;pointer-events:none;z-index:100}
+  .toast.show{opacity:1;transform:translateY(0)}
+  .toast.error{background:#b21f1f}
 </style>
 </head>
 <body>
+<div class="shell">
+  <div class="page-head">
+    <h1 class="page-title">Investor DNA</h1>
+    <p class="page-sub">Lessons learned, frameworks, themes, and per-security reads. Click any section to expand · Hover to edit · Add new at any time.</p>
+  </div>
 
-<div id="rr-nav-container"></div>
+  <div id="identity" class="identity">Loading…</div>
 
-<div id="loading-screen" class="loading">Loading DNA…</div>
+  <div class="actions">
+    <button class="btn btn-primary" onclick="openAddForm('global')">+ Add New Lesson</button>
+    <button class="btn" onclick="collapseAll()">Collapse All</button>
+    <button class="btn" onclick="expandAll()">Expand All</button>
+    <button class="btn" onclick="loadDna()">↻ Refresh</button>
+  </div>
 
-<div id="app" class="shell hidden">
-
-  <h1 class="page-title">Investor DNA</h1>
-  <p class="page-sub">Your edges, failure modes, and active guardrails. Drives every AI recommendation.</p>
-
-  <div id="msg-area"></div>
-
-  <div class="banner-card">
-    <div class="banner-head">
-      <h2>Profile summary</h2>
-      <span class="banner-meta" id="dna-version">--</span>
+  <div id="add-form-global" class="add-form">
+    <div class="input-row" style="margin-top:0">
+      <label>Category:</label>
+      <select id="add-category" style="padding:5px 8px;font-size:12px;border:1px solid var(--border);border-radius:4px;font-family:inherit">
+        <option value="active_rules">Active Rule</option>
+        <option value="methodology">Methodology / Framework</option>
+        <option value="themes" selected>Active Market Theme</option>
+        <option value="portfolio_thesis">Portfolio Thesis</option>
+        <option value="per_ticker">Per-Security Note</option>
+      </select>
     </div>
-    <div class="banner-body">
-      <div id="dna-summary" style="font-size:13px; line-height:1.65;"><div class="empty">No DNA generated yet.</div></div>
+    <div id="add-ticker-row" class="input-row" style="display:none">
+      <label>Ticker:</label>
+      <input id="add-ticker" type="text" placeholder="e.g. META" style="padding:5px 8px;font-size:12px;border:1px solid var(--border);border-radius:4px;font-family:var(--mono);text-transform:uppercase;width:100px" />
+      <label><input type="checkbox" id="add-pinned" /> Pinned</label>
+    </div>
+    <input id="add-title" class="input-title" placeholder="Title…" />
+    <textarea id="add-body" class="input-body" placeholder="Body (supports markdown-style **bold** and *italic*)…"></textarea>
+    <input id="add-tags" class="input-tags" placeholder="Tags (comma-separated)…" />
+    <div class="edit-actions">
+      <button class="btn btn-sm" onclick="closeAddForm('global')">Cancel</button>
+      <button class="btn btn-sm btn-primary" onclick="saveNew('global')">Save</button>
     </div>
   </div>
 
-  <div class="banner-card">
-    <div class="banner-head">
-      <h2>Strengths</h2>
-      <span class="banner-meta">Patterns that worked</span>
-    </div>
-    <div class="banner-body">
-      <div id="dna-strengths"><div class="empty">--</div></div>
-    </div>
-  </div>
-
-  <div class="banner-card">
-    <div class="banner-head">
-      <h2>Weaknesses & failure modes</h2>
-      <span class="banner-meta">Patterns that hurt</span>
-    </div>
-    <div class="banner-body">
-      <div id="dna-weaknesses"><div class="empty">--</div></div>
-    </div>
-  </div>
-
-  <div class="banner-card">
-    <div class="banner-head">
-      <h2>Behavioral warnings</h2>
-      <span class="banner-meta">Real-time triggers</span>
-    </div>
-    <div class="banner-body">
-      <div id="dna-warnings"><div class="empty">--</div></div>
-    </div>
-  </div>
-
-  <div class="banner-card">
-    <div class="banner-head">
-      <h2>Active guardrails</h2>
-      <span class="banner-meta">Hard + soft policy</span>
-    </div>
-    <div class="banner-body">
-      <p class="h2-sub">Hard limits block AI recommendations. Soft limits require approval. Editable via DNA chat or by re-running onboarding.</p>
-      <div id="dna-guardrails"><div class="empty">--</div></div>
-    </div>
-  </div>
-
-  <div class="banner-card">
-    <div class="banner-head">
-      <h2>Onboarding history</h2>
-      <span class="banner-meta">Question-by-question responses</span>
-    </div>
-    <div class="banner-body">
-      <p class="h2-sub">Want to re-take onboarding? <a href="/onboarding.html" style="color:var(--accent)">Start over →</a></p>
-      <div id="dna-responses"><div class="empty">--</div></div>
-    </div>
-  </div>
-
+  <div id="categories"></div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/config.js"></script>
-<script src="/nav.js"></script>
+<div id="toast" class="toast"></div>
+
 <script>
-(() => {
-const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = window.RR_CONFIG;
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-let currentUser = null;
+  const SUPABASE_URL = 'https://nrbffnsheenmewijeapb.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_WjDoqgd4_eDE1lpfZHkT0g_cyArLkvI';
+  const USER_ID = 'e048e890-8554-429e-883e-d9c5d03a3510';
 
-const $ = id => document.getElementById(id);
-const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
-const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let DNA = null;
+  let editingId = null;
 
-(async () => {
-  const { data:{ session } } = await sb.auth.getSession();
-  if(!session?.user){ window.location.href='/index.html'; return; }
-  currentUser = session.user;
-  await window.RidgeRunNav.mount({ active: 'dna', supabase: sb });
-  show('loading-screen', false);
-  show('app', true);
-  await Promise.all([loadDNA(), loadGuardrails(), loadResponses()]);
-})();
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const usd0 = n => n==null?'—':'$'+Math.round(Number(n)).toLocaleString();
+  const usdMM = n => n==null?'—':(Math.abs(n)>=1000000 ? '$'+(n/1000000).toFixed(2)+'M' : usd0(n));
+  const pct = (n,d=1) => n==null?'—':Number(n).toFixed(d)+'%';
+  const cls = n => n==null?'':n>0?'pos':n<0?'neg':'';
 
-async function loadDNA(){
-  const { data } = await sb.from('investor_dna').select('*').eq('user_id', currentUser.id).eq('is_active', true).order('generated_at',{ascending:false}).limit(1).maybeSingle();
-  if(!data){ $('dna-summary').innerHTML = '<div class="empty">No DNA generated. Complete onboarding first.</div>'; return; }
-  $('dna-version').textContent = 'v' + (data.version||1) + ' · ' + new Date(data.generated_at).toLocaleDateString();
-  $('dna-summary').innerHTML = esc(data.summary||'(no summary)').replace(/\n/g,'<br>');
-  renderTagList('dna-strengths', data.strengths, 'strength');
-  renderTagList('dna-weaknesses', data.weaknesses, 'weakness');
-  renderTagList('dna-warnings', data.behavioral_warnings, 'warning');
-}
+  // Render markdown-lite (bold, italic, line breaks)
+  const renderBody = s => esc(s||'')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/(?<!\*)\*([^*]+?)\*(?!\*)/g, '<em>$1</em>');
 
-function renderTagList(id, items, klass){
-  const out = $(id);
-  if(!items || !items.length){ out.innerHTML = '<div class="empty">--</div>'; return; }
-  // items can be array of strings or array of objects
-  const list = Array.isArray(items) ? items : [items];
-  const flat = list.map(x => typeof x === 'string' ? x : (x.label || x.text || x.name || JSON.stringify(x)));
-  out.innerHTML = '<div class="tag-row">' + flat.map(t => `<span class="tag ${klass}">${esc(t)}</span>`).join('') + '</div>';
-}
-
-async function loadGuardrails(){
-  const { data } = await sb.from('guardrail_policies').select('*').eq('user_id', currentUser.id).eq('is_active', true).order('created_at',{ascending:false}).limit(1).maybeSingle();
-  if(!data){ $('dna-guardrails').innerHTML = '<div class="empty">No guardrails set.</div>'; return; }
-  const out = $('dna-guardrails');
-  let html = '';
-  const hard = data.hard_limits || data.policy?.hard_limits || [];
-  const soft = data.soft_limits || data.policy?.soft_limits || [];
-  if(Array.isArray(hard) && hard.length){
-    html += '<h3 class="h2-sub" style="font-family:var(--serif); font-size:14px; margin:0 0 8px; color:var(--danger)">Hard limits</h3>';
-    html += hard.map(h => `<div class="guardrail-row">${esc(typeof h === 'string' ? h : (h.rule || h.label || JSON.stringify(h)))}</div>`).join('');
+  function showToast(msg, isError=false) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.toggle('error', isError);
+    t.classList.add('show');
+    clearTimeout(t._t);
+    t._t = setTimeout(() => t.classList.remove('show'), 2200);
   }
-  if(Array.isArray(soft) && soft.length){
-    html += '<h3 class="h2-sub" style="font-family:var(--serif); font-size:14px; margin:14px 0 8px; color:var(--warning)">Soft limits</h3>';
-    html += soft.map(h => `<div class="guardrail-row soft">${esc(typeof h === 'string' ? h : (h.rule || h.label || JSON.stringify(h)))}</div>`).join('');
-  }
-  if(!html) html = '<div class="empty">No specific limits set.</div>';
-  out.innerHTML = html;
-}
 
-async function loadResponses(){
-  const { data } = await sb.from('onboarding_responses').select('*').eq('user_id', currentUser.id).order('answered_at',{ascending:false}).limit(40);
-  const out = $('dna-responses');
-  if(!data || !data.length){ out.innerHTML = '<div class="empty">No responses recorded yet.</div>'; return; }
-  out.innerHTML = data.map(r => {
-    const ans = typeof r.answer === 'string' ? r.answer : JSON.stringify(r.answer);
-    return `<div style="padding:8px 0; border-bottom:1px solid var(--border)">
-      <div style="font-family:var(--mono); font-size:10px; color:var(--text-muted); margin-bottom:2px;">${esc(r.question_id || '--')} · ${esc(r.section_id || '--')}</div>
-      <div style="font-size:13px; line-height:1.5;">${esc(ans.slice(0, 400))}</div>
+  async function rpc(name, params = {}) {
+    const url = `${SUPABASE_URL}/rest/v1/rpc/${name}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY },
+      body: JSON.stringify(params)
+    });
+    if (!res.ok) throw new Error(`${name} failed: ${res.status} ${await res.text()}`);
+    return res.json();
+  }
+
+  async function loadDna() {
+    try {
+      DNA = await rpc('get_investor_dna', { p_user: USER_ID });
+      renderIdentity(DNA.header);
+      renderCategories(DNA.categories);
+      restoreOpenState();
+    } catch (e) {
+      showToast('Failed to load DNA: '+e.message, true);
+      console.error(e);
+    }
+  }
+
+  function renderIdentity(h) {
+    if (!h) return;
+    $('identity').innerHTML = `
+      <h2 class="identity-name">${esc(h.identity)}</h2>
+      <p class="identity-tag">${esc(h.tagline)}</p>
+      <div class="identity-stats">
+        <div class="identity-stat"><span class="identity-stat-label">Stock Career</span><span class="identity-stat-value pos">${usdMM(h.stock_career_pl)} · ${pct(h.stock_win_rate)}</span></div>
+        <div class="identity-stat"><span class="identity-stat-label">Warrant Caution</span><span class="identity-stat-value neg">${usdMM(h.warrant_career_pl)} · ${pct(h.warrant_win_rate)}</span></div>
+        <div class="identity-stat"><span class="identity-stat-label">Active Rules</span><span class="identity-stat-value">${h.active_rules_count}</span></div>
+        <div class="identity-stat"><span class="identity-stat-label">Current NAV</span><span class="identity-stat-value">${usd0(h.current_nav)}</span></div>
+      </div>
+      <p class="identity-tag" style="margin-top:10px;font-size:11.5px">${esc(h.rebuild_context)}</p>
+    `;
+  }
+
+  function renderCategories(cats) {
+    $('categories').innerHTML = cats.map(c => renderCategory(c)).join('');
+  }
+
+  function renderCategory(c) {
+    const count = c.entries ? c.entries.length : c.grouped ? c.grouped.length : c.data ? Object.keys(c.data).length : 0;
+    let body = '';
+    if (c.id === 'patterns') body = renderPatternsBox(c.data);
+    else if (c.id === 'track_record') body = renderTrackRecordBox(c.data);
+    else if (c.id === 'per_ticker') body = renderPerTicker(c);
+    else body = renderEntryList(c);
+
+    return `
+      <div class="cat" data-cat="${c.id}">
+        <div class="cat-head" onclick="toggleCat(this)">
+          <span class="cat-toggle"></span>
+          <span class="cat-icon">${c.icon||''}</span>
+          <span class="cat-title">${esc(c.title)}</span>
+          <span class="cat-count">(${count})</span>
+          <span class="cat-desc">${esc(c.description||'')}</span>
+        </div>
+        <div class="cat-body">${body}</div>
+      </div>
+    `;
+  }
+
+  function renderEntryList(c) {
+    const entries = c.entries || [];
+    if (!entries.length) return `<div class="empty">No entries yet.</div>`;
+    let html = entries.map(e => renderEntry(e, c.editable)).join('');
+    if (c.editable) {
+      html += `<div style="text-align:center;margin-top:10px"><button class="btn btn-sm" onclick="openAddInline('${c.id}')">+ Add in this section</button></div>`;
+      html += `<div id="add-form-${c.id}" class="add-form" style="margin-top:8px"></div>`;
+    }
+    return html;
+  }
+
+  function renderEntry(e, catEditable) {
+    const tagsHtml = (e.tags||[]).map(t => {
+      const cl = t.startsWith('rule_')||t==='active_rule' ? 'tag tag-rule' : 'tag';
+      return `<span class="${cl}">${esc(t)}</span>`;
+    }).join('');
+    const pinTag = e.pinned ? `<span class="tag tag-pinned">📌 pinned</span>` : '';
+    const editBtns = e.editable && catEditable ? `
+      <button class="btn btn-sm" onclick="startEdit('${e.id}', '${e.source_table}')">edit</button>
+      <button class="btn btn-sm btn-danger" onclick="archiveEntry('${e.id}', '${e.source_table}', '${esc(e.title||'').replace(/'/g,'')}')">archive</button>
+    ` : '';
+    return `
+      <div class="entry" id="entry-${e.id}" data-id="${e.id}" data-table="${e.source_table}">
+        <div class="entry-head">
+          <h3 class="entry-title">${esc(e.title||'(untitled)')}</h3>
+          <div class="entry-actions">${editBtns}</div>
+        </div>
+        <div class="entry-body" data-field="body">${renderBody(e.body)}</div>
+        <div class="entry-meta">
+          ${pinTag}${tagsHtml}
+          <span class="updated">${(e.updated_at||'').slice(0,10)}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderPerTicker(c) {
+    const groups = c.grouped || [];
+    if (!groups.length) return `<div class="empty">No ticker notes yet.</div>`;
+    let html = groups.map(g => `
+      <div class="ticker-group" data-ticker="${g.ticker}">
+        <div class="ticker-head" onclick="toggleTicker(this)">
+          <span class="ticker-toggle"></span>
+          <span class="ticker-symbol">${esc(g.ticker)}</span>
+          <span class="ticker-count">(${g.notes.length} note${g.notes.length===1?'':'s'})</span>
+          ${g.has_pinned ? '<span class="tag tag-pinned">📌</span>' : ''}
+        </div>
+        <div class="ticker-body">
+          ${g.notes.map(n => renderEntry(n, true)).join('')}
+        </div>
+      </div>
+    `).join('');
+    html += `<div style="text-align:center;margin-top:10px"><button class="btn btn-sm" onclick="openAddInline('per_ticker')">+ Add ticker note</button></div>`;
+    html += `<div id="add-form-per_ticker" class="add-form" style="margin-top:8px"></div>`;
+    return html;
+  }
+
+  function renderPatternsBox(data) {
+    if (!data || (!data.positive_patterns && !data.negative_patterns)) return `<div class="empty">No pattern data yet.</div>`;
+    return `<div class="stat-grid">
+      <div class="stat-box">
+        <div class="stat-box-title">Positive patterns observed</div>
+        ${(data.positive_patterns||[]).map(p => `<div class="stat-row"><span class="label">${esc(p.tag)}</span><span class="val pos">×${p.count}</span></div>`).join('') || '<div class="empty">None yet</div>'}
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-title">Anti-patterns flagged</div>
+        ${(data.negative_patterns||[]).map(p => `<div class="stat-row"><span class="label">${esc(p.tag)}</span><span class="val neg">×${p.count}</span></div>`).join('') || '<div class="empty">None yet</div>'}
+      </div>
     </div>`;
-  }).join('');
-}
+  }
 
-})();
+  function renderTrackRecordBox(data) {
+    if (!data) return `<div class="empty">No track record data.</div>`;
+    const ba = data.by_asset || [];
+    const tw = data.top_winners || [];
+    const tl = data.top_losers || [];
+    return `<div class="stat-grid">
+      <div class="stat-box">
+        <div class="stat-box-title">By asset class</div>
+        ${ba.map(a => `<div class="stat-row"><span class="label">${esc(a.asset_class)} (${a.n})</span><span class="val ${cls(a.total_pl)}">${usdMM(a.total_pl)} · ${pct(a.win_rate)}</span></div>`).join('')}
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-title">Top winners</div>
+        ${tw.slice(0,8).map(w => `<div class="stat-row"><span class="label">${esc(w.symbol)} (${w.n})</span><span class="val pos">${usd0(w.pl)}</span></div>`).join('')}
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-title">Top losses (cautionary)</div>
+        ${tl.slice(0,8).map(l => `<div class="stat-row"><span class="label">${esc(l.symbol)} (${l.n})</span><span class="val neg">${usd0(l.pl)}</span></div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  function toggleCat(el) {
+    el.parentElement.classList.toggle('open');
+    saveOpenState();
+  }
+  function toggleTicker(el) {
+    el.parentElement.classList.toggle('open');
+  }
+  function collapseAll() {
+    document.querySelectorAll('.cat.open').forEach(c => c.classList.remove('open'));
+    saveOpenState();
+  }
+  function expandAll() {
+    document.querySelectorAll('.cat').forEach(c => c.classList.add('open'));
+    saveOpenState();
+  }
+  function saveOpenState() {
+    const open = Array.from(document.querySelectorAll('.cat.open')).map(c => c.dataset.cat);
+    try { localStorage.setItem('RR_DNA_OPEN', JSON.stringify(open)); } catch(e) {}
+  }
+  function restoreOpenState() {
+    try {
+      const open = JSON.parse(localStorage.getItem('RR_DNA_OPEN')||'["active_rules"]');
+      open.forEach(id => {
+        const el = document.querySelector(`.cat[data-cat="${id}"]`);
+        if (el) el.classList.add('open');
+      });
+    } catch(e) {}
+  }
+
+  // Edit flow
+  function startEdit(id, table) {
+    if (editingId) cancelEdit(editingId);
+    const card = document.getElementById('entry-'+id);
+    if (!card) return;
+    editingId = id;
+    const entry = findEntry(id);
+    if (!entry) return;
+    const oldHtml = card.innerHTML;
+    card._oldHtml = oldHtml;
+    card.classList.add('editing');
+    const tickerInput = table === 'ticker_notes' ? `
+      <div class="input-row">
+        <label>Ticker:</label>
+        <input id="edit-ticker-${id}" type="text" value="${esc(entry.ticker||'')}" style="padding:5px 8px;font-size:12px;border:1px solid var(--border);border-radius:4px;font-family:var(--mono);text-transform:uppercase;width:100px" />
+        <label><input type="checkbox" id="edit-pinned-${id}" ${entry.pinned?'checked':''} /> Pinned</label>
+      </div>
+    ` : '';
+    const titleInput = table === 'journal_entries' ? `<input id="edit-title-${id}" class="input-title" value="${esc(entry.title||'')}" />` : '';
+    const tagsInput = table === 'journal_entries' ? `<input id="edit-tags-${id}" class="input-tags" value="${esc((entry.tags||[]).join(', '))}" placeholder="Tags (comma-separated)…" />` : '';
+    card.innerHTML = `
+      ${titleInput}
+      ${tickerInput}
+      <textarea id="edit-body-${id}" class="input-body">${esc(entry.body||'')}</textarea>
+      ${tagsInput}
+      <div class="edit-actions">
+        <button class="btn btn-sm" onclick="cancelEdit('${id}')">Cancel</button>
+        <button class="btn btn-sm btn-primary" onclick="saveEdit('${id}', '${table}')">Save</button>
+      </div>
+    `;
+  }
+
+  function cancelEdit(id) {
+    const card = document.getElementById('entry-'+id);
+    if (card && card._oldHtml) {
+      card.innerHTML = card._oldHtml;
+      card.classList.remove('editing');
+    }
+    editingId = null;
+  }
+
+  async function saveEdit(id, table) {
+    const params = { p_user: USER_ID, p_source_table: table, p_id: id };
+    if (table === 'journal_entries') {
+      params.p_title = $('edit-title-'+id).value;
+      params.p_body = $('edit-body-'+id).value;
+      const tagsRaw = $('edit-tags-'+id).value.trim();
+      params.p_tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+    } else if (table === 'ticker_notes') {
+      params.p_ticker = $('edit-ticker-'+id).value.toUpperCase();
+      params.p_body = $('edit-body-'+id).value;
+      params.p_pinned = $('edit-pinned-'+id).checked;
+    }
+    try {
+      await rpc('upsert_dna_entry', params);
+      editingId = null;
+      showToast('Saved');
+      await loadDna();
+    } catch(e) {
+      showToast('Save failed: '+e.message, true);
+    }
+  }
+
+  async function archiveEntry(id, table, titlePreview) {
+    if (!confirm(`Archive "${titlePreview||'this entry'}"?`)) return;
+    try {
+      await rpc('archive_dna_entry', { p_user: USER_ID, p_source_table: table, p_id: id });
+      showToast('Archived');
+      await loadDna();
+    } catch(e) {
+      showToast('Archive failed: '+e.message, true);
+    }
+  }
+
+  // Add new flow
+  function openAddForm(loc) {
+    $('add-form-'+loc).classList.add('show');
+    document.getElementById('add-category').addEventListener('change', toggleTickerRow);
+    toggleTickerRow();
+  }
+  function closeAddForm(loc) {
+    $('add-form-'+loc).classList.remove('show');
+    if (loc==='global') {
+      ['add-title','add-body','add-tags','add-ticker'].forEach(id => $(id).value='');
+    }
+  }
+  function toggleTickerRow() {
+    const cat = $('add-category').value;
+    $('add-ticker-row').style.display = cat === 'per_ticker' ? 'flex' : 'none';
+  }
+
+  function openAddInline(catId) {
+    const form = $('add-form-'+catId);
+    const isTicker = catId === 'per_ticker';
+    form.innerHTML = `
+      ${isTicker ? `
+      <div class="input-row" style="margin-top:0">
+        <label>Ticker:</label>
+        <input id="inline-ticker-${catId}" type="text" placeholder="META" style="padding:5px 8px;font-size:12px;border:1px solid var(--border);border-radius:4px;font-family:var(--mono);text-transform:uppercase;width:100px" />
+        <label><input type="checkbox" id="inline-pinned-${catId}" /> Pinned</label>
+      </div>` : ''}
+      ${!isTicker ? `<input id="inline-title-${catId}" class="input-title" placeholder="Title…" />` : ''}
+      <textarea id="inline-body-${catId}" class="input-body" placeholder="Body…"></textarea>
+      ${!isTicker ? `<input id="inline-tags-${catId}" class="input-tags" placeholder="Tags (comma-separated)…" />` : ''}
+      <div class="edit-actions">
+        <button class="btn btn-sm" onclick="$('add-form-${catId}').classList.remove('show')">Cancel</button>
+        <button class="btn btn-sm btn-primary" onclick="saveInline('${catId}')">Save</button>
+      </div>
+    `;
+    form.classList.add('show');
+  }
+
+  async function saveInline(catId) {
+    const isTicker = catId === 'per_ticker';
+    let params = { p_user: USER_ID };
+    if (isTicker) {
+      params.p_source_table = 'ticker_notes';
+      params.p_ticker = $('inline-ticker-'+catId).value.toUpperCase();
+      params.p_body = $('inline-body-'+catId).value;
+      params.p_pinned = $('inline-pinned-'+catId).checked;
+    } else {
+      params.p_source_table = 'journal_entries';
+      params.p_title = $('inline-title-'+catId).value;
+      params.p_body = $('inline-body-'+catId).value;
+      const tagsRaw = $('inline-tags-'+catId).value.trim();
+      params.p_tags = tagsRaw ? tagsRaw.split(',').map(t=>t.trim()).filter(Boolean) : [];
+      params.p_entry_type = catTypeMap(catId);
+      if (catId === 'active_rules' && !params.p_tags.includes('active_rule')) params.p_tags.push('active_rule');
+    }
+    try {
+      await rpc('upsert_dna_entry', params);
+      showToast('Created');
+      await loadDna();
+    } catch(e) {
+      showToast('Save failed: '+e.message, true);
+    }
+  }
+
+  function catTypeMap(catId) {
+    return ({
+      active_rules: 'lesson',
+      methodology: 'lesson',
+      themes: 'observation',
+      portfolio_thesis: 'portfolio_thesis',
+      event_log: 'event_log'
+    })[catId] || 'lesson';
+  }
+
+  async function saveNew(loc) {
+    const cat = $('add-category').value;
+    const isTicker = cat === 'per_ticker';
+    let params = { p_user: USER_ID };
+    if (isTicker) {
+      params.p_source_table = 'ticker_notes';
+      params.p_ticker = $('add-ticker').value.toUpperCase();
+      params.p_body = $('add-body').value;
+      params.p_pinned = $('add-pinned').checked;
+    } else {
+      params.p_source_table = 'journal_entries';
+      params.p_title = $('add-title').value;
+      params.p_body = $('add-body').value;
+      const tagsRaw = $('add-tags').value.trim();
+      params.p_tags = tagsRaw ? tagsRaw.split(',').map(t=>t.trim()).filter(Boolean) : [];
+      params.p_entry_type = catTypeMap(cat);
+      if (cat === 'active_rules' && !params.p_tags.includes('active_rule')) params.p_tags.push('active_rule');
+    }
+    try {
+      await rpc('upsert_dna_entry', params);
+      closeAddForm(loc);
+      showToast('Created');
+      await loadDna();
+    } catch(e) {
+      showToast('Save failed: '+e.message, true);
+    }
+  }
+
+  function findEntry(id) {
+    if (!DNA) return null;
+    for (const c of DNA.categories) {
+      if (c.entries) for (const e of c.entries) if (e.id === id) return e;
+      if (c.grouped) for (const g of c.grouped) for (const e of g.notes) if (e.id === id) return e;
+    }
+    return null;
+  }
+
+  loadDna();
 </script>
 </body>
 </html>
