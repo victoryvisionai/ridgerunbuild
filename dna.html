@@ -65,6 +65,28 @@
   .tag-pinned{background:#fef3e0;border-color:#f3c97a;color:#a06400}
   .updated{color:var(--text-muted);font-size:10.5px;font-family:var(--mono);margin-left:auto}
 
+  /* Hypothesis evidence badges */
+  .hyp-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+  .hyp-code{font-family:var(--mono);font-size:10.5px;font-weight:700;background:#1a1a1a;color:#fafaf7;padding:3px 7px;border-radius:4px;letter-spacing:0.05em}
+  .hyp-verdict{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:3px;letter-spacing:0.05em;text-transform:uppercase;font-weight:600}
+  .verdict-no_data_yet{background:#f3f1e7;color:#7a6300;border:1px solid #d4c79b}
+  .verdict-insufficient_data{background:#fef3e0;color:#a06400;border:1px solid #f3c97a}
+  .verdict-early_signal{background:#e3f1ed;color:#0a7a3f;border:1px solid #9bd4b8}
+  .verdict-data_sufficient{background:#d4eddf;color:#0a5a30;border:1px solid #4a9d72}
+  .hyp-evidence{font-family:var(--mono);font-size:10.5px;color:var(--text-muted);display:flex;gap:10px}
+  .hyp-evidence span strong{color:var(--text)}
+  
+  /* Proposed hypothesis card */
+  .entry.proposed{border-color:#a06400;background:linear-gradient(180deg,#fffdf5 0%,#fefaf0 100%);border-left-width:3px}
+  .proposed-badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;font-weight:700;background:#a06400;color:#fefaf0;padding:3px 8px;border-radius:3px;letter-spacing:0.05em;text-transform:uppercase}
+  .proposed-source{font-family:var(--mono);font-size:10px;color:var(--text-muted);background:var(--bg-tint);padding:2px 6px;border-radius:3px}
+  .proposed-actions{display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)}
+  .btn-accept{background:#0a5a30;color:#fff;border-color:#0a5a30;font-weight:600}
+  .btn-accept:hover{background:#0a7a3f;color:#fff}
+  .btn-reject{color:#7a1a1a;border-color:#e3c0c0}
+  .btn-reject:hover{background:#fdf2f2}
+  .proposed-hint{font-size:11px;color:var(--text-muted);font-style:italic}
+
   /* Edit mode */
   .entry.editing{border-color:#1a1a1a;background:#fffef9}
   .input-title{width:100%;font-size:13px;font-weight:600;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-family:inherit;margin-bottom:6px}
@@ -119,6 +141,7 @@
 
   <div class="actions">
     <button class="btn btn-primary" onclick="openAddForm('global')">+ Add New Lesson</button>
+    <button class="btn" style="background:#e3f1ed;border-color:#9bd4b8;color:#0a5a30" onclick="scanForPatterns()">🔬 Scan for new patterns</button>
     <button class="btn" onclick="collapseAll()">Collapse All</button>
     <button class="btn" onclick="expandAll()">Expand All</button>
     <button class="btn" onclick="loadDna()">↻ Refresh</button>
@@ -129,6 +152,7 @@
       <label>Category:</label>
       <select id="add-category" style="padding:5px 8px;font-size:12px;border:1px solid var(--border);border-radius:4px;font-family:inherit">
         <option value="active_rules">Active Rule</option>
+        <option value="live_hypotheses">Live Hypothesis (testing)</option>
         <option value="methodology">Methodology / Framework</option>
         <option value="themes" selected>Active Market Theme</option>
         <option value="portfolio_thesis">Portfolio Thesis</option>
@@ -215,6 +239,8 @@
         <div class="identity-stat"><span class="identity-stat-label">Stock Career</span><span class="identity-stat-value pos">${usdMM(h.stock_career_pl)} · ${pct(h.stock_win_rate)}</span></div>
         <div class="identity-stat"><span class="identity-stat-label">Warrant Caution</span><span class="identity-stat-value neg">${usdMM(h.warrant_career_pl)} · ${pct(h.warrant_win_rate)}</span></div>
         <div class="identity-stat"><span class="identity-stat-label">Active Rules</span><span class="identity-stat-value">${h.active_rules_count}</span></div>
+        ${h.proposed_hypotheses_count > 0 ? `<div class="identity-stat"><span class="identity-stat-label">Proposed (review)</span><span class="identity-stat-value" style="color:#a06400">${h.proposed_hypotheses_count}</span></div>` : ''}
+        <div class="identity-stat"><span class="identity-stat-label">Live Hypotheses</span><span class="identity-stat-value">${h.active_hypotheses_count||0}</span></div>
         <div class="identity-stat"><span class="identity-stat-label">Current NAV</span><span class="identity-stat-value">${usd0(h.current_nav)}</span></div>
       </div>
       <p class="identity-tag" style="margin-top:10px;font-size:11.5px">${esc(h.rebuild_context)}</p>
@@ -260,25 +286,60 @@
 
   function renderEntry(e, catEditable) {
     const tagsHtml = (e.tags||[]).map(t => {
-      const cl = t.startsWith('rule_')||t==='active_rule' ? 'tag tag-rule' : 'tag';
+      const cl = t.startsWith('rule_')||t==='active_rule' ? 'tag tag-rule' : 
+                 t==='active_hypothesis'||t.match(/^h\d+$/) ? 'tag tag-rule' : 'tag';
       return `<span class="${cl}">${esc(t)}</span>`;
     }).join('');
     const pinTag = e.pinned ? `<span class="tag tag-pinned">📌 pinned</span>` : '';
-    const editBtns = e.editable && catEditable ? `
+    const editBtns = e.editable && catEditable && !e.is_proposed ? `
       <button class="btn btn-sm" onclick="startEdit('${e.id}', '${e.source_table}')">edit</button>
       <button class="btn btn-sm btn-danger" onclick="archiveEntry('${e.id}', '${e.source_table}', '${esc(e.title||'').replace(/'/g,'')}')">archive</button>
     ` : '';
+    
+    // Hypothesis evidence row
+    const hypRow = e.hypothesis_code && e.evidence ? `
+      <div class="hyp-row">
+        <span class="hyp-code">${esc(e.hypothesis_code)}</span>
+        <span class="hyp-verdict verdict-${esc(e.evidence.verdict||'no_data_yet')}">${esc((e.evidence.verdict||'no_data_yet').replace(/_/g,' '))}</span>
+        <span class="hyp-evidence">
+          <span>Open positions tracking: <strong>${e.evidence.open_positions_n||0}</strong></span>
+          <span>Closed trades: <strong>${e.evidence.closed_trades_n||0}</strong></span>
+        </span>
+      </div>
+    ` : '';
+    
+    // Proposed-hypothesis row + actions
+    const proposedRow = e.is_proposed ? `
+      <div class="hyp-row">
+        <span class="proposed-badge">🔬 PROPOSED</span>
+        ${e.proposal_source ? `<span class="proposed-source">via ${esc(e.proposal_source)}</span>` : ''}
+        ${e.strategy_family ? `<span class="proposed-source">family: ${esc(e.strategy_family)}</span>` : ''}
+      </div>
+    ` : '';
+    
+    const proposedActions = e.is_proposed ? `
+      <div class="proposed-actions">
+        <button class="btn btn-sm btn-accept" onclick="acceptProposed('${e.id}', '${esc(e.title||'').replace(/'/g,'')}')">✓ Accept as Hypothesis</button>
+        <button class="btn btn-sm" onclick="startEdit('${e.id}', '${e.source_table}')">Refine</button>
+        <button class="btn btn-sm btn-reject" onclick="rejectProposed('${e.id}', '${esc(e.title||'').replace(/'/g,'')}')">✕ Reject</button>
+        <span class="proposed-hint">Accept assigns next H{N} code · Refine to edit text · Reject archives</span>
+      </div>
+    ` : '';
+    
     return `
-      <div class="entry" id="entry-${e.id}" data-id="${e.id}" data-table="${e.source_table}">
+      <div class="entry ${e.is_proposed?'proposed':''}" id="entry-${e.id}" data-id="${e.id}" data-table="${e.source_table}">
         <div class="entry-head">
           <h3 class="entry-title">${esc(e.title||'(untitled)')}</h3>
           <div class="entry-actions">${editBtns}</div>
         </div>
+        ${proposedRow}
+        ${hypRow}
         <div class="entry-body" data-field="body">${renderBody(e.body)}</div>
         <div class="entry-meta">
           ${pinTag}${tagsHtml}
           <span class="updated">${(e.updated_at||'').slice(0,10)}</span>
         </div>
+        ${proposedActions}
       </div>
     `;
   }
@@ -358,13 +419,68 @@
     const open = Array.from(document.querySelectorAll('.cat.open')).map(c => c.dataset.cat);
     try { localStorage.setItem('RR_DNA_OPEN', JSON.stringify(open)); } catch(e) {}
   }
+  async function acceptProposed(id, titlePreview) {
+    // Compute next H code by counting current active hypotheses
+    let nextCode = 'h14';
+    if (DNA && DNA.categories) {
+      const live = DNA.categories.find(c => c.id === 'live_hypotheses');
+      if (live && live.entries) {
+        const nums = live.entries.map(e => parseInt((e.hypothesis_code||'').replace('H',''))).filter(n=>!isNaN(n));
+        const max = nums.length ? Math.max(...nums) : 13;
+        nextCode = 'h' + (max + 1);
+      }
+    }
+    const code = prompt(`Accept "${titlePreview}" as active hypothesis. Assign code:`, nextCode);
+    if (!code) return;
+    try {
+      await rpc('accept_proposed_hypothesis', { p_user: USER_ID, p_id: id, p_hyp_code: code.toLowerCase() });
+      showToast('Accepted as ' + code.toUpperCase());
+      await loadDna();
+    } catch(e) {
+      showToast('Accept failed: '+e.message, true);
+    }
+  }
+  
+  async function rejectProposed(id, titlePreview) {
+    const reason = prompt(`Reject "${titlePreview}"? Enter reason (will be archived with this note):`, '');
+    if (reason === null) return;
+    try {
+      await rpc('reject_proposed_hypothesis', { p_user: USER_ID, p_id: id, p_reason: reason || 'no reason given' });
+      showToast('Rejected');
+      await loadDna();
+    } catch(e) {
+      showToast('Reject failed: '+e.message, true);
+    }
+  }
+  
+  async function scanForPatterns() {
+    showToast('Scanning for new patterns…');
+    try {
+      const result = await rpc('detect_hypothesis_candidates', { p_user: USER_ID, p_min_n: 3 });
+      const n = result.n_candidates || 0;
+      if (n === 0) {
+        showToast('No new patterns detected yet — need more closed trades or observations');
+      } else {
+        showToast(`Detected ${n} candidate pattern${n===1?'':'s'} — review the JSON in console`);
+        console.log('Detected candidates:', result.candidates);
+        // The candidates aren't auto-proposed; surface them via console for now.
+        // Future: have a "Propose all" button. For now, manually propose via record_hypothesis or detect+propose RPC.
+      }
+    } catch(e) {
+      showToast('Scan failed: '+e.message, true);
+    }
+  }
+
   function restoreOpenState() {
     try {
-      const open = JSON.parse(localStorage.getItem('RR_DNA_OPEN')||'["active_rules"]');
+      const open = JSON.parse(localStorage.getItem('RR_DNA_OPEN')||'["proposed_hypotheses","active_rules"]');
       open.forEach(id => {
         const el = document.querySelector(`.cat[data-cat="${id}"]`);
         if (el) el.classList.add('open');
       });
+      // Auto-open Proposed Hypotheses if any exist
+      const prop = document.querySelector('.cat[data-cat="proposed_hypotheses"]');
+      if (prop && prop.querySelector('.entry.proposed')) prop.classList.add('open');
     } catch(e) {}
   }
 
@@ -496,6 +612,7 @@
       params.p_tags = tagsRaw ? tagsRaw.split(',').map(t=>t.trim()).filter(Boolean) : [];
       params.p_entry_type = catTypeMap(catId);
       if (catId === 'active_rules' && !params.p_tags.includes('active_rule')) params.p_tags.push('active_rule');
+      if (catId === 'live_hypotheses' && !params.p_tags.includes('active_hypothesis')) params.p_tags.push('active_hypothesis');
     }
     try {
       await rpc('upsert_dna_entry', params);
@@ -509,6 +626,7 @@
   function catTypeMap(catId) {
     return ({
       active_rules: 'lesson',
+      live_hypotheses: 'lesson',
       methodology: 'lesson',
       themes: 'observation',
       portfolio_thesis: 'portfolio_thesis',
@@ -533,6 +651,7 @@
       params.p_tags = tagsRaw ? tagsRaw.split(',').map(t=>t.trim()).filter(Boolean) : [];
       params.p_entry_type = catTypeMap(cat);
       if (cat === 'active_rules' && !params.p_tags.includes('active_rule')) params.p_tags.push('active_rule');
+      if (cat === 'live_hypotheses' && !params.p_tags.includes('active_hypothesis')) params.p_tags.push('active_hypothesis');
     }
     try {
       await rpc('upsert_dna_entry', params);
