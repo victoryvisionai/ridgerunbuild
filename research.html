@@ -285,9 +285,7 @@
       <div class="section-grid">
         <div><div class="h2">Insider (720d, grouped)</div>${insider}</div>
         <div><div class="h2">News (180d)</div>${news}</div>
-      </div>
-      <div class="h2">IV90 vol curves</div>
-      <iframe src="https://nrbffnsheenmewijeapb.supabase.co/functions/v1/vol_curves?selected=${encodeURIComponent(t)}" style="width:100%;height:780px;border:0;border-radius:8px;background:var(--card,#161820);margin-top:8px" loading="lazy"></iframe>`;
+      </div>`;
 
     // Perf strip via watchlist data (already loaded) — fall back to deepdive's monthly avg or skip
     renderPerfStrip(t);
