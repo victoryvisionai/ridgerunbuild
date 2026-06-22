@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Options — Ridge Run</title>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{--bg:#fff;--ink:#0f172a;--ink2:#475569;--muted:#94a3b8;--line:#e2e8f0;--brand:#2563eb;--brand2:#1d4ed8;--ok:#16a34a;--warn:#d97706;--bad:#dc2626;--chip:#f1f5f9}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif}
+  a{color:var(--brand);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .h1{font-size:20px;font-weight:700;margin:0}
+  .h2{font-size:13px;font-weight:700;color:var(--ink2);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.04em}
+  .muted{color:var(--muted)}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+  .btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+  .btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .btn:hover{filter:brightness(.97)}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .opt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:8px 0}
+  .field label{display:block;font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;font-weight:600}
+  .field input,.field select{width:100%;padding:7px 10px;border:1px solid var(--line);border-radius:6px;font:inherit;background:#fff}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--brand)}
+  .greek-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:10px 0 0}
+  .greek{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#fafbfc}
+  .greek .l{font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .greek .v{font-size:20px;font-weight:700;margin-top:3px}
+  .greek .v.ok{color:var(--ok)}
+  .greek .v.bad{color:var(--bad)}
+  .chart-card{position:relative;border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:14px;background:#fff}
+  .chart-card .h2{margin-top:0}
+  .chart-row{display:grid;gap:14px;grid-template-columns:1fr}
+  .chart-row.with-data{grid-template-columns:1fr 280px}
+  @media(max-width:900px){.chart-row.with-data{grid-template-columns:1fr}}
+  .chart-wrap{position:relative;height:360px}
+  .data-pane{border-left:1px solid var(--line);padding-left:12px;font-size:11px;max-height:360px;overflow:auto}
+  .data-pane table{width:100%;border-collapse:collapse}
+  .data-pane th,.data-pane td{padding:3px 5px;border-bottom:1px solid var(--line);text-align:right}
+  .data-pane th:first-child,.data-pane td:first-child{text-align:left}
+  .data-pane th{font-weight:600;color:var(--ink2);font-size:10px;text-transform:uppercase;letter-spacing:.04em}
+  .toggle-data{position:absolute;top:10px;right:10px;z-index:5}
+  .stats-strip{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;margin:6px 0;color:var(--ink2)}
+  .stats-strip b{color:var(--ink)}
+  iframe{display:block}
+</style>
+</head>
+<body>
+<nav style="display:flex;gap:8px;padding:10px 16px;border-bottom:1px solid #e5e7eb;background:#fafafa;font:14px/1.4 -apple-system,Segoe UI,Roboto,sans-serif;align-items:center;position:sticky;top:0;z-index:50">
+  <strong style="margin-right:12px">Ridge Run</strong>
+  <a href="/strategy.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Strategy</a>
+  <a href="/research.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Research</a>
+  <a href="/options.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#fff;background:#2563eb;border:1px solid #2563eb">Options</a>
+  <a href="/screener.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Screener</a>
+  <a href="/model.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Model</a>
+  <a href="/portfolio.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Portfolio</a>
+  <a href="/watchlist.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Watchlist</a>
+  <a href="/dna.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">DNA</a>
+</nav>
+
+<main style="padding:14px;max-width:1700px;margin:0 auto">
+
+  <!-- HEADER -->
+  <section class="panel">
+    <div class="row" style="justify-content:space-between">
+      <div class="row">
+        <div class="h1">Options Lab</div>
+        <input id="ticker" placeholder="TICKER" maxlength="10" value="GOOG"
+               style="padding:7px 12px;border:1px solid var(--line);border-radius:6px;text-transform:uppercase;font:inherit;font-weight:600;font-size:14px;width:110px"/>
+        <button class="btn primary" id="loadBtn">Load ticker</button>
+        <span class="muted" id="quoteNote" style="font-size:12px"></span>
+      </div>
+      <div class="muted" style="font-size:11px">BS math runs client-side · charts primary · data togglable</div>
+    </div>
+  </section>
+
+  <!-- CARD 1: IV90 VOL CURVES -->
+  <section class="chart-card">
+    <div class="h2">IV90 vol curves · stacked by year, with earnings dates marked</div>
+    <iframe id="volCurvesFrame" src="" style="width:100%;height:780px;border:0;border-radius:8px;background:#fff" loading="lazy"></iframe>
+  </section>
+
+  <!-- CARD 2: SCENARIO ANALYZER -->
+  <section class="panel">
+    <div class="h2">Scenario inputs · changes update charts instantly</div>
+    <div class="opt-grid">
+      <div class="field"><label>Side</label>
+        <select id="side"><option value="call">Call</option><option value="put">Put</option></select>
+      </div>
+      <div class="field"><label>Spot $</label><input id="spot" type="number" step="0.01" value="343.54"/></div>
+      <div class="field"><label>Strike $</label><input id="strike" type="number" step="1" value="430"/></div>
+      <div class="field"><label>DTE (days)</label><input id="dte" type="number" step="1" value="116"/></div>
+      <div class="field"><label>IV (%)</label><input id="iv" type="number" step="0.5" value="38"/></div>
+      <div class="field"><label>Rate (%)</label><input id="rate" type="number" step="0.25" value="4.25"/></div>
+      <div class="field"><label>Premium paid $</label><input id="paid" type="number" step="0.01" placeholder="auto" value="6.25"/></div>
+    </div>
+    <div class="greek-grid" id="greekGrid"></div>
+  </section>
+
+  <!-- CHART: Option price vs spot at 3 IVs -->
+  <section class="chart-card">
+    <button class="btn toggle-data" id="dataT1">Show data</button>
+    <div class="h2">Option price vs spot — at 3 IV scenarios</div>
+    <div class="chart-row" id="row1">
+      <div class="chart-wrap"><canvas id="chart1"></canvas></div>
+    </div>
+  </section>
+
+  <!-- CHART: P&L at expiry vs spot -->
+  <section class="chart-card">
+    <button class="btn toggle-data" id="dataT2">Show data</button>
+    <div class="h2">P&L at expiry per contract — break-even shown</div>
+    <div class="chart-row" id="row2">
+      <div class="chart-wrap"><canvas id="chart2"></canvas></div>
+    </div>
+  </section>
+
+  <!-- CHART: P&L heatmap — option value across spot × time, given current IV -->
+  <section class="chart-card">
+    <button class="btn toggle-data" id="dataT4">Show data</button>
+    <div class="h2">Option value across spot × days remaining — current IV</div>
+    <div class="chart-row" id="row4">
+      <div class="chart-wrap"><canvas id="chart4"></canvas></div>
+    </div>
+  </section>
+
+  <!-- CHART: Empirical distribution + P&L overlay -->
+  <section class="chart-card">
+    <button class="btn toggle-data" id="dataT3">Show data</button>
+    <div class="h2">Empirical forward return distribution + P&L overlay</div>
+    <div class="stats-strip">
+      <span>Forward window:
+        <select id="histDte" class="btn" style="padding:3px 8px">
+          <option value="14">14d</option>
+          <option value="21">21d</option>
+          <option value="30" selected>30d</option>
+          <option value="45">45d</option>
+          <option value="60">60d</option>
+        </select>
+      </span>
+      <span>Lookback:
+        <select id="lookback" class="btn" style="padding:3px 8px">
+          <option value="180">180d</option>
+          <option value="365" selected>365d</option>
+          <option value="730">730d</option>
+        </select>
+      </span>
+      <span id="empStats" style="margin-left:auto"></span>
+    </div>
+    <div class="chart-row" id="row3">
+      <div class="chart-wrap"><canvas id="chart3"></canvas></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+const cfg = window.RIDGE_RUN_CONFIG || {};
+const SB_URL = cfg.SUPABASE_URL || 'https://nrbffnsheenmewijeapb.supabase.co';
+const SB_KEY = cfg.SUPABASE_ANON_KEY || 'sb_publishable_WjDoqgd4_eDE1lpfZHkT0g_cyArLkvI';
+const USER_ID = cfg.USER_ID || 'e048e890-8554-429e-883e-d9c5d03a3510';
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+const $ = s=>document.querySelector(s);
+const num = id=>parseFloat($(id).value)||0;
+
+// === Black-Scholes (client-side, instant) ===
+function ndist(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const sign=x<0?-1:1;x=Math.abs(x)/Math.sqrt(2);const t=1/(1+p*x);const y=1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);return 0.5*(1+sign*y);}
+function ndensity(x){return Math.exp(-x*x/2)/Math.sqrt(2*Math.PI);}
+function bs(S,K,Tdays,sigma,r,isCall){
+  const T=Tdays/365;
+  if(T<=0||sigma<=0||S<=0||K<=0)return {price:Math.max(0,isCall?S-K:K-S),delta:0,gamma:0,theta:0,vega:0};
+  const sqT=Math.sqrt(T);
+  const d1=(Math.log(S/K)+(r+sigma*sigma/2)*T)/(sigma*sqT);
+  const d2=d1-sigma*sqT;
+  const Nd1=ndist(d1), Nd2=ndist(d2), nd1=ndensity(d1);
+  const disc=Math.exp(-r*T);
+  let price,delta,theta;
+  if(isCall){
+    price=S*Nd1-K*disc*Nd2;
+    delta=Nd1;
+    theta=(-S*nd1*sigma/(2*sqT)-r*K*disc*Nd2)/365;
+  } else {
+    price=K*disc*ndist(-d2)-S*ndist(-d1);
+    delta=Nd1-1;
+    theta=(-S*nd1*sigma/(2*sqT)+r*K*disc*ndist(-d2))/365;
+  }
+  const gamma=nd1/(S*sigma*sqT);
+  const vega=S*nd1*sqT/100;
+  return {price,delta,gamma,theta,vega};
+}
+
+// === Charts ===
+const charts = {};
+function drawLine(id, datasets, vline, ylabel){
+  if(charts[id]) charts[id].destroy();
+  const cols = ['#2563eb','#16a34a','#d97706','#dc2626'];
+  datasets.forEach((d,i)=>{
+    d.borderColor=d.borderColor||cols[i%cols.length];
+    d.backgroundColor=d.backgroundColor||cols[i%cols.length]+'22';
+    d.fill=d.fill||false; d.pointRadius=0; d.borderWidth=d.borderWidth||2; d.tension=0.15;
+  });
+  // Add vertical spot line as a separate dataset
+  if(vline){
+    const allY = datasets.flatMap(d=>d.data.map(p=>p.y));
+    const yMin=Math.min(...allY), yMax=Math.max(...allY);
+    datasets.push({
+      label:`Spot $${vline.toFixed(2)}`, data:[{x:vline,y:yMin},{x:vline,y:yMax}],
+      borderColor:'#94a3b8', borderWidth:1, borderDash:[5,5], pointRadius:0, fill:false
+    });
+  }
+  charts[id] = new Chart(document.getElementById(id), {
+    type:'line', data:{datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false, animation:{duration:200},
+      interaction:{mode:'nearest', intersect:false},
+      scales:{
+        x:{type:'linear', title:{display:true,text:'Spot price ($)', color:'#475569', font:{size:11}}, ticks:{font:{size:11}}, grid:{color:'rgba(0,0,0,0.05)'}},
+        y:{title:{display:true,text:ylabel, color:'#475569', font:{size:11}}, ticks:{font:{size:11}, callback:v=>'$'+v.toFixed(0)}, grid:{color:'rgba(0,0,0,0.05)'}}
+      },
+      plugins:{legend:{display:true,position:'top',labels:{font:{size:11},boxWidth:14}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)} @ $${ctx.parsed.x.toFixed(2)}`}}}
+    }
+  });
+}
+
+// === Render scenarios ===
+function render(){
+  const isCall = $('#side').value === 'call';
+  const S=num('#spot'), K=num('#strike'), dte=num('#dte');
+  const sigma=num('#iv')/100, r=num('#rate')/100;
+  const paidIn = parseFloat($('#paid').value);
+  const g = bs(S,K,dte,sigma,r,isCall);
+  const basis = isFinite(paidIn) && paidIn>0 ? paidIn : g.price;
+
+  // Greeks
+  $('#greekGrid').innerHTML = `
+    <div class="greek"><div class="l">Theoretical Price</div><div class="v">$${g.price.toFixed(2)}</div></div>
+    <div class="greek"><div class="l">Delta</div><div class="v">${g.delta.toFixed(3)}</div></div>
+    <div class="greek"><div class="l">Gamma</div><div class="v">${g.gamma.toFixed(4)}</div></div>
+    <div class="greek"><div class="l">Theta/day</div><div class="v ${g.theta<0?'bad':'ok'}">$${g.theta.toFixed(3)}</div></div>
+    <div class="greek"><div class="l">Vega/1%</div><div class="v">$${g.vega.toFixed(3)}</div></div>
+    <div class="greek"><div class="l">Cost basis</div><div class="v">$${basis.toFixed(2)}</div></div>
+    <div class="greek"><div class="l">Moneyness</div><div class="v">${(((isCall?S/K:K/S)-1)*100).toFixed(1)}% ${isCall?(S>K?'ITM':'OTM'):(S<K?'ITM':'OTM')}</div></div>
+  `;
+
+  // Spot range for charts
+  const lo = Math.max(1, Math.min(S,K)*0.55);
+  const hi = Math.max(S,K)*1.45;
+  const xs = [];
+  for(let i=0;i<=60;i++) xs.push(lo + (hi-lo)*i/60);
+
+  // CHART 1: option price vs spot at 3 IVs
+  const ivs = [Math.max(0.05,sigma-0.10), sigma, sigma+0.10];
+  const labels = ivs.map(iv=>`IV ${(iv*100).toFixed(0)}%${iv===sigma?' (current)':''}`);
+  const ds1 = ivs.map((iv,i)=>({
+    label: labels[i],
+    data: xs.map(s=>({x:s, y:bs(s,K,dte,iv,r,isCall).price}))
+  }));
+  drawLine('chart1', ds1, S, 'Option price ($)');
+
+  // CHART 2: P&L at expiry
+  const expiry = xs.map(s=>{
+    const intrinsic = isCall ? Math.max(0,s-K) : Math.max(0,K-s);
+    return {x:s, y:100*(intrinsic-basis)};
+  });
+  const breakEven = isCall ? K+basis : K-basis;
+  drawLine('chart2', [
+    {label:`P&L at expiry · paid $${basis.toFixed(2)}`, data:expiry, borderColor:'#2563eb'},
+    {label:`Break-even $${breakEven.toFixed(2)}`, data:[{x:breakEven,y:Math.min(...expiry.map(p=>p.y))},{x:breakEven,y:Math.max(...expiry.map(p=>p.y))}], borderColor:'#16a34a', borderDash:[3,3], borderWidth:1.5}
+  ], S, 'P&L per contract ($)');
+
+  // CHART 4: option value across time (today, half-DTE, near-expiry)
+  const dteSteps = [dte, Math.round(dte*0.5), Math.max(7, Math.round(dte*0.2))];
+  const stepLabels = [`Today (${dte}d)`, `${dteSteps[1]}d`, `${dteSteps[2]}d`];
+  const ds4 = dteSteps.map((d,i)=>({
+    label: stepLabels[i],
+    data: xs.map(s=>({x:s, y:100*(bs(s,K,d,sigma,r,isCall).price-basis)}))
+  }));
+  // Add expiry line
+  ds4.push({
+    label: 'Expiry',
+    data: xs.map(s=>{const intr=isCall?Math.max(0,s-K):Math.max(0,K-s); return {x:s, y:100*(intr-basis)};}),
+    borderColor:'#dc2626', borderWidth:1.5, borderDash:[6,3]
+  });
+  drawLine('chart4', ds4, S, 'P&L per contract ($)');
+
+  // Empirical (network)
+  renderEmpirical();
+}
+
+// === Empirical distribution from raw daily_bars ===
+async function renderEmpirical(){
+  const t = $('#ticker').value.trim().toUpperCase();
+  const fwd = parseInt($('#histDte').value);
+  const lookback = parseInt($('#lookback').value);
+  $('#empStats').textContent = 'loading historical bars…';
+  try{
+    const cutoff = new Date(Date.now() - (lookback+fwd)*86400000).toISOString().slice(0,10);
+    const {data, error} = await sb.from('daily_bars')
+      .select('price_date,close')
+      .eq('ticker', t)
+      .gte('price_date', cutoff)
+      .order('price_date', {ascending:true});
+    if(error) throw error;
+    if(!data || data.length < fwd+10){ $('#empStats').textContent = `not enough bars (${data?.length||0})`; return; }
+    // Forward returns
+    const returns = [];
+    for(let i=0; i<data.length - fwd; i++){
+      const r = data[i+fwd].close / data[i].close - 1;
+      if(isFinite(r)) returns.push(r);
+    }
+    if(returns.length < 10){ $('#empStats').textContent = 'too few windows'; return; }
+    // Build buckets centered on 0, ±2.5% wide
+    const minR = Math.min(...returns), maxR = Math.max(...returns);
+    const span = Math.max(Math.abs(minR), Math.abs(maxR));
+    const step = Math.max(0.02, Math.ceil(span*100/12)/100);
+    const buckets = [];
+    for(let b = -Math.ceil(span/step)*step; b <= Math.ceil(span/step)*step + 1e-9; b += step) buckets.push(b);
+    const counts = buckets.slice(0,-1).map((_,i)=> returns.filter(rr => rr>=buckets[i] && rr<buckets[i+1]).length);
+    // P&L overlay per bucket midpoint
+    const S=num('#spot'), K=num('#strike'), isCall=$('#side').value==='call';
+    const paidIn = parseFloat($('#paid').value);
+    const sigma=num('#iv')/100, r=num('#rate')/100, dte=num('#dte');
+    const basis = isFinite(paidIn) && paidIn>0 ? paidIn : bs(S,K,dte,sigma,r,isCall).price;
+    const pnlByBucket = buckets.slice(0,-1).map((_,i)=>{
+      const mid = (buckets[i]+buckets[i+1])/2;
+      const sNew = S*(1+mid);
+      const intrinsic = isCall ? Math.max(0,sNew-K) : Math.max(0,K-sNew);
+      return 100*(intrinsic - basis);
+    });
+    // Stats
+    const wins = returns.filter(rr=>{
+      const sNew = S*(1+rr);
+      const intrinsic = isCall ? Math.max(0,sNew-K) : Math.max(0,K-sNew);
+      return (intrinsic-basis)>0;
+    }).length;
+    const ev = returns.reduce((acc,rr)=>{
+      const sNew = S*(1+rr);
+      const intrinsic = isCall ? Math.max(0,sNew-K) : Math.max(0,K-sNew);
+      return acc + 100*(intrinsic-basis);
+    },0)/returns.length;
+    const mean = returns.reduce((a,b)=>a+b,0)/returns.length;
+    const sd = Math.sqrt(returns.reduce((a,b)=>a+(b-mean)**2,0)/returns.length);
+    $('#empStats').innerHTML = `n=${returns.length} windows · mean <b>${(mean*100).toFixed(1)}%</b> · σ ${(sd*100).toFixed(1)}% · <b>P(profit) ${(wins/returns.length*100).toFixed(0)}%</b> · <b>EV $${ev.toFixed(0)}/contract</b>`;
+
+    if(charts.chart3) charts.chart3.destroy();
+    const labels = buckets.slice(0,-1).map((b,i)=>`${(b*100).toFixed(0)} to ${(buckets[i+1]*100).toFixed(0)}%`);
+    charts.chart3 = new Chart(document.getElementById('chart3'), {
+      data:{
+        labels,
+        datasets:[
+          {type:'bar', label:`Frequency (n=${returns.length})`, data:counts, backgroundColor:'#2563eb88', yAxisID:'yFreq', order:2},
+          {type:'line', label:'P&L per contract at expiry', data:pnlByBucket, borderColor:'#dc2626', backgroundColor:'#dc262611', borderWidth:2.5, pointRadius:3, yAxisID:'yPnl', tension:0, order:1}
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false, animation:{duration:200},
+        plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:14}}, tooltip:{mode:'index',intersect:false}},
+        scales:{
+          x:{title:{display:true,text:`Forward ${fwd}-day return bucket`, color:'#475569'}, ticks:{font:{size:10}, maxRotation:0, autoSkip:true}},
+          yFreq:{type:'linear', position:'left', title:{display:true,text:'Frequency', color:'#2563eb'}, ticks:{font:{size:11}, color:'#2563eb'}, grid:{color:'rgba(0,0,0,0.05)'}},
+          yPnl:{type:'linear', position:'right', title:{display:true,text:'P&L $/contract', color:'#dc2626'}, ticks:{font:{size:11}, color:'#dc2626', callback:v=>'$'+v.toFixed(0)}, grid:{drawOnChartArea:false}}
+        }
+      }
+    });
+  }catch(e){ $('#empStats').textContent='error: '+(e.message||e); }
+}
+
+// === Network: load ticker (quote + IV + bars) ===
+async function loadTicker(){
+  const t = ($('#ticker').value || 'GOOG').trim().toUpperCase();
+  $('#ticker').value = t;
+  $('#quoteNote').textContent = 'loading…';
+  // Update vol curves iframe
+  $('#volCurvesFrame').src = `${SB_URL}/functions/v1/vol_curves?selected=${encodeURIComponent(t)}`;
+  // Fetch live quote
+  try {
+    const resp = await fetch(`${SB_URL}/functions/v1/tt-quotes`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({symbols:[t], wait_ms:3000})
+    });
+    const j = await resp.json();
+    const q = (j.quotes||[]).find(x=>x.symbol===t);
+    if(q && q.last){
+      $('#spot').value = q.last.toFixed(2);
+      $('#quoteNote').innerHTML = `${t}: <b>$${q.last.toFixed(2)}</b> (prev $${(q.prev_close||0).toFixed(2)} · ${(q.prev_close ? ((q.last/q.prev_close-1)*100).toFixed(2):'0')}%)`;
+    } else {
+      $('#quoteNote').textContent = `${t}: no live quote, using current input`;
+    }
+  } catch(e) { $('#quoteNote').textContent = `${t}: quote fetch failed`; }
+  // Fetch current IV90 from internal table
+  try {
+    const {data} = await sb.from('internal_iv90_history')
+      .select('atm_iv90,as_of_date,dte_used,contains_earnings')
+      .eq('ticker', t).order('as_of_date',{ascending:false}).limit(1);
+    if(data && data.length){
+      const iv = parseFloat(data[0].atm_iv90);
+      if(isFinite(iv) && iv>0 && iv<3){
+        $('#iv').value = (iv*100).toFixed(1);
+        $('#dte').value = data[0].dte_used || 90;
+      }
+    }
+  } catch(e){}
+  render();
+  // Sync URL
+  const url = new URL(window.location.href); url.searchParams.set('ticker', t); window.history.replaceState(null,'',url.toString());
+}
+
+// === Data toggles ===
+function makeDataPane(rows, cols){
+  const head = cols.map(c=>`<th>${c.h}</th>`).join('');
+  const body = rows.map(r=>'<tr>'+cols.map(c=>`<td>${c.fmt(r)}</td>`).join('')+'</tr>').join('');
+  return `<div class="data-pane"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+function bindToggle(btnSel, rowSel, getRows, cols){
+  const btn = $(btnSel), row = $(rowSel);
+  let on=false;
+  btn.addEventListener('click', ()=>{
+    on=!on;
+    btn.textContent = on?'Hide data':'Show data';
+    const pane = row.querySelector('.data-pane'); if(pane) pane.remove();
+    if(on){
+      const rows = getRows()||[];
+      row.classList.add('with-data');
+      row.insertAdjacentHTML('beforeend', makeDataPane(rows, cols));
+    } else row.classList.remove('with-data');
+  });
+}
+bindToggle('#dataT1','#row1', ()=>{
+  // current-IV series (middle dataset)
+  const ds = charts.chart1?.data.datasets || [];
+  const mid = ds[1]?.data || [];
+  return mid.map(p=>({x:p.x, y:p.y}));
+}, [{h:'Spot',fmt:r=>'$'+r.x.toFixed(0)},{h:'Price',fmt:r=>'$'+r.y.toFixed(2)}]);
+bindToggle('#dataT2','#row2', ()=>{
+  const ds = charts.chart2?.data.datasets || [];
+  return (ds[0]?.data||[]).map(p=>({x:p.x,y:p.y}));
+}, [{h:'Spot',fmt:r=>'$'+r.x.toFixed(0)},{h:'P&L',fmt:r=>(r.y>=0?'+':'')+'$'+r.y.toFixed(0)}]);
+bindToggle('#dataT4','#row4', ()=>{
+  const ds = charts.chart4?.data.datasets || [];
+  // ds[0]=today, ds[1]=half, ds[2]=near, ds[3]=expiry, ds[4]=spot line (maybe)
+  return (ds[0]?.data||[]).map((p,i)=>({
+    x:p.x,
+    today: ds[0]?.data[i]?.y,
+    half: ds[1]?.data[i]?.y,
+    near: ds[2]?.data[i]?.y,
+    expiry: ds[3]?.data[i]?.y
+  }));
+}, [
+  {h:'Spot',fmt:r=>'$'+r.x.toFixed(0)},
+  {h:'Today',fmt:r=>'$'+(r.today??0).toFixed(0)},
+  {h:'½ DTE',fmt:r=>'$'+(r.half??0).toFixed(0)},
+  {h:'Near',fmt:r=>'$'+(r.near??0).toFixed(0)},
+  {h:'Expiry',fmt:r=>'$'+(r.expiry??0).toFixed(0)}
+]);
+bindToggle('#dataT3','#row3', ()=>{
+  const lbls = charts.chart3?.data.labels || [];
+  const freq = charts.chart3?.data.datasets[0]?.data || [];
+  const pnl = charts.chart3?.data.datasets[1]?.data || [];
+  return lbls.map((l,i)=>({bucket:l, n:freq[i], pnl:pnl[i]}));
+}, [
+  {h:'Bucket',fmt:r=>r.bucket},
+  {h:'n',fmt:r=>r.n},
+  {h:'P&L',fmt:r=>(r.pnl>=0?'+':'')+'$'+(r.pnl||0).toFixed(0)}
+]);
+
+// === Wire inputs ===
+['side','spot','strike','dte','iv','rate','paid'].forEach(id => 
+  $('#'+id).addEventListener('input', render));
+['histDte','lookback'].forEach(id => $('#'+id).addEventListener('change', renderEmpirical));
+$('#ticker').addEventListener('keydown', e=>{if(e.key==='Enter')loadTicker();});
+$('#loadBtn').addEventListener('click', loadTicker);
+
+// === Init ===
+const urlT = new URLSearchParams(window.location.search).get('ticker');
+if(urlT) $('#ticker').value = urlT.toUpperCase();
+loadTicker();
+</script>
+</body>
+</html>
