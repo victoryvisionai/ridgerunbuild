@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Trade Queue · Ridge Run</title>
+<script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/themes.css" />
+<style>
+  :root{
+    --bg:#fff;--bg-tint:#f8fafc;--bg-blue:#eff6ff;--border:#e2e8f0;--border-blue:#bfdbfe;
+    --text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
+    --accent:#2563eb;--accent-dark:#1e40af;
+    --success:#059669;--success-bg:#d1fae5;--warning:#d97706;--warning-bg:#fef3c7;
+    --danger:#dc2626;--danger-bg:#fee2e2;
+    --serif:'Source Serif 4',Georgia,serif;--sans:'Inter',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{background:var(--bg-tint);color:var(--text);font-family:var(--sans);font-size:13.5px;line-height:1.5;min-height:100vh}
+  .hidden{display:none!important}
+  .loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim)}
+  .shell{max-width:1400px;margin:0 auto;padding:0 20px 80px}
+  h1.page-title{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-0.02em;margin:24px 0 4px}
+  .page-sub{color:var(--text-muted);margin:0 0 18px;font-size:14px}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:8px 13px;border-radius:4px;cursor:pointer;border:1px solid transparent;font-weight:500;background:var(--accent);color:#fff}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn-ghost{background:var(--bg);color:var(--text-muted);border-color:var(--border)} .btn-ghost:hover:not(:disabled){border-color:var(--text-dim);color:var(--text)}
+  .btn-ok{background:var(--success)} .btn-danger{background:var(--bg);color:var(--danger);border-color:#fecaca}
+  .btn-sm{font-size:10px;padding:5px 9px}
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+  .tabs{display:flex;gap:2px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:3px}
+  .tab{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:3px;cursor:pointer;color:var(--text-muted);border:none;background:transparent}
+  .tab.active{background:var(--bg-blue);color:var(--accent-dark)}
+  .meta{font-family:var(--mono);font-size:10.5px;color:var(--text-dim);letter-spacing:.06em}
+  .grid-acct{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:18px}
+  .metric-box{padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:5px}
+  .metric-box .l{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted)}
+  .metric-box .v{font-family:var(--serif);font-size:22px;font-weight:600}
+  .metric-box .s{font-family:var(--mono);font-size:10px;color:var(--text-dim)}
+  .stale{color:var(--danger)!important}
+  .notice{background:var(--warning-bg);border:1px solid #fde68a;color:#92400e;border-radius:5px;padding:10px 14px;margin-bottom:16px;font-size:12.5px}
+  .card{background:var(--bg);border:1px solid var(--border);border-radius:6px;margin-bottom:12px;overflow:hidden}
+  .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 18px;flex-wrap:wrap}
+  .tkr{font-family:var(--serif);font-size:19px;font-weight:600;margin-right:8px}
+  .pill{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:3px;margin-right:6px;vertical-align:middle}
+  .p-order{background:var(--bg-blue);color:var(--accent-dark)} .p-alert{background:var(--warning-bg);color:#92400e}
+  .p-acct{background:var(--bg-tint);color:var(--text-muted);border:1px solid var(--border)}
+  .p-gtc{background:#ede9fe;color:#5b21b6} .p-day{background:#e0f2fe;color:#075985}
+  .p-status{background:#f1f5f9;color:#334155}
+  .reason{margin-top:6px;color:var(--text);font-size:13.5px}
+  .ctx{margin-top:4px;font-family:var(--mono);font-size:10.5px;color:var(--text-muted)}
+  .actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .order{border-top:1px solid var(--border);padding:10px 18px;background:var(--bg-tint)}
+  table.legs{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:11.5px}
+  table.legs th{text-align:left;font-weight:500;color:var(--text-muted);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:4px 6px;border-bottom:1px solid var(--border)}
+  table.legs td{padding:5px 6px;border-bottom:1px solid #f1f5f9}
+  .result{font-family:var(--mono);font-size:11.5px;margin-top:8px;word-break:break-word}
+  .ok-txt{color:var(--success)} .bad-txt{color:var(--danger)} .muted{color:var(--text-dim)}
+  .empty{padding:40px;text-align:center;color:var(--text-dim);font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;background:var(--bg);border:1px dashed var(--border);border-radius:6px}
+  .msg{padding:9px 14px;border-radius:4px;margin-bottom:12px;font-size:12.5px}
+  .msg-error{background:var(--danger-bg);color:var(--danger)} .msg-info{background:var(--bg-blue);color:var(--accent-dark)} .msg-ok{background:var(--success-bg);color:var(--success)}
+  input.px{width:90px;font-family:var(--mono);font-size:12px;padding:5px 7px;border:1px solid var(--border);border-radius:4px}
+</style>
+</head>
+<body>
+<div id="loading-screen" class="loading">Loading trade queue…</div>
+<div id="app" class="hidden">
+  <div id="rr-nav-container"></div>
+  <div class="shell">
+    <h1 class="page-title">Trade Queue</h1>
+    <p class="page-sub">Recommended orders and alerts generated from your decision rules. Nothing is sent to Tastytrade unless you click <b>Submit</b> after a successful preview.</p>
+    <div id="msg-area"></div>
+    <div id="stale-notice" class="notice hidden"></div>
+    <div class="grid-acct" id="acct-grid"></div>
+    <div class="toolbar">
+      <div class="tabs">
+        <button class="tab active" data-scope="open">Open <span id="c-open"></span></button>
+        <button class="tab" data-scope="working">Working <span id="c-working"></span></button>
+        <button class="tab" data-scope="history">History</button>
+      </div>
+      <button class="btn btn-ghost" id="btn-rebuild">Rebuild now</button>
+      <button class="btn btn-ghost" id="btn-refresh">Refresh</button>
+      <span class="meta" id="last-build"></span>
+    </div>
+    <div id="list"></div>
+  </div>
+</div>
+
+<script src="/nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/config.js"></script>
+<script>
+(() => {
+  const cfg = window.RR_CONFIG || {};
+  const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY);
+  const ORDER_URL = cfg.SUPABASE_URL + '/functions/v1/tastytrade-order';
+  const REBUILD_URL = 'https://victoryvision.app.n8n.cloud/webhook/ridgerun/trade-queue/build';
+  let scope = 'open', DATA = null, session = null;
+  const previews = {};
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const money = n => n == null || isNaN(n) ? '—' : '$' + Number(n).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+  const ago = t => { if (!t) return '—'; const m = Math.round((Date.now() - new Date(t)) / 60000); return m < 60 ? m + 'm ago' : m < 1440 ? Math.round(m/60) + 'h ago' : Math.round(m/1440) + 'd ago'; };
+  const msg = (text, kind) => { $('msg-area').innerHTML = '<div class="msg msg-' + (kind||'info') + '">' + esc(text) + '</div>'; if (kind !== 'error') setTimeout(() => { $('msg-area').innerHTML = ''; }, 5000); };
+  const authHeaders = () => ({ 'Content-Type': 'application/json', apikey: cfg.SUPABASE_PUBLISHABLE_KEY, Authorization: 'Bearer ' + (session?.access_token || cfg.SUPABASE_PUBLISHABLE_KEY) });
+
+  async function load() {
+    const { data, error } = await sb.rpc('get_trade_queue', { p_scope: scope });
+    if (error) { msg('Load failed: ' + error.message, 'error'); return; }
+    DATA = data || {};
+    renderAccounts(); renderList();
+    const c = DATA.counts || {};
+    $('c-open').textContent = c.proposed ? '(' + c.proposed + ')' : '';
+    $('c-working').textContent = ((c.submitted||0) + (c.placed_manually||0)) ? '(' + ((c.submitted||0) + (c.placed_manually||0)) + ')' : '';
+    $('last-build').textContent = 'Last rule run ' + ago(DATA.last_build);
+  }
+
+  function renderAccounts() {
+    const b = DATA.balances || [];
+    let stale = [];
+    $('acct-grid').innerHTML = b.map(a => {
+      const hrs = (Date.now() - new Date(a.as_of)) / 3.6e6;
+      const isStale = hrs > 72;
+      if (isStale) stale.push(a.account);
+      return '<div class="metric-box"><div class="l">' + esc(a.account) + '</div><div class="v">' + money(a.nlv) + '</div>' +
+        '<div class="s' + (isStale ? ' stale' : '') + '">NLV · cash ' + money(a.cash) + ' · opt BP ' + money(a.dbp) + ' · ' + ago(a.as_of) + '</div></div>';
+    }).join('');
+    const n = $('stale-notice');
+    if (stale.length) { n.textContent = 'Balance data is stale for ' + stale.join(', ') + '. Sizing and rule outputs may be wrong until the Tastytrade sync runs.'; n.classList.remove('hidden'); }
+    else n.classList.add('hidden');
+  }
+
+  function legsTable(o) {
+    if (!o || !o.legs) return '';
+    return '<table class="legs"><thead><tr><th>Action</th><th>Qty</th><th>Symbol</th><th>Type</th></tr></thead><tbody>' +
+      o.legs.map(l => '<tr><td>' + esc(l.action) + '</td><td>' + esc(l.quantity) + '</td><td>' + esc(l.symbol) + '</td><td>' + esc(l['instrument-type']) + '</td></tr>').join('') +
+      '</tbody></table>';
+  }
+
+  function ctxLine(it) {
+    const c = it.context || {}; const p = [];
+    if (c.holding_days != null) p.push('held ' + c.holding_days + 'd');
+    if (c.dte != null) p.push(c.dte + ' DTE');
+    if (c.pnl_dollars != null) p.push('P&L ' + money(c.pnl_dollars));
+    if (c.pnl_pct_of_cost != null) p.push(Number(c.pnl_pct_of_cost).toFixed(1) + '% of cost');
+    if (c.pnl_pct_of_credit != null) p.push(Number(c.pnl_pct_of_credit).toFixed(1) + '% of credit');
+    if (c.peak_price != null) p.push('peak ' + money(c.peak_price));
+    if (c.drawdown_from_peak_pct != null) p.push(c.drawdown_from_peak_pct + '% off peak');
+    p.push('updated ' + ago(it.updated_at));
+    return p.join(' · ');
+  }
+
+  function renderList() {
+    const items = DATA.items || [];
+    if (!items.length) { $('list').innerHTML = '<div class="empty">' + (scope === 'open' ? 'No recommended orders or alerts right now' : 'Nothing here') + '</div>'; return; }
+    $('list').innerHTML = items.map(it => {
+      const isOrder = it.kind === 'order';
+      const tif = it.time_in_force ? '<span class="pill ' + (it.time_in_force === 'GTC' ? 'p-gtc' : 'p-day') + '">' + esc(it.time_in_force) + '</span>' : '';
+      let actions = '';
+      if (it.status === 'proposed' && isOrder) {
+        actions = '<label class="meta">Limit $</label><input class="px" id="px-' + it.id + '" type="number" step="0.01" value="' + esc(it.limit_price) + '"/>' +
+          '<button class="btn btn-ghost btn-sm" onclick="RRQ.preview(' + it.id + ')">Preview</button>' +
+          '<button class="btn btn-ok btn-sm" id="sub-' + it.id + '" onclick="RRQ.submit(' + it.id + ')" disabled>Submit</button>' +
+          '<button class="btn btn-ghost btn-sm" onclick="RRQ.decide(' + it.id + ',\'placed_manually\')">Placed manually</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="RRQ.decide(' + it.id + ',\'dismissed\')">Dismiss</button>';
+      } else if (it.status === 'proposed') {
+        actions = '<button class="btn btn-ghost btn-sm" onclick="RRQ.decide(' + it.id + ',\'acknowledged\')">Acknowledge</button>';
+      } else if (it.status === 'submitted' || it.status === 'placed_manually') {
+        actions = '<button class="btn btn-ghost btn-sm" onclick="RRQ.decide(' + it.id + ',\'filled\')">Mark filled</button>' +
+          '<button class="btn btn-ghost btn-sm" onclick="RRQ.decide(' + it.id + ',\'cancelled\')">Mark cancelled</button>';
+      }
+      const statusPill = it.status !== 'proposed' ? '<span class="pill p-status">' + esc(it.status.replace('_',' ')) + (it.tt_order_id ? ' #' + esc(it.tt_order_id) : '') + '</span>' : '';
+      return '<div class="card"><div class="card-head"><div>' +
+        '<span class="tkr">' + esc(it.underlying) + '</span>' +
+        '<span class="pill ' + (isOrder ? 'p-order' : 'p-alert') + '">' + (isOrder ? 'Order' : 'Alert') + '</span>' + tif +
+        '<span class="pill p-acct">' + esc(it.account_number) + '</span>' + statusPill +
+        '<div class="reason">' + esc(it.reason) + '</div>' +
+        '<div class="ctx">' + esc(it.structure || it.pos_class || '') + ' · rule ' + esc(it.rule_code) + ' · ' + esc(ctxLine(it)) + '</div>' +
+        '</div><div class="actions">' + actions + '</div></div>' +
+        (isOrder ? '<div class="order">' + legsTable(it.order_body) + '<div class="result" id="res-' + it.id + '"></div></div>' : '') +
+        '</div>';
+    }).join('');
+  }
+
+  function findItem(id) { return (DATA.items || []).find(x => x.id === id); }
+  function orderFor(it) {
+    const o = JSON.parse(JSON.stringify(it.order_body));
+    const px = Number(($('px-' + it.id) || {}).value);
+    if (px > 0) o.price = px.toFixed(2);
+    return o;
+  }
+  function ttError(j) {
+    const e = j?.response?.error || (Array.isArray(j?.response?.errors) && j.response.errors.length ? { message: 'Rejected', errors: j.response.errors } : null) || j?.error;
+    if (!e) return 'Unknown error: ' + JSON.stringify(j).slice(0, 200);
+    if (typeof e === 'string') return e;
+    return (e.message || '') + (e.errors ? ' — ' + e.errors.map(x => x.message || x.reason).join('; ') : '');
+  }
+
+  async function preview(id) {
+    const it = findItem(id); if (!it) return;
+    const order = orderFor(it); const res = $('res-' + id);
+    res.innerHTML = '<span class="muted">Previewing…</span>';
+    try {
+      const r = await fetch(ORDER_URL, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ action: 'preview', account_number: it.account_number, order }) });
+      const j = await r.json();
+      const resp = j?.response;
+      const data = resp?.data || resp;
+      const valid = r.ok && resp && !resp.error && !(Array.isArray(resp.errors) && resp.errors.length) && !!(resp.data || resp['buying-power-effect']);
+      if (valid) {
+        const bp = data['buying-power-effect']?.['change-in-buying-power'];
+        const fees = data['fee-calculation']?.['total-fees'];
+        const warns = (data.warnings || []).map(w => w.message).join('; ');
+        res.innerHTML = '<span class="ok-txt">✓ Preview OK · ΔBP ' + esc(bp ?? '?') + ' · fees ' + esc(fees ?? '?') + '</span>' + (warns ? '<br><span class="muted">' + esc(warns) + '</span>' : '');
+        previews[id] = JSON.stringify(order);
+        $('sub-' + id).disabled = false;
+      } else {
+        res.innerHTML = '<span class="bad-txt">✗ ' + esc(ttError(j)) + '</span>';
+        $('sub-' + id).disabled = true;
+      }
+    } catch (e) { res.innerHTML = '<span class="bad-txt">✗ ' + esc(e.message) + '</span>'; }
+  }
+
+  async function submit(id) {
+    const it = findItem(id); if (!it) return;
+    const order = orderFor(it); const res = $('res-' + id);
+    if (previews[id] !== JSON.stringify(order)) { res.innerHTML = '<span class="bad-txt">Order changed since preview — preview again.</span>'; $('sub-' + id).disabled = true; return; }
+    const legs = order.legs.map(l => l.action + ' ' + l.quantity + ' ' + l.symbol).join('\n');
+    if (!confirm('Submit REAL order to Tastytrade account ' + it.account_number + '?\n\n' + legs + '\n\n' + order['order-type'] + ' ' + order['price-effect'] + ' $' + order.price + ' · ' + order['time-in-force'])) return;
+    res.innerHTML = '<span class="muted">Submitting…</span>';
+    try {
+      const r = await fetch(ORDER_URL, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ action: 'submit', account_number: it.account_number, order }) });
+      const j = await r.json();
+      const oid = j?.response?.data?.order?.id || j?.response?.order?.id;
+      if (r.ok && oid) {
+        await decide(id, 'submitted', String(oid), 'limit ' + order.price, true);
+        msg('Submitted order #' + oid + ' for ' + it.underlying, 'ok');
+      } else {
+        res.innerHTML = '<span class="bad-txt">✗ ' + esc(ttError(j)) + '</span>';
+      }
+    } catch (e) { res.innerHTML = '<span class="bad-txt">✗ ' + esc(e.message) + '</span>'; }
+  }
+
+  async function decide(id, status, orderId, note, silent) {
+    let n = note || null;
+    if (!silent && (status === 'dismissed' || status === 'placed_manually')) {
+      const p = prompt(status === 'dismissed' ? 'Why dismiss? (optional — feeds the learning loop)' : 'Order # or note (optional)');
+      if (p === null) return;
+      if (status === 'placed_manually' && /^\d+$/.test(p.trim())) orderId = p.trim(); else n = p || null;
+    }
+    const { error } = await sb.rpc('decide_trade_queue', { p_id: id, p_status: status, p_tt_order_id: orderId || null, p_note: n });
+    if (error) { msg('Update failed: ' + error.message, 'error'); return; }
+    await load();
+  }
+
+  async function rebuild() {
+    const b = $('btn-rebuild'); b.disabled = true; b.textContent = 'Running rules…';
+    try {
+      const r = await fetch(REBUILD_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      msg('Rules re-run against live positions.', 'ok');
+    } catch (e) { msg('Rebuild failed: ' + e.message, 'error'); }
+    b.disabled = false; b.textContent = 'Rebuild now';
+    await load();
+  }
+
+  window.RRQ = { preview, submit, decide };
+
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active'); scope = t.dataset.scope; load();
+  }));
+  $('btn-refresh').addEventListener('click', load);
+  $('btn-rebuild').addEventListener('click', rebuild);
+
+  (async () => {
+    const r = await sb.auth.getSession();
+    if (!r.data?.session?.user) { window.location.href = '/index.html'; return; }
+    session = r.data.session;
+    $('loading-screen').classList.add('hidden'); $('app').classList.remove('hidden');
+    try { if (window.RidgeRunNav) await window.RidgeRunNav.mount({ active: 'trades', supabase: sb }); } catch (e) {}
+    await load();
+    setInterval(load, 60000);
+  })();
+})();
+</script>
+</body>
+</html>
