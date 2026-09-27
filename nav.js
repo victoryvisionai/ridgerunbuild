@@ -10,6 +10,7 @@
     { id: 'uploads',     label: 'Uploads',       href: '/uploads.html' },
     { id: 'performance', label: 'Performance',   href: '/performance.html' },
     { id: 'portfolio',   label: 'Portfolio',     href: '/portfolio.html' },
+    { id: 'trades',      label: 'Trades',        href: '/trades.html' },
     { id: 'watchlist',   label: 'Watchlist',     href: '/watchlist.html' },
     { id: 'strategy',    label: 'Strategy',      href: '/strategy.html' },
     { id: 'stress',      label: 'Stress',        href: '/stress.html' },
