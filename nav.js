@@ -4,19 +4,20 @@
 (function () {
   'use strict';
 
+  // Order follows how you work: whole portfolio first, then trading, then single names.
   const NAV_ITEMS = [
     { id: 'dashboard',   label: 'Dashboard',     href: '/dashboard.html' },
-    { id: 'dna',         label: 'Investor DNA',  href: '/dna.html' },
-    { id: 'uploads',     label: 'Uploads',       href: '/uploads.html' },
-    { id: 'performance', label: 'Performance',   href: '/performance.html' },
     { id: 'portfolio',   label: 'Portfolio',     href: '/portfolio.html' },
+    { id: 'performance', label: 'Performance',   href: '/performance.html' },
+    { id: 'stress',      label: 'Risk',          href: '/stress.html' },
     { id: 'trades',      label: 'Trades',        href: '/trades.html' },
+    { id: 'screener',    label: 'Screener',      href: '/screener.html' },
     { id: 'watchlist',   label: 'Watchlist',     href: '/watchlist.html' },
-    { id: 'strategy',    label: 'Strategy',      href: '/strategy.html' },
-    { id: 'stress',      label: 'Stress',        href: '/stress.html' },
     { id: 'research',    label: 'Research',      href: '/research.html' },
     { id: 'model',       label: 'Model',         href: '/model.html' },
-    { id: 'screener',    label: 'Screener',      href: '/screener.html' },
+    { id: 'options',     label: 'Options',       href: '/options.html' },
+    { id: 'dna',         label: 'Investor DNA',  href: '/dna.html' },
+    { id: 'uploads',     label: 'Uploads',       href: '/uploads.html' },
     { id: 'ai',          label: 'Ask AI',        href: '/ai.html' }
   ];
 
@@ -69,8 +70,9 @@
 
   async function mount(opts) {
     opts = opts || {};
+    if (document.getElementById('rr-topbar')) return; // already mounted (rr.js or the page)
     const activeId = opts.active || autoDetectActive();
-    const supabase = opts.supabase || (window.supabase && window.supabase.client) || null;
+    const supabase = opts.supabase || (window.RR && window.RR.sb) || null;
     injectStyles();
     const nav = buildTopbar(activeId);
     const container = document.getElementById('rr-nav-container');
@@ -85,7 +87,7 @@
         }
       } catch (e) {}
       const b = document.getElementById('rr-signout-btn');
-      if (b) b.addEventListener('click', async () => { await supabase.auth.signOut(); window.location.href='/'; });
+      if (b) b.addEventListener('click', async () => { await supabase.auth.signOut(); window.location.href='/index.html'; });
     }
   }
 
