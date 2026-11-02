@@ -79,6 +79,7 @@
         <button class="tab active" data-scope="open">Open <span id="c-open"></span></button>
         <button class="tab" data-scope="working">Working <span id="c-working"></span></button>
         <button class="tab" data-scope="history">History</button>
+        <button class="tab" data-scope="ideas">Ideas <span id="c-ideas"></span></button>
       </div>
       <button class="btn btn-ghost" id="btn-rebuild">Rebuild now</button>
       <button class="btn btn-ghost" id="btn-refresh">Refresh</button>
@@ -91,10 +92,11 @@
 <script src="/nav.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/config.js"></script>
+<script src="/assets/rr.js"></script>
 <script>
 (() => {
   const cfg = window.RR_CONFIG || {};
-  const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY);
+  const sb = (window.RR && window.RR.sb) || window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY);
   const ORDER_URL = cfg.SUPABASE_URL + '/functions/v1/tastytrade-order';
   const REBUILD_URL = 'https://victoryvision.app.n8n.cloud/webhook/ridgerun/trade-queue/build';
   let scope = 'open', DATA = null, session = null;
@@ -107,7 +109,38 @@
   const msg = (text, kind) => { $('msg-area').innerHTML = '<div class="msg msg-' + (kind||'info') + '">' + esc(text) + '</div>'; if (kind !== 'error') setTimeout(() => { $('msg-area').innerHTML = ''; }, 5000); };
   const authHeaders = () => ({ 'Content-Type': 'application/json', apikey: cfg.SUPABASE_PUBLISHABLE_KEY, Authorization: 'Bearer ' + (session?.access_token || cfg.SUPABASE_PUBLISHABLE_KEY) });
 
+  async function loadIdeas() {
+    const since = new Date(Date.now() - 3 * 864e5).toISOString();
+    const { data, error } = await sb.from('ai_recommendations').select('*')
+      .gte('generated_at', since).not('dismissed', 'is', true).not('accepted', 'is', true)
+      .order('composite_score', { ascending: false, nullsFirst: false }).limit(30);
+    if (error) { msg('Ideas failed to load: ' + error.message, 'error'); return; }
+    $('c-ideas').textContent = data.length ? '(' + data.length + ')' : '';
+    if (scope !== 'ideas') return;
+    if (!data.length) { $('list').innerHTML = '<div class="empty">No new ideas in the last 3 days</div>'; return; }
+    $('list').innerHTML = data.map(r => '<div class="card"><div class="card-head"><div>' +
+      '<span class="tkr">' + esc(r.ticker) + '</span><span class="pill p-order">Idea</span>' +
+      (r.structure ? '<span class="pill p-acct">' + esc(r.structure) + '</span>' : '') +
+      (r.direction ? '<span class="pill p-status">' + esc(r.direction) + '</span>' : '') +
+      '<div class="reason">' + esc(r.reasoning || r.thesis || '') + '</div>' +
+      '<div class="ctx">score ' + Math.round(r.composite_score || 0) +
+        (r.expected_return_pct != null ? ' · expected ' + Number(r.expected_return_pct).toFixed(1) + '%' : '') +
+        (r.expected_horizon_days ? ' · ' + r.expected_horizon_days + 'd horizon' : '') +
+        (r.max_loss != null ? ' · max loss ' + money(r.max_loss) : '') +
+        (r.opportunity_type ? ' · ' + esc(r.opportunity_type) : '') +
+        ' · generated ' + ago(r.generated_at) + '</div></div>' +
+      '<div class="actions"><button class="btn btn-danger btn-sm" onclick="RRQ.dismissIdea(\'' + esc(r.id) + '\')">Dismiss</button></div></div></div>').join('');
+  }
+
+  async function dismissIdea(id) {
+    const { error } = await sb.from('ai_recommendations').update({ dismissed: true }).eq('id', id);
+    if (error) { msg('Dismiss failed: ' + error.message, 'error'); return; }
+    await loadIdeas();
+  }
+
   async function load() {
+    loadIdeas();
+    if (scope === 'ideas') { $('last-build').textContent = ''; return; }
     const { data, error } = await sb.rpc('get_trade_queue', { p_scope: scope });
     if (error) { msg('Load failed: ' + error.message, 'error'); return; }
     DATA = data || {};
@@ -266,13 +299,14 @@
     await load();
   }
 
-  window.RRQ = { preview, submit, decide };
+  window.RRQ = { preview, submit, decide, dismissIdea };
 
   document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
     t.classList.add('active'); scope = t.dataset.scope; load();
   }));
   $('btn-refresh').addEventListener('click', load);
+  if (location.hash === '#ideas') { document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.scope === 'ideas')); scope = 'ideas'; }
   $('btn-rebuild').addEventListener('click', rebuild);
 
   (async () => {
