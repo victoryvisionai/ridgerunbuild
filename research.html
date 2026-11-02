@@ -1,11 +1,14 @@
 <!doctype html>
 <html lang="en">
 <head>
+<script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="/assets/themes.css" />
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Research — Ridge Run</title>
 <script src="/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/rr.js"></script>
 <style>
   :root{--bg:#fff;--ink:#0f172a;--ink2:#475569;--muted:#94a3b8;--line:#e2e8f0;--brand:#2563eb;--brand2:#1d4ed8;--ok:#16a34a;--warn:#d97706;--bad:#dc2626;--chip:#f1f5f9}
   *{box-sizing:border-box}
@@ -70,16 +73,7 @@
 </style>
 </head>
 <body>
-  <nav style="display:flex;gap:8px;padding:10px 16px;border-bottom:1px solid #e5e7eb;background:#fafafa;font:14px/1.4 -apple-system,Segoe UI,Roboto,sans-serif;align-items:center;position:sticky;top:0;z-index:50">
-  <strong style="margin-right:12px">Ridge Run</strong>
-  <a href="/strategy.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Strategy</a>
-  <a href="/research.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Research</a>
-  <a href="/screener.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Screener</a>
-  <a href="/model.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Model</a>
-  <a href="/portfolio.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Portfolio</a>
-  <a href="/watchlist.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">Watchlist</a>
-  <a href="/dna.html" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:#111;background:#fff;border:1px solid #e5e7eb">DNA</a>
-</nav>
+  <div id="rr-nav-container"></div>
 <div id="nav"></div>
 <script src="/nav.js"></script>
 
