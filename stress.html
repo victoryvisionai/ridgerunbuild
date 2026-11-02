@@ -85,31 +85,10 @@
 
 <div id="app" class="shell hidden">
 
-  <div class="topbar">
-    <div class="brand">
-      <span class="brand-mark">RR</span>
-      <span class="brand-name">Ridge Run</span>
-    </div>
-    <nav class="nav-tabs">
-      <a href="/dashboard.html">Dashboard</a>
-      <a href="/dna.html">Investor DNA</a>
-      <a href="/performance.html">Performance</a>
-      <a href="/portfolio.html">Portfolio</a>
-      <a href="/watchlist.html">Watchlist</a>
-      <a href="/strategy.html">Strategy</a>
-      <a href="/stress.html" class="active">Stress</a>
-      <a href="/research.html">Research</a>
-      <a href="/screener.html">Screener</a>
-      <a href="/ai.html">Ask AI</a>
-    </nav>
-    <div class="user-meta">
-      <span id="user-email"></span>
-      <button class="signout" id="signout-btn">Sign out</button>
-    </div>
-  </div>
+  <div id="rr-nav-container"></div><span id="user-email" hidden></span><button id="signout-btn" hidden></button>
 
   <h1 class="page-title">Stress</h1>
-  <p class="page-sub">Portfolio resilience under canned crisis scenarios. The engine runs daily at 7pm ET and on-demand via the button below.</p>
+  <p class="page-sub">Portfolio resilience under canned crisis scenarios. The engine runs weekdays at 7pm PT and on-demand via the button below.</p>
 
   <div id="msg-area"></div>
 
@@ -165,6 +144,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/config.js"></script>
+<script src="/assets/rr.js"></script>
+<script src="/nav.js"></script>
 <script>
 (() => {
 const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = window.RR_CONFIG;
