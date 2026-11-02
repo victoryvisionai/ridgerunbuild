@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="/assets/themes.css" />
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Ask AI · Ridge Run</title>
@@ -91,20 +93,7 @@
 <div id="loading-screen" class="loading">Loading…</div>
 
 <div id="app" class="shell hidden">
-  <div class="topbar">
-    <div class="brand"><span class="brand-mark">RR</span><span class="brand-name">Ridge Run</span></div>
-    <nav class="nav-tabs">
-      <a href="/dashboard.html">Dashboard</a>
-      <a href="/dna.html">Investor DNA</a>
-      <a href="/performance.html">Performance</a>
-      <a href="/watchlist.html">Watchlist</a><a href="/strategy.html">Strategy</a><a href="/research.html">Research</a><a href="/screener.html">Screener</a>
-      <a href="/ai.html" class="active">Ask AI</a>
-    </nav>
-    <div class="user-meta">
-      <span id="user-email"></span>
-      <button class="signout" id="signout-btn">Sign out</button>
-    </div>
-  </div>
+  <div id="rr-nav-container"></div><span id="user-email" hidden></span><button id="signout-btn" hidden></button>
 
   <div class="ai-layout">
     <div class="chat-col">
@@ -145,6 +134,8 @@ Try: "Show my realized P/L by year" or "What were my biggest losers in 2021?"</d
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/config.js"></script>
+<script src="/assets/rr.js"></script>
+<script src="/nav.js"></script>
 <script>
 (() => {
 const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, N8N_CHAT_URL } = window.RR_CONFIG;
