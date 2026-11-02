@@ -90,6 +90,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/config.js"></script>
+<script src="/assets/rr.js"></script>
 <script src="/nav.js"></script>
 <script>
 (() => {
@@ -150,9 +151,9 @@ async function handleFiles(files){
       if(insErr){ flash('Metadata insert failed: ' + insErr.message, 'error'); continue; }
       // fire appropriate webhook
       if(docType === 'brokerage_csv' || docType === 'flex_query_xml'){
-        fetch('https://victoryvision.app.n8n.cloud/webhook/brokerage/parse', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ document_id: doc.id, user_id: currentUser.id }) }).catch(()=>{});
+        fetch('https://victoryvision.app.n8n.cloud/webhook/brokerage-parse-csv', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ document_id: doc.id, user_id: currentUser.id }) }).catch(()=>{});
       } else if(docType === 'research_report' || docType === 'investment_memo' || docType === 'transcript' || docType === 'investor_letter'){
-        fetch('https://victoryvision.app.n8n.cloud/webhook/documents/ingest', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ document_id: doc.id, user_id: currentUser.id }) }).catch(()=>{});
+        fetch('https://victoryvision.app.n8n.cloud/webhook/document-ingest', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ document_id: doc.id, user_id: currentUser.id }) }).catch(()=>{});
       }
       flash(`Uploaded ${f.name}.`, 'success');
     } catch(e) {
