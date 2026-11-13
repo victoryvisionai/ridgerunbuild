@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Accounts · Ridge Run</title>
+<script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/themes.css" />
+<link rel="stylesheet" href="/assets/rr-ui.css" />
+</head>
+<body>
+<div id="rr-nav-container"></div>
+<main class="rr-page">
+  <div class="rr-head">
+    <div>
+      <div class="rr-label">Accounts & cash flows</div>
+      <h1>Every account, one place</h1>
+      <div class="sub">Brokerage balances sync from Tastytrade every 5 minutes in market hours. Businesses and real estate are valued by hand.</div>
+    </div>
+    <button class="rr-btn primary" id="add-acct-btn">Add account</button>
+  </div>
+
+  <section class="rr-kpis" id="kpis"><div class="rr-empty">Loading…</div></section>
+
+  <section class="rr-card" id="acct-form-card" hidden>
+    <header><h2 id="acct-form-title">Add account</h2><button class="rr-btn small" id="acct-cancel">Cancel</button></header>
+    <div class="body">
+      <form class="rr-form" id="acct-form">
+        <input type="hidden" name="acct_id" />
+        <label><span class="rr-label">Name</span><input class="rr-input" name="acct_name" required placeholder="e.g. Billboard LLC" /></label>
+        <label><span class="rr-label">Type</span><select class="rr-select" name="kind">
+          <option value="operating_business">Operating business</option><option value="real_estate">Real estate</option>
+          <option value="bank">Bank</option><option value="brokerage">Brokerage</option><option value="other">Other</option></select></label>
+        <label><span class="rr-label">Institution</span><input class="rr-input" name="institution" /></label>
+        <label><span class="rr-label">Whose money</span><input class="rr-input" name="owner_label" placeholder="Andrew" /></label>
+        <label><span class="rr-label">Value (manual)</span><input class="rr-input" name="manual_value" type="number" step="0.01" placeholder="Leave blank for synced accounts" /></label>
+        <label><span class="rr-label">Value as of</span><input class="rr-input" name="manual_value_as_of" type="date" /></label>
+        <label><span class="rr-label">Sleeve</span><select class="rr-select" name="default_sleeve"><option value="">—</option><option value="real_assets">CRE & businesses</option><option value="core">Core equity</option></select></label>
+        <label style="grid-template-columns:auto 1fr;align-items:center"><input type="checkbox" name="include_in_wealth" checked /> <span>Count in my wealth</span></label>
+        <label style="grid-column:1/-1"><span class="rr-label">Notes</span><input class="rr-input" name="notes" /></label>
+        <div><button class="rr-btn primary" type="submit">Save account</button> <span class="rr-note" id="acct-msg"></span></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="rr-card">
+    <header><h2>Accounts</h2><span class="rr-label" id="acct-meta"></span></header>
+    <div class="body flush rr-table-wrap" id="accounts"><div class="rr-empty" style="margin:16px">Loading…</div></div>
+  </section>
+
+  <div class="rr-grid c2">
+    <section class="rr-card">
+      <header><h2>Cash flows</h2><span class="rr-label">Deposits, withdrawals, distributions</span></header>
+      <div class="body flush rr-table-wrap" id="flows"><div class="rr-empty" style="margin:16px">Loading…</div></div>
+    </section>
+    <section class="rr-card">
+      <header><h2>Record a cash flow</h2></header>
+      <div class="body">
+        <form class="rr-form" id="flow-form" style="grid-template-columns:1fr 1fr">
+          <label style="grid-column:1/-1"><span class="rr-label">Account</span><select class="rr-select" name="account_id" id="flow-acct" required></select></label>
+          <label><span class="rr-label">Date</span><input class="rr-input" type="date" name="flow_date" required /></label>
+          <label><span class="rr-label">Category</span><select class="rr-select" name="category">
+            <option value="deposit">Deposit</option><option value="withdrawal">Withdrawal</option><option value="transfer_in">Transfer in</option><option value="transfer_out">Transfer out</option>
+            <option value="distribution">Distribution</option><option value="dividend">Dividend</option><option value="interest">Interest</option>
+            <option value="operating_income">Operating income</option><option value="operating_expense">Operating expense</option><option value="capex">Capex</option>
+            <option value="fee">Fee</option><option value="tax">Tax</option><option value="other">Other</option></select></label>
+          <label><span class="rr-label">Amount</span><input class="rr-input" type="number" step="0.01" min="0" name="amount" required placeholder="12000" /></label>
+          <label><span class="rr-label">Memo</span><input class="rr-input" name="memo" /></label>
+          <div style="grid-column:1/-1"><button class="rr-btn primary" type="submit">Add</button> <span class="rr-note" id="flow-msg"></span></div>
+        </form>
+        <p class="rr-note">Enter the amount as a positive number; withdrawals, transfers out, expenses, fees and taxes are recorded as money out. Recording deposits keeps Performance from counting new money as a gain.</p>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/config.js"></script>
+<script src="/assets/rr.js"></script>
+<script src="/nav.js"></script>
+<script src="/assets/rr-ui.js"></script>
+<script>
+(() => {
+  const { esc, usd, pct, cls, ago, day, rpc, fail, SLEEVE_NAME } = window.RRUI;
+  const $ = id => document.getElementById(id);
+  const OUT = new Set(['withdrawal', 'transfer_out', 'operating_expense', 'capex', 'fee', 'tax']);
+  const KIND = { brokerage: 'Brokerage', bank: 'Bank', operating_business: 'Operating business', real_estate: 'Real estate', other: 'Other' };
+  let accounts = [], positions = [];
+  document.querySelector('#flow-form [name=flow_date]').value = new Date().toLocaleDateString('en-CA');
+
+  async function load() {
+    try {
+      const [w, a] = await Promise.all([rpc('get_wealth_summary'), rpc('get_allocation')]);
+      accounts = w.accounts || []; positions = a.positions || [];
+      const t = w.totals || {};
+      $('kpis').innerHTML = `
+        <div class="rr-kpi"><div class="rr-label">Total wealth</div><div class="v">${usd(t.total_wealth)}</div><div class="s">${accounts.filter(x => x.include_in_wealth).length} accounts counted</div></div>
+        <div class="rr-kpi"><div class="rr-label">Investable</div><div class="v">${usd(t.investable)}</div><div class="s">After ${usd(t.restricted_value)} restricted</div></div>
+        <div class="rr-kpi"><div class="rr-label">Cash</div><div class="v">${usd(t.cash)}</div><div class="s">Brokerage cash, counted accounts</div></div>
+        <div class="rr-kpi"><div class="rr-label">Net flows YTD</div><div class="v ${cls(t.flows_ytd)}">${usd(t.flows_ytd, { sign: true })}</div><div class="s">From recorded cash flows</div></div>
+        <div class="rr-kpi"><div class="rr-label">Managed for others</div><div class="v">${usd(t.managed_for_others)}</div><div class="s">Not counted</div></div>`;
+      $('acct-meta').textContent = 'Last sync ' + ago(t.last_sync);
+      renderAccounts();
+      $('flow-acct').innerHTML = accounts.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('');
+    } catch (e) { fail($('kpis'), e); fail($('accounts'), e); }
+    loadFlows();
+  }
+
+  function renderAccounts() {
+    if (!accounts.length) { $('accounts').innerHTML = '<div class="rr-empty" style="margin:16px">No accounts</div>'; return; }
+    $('accounts').innerHTML = `<table class="rr-table"><thead><tr><th>Account</th><th>Type</th><th>Whose</th><th class="n">Value</th><th class="n">Today</th><th class="n">Cash</th><th class="n">Buying power</th><th>Updated</th><th></th></tr></thead><tbody>
+      ${accounts.map(a => {
+        const pos = positions.filter(p => p.account_number && p.account_number === a.account_number);
+        return `<tr>
+          <td><b>${esc(a.name)}</b>${a.account_number ? `<div class="rr-label">${esc(a.account_number)}</div>` : ''}${a.include_in_wealth ? '' : ' <span class="pill">not counted</span>'}${a.restricted_value ? ` <span class="pill warn">${usd(a.restricted_value, { compact: true })} restricted</span>` : ''}</td>
+          <td>${esc(KIND[a.kind] || a.kind)}</td><td class="rr-muted">${esc(a.owner_label || '')}</td>
+          <td class="n"><b>${a.nlv == null && a.manual_value == null ? '<span class="rr-dim">not set</span>' : usd(a.value)}</b></td>
+          <td class="n ${cls(a.day_change)}">${a.day_change == null ? '—' : usd(a.day_change, { sign: true })}</td>
+          <td class="n">${usd(a.cash)}</td><td class="n">${usd(a.equity_bp)}</td>
+          <td class="rr-muted" style="white-space:nowrap">${a.as_of ? ago(a.as_of) : a.manual_value_as_of ? 'manual · ' + day(a.manual_value_as_of) : '—'}</td>
+          <td><button class="rr-btn small" data-edit="${a.id}">Edit</button></td></tr>
+          ${pos.length ? `<tr class="sub"><td colspan="9"><table class="rr-table" style="background:transparent"><thead><tr><th>Position</th><th>Sleeve</th><th class="n">Qty</th><th class="n">Price</th><th class="n">Value</th><th class="n">Unrealized</th></tr></thead><tbody>
+            ${pos.map(p => `<tr><td><b>${esc(p.underlying)}</b> <span class="rr-muted">${p.instrument_type && /option/i.test(p.instrument_type) ? esc(`${p.direction} ${p.opt_type || ''} ${p.strike ?? ''} ${p.expiry ? day(p.expiry) : ''}`) : 'shares'}</span></td>
+              <td>${esc(SLEEVE_NAME[p.sleeve] || p.sleeve)}</td><td class="n">${Number(p.qty).toLocaleString()}</td><td class="n">${usd(p.price, { cents: true })}</td>
+              <td class="n">${usd(p.market_value)}</td><td class="n ${cls(p.unrealized)}">${usd(p.unrealized, { sign: true })}</td></tr>`).join('')}
+            </tbody></table></td></tr>` : ''}`;
+      }).join('')}</tbody></table>`;
+    document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openForm(accounts.find(a => a.id === b.dataset.edit)));
+  }
+
+  async function loadFlows() {
+    try {
+      const f = await rpc('get_cash_flows', { p_limit: 100 });
+      $('flows').innerHTML = f.length ? `<table class="rr-table"><thead><tr><th>Date</th><th>Account</th><th>Category</th><th class="n">Amount</th><th>Memo</th><th></th></tr></thead><tbody>
+        ${f.map(x => `<tr><td style="white-space:nowrap">${day(x.flow_date)}</td><td>${esc(x.account_name)}</td><td>${esc(x.category.replace(/_/g, ' '))}</td>
+          <td class="n ${cls(x.amount)}">${usd(x.amount, { sign: true, cents: true })}</td><td class="rr-muted">${esc(x.memo || '')}</td>
+          <td>${x.source === 'manual' ? `<button class="rr-btn small" data-rm="${x.id}">Remove</button>` : `<span class="rr-label">${esc(x.source)}</span>`}</td></tr>`).join('')}</tbody></table>`
+        : '<div class="rr-empty" style="margin:16px">No cash flows recorded yet. Record the $12K deposit when it lands.</div>';
+      document.querySelectorAll('[data-rm]').forEach(b => b.onclick = async () => {
+        if (b.dataset.armed !== '1') { b.dataset.armed = '1'; b.textContent = 'Confirm'; setTimeout(() => { b.dataset.armed = ''; b.textContent = 'Remove'; }, 4000); return; }
+        try { await rpc('remove_cash_flow', { p_id: b.dataset.rm }); load(); } catch (e) { alertMsg($('flow-msg'), e.message); }
+      });
+    } catch (e) { fail($('flows'), e); }
+  }
+  const alertMsg = (el, m) => { el.textContent = m; setTimeout(() => el.textContent = '', 6000); };
+
+  function openForm(a) {
+    const f = $('acct-form'); f.reset();
+    $('acct-form-title').textContent = a ? 'Edit ' + a.name : 'Add account';
+    f.acct_id.value = a ? a.id : '';
+    if (a) {
+      f.acct_name.value = a.name || ''; f.kind.value = a.kind; f.institution.value = a.institution || ''; f.owner_label.value = a.owner_label || '';
+      f.manual_value.value = a.manual_value ?? ''; f.manual_value_as_of.value = a.manual_value_as_of || ''; f.default_sleeve.value = a.default_sleeve || '';
+      f.include_in_wealth.checked = !!a.include_in_wealth; f.notes.value = a.notes || '';
+      f.manual_value.disabled = f.manual_value_as_of.disabled = !!a.account_number && a.kind === 'brokerage';
+    } else { f.manual_value.disabled = f.manual_value_as_of.disabled = false; f.default_sleeve.value = 'real_assets'; }
+    $('acct-form-card').hidden = false; $('acct-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  $('add-acct-btn').onclick = () => openForm(null);
+  $('acct-cancel').onclick = () => { $('acct-form-card').hidden = true; };
+  $('acct-form').onsubmit = async e => {
+    e.preventDefault(); const f = e.target;
+    const p = { id: f.acct_id.value || null, name: f.acct_name.value.trim(), kind: f.kind.value, institution: f.institution.value, owner_label: f.owner_label.value,
+      include_in_wealth: f.include_in_wealth.checked, default_sleeve: f.default_sleeve.value, notes: f.notes.value };
+    if (!f.manual_value.disabled) { p.manual_value = f.manual_value.value; p.manual_value_as_of = f.manual_value_as_of.value; }
+    try { await rpc('upsert_account', { p }); $('acct-form-card').hidden = true; load(); } catch (err) { alertMsg($('acct-msg'), err.message); }
+  };
+  $('flow-form').onsubmit = async e => {
+    e.preventDefault(); const f = e.target;
+    const amt = Math.abs(Number(f.amount.value)) * (OUT.has(f.category.value) ? -1 : 1);
+    try {
+      await rpc('add_cash_flow', { p: { account_id: f.account_id.value, flow_date: f.flow_date.value, amount: amt, category: f.category.value, memo: f.memo.value } });
+      f.amount.value = ''; f.memo.value = ''; alertMsg($('flow-msg'), 'Saved'); load();
+    } catch (err) { alertMsg($('flow-msg'), err.message); }
+  };
+  load();
+})();
+</script>
+</body>
+</html>
