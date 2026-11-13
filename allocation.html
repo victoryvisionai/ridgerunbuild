@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Allocation · Ridge Run</title>
+<script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/themes.css" />
+<link rel="stylesheet" href="/assets/rr-ui.css" />
+<style>
+  .conc-row { display: grid; grid-template-columns: 70px minmax(0, 1fr) 110px; gap: 10px; align-items: center; font-size: 13px; padding: 5px 0; }
+  .conc-track { position: relative; height: 12px; background: var(--chip); border-radius: 3px; }
+  .conc-fill { position: absolute; left: 0; top: 2px; bottom: 2px; border-radius: 0 4px 4px 0; background: var(--s-core); }
+  .conc-limit { position: absolute; top: -4px; bottom: -4px; width: 0; border-left: 2px dashed var(--danger); }
+  .stack { display: flex; height: 22px; border-radius: 6px; overflow: hidden; gap: 2px; background: var(--bg); }
+  .stack > div { min-width: 2px; }
+</style>
+</head>
+<body>
+<div id="rr-nav-container"></div>
+<main class="rr-page">
+  <div class="rr-head">
+    <div>
+      <div class="rr-label">Allocation</div>
+      <h1>Sleeves vs targets</h1>
+      <div class="sub">Targets apply to investable assets in accounts you count: tradable positions, cash and valued businesses. Restricted names (MDIA, BALY) sit outside the targets.</div>
+    </div>
+  </div>
+
+  <section class="rr-kpis" id="kpis"><div class="rr-empty">Loading…</div></section>
+
+  <section class="rr-card">
+    <header><h2>Mix of investable assets</h2><span class="rr-label" id="mix-meta"></span></header>
+    <div class="body"><div class="stack" id="stack"></div><div class="rr-legend" id="stack-legend" style="margin-top:10px"></div></div>
+  </section>
+
+  <div class="rr-grid c2">
+    <section class="rr-card">
+      <header><h2>Sleeves</h2><button class="rr-btn small" id="edit-targets">Edit targets</button></header>
+      <div class="body" id="sleeves"><div class="rr-empty">Loading…</div></div>
+      <div class="body" id="targets-edit" hidden></div>
+    </section>
+    <section class="rr-card">
+      <header><h2>Single-name concentration</h2><span class="rr-label" id="conc-meta"></span></header>
+      <div class="body" id="conc"><div class="rr-empty">Loading…</div></div>
+    </section>
+  </div>
+
+  <section class="rr-card">
+    <header><h2>Positions by sleeve</h2><span class="rr-label">Change a sleeve to reclassify a position</span></header>
+    <div class="body flush rr-table-wrap" id="positions"><div class="rr-empty" style="margin:16px">Loading…</div></div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/config.js"></script>
+<script src="/assets/rr.js"></script>
+<script src="/nav.js"></script>
+<script src="/assets/rr-ui.js"></script>
+<script>
+(() => {
+  const { esc, usd, pct, cls, day, rpc, fail, sleeveBars, SLEEVE_COLOR, SLEEVE_NAME } = window.RRUI;
+  const $ = id => document.getElementById(id);
+  let A = null;
+
+  async function load() {
+    try { A = await rpc('get_allocation'); render(); }
+    catch (e) { ['kpis', 'sleeves', 'conc', 'positions'].forEach(id => fail($(id), e)); }
+  }
+
+  function render() {
+    const base = A.investable_base || 0;
+    const under = (A.sleeves || []).filter(s => s.status === 'under'), over = (A.sleeves || []).filter(s => s.status === 'over');
+    $('kpis').innerHTML = `
+      <div class="rr-kpi"><div class="rr-label">Investable base</div><div class="v">${usd(base)}</div><div class="s">Positions + cash + valued businesses</div></div>
+      <div class="rr-kpi"><div class="rr-label">Cash</div><div class="v">${usd(A.cash)}</div><div class="s">${pct(A.cash_pct)} of base</div></div>
+      <div class="rr-kpi"><div class="rr-label">Restricted, outside targets</div><div class="v">${usd(A.restricted_value)}</div><div class="s">Monitor only</div></div>
+      <div class="rr-kpi"><div class="rr-label">Sleeves off target</div><div class="v">${under.length + over.length}</div><div class="s">${under.map(s => esc(s.name) + ' under').concat(over.map(s => esc(s.name) + ' over')).join(' · ') || 'All within bands'}</div></div>`;
+
+    // Mix stack: sleeves + cash, shares of base
+    const parts = (A.sleeves || []).map(s => ({ k: s.code, n: s.name, v: Math.max(0, s.value || 0) })).concat([{ k: 'cash', n: 'Cash', v: Math.max(0, A.cash || 0) }]).filter(p => p.v > 0);
+    const tot = parts.reduce((a, p) => a + p.v, 0) || 1;
+    $('stack').innerHTML = parts.map(p => `<div title="${esc(p.n)}: ${usd(p.v)} (${pct(p.v / tot * 100)})" style="flex:${p.v};background:${SLEEVE_COLOR[p.k]}"></div>`).join('') || '<div style="flex:1;background:var(--chip)"></div>';
+    $('stack-legend').innerHTML = parts.map(p => `<span><span class="dot" style="background:${SLEEVE_COLOR[p.k]}"></span>${esc(p.n)} <b style="color:var(--text)">${pct(p.v / tot * 100)}</b> <span class="rr-dim">${usd(p.v, { compact: true })}</span></span>`).join('');
+    $('mix-meta').textContent = usd(base) + ' base';
+
+    sleeveBars($('sleeves'), A.sleeves);
+    $('sleeves').insertAdjacentHTML('beforeend', `<table class="rr-table" style="margin-top:12px"><thead><tr><th>Sleeve</th><th class="n">Value</th><th class="n">Target $</th><th class="n">To target</th></tr></thead><tbody>
+      ${(A.sleeves || []).map(s => `<tr><td>${esc(s.name)}</td><td class="n">${usd(s.value)}</td><td class="n">${usd(s.target_value)}</td><td class="n ${cls(s.gap_value)}">${usd(s.gap_value, { sign: true })}</td></tr>`).join('')}</tbody></table>
+      <div class="rr-note" style="margin-top:6px">"To target" is what it would take to reach the target. Positive means add. Nothing is traded from this page.</div>`);
+
+    // Concentration
+    const lim = A.max_single_name_pct || 15;
+    const names = (A.by_name || []).filter(n => n.value > 0).slice(0, 12);
+    const scale = Math.max(lim * 1.4, ...names.filter(n => !n.restricted).map(n => n.pct || 0));
+    $('conc-meta').textContent = 'Limit ' + lim + '% per name';
+    $('conc').innerHTML = names.length ? names.map(n => n.restricted
+        ? `<div class="conc-row"><b>${esc(n.underlying)}</b><div class="rr-muted" style="font-size:12px">restricted — outside the base</div><div style="text-align:right">${usd(n.value, { compact: true })}</div></div>`
+        : `<div class="conc-row" title="${esc(n.underlying)}: ${pct(n.pct)} of investable"><b>${esc(n.underlying)}</b>
+          <div class="conc-track"><div class="conc-fill" style="width:${Math.min(100, (n.pct || 0) / scale * 100)}%;${(n.pct || 0) > lim ? 'background:var(--danger)' : ''}"></div><div class="conc-limit" style="left:${lim / scale * 100}%"></div></div>
+          <div style="text-align:right;font-variant-numeric:tabular-nums"><b>${pct(n.pct)}</b> <span class="rr-dim">${usd(n.value, { compact: true })}</span></div></div>`).join('')
+      + `<div class="rr-note" style="margin-top:8px">Dashed line = your ${lim}% single-name limit.</div>` : '<div class="rr-empty">No positions</div>';
+
+    // Positions
+    const pos = (A.positions || []).filter(p => p.include_in_wealth);
+    const opts = cur => ['core', 'option_selling', 'special_sits_leaps', 'real_assets'].map(c => `<option value="${c}" ${c === cur ? 'selected' : ''}>${SLEEVE_NAME[c]}</option>`).join('');
+    $('positions').innerHTML = pos.length ? `<table class="rr-table"><thead><tr><th>Position</th><th>Account</th><th>Sleeve</th><th class="n">Value</th><th class="n">% of base</th><th class="n">Unrealized</th></tr></thead><tbody>
+      ${pos.map(p => `<tr><td><b>${esc(p.underlying)}</b> <span class="rr-muted">${/option/i.test(p.instrument_type || '') ? esc(`${p.direction} ${p.opt_type || ''} ${p.strike ?? ''} · ${day(p.expiry)}`) : Number(p.qty).toLocaleString() + ' sh'}</span></td>
+        <td class="rr-label">${esc(p.account_number)}</td>
+        <td>${p.restricted ? '<span class="pill warn">Restricted</span>' : `<select class="rr-select" data-acct="${esc(p.account_number)}" data-u="${esc(p.underlying)}">${opts(p.sleeve)}</select>`}</td>
+        <td class="n">${usd(p.market_value)}</td><td class="n">${p.restricted || !A.investable_base ? '—' : pct(p.market_value / A.investable_base * 100)}</td>
+        <td class="n ${cls(p.unrealized)}">${usd(p.unrealized, { sign: true })}</td></tr>`).join('')}</tbody></table>`
+      : '<div class="rr-empty" style="margin:16px">No positions in counted accounts</div>';
+    document.querySelectorAll('select[data-acct]').forEach(sel => sel.onchange = async () => {
+      sel.disabled = true;
+      try { await rpc('set_position_sleeve', { p_account: sel.dataset.acct, p_underlying: sel.dataset.u, p_sleeve: sel.value }); await load(); }
+      catch (e) { alertBox(e.message); sel.disabled = false; }
+    });
+  }
+  const alertBox = m => { const d = document.createElement('div'); d.className = 'rr-banner warn'; d.textContent = m; document.querySelector('.rr-page').prepend(d); setTimeout(() => d.remove(), 6000); };
+
+  $('edit-targets').onclick = () => {
+    const box = $('targets-edit'); box.hidden = !box.hidden;
+    if (box.hidden) return;
+    box.innerHTML = `<table class="rr-table"><thead><tr><th>Sleeve</th><th class="n">Min %</th><th class="n">Target %</th><th class="n">Max %</th></tr></thead><tbody>
+      ${(A.sleeves || []).map(s => `<tr data-code="${s.code}"><td>${esc(s.name)}</td>${['min_pct', 'target_pct', 'max_pct'].map(k => `<td class="n"><input class="rr-input" style="width:72px;text-align:right" type="number" step="0.5" min="0" max="100" name="${k}" value="${s[k]}"></td>`).join('')}</tr>`).join('')}
+      </tbody></table><div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="rr-btn primary" id="save-targets">Save targets</button><span class="rr-note" id="t-msg"></span></div>`;
+    const sum = () => [...box.querySelectorAll('[name=target_pct]')].reduce((a, i) => a + Number(i.value || 0), 0);
+    const upd = () => { $('t-msg').textContent = 'Targets add up to ' + sum() + '%' + (sum() === 100 ? '' : ' (should be 100%)'); };
+    box.querySelectorAll('input').forEach(i => i.oninput = upd); upd();
+    $('save-targets').onclick = async () => {
+      if (sum() !== 100) { $('t-msg').textContent = 'Targets must add up to 100% (now ' + sum() + '%)'; return; }
+      try {
+        for (const tr of box.querySelectorAll('tr[data-code]')) {
+          const g = n => Number(tr.querySelector(`[name=${n}]`).value);
+          await rpc('update_sleeve', { p_code: tr.dataset.code, p_target: g('target_pct'), p_min: g('min_pct'), p_max: g('max_pct') });
+        }
+        box.hidden = true; load();
+      } catch (e) { $('t-msg').textContent = e.message; }
+    };
+  };
+  load();
+})();
+</script>
+</body>
+</html>
