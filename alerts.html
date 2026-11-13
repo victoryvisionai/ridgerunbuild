@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Alerts · Ridge Run</title>
+<script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/themes.css" />
+<link rel="stylesheet" href="/assets/rr-ui.css" />
+</head>
+<body>
+<div id="rr-nav-container"></div>
+<main class="rr-page">
+  <div class="rr-head">
+    <div>
+      <div class="rr-label">Alerts</div>
+      <h1>What needs your attention</h1>
+      <div class="sub">Checked every 15 minutes on weekdays, 5:00am–1:45pm PT. Alerts close by themselves when the condition clears.</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <div class="rr-seg" id="view"><button data-v="open" class="on">Open</button><button data-v="all">All</button></div>
+      <button class="rr-btn" id="run">Check now</button>
+    </div>
+  </div>
+
+  <section class="rr-kpis" id="kpis"><div class="rr-empty">Loading…</div></section>
+
+  <section class="rr-card">
+    <header><h2>Alerts</h2><span class="rr-label" id="meta"></span></header>
+    <div class="body flush" id="list"><div class="rr-empty" style="margin:16px">Loading…</div></div>
+  </section>
+
+  <section class="rr-card">
+    <header><h2>Rules</h2><span class="rr-label">Turn rules on or off and set thresholds</span></header>
+    <div class="body flush rr-table-wrap" id="rules"><div class="rr-empty" style="margin:16px">Loading…</div></div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/config.js"></script>
+<script src="/assets/rr.js"></script>
+<script src="/nav.js"></script>
+<script src="/assets/rr-ui.js"></script>
+<script>
+(() => {
+  const { esc, ago, rpc, fail } = window.RRUI;
+  const $ = id => document.getElementById(id);
+  let view = 'open';
+  const SEV = { urgent: ['Urgent', 'var(--sev-urgent)', 'bad'], critical: ['Urgent', 'var(--sev-urgent)', 'bad'], high: ['Urgent', 'var(--sev-urgent)', 'bad'],
+                warn: ['Warning', 'var(--sev-warn)', 'warn'], warning: ['Warning', 'var(--sev-warn)', 'warn'], medium: ['Warning', 'var(--sev-warn)', 'warn'] };
+  const sev = s => SEV[s] || ['Info', 'var(--sev-info)', ''];
+  const LINK = { pending_orders: '/trades.html', short_option_dte: '/trades.html', sleeve_drift: '/allocation.html', concentration: '/allocation.html', idle_cash: '/allocation.html', restricted_holding: '/accounts.html', daily_drop: '/accounts.html' };
+
+  async function load() {
+    try {
+      const d = await rpc('get_alerts', { p_include_closed: view === 'all', p_limit: 300 });
+      const open = d.alerts.filter(a => !a.resolved_at && !a.is_dismissed);
+      const by = k => open.filter(a => sev(a.severity)[0] === k).length;
+      $('kpis').innerHTML = `
+        <div class="rr-kpi"><div class="rr-label">Urgent</div><div class="v ${by('Urgent') ? 'neg' : ''}">${by('Urgent')}</div></div>
+        <div class="rr-kpi"><div class="rr-label">Warnings</div><div class="v">${by('Warning')}</div></div>
+        <div class="rr-kpi"><div class="rr-label">Info</div><div class="v">${by('Info')}</div></div>
+        <div class="rr-kpi"><div class="rr-label">Trade queue</div><div class="v">${d.queue.orders}</div><div class="s">orders · ${d.queue.alerts} position notes</div></div>`;
+      $('meta').textContent = 'Updated ' + ago(d.as_of);
+      $('list').innerHTML = d.alerts.length ? d.alerts.map(a => {
+        const [label, color, pc] = sev(a.severity), closed = a.resolved_at || a.is_dismissed;
+        const link = LINK[a.alert_type];
+        return `<div class="alert-item ${closed ? 'closed' : ''}"><div class="bar" style="background:${color}"></div>
+          <div><div class="t">${esc(a.title)}</div>${a.body_markdown ? `<div class="b">${esc(a.body_markdown)}</div>` : ''}
+            <div class="m"><span class="pill ${pc}" style="text-transform:none;letter-spacing:0">${label}</span> ${esc((a.alert_type || '').replace(/_/g, ' '))}${a.related_ticker ? ' · ' + esc(a.related_ticker) : ''} · first seen ${ago(a.created_at)}${a.resolved_at ? ' · cleared ' + ago(a.resolved_at) : ''}${a.is_dismissed ? ' · dismissed' : ''}</div></div>
+          <div style="display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end">${link ? `<a class="rr-btn small" href="${link}">Open</a>` : ''}
+            ${a.resolved_at ? '' : a.is_dismissed ? `<button class="rr-btn small" data-act="reopen" data-id="${a.id}">Reopen</button>` : `<button class="rr-btn small" data-act="dismiss" data-id="${a.id}">Dismiss</button>`}</div></div>`;
+      }).join('') : '<div class="rr-empty" style="margin:16px">Nothing needs attention right now.</div>';
+      document.querySelectorAll('[data-act]').forEach(b => b.onclick = async () => { b.disabled = true; try { await rpc('set_alert_status', { p_id: b.dataset.id, p_action: b.dataset.act }); load(); } catch (e) { b.disabled = false; alert(e.message); } });
+      renderRules(d.rules);
+    } catch (e) { fail($('list'), e); fail($('kpis'), e); }
+  }
+
+  function renderRules(rules) {
+    $('rules').innerHTML = `<table class="rr-table"><thead><tr><th>On</th><th>Rule</th><th>Severity</th><th>Thresholds</th><th></th></tr></thead><tbody>
+      ${rules.map(r => `<tr data-code="${esc(r.code)}"><td><input type="checkbox" ${r.is_active ? 'checked' : ''} data-k="active"></td>
+        <td><b>${esc(r.name)}</b><div class="rr-muted" style="font-size:12px">${esc(r.description || '')}</div></td>
+        <td><select class="rr-select" data-k="severity">${['info', 'warn', 'urgent'].map(s => `<option ${s === r.severity ? 'selected' : ''}>${s}</option>`).join('')}</select></td>
+        <td>${Object.keys(r.params || {}).map(k => `<label style="display:inline-flex;gap:4px;align-items:center;margin-right:8px;font-size:12px">${esc(k.replace(/_/g, ' '))} <input class="rr-input" style="width:80px" type="number" data-p="${esc(k)}" value="${esc(r.params[k])}"></label>`).join('') || '<span class="rr-dim">—</span>'}</td>
+        <td><button class="rr-btn small" data-save>Save</button></td></tr>`).join('')}</tbody></table>`;
+    document.querySelectorAll('[data-save]').forEach(b => b.onclick = async () => {
+      const tr = b.closest('tr'); const params = {};
+      tr.querySelectorAll('[data-p]').forEach(i => params[i.dataset.p] = Number(i.value));
+      b.disabled = true;
+      try {
+        await rpc('update_alert_rule', { p_code: tr.dataset.code, p_active: tr.querySelector('[data-k=active]').checked, p_params: Object.keys(params).length ? params : null, p_severity: tr.querySelector('[data-k=severity]').value });
+        b.textContent = 'Saved'; setTimeout(() => { b.textContent = 'Save'; b.disabled = false; }, 1500);
+      } catch (e) { b.disabled = false; alert(e.message); }
+    });
+  }
+
+  document.querySelectorAll('#view button').forEach(b => b.onclick = () => { view = b.dataset.v; document.querySelectorAll('#view button').forEach(x => x.classList.toggle('on', x === b)); load(); });
+  $('run').onclick = async () => { const b = $('run'); b.disabled = true; b.textContent = 'Checking…'; try { await rpc('generate_alerts'); await load(); } catch (e) { alert(e.message); } b.disabled = false; b.textContent = 'Check now'; };
+  load();
+})();
+</script>
+</body>
+</html>
