@@ -3,12 +3,14 @@
 <head>
 <script>(function(){try{var t=localStorage.getItem('RR_THEME')||'editorial';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <link rel="stylesheet" href="/assets/themes.css" />
+<link rel="stylesheet" href="/assets/rr-ui.css" />
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Research — Ridge Run</title>
 <script src="/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/assets/rr.js"></script>
+<script src="/assets/rr-ui.js"></script>
 <style>
   :root{--bg:#fff;--ink:#0f172a;--ink2:#475569;--muted:#94a3b8;--line:#e2e8f0;--brand:#2563eb;--brand2:#1d4ed8;--ok:#16a34a;--warn:#d97706;--bad:#dc2626;--chip:#f1f5f9}
   *{box-sizing:border-box}
@@ -231,7 +233,7 @@
           <div class="muted" style="font-size:11px">52w: $${fmt(co.year_low)} – $${fmt(co.year_high)}</div>
         </div>
       </div>
-      <div id="perfStrip"></div>`;
+      <div id="perfStrip"></div><div class="rr-fresh" id="rp-fresh" style="margin:6px 0"></div>`;
 
     const kpi = `<div class="kpi-grid">
       <div class="kpi"><div class="l">PE</div><div class="v">${fmt(co.pe||f.pe_ltm,1)}</div></div>
@@ -279,7 +281,9 @@
       <div class="section-grid">
         <div><div class="h2">Insider (720d, grouped)</div>${insider}</div>
         <div><div class="h2">News (180d)</div>${news}</div>
-      </div>`;
+      </div>
+      <div id="rp-panels" style="margin-top:14px"><div class="empty">Loading research panels…</div></div>`;
+    loadPanels(t);
 
     // Perf strip via watchlist data (already loaded) — fall back to deepdive's monthly avg or skip
     renderPerfStrip(t);
@@ -377,6 +381,79 @@
         </tbody></table>`;
     }).join('')}`;
     showModal(html);
+  }
+
+  // ---------- Research panels (get_research_panels) ----------
+  const U = window.RRUI;
+  function divColor(up){ // diverging: orange (target below price) – neutral – aqua (target above price); up = PT/price - 1
+    if(up==null||isNaN(up)) return 'transparent';
+    const a = Math.min(1, Math.abs(up)/0.4);
+    return up>=0 ? `rgba(27,175,122,${0.12+a*0.6})` : `rgba(235,104,52,${0.12+a*0.6})`;
+  }
+  async function loadPanels(t){
+    const box = document.getElementById('rp-panels'); if(!box) return;
+    let d;
+    try{ d = await U.rpc('get_research_panels',{p_ticker:t}); }catch(e){ box.innerHTML = `<div class="empty">Research panels unavailable: ${esc(e.message)}</div>`; return; }
+    if(currentTicker!==t) return;
+    const f = d.freshness||{};
+    const fr = document.getElementById('rp-fresh');
+    if(fr) U.freshBadges(fr, [['Price',f.price,96],['Targets',f.targets,24*14],['Ratings',f.ratings,24*45],['Insiders',f.insiders_feed,24*14],['13F',f.holders_13f,24*140],['News',f.news,24*7],['Options',f.options_chain,48]]);
+
+    const price = (d.price_history||[]).map(r=>({x:r.d,y:Number(r.c)}));
+    const cons = (d.target_snapshots||[]).map(r=>({x:r.d,y:r.consensus==null?null:Number(r.consensus)}));
+    const acts = d.rating_actions||[];
+    const pxAt = dt => { let best=null; for(const p of price){ if(p.x<=dt) best=p.y; } return best ?? (price.length?price[0].y:null); };
+    const q = dt => { const x=new Date(dt+'T12:00:00'); return x.getFullYear()+' Q'+(Math.floor(x.getMonth()/3)+1); };
+    const quarters = [...new Set(acts.map(a=>q(a.d)))].sort().slice(-8);
+    const firms = [...new Set(acts.filter(a=>a.pt).map(a=>a.firm))].slice(0,14);
+    const cell = (firm,qq) => { const a = acts.filter(x=>x.firm===firm && q(x.d)===qq && x.pt).sort((a,b)=>a.d<b.d?1:-1)[0]; if(!a) return '<td></td>';
+      const px = pxAt(a.d), up = px? a.pt/px-1 : null;
+      return `<td style="background:${divColor(up)};text-align:right" title="${esc(firm)} ${esc(a.d)}: ${esc(a.action||'')} ${esc(a.to||'')} PT $${a.pt}${px?` vs price $${px.toFixed(2)} (${(up*100).toFixed(0)}%)`:''}">${Number(a.pt).toFixed(0)}</td>`; };
+    const heat = firms.length && quarters.length ? `<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Firm</th>${quarters.map(qq=>`<th>${esc(qq)}</th>`).join('')}</tr></thead><tbody>
+      ${firms.map(fm=>`<tr><td>${esc(fm)}</td>${quarters.map(qq=>cell(fm,qq)).join('')}</tr>`).join('')}</tbody></table></div>
+      <div class="rr-legend" style="margin-top:6px"><span><span class="dot" style="background:rgba(27,175,122,.6)"></span>target above the price at the time</span><span><span class="dot" style="background:rgba(235,104,52,.6)"></span>target below</span><span>Cell = latest target that quarter</span></div>`
+      : '<div class="empty">No rating actions on file'+(f.ratings?'':' (analyst feed stale since June)')+'</div>';
+
+    const m = d.management||{};
+    const mgmt = `<div class="kpi-grid">
+        <div class="kpi"><div class="l">CEO</div><div class="v" style="font-size:13px">${esc(m.ceo||'—')}</div></div>
+        <div class="kpi"><div class="l">Employees</div><div class="v">${m.employees?Number(m.employees).toLocaleString():'—'}</div></div>
+        <div class="kpi"><div class="l">HQ</div><div class="v" style="font-size:13px">${esc(m.hq||'—')}</div></div>
+        <div class="kpi"><div class="l">IPO</div><div class="v" style="font-size:13px">${esc(m.ipo||'—')}</div></div></div>
+      ${(d.officers||[]).length?`<table class="tbl"><thead><tr><th>Insider (2y)</th><th>Title</th><th>Net $</th><th>Last filing</th></tr></thead><tbody>${d.officers.slice(0,10).map(o=>`<tr><td>${esc(o.name)}</td><td>${esc(o.title||'')}</td><td class="${(o.net_value||0)>=0?'ok-txt':'bad-txt'}">${fmtMoney(o.net_value)}</td><td>${esc(o.last_filing||'')}</td></tr>`).join('')}</tbody></table>`:'<div class="muted" style="font-size:12px">No insider filings on file.</div>'}`;
+
+    const today = new Date().toLocaleDateString('en-CA');
+    const cats = (d.catalysts||[]);
+    const next = m.next_earnings ? `<div class="kpi" style="margin-bottom:6px"><div class="l">Next earnings</div><div class="v">${esc(m.next_earnings)}</div></div>` : '';
+    const catHtml = next + (cats.length?`<table class="tbl"><thead><tr><th>Date</th><th>Event</th><th>Importance</th></tr></thead><tbody>${cats.map(c=>`<tr style="${c.d<today?'opacity:.55':''}"><td>${esc(c.d)}</td><td>${esc(c.type||'')}${c.description?` — ${esc(c.description)}`:''}</td><td>${esc(c.importance||'')}</td></tr>`).join('')}</tbody></table>`:'<div class="muted" style="font-size:12px">No catalysts on file.</div>')
+      + ((d.earnings||[]).length?`<div class="h2">Last earnings</div><table class="tbl"><thead><tr><th>Date</th><th>EPS</th><th>Est.</th><th>1-day move</th></tr></thead><tbody>${d.earnings.map(e=>`<tr><td>${esc(e.d)}</td><td>${fmt(e.eps)}</td><td>${fmt(e.est)}</td><td class="${perfColor(e.move_1d)}">${e.move_1d==null?'—':(e.move_1d>0?'+':'')+Number(e.move_1d).toFixed(1)+'%'}</td></tr>`).join('')}</tbody></table>`:'');
+
+    const eng = {daily_recs_claude:'Daily recs',recs_engine_v2:'Recs engine',trade_scanner:'IV scanner',daily_ideas:'Daily ideas'};
+    const ideas = (d.ai_ideas||[]);
+    const ai = (ideas.length?ideas.slice(0,6).map(i=>`<div class="news-item"><div class="ttl">${esc((i.type||'').replace(/_/g,' '))}${i.structure?` · ${esc(i.structure)}`:''} <span class="pill">${esc(eng[i.engine]||i.engine||'')}</span>${i.accepted?' <span class="pill ok">accepted</span>':''}${i.dismissed?' <span class="pill">dismissed</span>':''}</div><div style="font-size:12px">${esc((i.reasoning||'').slice(0,320))}</div><div class="meta">${esc((i.at||'').slice(0,10))}${i.score!=null?` · score ${Number(i.score).toFixed(0)}`:''}</div></div>`).join(''):'<div class="muted" style="font-size:12px">No AI ideas for this name in 180 days.</div>')
+      + ((d.ai_briefings||[]).length?`<div class="h2">Mentioned in briefings</div>`+d.ai_briefings.slice(0,4).map(b=>`<div class="news-item"><div class="ttl">${esc(b.title||'')}</div><div style="font-size:12px">…${esc((b.excerpt||'').replace(/[#*]/g,''))}…</div><div class="meta">${esc((b.at||'').slice(0,10))}</div></div>`).join(''):'');
+
+    const mine = (d.my_positions||[]);
+    const pos = mine.length?`<table class="tbl"><thead><tr><th>Account</th><th>Position</th><th>Value</th><th>Unrealized</th></tr></thead><tbody>${mine.map(p=>`<tr><td>${esc(p.account_number)}</td><td>${/option/i.test(p.instrument_type||'')?esc(`${p.direction} ${p.opt_type||''} ${p.strike??''} ${p.expiry||''}`):Number(p.qty).toLocaleString()+' sh'}${p.restricted?' <span class="pill bad">restricted</span>':''}</td><td>${U.usd(p.market_value)}</td><td class="${perfColor(p.unrealized)}">${U.usd(p.unrealized,{sign:true})}</td></tr>`).join('')}</tbody></table>`:'<div class="muted" style="font-size:12px">Not held.</div>';
+    const qd = (d.queue||[]);
+    const queue = qd.length?qd.map(x=>`<div class="news-item"><div class="ttl">${esc(x.kind)} · ${esc(x.account)}</div><div style="font-size:12px">${esc(x.reason)}</div></div>`).join('')+`<a href="/trades.html">Open trade queue →</a>`:'';
+
+    box.innerHTML = `
+      <div class="section-grid">
+        <div><div class="h2">Price vs analyst consensus (2y)</div><div id="rp-pt-chart"></div></div>
+        <div><div class="h2">Price targets by firm and quarter</div>${heat}</div>
+      </div>
+      <div class="section-grid">
+        <div><div class="h2">Management</div>${mgmt}</div>
+        <div><div class="h2">Catalysts &amp; earnings</div>${catHtml}</div>
+      </div>
+      <div class="section-grid">
+        <div><div class="h2">AI research</div>${ai}</div>
+        <div><div class="h2">My position</div>${pos}${queue?`<div class="h2">In the trade queue</div>${queue}`:''}</div>
+      </div>`;
+    const series=[{name:'Weekly close',color:'var(--series-1)',points:price}];
+    if(cons.some(c=>c.y!=null)) series.push({name:'Consensus target',color:'var(--series-2)',points:cons});
+    U.lineChart(document.getElementById('rp-pt-chart'), series, {height:200, yFmt:v=>'$'+v.toFixed(0)});
   }
 
   // ---------- Lookup ----------
