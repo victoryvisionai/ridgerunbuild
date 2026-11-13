@@ -7,9 +7,12 @@
   // Order follows how you work: whole portfolio first, then trading, then single names.
   const NAV_ITEMS = [
     { id: 'dashboard',   label: 'Dashboard',     href: '/dashboard.html' },
+    { id: 'accounts',    label: 'Accounts',      href: '/accounts.html' },
+    { id: 'allocation',  label: 'Allocation',    href: '/allocation.html' },
     { id: 'portfolio',   label: 'Portfolio',     href: '/portfolio.html' },
     { id: 'performance', label: 'Performance',   href: '/performance.html' },
     { id: 'stress',      label: 'Risk',          href: '/stress.html' },
+    { id: 'alerts',      label: 'Alerts',        href: '/alerts.html' },
     { id: 'trades',      label: 'Trades',        href: '/trades.html' },
     { id: 'screener',    label: 'Screener',      href: '/screener.html' },
     { id: 'watchlist',   label: 'Watchlist',     href: '/watchlist.html' },
@@ -26,7 +29,7 @@
     const s = document.createElement('style');
     s.id = 'rr-nav-styles';
     s.textContent = `
-      .rr-topbar { background:#fff; border-bottom:1px solid #e2e8f0; padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; font-family:'Inter',-apple-system,sans-serif; flex-wrap:wrap; }
+      .rr-topbar { background:#fff; border-bottom:1px solid #e2e8f0; padding:8px 24px; min-height:56px; gap:8px 16px; display:flex; align-items:center; justify-content:space-between; font-family:'Inter',-apple-system,sans-serif; flex-wrap:wrap; }
       .rr-topbar-brand { display:flex; align-items:center; gap:12px; }
       .rr-topbar-brand a { text-decoration:none; display:flex; align-items:center; gap:12px; }
       .rr-brand-mark { font-family:'Source Serif 4',Georgia,serif; font-size:22px; font-weight:600; color:#2563eb; letter-spacing:-0.02em; }
