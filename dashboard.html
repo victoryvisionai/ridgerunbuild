@@ -8,232 +8,151 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/assets/themes.css" />
-<style>
-  .dash-grid { display:grid; grid-template-columns: 2fr 1fr; gap:16px; }
-  @media (max-width: 980px) { .dash-grid { grid-template-columns: 1fr; } }
-  .nav-spark { width:100%; height:64px; }
-  .rec-row { padding:10px 12px; border:1px solid var(--border); border-radius:5px; margin-bottom:8px; cursor:pointer; }
-  .rec-row:hover { border-color: var(--accent); background: var(--bg-tint); }
-  .rec-row.dismissed { opacity:0.5; }
-  .rec-head { display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap; }
-  .rec-ticker { font-family:var(--serif); font-size:18px; font-weight:600; }
-  .rec-score { font-family:var(--mono); font-size:11px; padding:2px 8px; border-radius:3px; background:var(--bg-blue); color:var(--accent-dark); }
-  .rec-action { font-family:var(--mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; padding:2px 6px; border-radius:3px; background:var(--bg-tint); color:var(--text-muted); }
-  .rec-reasoning { font-size:12px; color:var(--text-muted); margin-top:4px; line-height:1.5; }
-  .tile-row { display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; }
-  @media (max-width: 720px) { .tile-row { grid-template-columns: 1fr 1fr; } }
-  .alert-row { padding:8px 10px; background:var(--bg-tint); border:1px solid var(--border); border-radius:4px; margin-bottom:6px; font-size:12px; }
-  .alert-row.high { border-left:3px solid var(--warning); }
-  .alert-row.critical { border-left:3px solid var(--danger); }
-</style>
+<link rel="stylesheet" href="/assets/rr-ui.css" />
 </head>
 <body>
-
 <div id="rr-nav-container"></div>
-
-<div id="loading-screen" class="loading">Loading dashboard…</div>
-
-<div id="app" class="shell-wide hidden">
-
-  <h1 class="page-title">Dashboard</h1>
-  <p class="page-sub">Today's setup: capital deployed, where the AI sees edge, what to watch.</p>
-
-  <div id="msg-area"></div>
-
-  <div class="banner-card">
-    <div class="banner-head">
-      <h2>Portfolio snapshot</h2>
-      <span class="banner-meta" id="snapshot-meta">--</span>
+<main class="rr-page">
+  <div class="rr-head">
+    <div>
+      <div class="rr-label" id="today"></div>
+      <h1>Portfolio at a glance</h1>
+      <div class="sub">Live from Tastytrade. Managed accounts and restricted holdings are shown separately.</div>
     </div>
-    <div class="banner-body">
-      <div class="tile-row" id="snapshot-tiles">
-        <div class="metric-box"><div class="l">NAV</div><div class="v" id="t-nav">--</div></div>
-        <div class="metric-box"><div class="l">TWR YTD</div><div class="v" id="t-twr">--</div></div>
-        <div class="metric-box"><div class="l">Open positions</div><div class="v" id="t-positions">--</div></div>
-        <div class="metric-box"><div class="l">Last brief</div><div class="v" id="t-brief">--</div></div>
-      </div>
-      <svg class="nav-spark" id="nav-spark" viewBox="0 0 800 64"></svg>
-    </div>
+    <div class="rr-fresh" id="fresh"></div>
   </div>
 
-  <div class="dash-grid">
+  <section class="rr-kpis" id="kpis"><div class="rr-empty">Loading…</div></section>
 
-    <div>
-      <div class="banner-card">
-        <div class="banner-head">
-          <h2>Top recommendations</h2>
-          <span class="banner-meta" id="recs-meta">--</span>
-        </div>
-        <div class="banner-body">
-          <p class="h2-sub">From this morning's 5am ET AI run. Click into Strategy to see full panel for each.</p>
-          <div id="recs-list"><div class="empty">Loading…</div></div>
-          <div style="margin-top:10px"><a href="/strategy.html" class="btn btn-ghost">Open Strategy →</a></div>
-        </div>
-      </div>
-
-      <div class="banner-card">
-        <div class="banner-head">
-          <h2>Latest morning brief</h2>
-          <span class="banner-meta" id="brief-meta">--</span>
-        </div>
-        <div class="banner-body">
-          <div id="brief-body" style="font-size:13px; line-height:1.65;"><div class="empty">No brief yet.</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <div class="banner-card">
-        <div class="banner-head">
-          <h2>Watchlist</h2>
-          <span class="banner-meta" id="wl-meta">--</span>
-        </div>
-        <div class="banner-body">
-          <div id="wl-list"><div class="empty">--</div></div>
-          <div style="margin-top:10px"><a href="/watchlist.html" class="btn btn-ghost">Manage →</a></div>
-        </div>
-      </div>
-
-      <div class="banner-card">
-        <div class="banner-head">
-          <h2>Recent alerts</h2>
-          <span class="banner-meta" id="alerts-meta">--</span>
-        </div>
-        <div class="banner-body">
-          <div id="alerts-list"><div class="empty">--</div></div>
-        </div>
-      </div>
-
-      <div class="banner-card">
-        <div class="banner-head">
-          <h2>Recent uploads</h2>
-          <span class="banner-meta" id="ups-meta">--</span>
-        </div>
-        <div class="banner-body">
-          <div id="ups-list"><div class="empty">--</div></div>
-          <div style="margin-top:10px"><a href="/uploads.html" class="btn btn-ghost">Open Uploads →</a></div>
-        </div>
-      </div>
-    </div>
-
+  <div class="rr-grid c2">
+    <section class="rr-card">
+      <header><h2>Allocation vs target</h2><a class="rr-label" href="/allocation.html">Allocation →</a></header>
+      <div class="body" id="sleeves"><div class="rr-empty">Loading…</div></div>
+    </section>
+    <section class="rr-card">
+      <header><h2>Alerts</h2><a class="rr-label" href="/alerts.html">All alerts →</a></header>
+      <div class="body flush" id="alerts"><div class="rr-empty" style="margin:16px">Loading…</div></div>
+    </section>
   </div>
 
-</div>
+  <div class="rr-grid c2">
+    <section class="rr-card">
+      <header><h2>Performance since Oct 2</h2><a class="rr-label" href="/performance.html">Performance →</a></header>
+      <div class="body" id="perf"><div class="rr-empty">Loading…</div></div>
+    </section>
+    <section class="rr-card">
+      <header><h2>Trade queue</h2><a class="rr-label" href="/trades.html">Trades →</a></header>
+      <div class="body" id="queue"><div class="rr-empty">Loading…</div></div>
+    </section>
+  </div>
+
+  <section class="rr-card">
+    <header><h2>Today's ideas</h2><span class="rr-label" id="ideas-meta"></span></header>
+    <div class="body flush" id="ideas"><div class="rr-empty" style="margin:16px">Loading…</div></div>
+  </section>
+
+  <section class="rr-card">
+    <header><h2>Latest briefing</h2><span class="rr-label" id="brief-meta"></span></header>
+    <div class="body" id="brief"><div class="rr-empty">Loading…</div></div>
+  </section>
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/config.js"></script>
 <script src="/assets/rr.js"></script>
 <script src="/nav.js"></script>
+<script src="/assets/rr-ui.js"></script>
 <script>
 (() => {
-const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = window.RR_CONFIG;
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-let currentUser = null;
+  const { esc, usd, pct, ratio, cls, ago, day, rpc, fail, sleeveBars, lineChart, freshBadges } = window.RRUI;
+  const $ = id => document.getElementById(id);
+  $('today').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
-const $ = id => document.getElementById(id);
-const show = (id, on=true) => $(id).classList.toggle('hidden', !on);
-const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmtUSD = n => (n==null||isNaN(n))?'--': '$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
-const fmtPct = (n,d=1) => (n==null||isNaN(n))?'--':(Number(n)*100).toFixed(d)+'%';
-
-(async () => {
-  const { data:{ session } } = await sb.auth.getSession();
-  if(!session?.user){ window.location.href='/index.html'; return; }
-  currentUser = session.user;
-  await window.RidgeRunNav.mount({ active: 'dashboard', supabase: sb });
-  show('loading-screen', false);
-  show('app', true);
-  await Promise.all([
-    loadSnapshot(), loadRecs(), loadBrief(), loadWatchlist(), loadAlerts(), loadUploads()
-  ]);
-})();
-
-async function loadSnapshot(){
-  const { data: navs } = await sb.from('nav_snapshots').select('*').eq('user_id', currentUser.id).order('as_of_date', { ascending: true });
-  if(navs && navs.length){
-    const last = navs[navs.length - 1];
-    $('t-nav').textContent = fmtUSD(last.total_value);
-    $('t-twr').textContent = fmtPct(last.twr_pct);
-    $('snapshot-meta').textContent = 'as of ' + last.as_of_date;
-    // sparkline
-    const W=800, H=64, pad=2;
-    const vals = navs.map(n => Number(n.total_value)||0);
-    const min = Math.min(...vals), max = Math.max(...vals);
-    const range = max-min || 1;
-    const xs = vals.map((v,i) => pad + (i*(W-2*pad))/(vals.length-1 || 1));
-    const ys = vals.map(v => H - pad - ((v-min)/range)*(H-2*pad));
-    const path = xs.map((x,i)=> (i===0?'M':'L')+x.toFixed(1)+','+ys[i].toFixed(1)).join(' ');
-    $('nav-spark').innerHTML = `<path d="${path}" stroke="var(--accent)" stroke-width="1.5" fill="none"/>`;
+  async function wealth() {
+    try {
+      const w = await rpc('get_wealth_summary'); const t = w.totals || {};
+      const dayPct = t.day_change != null && t.total_wealth ? t.day_change / (t.total_wealth - t.day_change) * 100 : null;
+      $('kpis').innerHTML = `
+        <div class="rr-kpi"><div class="rr-label">Total wealth</div><div class="v">${usd(t.total_wealth)}</div><div class="s">Your accounts and businesses</div></div>
+        <div class="rr-kpi"><div class="rr-label">Investable</div><div class="v">${usd(t.investable)}</div><div class="s">Excludes ${usd(t.restricted_value)} restricted (${esc((w.restricted_symbols || []).join(', '))})</div></div>
+        <div class="rr-kpi"><div class="rr-label">Today</div><div class="v ${cls(t.day_change)}">${usd(t.day_change, { sign: true })}</div><div class="s ${cls(t.day_change)}">${pct(dayPct, 2, true)} vs prior close</div></div>
+        <div class="rr-kpi"><div class="rr-label">Cash</div><div class="v">${usd(t.cash)}</div><div class="s">${t.investable ? pct(t.cash / t.investable * 100) + ' of investable' : ''}</div></div>
+        <div class="rr-kpi"><div class="rr-label">Managed for others</div><div class="v">${usd(t.managed_for_others)}</div><div class="s">Not in your totals</div></div>`;
+      return w;
+    } catch (e) { fail($('kpis'), e); }
   }
-  // open positions count
-  const { count: posCount } = await sb.from('positions').select('*', { count:'exact', head:true }).eq('user_id', currentUser.id).eq('is_open', true);
-  $('t-positions').textContent = (posCount ?? 0).toString();
-  // latest brief
-  const { data: briefs } = await sb.from('ai_briefings').select('created_at').eq('user_id', currentUser.id).order('created_at',{ascending:false}).limit(1);
-  if(briefs && briefs.length){
-    $('t-brief').textContent = new Date(briefs[0].created_at).toLocaleDateString();
-  } else {
-    $('t-brief').textContent = '--';
+  async function allocation() {
+    try { const a = await rpc('get_allocation'); sleeveBars($('sleeves'), a.sleeves); }
+    catch (e) { fail($('sleeves'), e); }
   }
-}
-
-async function loadRecs(){
-  const { data } = await sb.from('ai_recommendations').select('*').eq('user_id', currentUser.id).eq('dismissed', false).order('composite_score',{ascending:false, nullsFirst: false}).limit(5);
-  const out = $('recs-list');
-  if(!data || !data.length){ out.innerHTML = '<div class="empty">No active recommendations. Check back after the 5am ET run.</div>'; $('recs-meta').textContent = '0'; return; }
-  $('recs-meta').textContent = data.length + ' active';
-  out.innerHTML = data.map(r => `<div class="rec-row" onclick="window.location.href='/strategy.html'">
-    <div class="rec-head">
-      <div><span class="rec-ticker">${esc(r.ticker)}</span> <span class="rec-action">${esc(r.recommended_action||'--')}</span> <span class="rec-action">${esc((r.opportunity_type||'').replace(/_/g,' '))}</span></div>
-      ${r.composite_score!=null ? `<span class="rec-score">${Math.round(r.composite_score)}</span>` : ''}
-    </div>
-    <div class="rec-reasoning">${esc((r.reasoning||'').slice(0,280))}</div>
-  </div>`).join('');
-}
-
-async function loadBrief(){
-  const { data } = await sb.from('ai_briefings').select('*').eq('user_id', currentUser.id).order('created_at',{ascending:false}).limit(1);
-  if(!data || !data.length){ $('brief-body').innerHTML = '<div class="empty">No brief generated yet.</div>'; return; }
-  const b = data[0];
-  $('brief-meta').textContent = new Date(b.created_at).toLocaleString();
-  const body = (b.body_markdown||'').slice(0, 3000);
-  // basic markdown-ish: line breaks
-  $('brief-body').innerHTML = `<h3 style="font-family:var(--serif);font-size:17px;margin:0 0 8px">${esc(b.title||'Morning brief')}</h3>` + esc(body).replace(/\n/g,'<br>');
-}
-
-async function loadWatchlist(){
-  const { data } = await sb.from('ticker_watchlist').select('*').eq('user_id', currentUser.id).eq('is_active', true).order('created_at',{ascending:false}).limit(20);
-  const out = $('wl-list');
-  if(!data || !data.length){ out.innerHTML = '<div class="empty">No tickers. Add some via Watchlist.</div>'; $('wl-meta').textContent = '0'; return; }
-  $('wl-meta').textContent = data.length + ' tickers';
-  out.innerHTML = data.map(r => {
-    const t = r.ticker || r.symbol;
-    return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
-      <a href="/research.html?ticker=${encodeURIComponent(t)}" style="font-family:var(--mono);font-size:12px;font-weight:500;color:var(--accent);text-decoration:none">${esc(t)}</a>
-      <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted)">${esc((r.thesis||r.reason||'').slice(0,40))}</span>
-    </div>`;
-  }).join('');
-}
-
-async function loadAlerts(){
-  const { data } = await sb.from('alerts').select('*').eq('user_id', currentUser.id).eq('is_dismissed', false).order('created_at',{ascending:false}).limit(8);
-  const out = $('alerts-list');
-  if(!data || !data.length){ out.innerHTML = '<div class="empty">No active alerts.</div>'; $('alerts-meta').textContent = '0'; return; }
-  $('alerts-meta').textContent = data.length;
-  out.innerHTML = data.map(a => `<div class="alert-row ${esc(a.severity||'')}"><b>${esc(a.title||'--')}</b><br><span style="color:var(--text-muted);font-size:11px">${esc((a.body_markdown||'').slice(0,160))}</span></div>`).join('');
-}
-
-async function loadUploads(){
-  const { data } = await sb.from('uploaded_documents').select('*').eq('user_id', currentUser.id).order('uploaded_at',{ascending:false}).limit(5);
-  const out = $('ups-list');
-  if(!data || !data.length){ out.innerHTML = '<div class="empty">No uploads yet.</div>'; $('ups-meta').textContent = '0'; return; }
-  $('ups-meta').textContent = data.length;
-  out.innerHTML = data.map(u => `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
-    <div style="font-family:var(--mono);font-size:11px;color:var(--text)">${esc((u.original_filename||'').slice(0,40))}</div>
-    <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted)">${esc(u.document_type||'--')} · ${esc(u.status||'--')} · ${new Date(u.uploaded_at).toLocaleDateString()}</div>
-  </div>`).join('');
-}
-
+  async function alerts() {
+    try {
+      const a = await rpc('get_alerts', { p_include_closed: false, p_limit: 6 });
+      const list = (a.alerts || []).slice(0, 6);
+      const sevColor = s => ({ urgent: 'var(--sev-urgent)', critical: 'var(--sev-urgent)', high: 'var(--sev-urgent)', warn: 'var(--sev-warn)', warning: 'var(--sev-warn)', medium: 'var(--sev-warn)' }[s] || 'var(--sev-info)');
+      const sevName = s => ({ urgent: 'urgent', critical: 'urgent', high: 'urgent', warn: 'warning', warning: 'warning', medium: 'warning' }[s] || 'info');
+      $('alerts').innerHTML = list.length ? list.map(x => `<div class="alert-item"><div class="bar" style="background:${sevColor(x.severity)}"></div>
+          <div><div class="t">${esc(x.title)}</div><div class="m">${sevName(x.severity)} · ${ago(x.last_seen_at || x.created_at)}</div></div><div></div></div>`).join('')
+        : '<div class="rr-empty" style="margin:16px">No open alerts</div>';
+    } catch (e) { fail($('alerts'), e); }
+  }
+  async function perf() {
+    try {
+      const p = await rpc('get_performance', { p_days: 90, p_from: null });
+      const s = p.series || [];
+      lineChart($('perf'), [
+        { name: 'Your accounts (time-weighted)', color: 'var(--series-1)', points: s.map(r => ({ x: r.d, y: r.twr == null ? null : r.twr * 100 })) },
+        { name: 'S&P 500 (SPY)', color: 'var(--series-2)', points: s.map(r => ({ x: r.d, y: r.spy_ret == null ? null : r.spy_ret * 100 })) }
+      ], { height: 200, yFmt: v => v.toFixed(1) + '%', zero: true });
+      const st = p.stats || {};
+      $('perf').insertAdjacentHTML('beforeend', `<div class="rr-note" style="margin-top:8px">Return ${ratio(st.twr, 1, true)} vs SPY ${ratio(st.spy, 1, true)} · max drawdown ${ratio(st.max_drawdown, 1)}. ${st.flows_recorded ? '' : '<b>No deposits recorded yet</b>: add the $12K deposit on the Accounts page so it is not counted as a gain.'}</div>`);
+    } catch (e) { fail($('perf'), e); }
+  }
+  async function queue() {
+    try {
+      const { data, error } = await window.RR.sb.from('trade_queue').select('id,account_number,underlying,kind,reason,limit_price,created_at').eq('status', 'proposed').order('created_at', { ascending: false }).limit(50);
+      if (error) throw error;
+      const orders = data.filter(r => r.kind === 'order'), notes = data.filter(r => r.kind !== 'order');
+      $('queue').innerHTML = `<div class="rr-kpis" style="grid-template-columns:1fr 1fr;margin-bottom:10px">
+          <div class="rr-kpi"><div class="rr-label">Orders to review</div><div class="v">${orders.length}</div></div>
+          <div class="rr-kpi"><div class="rr-label">Position alerts</div><div class="v">${notes.length}</div></div></div>
+        ${orders.slice(0, 4).map(r => `<div style="padding:6px 0;border-top:1px solid var(--border);font-size:13px"><b>${esc(r.underlying)}</b> <span class="rr-muted">${esc(r.reason)}</span></div>`).join('') || '<div class="rr-note">Nothing waiting. Orders are only sent when you click Submit on the Trades page.</div>'}`;
+    } catch (e) { fail($('queue'), e); }
+  }
+  async function ideas() {
+    try {
+      const since = new Date(Date.now() - 2 * 864e5).toISOString();
+      const { data, error } = await window.RR.sb.from('ai_recommendations').select('id,ticker,opportunity_type,structure,reasoning,composite_score,max_loss,generated_at,source_signals')
+        .gte('generated_at', since).eq('dismissed', false).order('composite_score', { ascending: false, nullsFirst: false }).limit(9);
+      if (error) throw error;
+      const eng = { daily_recs_claude: 'Daily recs', recs_engine_v2: 'Recs engine', trade_scanner: 'IV scanner', daily_ideas: 'Daily ideas' };
+      $('ideas-meta').textContent = data.length ? data.length + ' from the last 2 days' : '';
+      $('ideas').innerHTML = data.length ? data.map(r => `<div class="idea"><div class="top"><span class="tk">${esc(r.ticker)}</span><span class="pill">${esc((r.opportunity_type || '').replace(/_/g, ' '))}</span>
+          <span class="rr-label">${esc(eng[(r.source_signals || {}).engine] || (r.source_signals || {}).engine || '')}</span>${r.max_loss ? `<span class="rr-muted" style="font-size:12px">max loss ${usd(r.max_loss)}</span>` : ''}</div>
+          ${r.structure ? `<div style="font-size:13px">${esc(r.structure)}</div>` : ''}<div class="r">${esc((r.reasoning || '').slice(0, 260))}${(r.reasoning || '').length > 260 ? '…' : ''}</div></div>`).join('')
+        + `<div class="idea"><a href="/trades.html#ideas" class="rr-label">Review all ideas on the Trades page →</a></div>`
+        : '<div class="rr-empty" style="margin:16px">No ideas in the last 2 days. The generators run weekdays from 4:45am PT.</div>';
+    } catch (e) { fail($('ideas'), e); }
+  }
+  async function brief() {
+    try {
+      const { data, error } = await window.RR.sb.from('ai_briefings').select('title,body_markdown,created_at').order('created_at', { ascending: false }).limit(1);
+      if (error) throw error;
+      if (!data.length) { $('brief').innerHTML = '<div class="rr-empty">No briefings yet</div>'; return; }
+      const b = data[0]; $('brief-meta').textContent = ago(b.created_at);
+      const html = esc(b.body_markdown || '').slice(0, 1800).replace(/^## (.*)$/gm, '<div class="rr-label" style="margin-top:10px">$1</div>').replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+      $('brief').innerHTML = `<div style="font-weight:600;margin-bottom:6px">${esc(b.title)}</div><div class="rr-note" style="color:var(--text)">${html}</div>`;
+    } catch (e) { fail($('brief'), e); }
+  }
+  async function freshness(w) {
+    try {
+      const [bars, recs] = await Promise.all([
+        window.RR.sb.from('daily_bars').select('price_date').eq('ticker', 'SPY').order('price_date', { ascending: false }).limit(1),
+        window.RR.sb.from('ai_recommendations').select('generated_at').order('generated_at', { ascending: false }).limit(1)]);
+      freshBadges($('fresh'), [['Broker sync', w && w.totals && w.totals.last_sync, 26], ['Prices', bars.data && bars.data[0] && bars.data[0].price_date, 96], ['Ideas', recs.data && recs.data[0] && recs.data[0].generated_at, 30]]);
+    } catch (_) {}
+  }
+  wealth().then(freshness); allocation(); alerts(); perf(); queue(); ideas(); brief();
 })();
 </script>
 </body>
