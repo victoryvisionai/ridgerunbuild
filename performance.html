@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/assets/themes.css" />
+<link rel="stylesheet" href="/assets/rr-ui.css" />
 <style>
   /* Page-specific extras on top of /assets/themes.css */
   .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
@@ -140,12 +141,32 @@
   <div id="rr-nav-container"></div><span id="user-email" hidden></span><button id="signout-btn" hidden></button>
 
   <h1 class="page-title">Performance</h1>
-  <p class="page-sub">Trade-level analytics from your IBKR history. New: post-mortem retrospectives and aggregated lessons from closed positions.</p>
+  <p class="page-sub">Live returns for the accounts you count, from Tastytrade balances, against the S&amp;P 500. Your IBKR trading history follows below.</p>
+
+  <section id="live" style="display:grid;gap:16px;margin-bottom:28px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <span class="rr-label">Tastytrade · time-weighted, adjusted for recorded deposits and withdrawals</span>
+      <div class="rr-seg" id="range"><button data-d="30">1M</button><button data-d="90">3M</button><button data-d="365" class="on">Since Oct 2</button></div>
+    </div>
+    <div class="rr-banner warn" id="flow-warn" hidden></div>
+    <div class="rr-kpis" id="live-kpis"><div class="rr-empty">Loading…</div></div>
+    <div class="rr-grid c2e">
+      <section class="rr-card"><header><h2>Return vs S&amp;P 500</h2><span class="rr-label">Cumulative %</span></header><div class="body" id="ch-ret"></div></section>
+      <section class="rr-card"><header><h2>Account value</h2><span class="rr-label">Net liquidating value, counted accounts</span></header><div class="body" id="ch-nlv"></div></section>
+    </div>
+    <div class="rr-grid c2e">
+      <section class="rr-card"><header><h2>Drawdown from peak</h2></header><div class="body" id="ch-dd"></div></section>
+      <section class="rr-card"><header><h2>Recent days</h2></header><div class="body flush rr-table-wrap" id="days"></div></section>
+    </div>
+  </section>
+
+  <h2 style="font-family:var(--serif);font-size:24px;font-weight:600;margin:8px 0 4px">IBKR trading history</h2>
+  <p class="page-sub" style="margin-top:0">From uploaded statements: realized P/L, win/loss profile and lessons.</p>
 
   <!-- At a glance -->
   <div class="banner-card">
     <div class="banner-head">
-      <h2>At a glance</h2>
+      <h2>History at a glance</h2>
       <span class="banner-meta" id="ataglance-meta">All-time</span>
     </div>
     <div class="banner-body">
@@ -489,6 +510,41 @@ function drawScatter(id, points){
     ${dots}
   </svg>`;
 }
+})();
+</script>
+<script src="/assets/rr-ui.js"></script>
+<script>
+(() => {
+  const { esc, usd, pct, ratio, cls, day, rpc, fail, lineChart } = window.RRUI;
+  const $ = id => document.getElementById(id);
+  async function live(days) {
+    try {
+      const p = await rpc('get_performance', { p_days: days, p_from: null });
+      const s = p.series || [], st = p.stats || {};
+      const ex = st.twr != null && st.spy != null ? (st.twr - st.spy) * 100 : null;
+      $('live-kpis').innerHTML = `
+        <div class="rr-kpi"><div class="rr-label">Return (time-weighted)</div><div class="v ${cls(st.twr)}">${ratio(st.twr, 2, true)}</div><div class="s">${day(st.start)} – ${day(st.end)}</div></div>
+        <div class="rr-kpi"><div class="rr-label">S&amp;P 500 (SPY)</div><div class="v ${cls(st.spy)}">${ratio(st.spy, 2, true)}</div><div class="s">Same period</div></div>
+        <div class="rr-kpi"><div class="rr-label">Vs S&amp;P</div><div class="v ${cls(ex)}">${ex == null ? '—' : (ex > 0 ? '+' : '') + ex.toFixed(1) + ' pts'}</div><div class="s">Excess return</div></div>
+        <div class="rr-kpi"><div class="rr-label">Max drawdown</div><div class="v neg">${ratio(st.max_drawdown, 1)}</div><div class="s">Volatility ${ratio(st.vol_ann, 0)} annualized</div></div>
+        <div class="rr-kpi"><div class="rr-label">Value now</div><div class="v">${usd(st.end_nlv)}</div><div class="s">Net flows ${usd(st.net_flows, { sign: true })}</div></div>`;
+      const w = $('flow-warn');
+      w.hidden = false;
+      w.innerHTML = (st.flows_recorded ? '' : '<b>No deposits recorded.</b> New money would count as a gain; record deposits on the <a href="/accounts.html">Accounts</a> page. ')
+        + 'History starts Oct 2, 2026, when the MDIA shares landed (earlier sync history has gaps). Returns include restricted MDIA, which is most of the account today.';
+      lineChart($('ch-ret'), [
+        { name: 'Your accounts', color: 'var(--series-1)', points: s.map(r => ({ x: r.d, y: r.twr == null ? null : r.twr * 100 })) },
+        { name: 'S&P 500 (SPY)', color: 'var(--series-2)', points: s.map(r => ({ x: r.d, y: r.spy_ret == null ? null : r.spy_ret * 100 })) }
+      ], { yFmt: v => v.toFixed(1) + '%', zero: true });
+      lineChart($('ch-nlv'), [{ name: 'Account value', color: 'var(--series-1)', points: s.map(r => ({ x: r.d, y: r.nlv })) }], { yFmt: v => usd(v, { compact: true }) });
+      lineChart($('ch-dd'), [{ name: 'Drawdown', color: 'var(--danger)', points: s.map(r => ({ x: r.d, y: r.drawdown == null ? null : r.drawdown * 100 })) }], { yFmt: v => v.toFixed(1) + '%', zero: true, area: true, height: 180 });
+      const last = s.slice(-12).reverse();
+      $('days').innerHTML = last.length ? `<table class="rr-table"><thead><tr><th>Day</th><th class="n">Value</th><th class="n">Flows</th><th class="n">Return</th></tr></thead><tbody>
+        ${last.map(r => `<tr><td>${day(r.d)}</td><td class="n">${usd(r.nlv)}</td><td class="n">${r.flow ? usd(r.flow, { sign: true }) : '—'}</td><td class="n ${cls(r.ret)}">${ratio(r.ret, 2, true)}</td></tr>`).join('')}</tbody></table>` : '<div class="rr-empty" style="margin:16px">No history</div>';
+    } catch (e) { fail($('live-kpis'), e); }
+  }
+  document.querySelectorAll('#range button').forEach(b => b.onclick = () => { document.querySelectorAll('#range button').forEach(x => x.classList.toggle('on', x === b)); live(Number(b.dataset.d)); });
+  live(365);
 })();
 </script>
 </body>
